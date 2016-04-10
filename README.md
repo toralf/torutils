@@ -4,7 +4,7 @@ The script *info.py* gives an overview about all used ports whilst *ps.py* shows
 
 ## typical call
     $> ./info.py
-		$> ./ps.py
+    $> ./ps.py
 
 ## more info
 Have a look at https://www.zwiebeltoralf.de/torserver too.
