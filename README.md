@@ -7,7 +7,7 @@ Few tools to derive the status of a Tor relay and more.
 
 *err.py* is used t collect data for the issue https://trac.torproject.org/projects/tor/ticket/13603
 
-*hs_hp.py* can be used as a honeypot/mock to simulate a hidden service
+*hs_hp.py* is a simple honeypot of a hidden service
 
 ## typical call
     $> ./info.py
@@ -16,5 +16,5 @@ Few tools to derive the status of a Tor relay and more.
     $> ./hs-hp.py 6697 irc.log 'irc-hs NOTICE * :*** Looking up your hostname...'
 
 ## more info
-Have a look at https://www.zwiebeltoralf.de/torserver too.
+You need the Python lib Stem : https://stem.torproject.org/index.html for few of these scripts to run.
 
