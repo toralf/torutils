@@ -5,9 +5,9 @@ Few tools to derive the status of a Tor relay and more.
 
 *ps.py* continuously shows all used exit ports
 
-*err.py* is used t collect data for the issue https://trac.torproject.org/projects/tor/ticket/13603
+*err.py* is used to collect data for https://trac.torproject.org/projects/tor/ticket/13603
 
-*hs_hp.py* is a simple honeypot of a hidden service
+*hs-hp.py* is a simple honeypot of a hidden service
 
 ## typical call
     $> ./info.py
