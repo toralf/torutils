@@ -51,28 +51,22 @@ def main():
         return ret.rstrip("\n")
 
     Local2Controlport     = Country(name="CtrlPort <= local")
-
-    relay2DirPort         = Country(name="DirPort  <= relay")
+    outer2DirPort         = Country(name="DirPort  <= outer")
+    outer2ORPort          = Country(name="ORPort   <= outer")
     relay2ORPort          = Country(name="ORPort   <= relay")
 
     local2relayORPort     = Country(name="=> relay ORPort")
     local2relayOther      = Country(name="=> relay port")
     local2relayOtherPorts = Port()
-
-    outer2DirPort         = Country(name="DirPort  <= outer")
-    outer2ORPort          = Country(name="ORPort   <= outer")
+    nonExit               = Country(name="=> non exit port")
+    NonExitPorts          = Port()
+    ExitWithoutWWW        = Country(name="=> exit w/o www")
+    ExitPorts             = Port()
 
     noPolicy              = Country(name="! no policy")
     noPolicyPorts         = Port()
 
-    nonExit               = Country(name="=> non exit port")
-    NonExitPorts          = Port()
-
-    ExitWithoutWWW        = Country(name="=> exit w/o www")
-    ExitPorts             = Port()
-
-    IPv4 = 0
-    IPv6 = 0
+    IPv4, IPv6 = 0, 0
 
     policy = controller.get_exit_policy()
     connections = get_connections(resolver='lsof',process_name='tor')
@@ -104,8 +98,6 @@ def main():
       if raddr in relays:
         if lport == ORPort:
           relay2ORPort[country] += 1
-        elif lport == DirPort:
-          relay2DirPort[country] += 1
         elif rport in relays[raddr]:
           local2relayORPort[country] += 1
         else:
@@ -137,7 +129,6 @@ def main():
     print (Local2Controlport)
     print (outer2DirPort)
     print (outer2ORPort)
-    print (relay2DirPort)
     print (relay2ORPort)
 
     print (local2relayORPort)
