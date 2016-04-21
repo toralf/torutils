@@ -44,10 +44,6 @@ def main():
       return
 
     controller.authenticate()
-    policy = controller.get_exit_policy()
-    relays = {}                                 # store here the tupel <ip address, ORPort>
-    for s in controller.get_network_statuses():
-      relays.setdefault(s.address, []).append(s.or_port)
 
     Cur = {}
     time2 = time.time()
@@ -55,20 +51,17 @@ def main():
     while True:
       try:
         time1 = time2
+
         connections = get_connections('lsof', process_name='tor')
+        policy = controller.get_exit_policy()
 
         Old = Cur.copy()
-        Cur = {}
+        Cur.clear()
+
         for conn in connections:
-          if conn.protocol == 'udp':
-            continue
-          raddr, rport = conn.remote_address, conn.remote_port
-          if raddr in relays:
-            #continue
-            if rport in relays[raddr]:
-              continue
+          raddr, rport, lport = conn.remote_address, conn.remote_port, conn.local_port
           if policy.can_exit_to(raddr, rport):
-            Cur.setdefault(rport, []).append(raddr)
+            Cur.setdefault(rport, []).append(lport)
 
         time2 = time.time()
         printOut (Cur, Old, time2 - time1)
