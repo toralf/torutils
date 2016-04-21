@@ -29,7 +29,7 @@ def main():
 
     # classify network connections by port and country
     #
-    relays  = {}    # store here the tupel <ip address, ORport>
+    relays  = {}
     for s in controller.get_network_statuses():
       relays.setdefault(s.address, []).append(s.or_port)
 
@@ -72,14 +72,8 @@ def main():
     connections = get_connections(resolver='lsof',process_name='tor')
 
     ORPort   = int(controller.get_conf("ORPort"))
-    try:
-      ControlPort = int(controller.get_conf("ControlPort"))
-    except Exception as Exc:
-      ControlPort = -1
-    try:
-      DirPort = int(controller.get_conf("DirPort"))
-    except Exception as Exc:
-      DirPort = -1
+    ControlPort = int(controller.get_conf("ControlPort"))
+    DirPort = int(controller.get_conf("DirPort"))
 
     for conn in connections:
       if conn.protocol == 'udp':
@@ -95,16 +89,22 @@ def main():
       country = controller.get_info("ip-to-country/%s" % raddr, 'xx')
       lport, rport = conn.local_port, conn.remote_port
 
-      if raddr in relays:
+      if policy.can_exit_to(raddr, rport):
+        ExitPorts[rport] += 1
+        if rport not in [80, 81, 443]:
+          ExitWithoutWWW[country] += 1
+
+      elif raddr in relays:
         if lport == ORPort:
           relay2ORPort[country] += 1
         elif rport in relays[raddr]:
           local2relayORPort[country] += 1
         else:
-          # a relay hosting an additional service beside Tor
+          # a relay hosts another service
           #
           local2relayOther[country] += 1
           local2relayOtherPorts[rport] += 1
+
       else:
         if lport == ORPort:
           outer2ORPort[country] += 1
@@ -112,17 +112,9 @@ def main():
           outer2DirPort[country] += 1
         elif (lport == ControlPort):
           Local2Controlport[country] += 1
-        elif policy:
-          if policy.can_exit_to(raddr, rport):
-            ExitPorts[rport] += 1
-            if rport not in [80, 81, 443]:
-              ExitWithoutWWW[country] += 1
-          else:
-            nonExit[country] += 1
-            NonExitPorts[rport] += 1
         else:
-          noPolicy[country] += 1
-          noPolicyPorts[rport] += 1
+          nonExit[country] += 1
+          NonExitPorts[rport] += 1
 
     print (" %-17s %5i   IPv4:%5i   IPv6:%5i" % ("overall", len(connections), IPv4, IPv6))
 
