@@ -61,7 +61,7 @@ def main():
         for conn in connections:
           raddr, rport, lport = conn.remote_address, conn.remote_port, conn.local_port
           if policy.can_exit_to(raddr, rport):
-            Cur.setdefault(rport, []).append(lport)
+            Cur.setdefault(rport, []).append(str(lport) + ':' + raddr)
 
         time2 = time.time()
         printOut (Cur, Old, time2 - time1)
