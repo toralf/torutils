@@ -32,10 +32,9 @@ def main():
       os.system('clear')
       print ("   port   curr prev opened closed   %.1f sec" % duration)
 
-      ports = curr.copy()
-      ports.update(prev)
+      ports = set(list(curr.keys()) + list(prev.keys()))
 
-      for port in sorted(ports.keys()):
+      for port in sorted(ports):
         if port in prev:
           p = set(prev[port])
         else:
