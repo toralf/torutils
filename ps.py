@@ -3,7 +3,7 @@
 
 # exit port stats of a running Tor relay, eg.:
 #
-#   port   curr   prev opened closed   8.5 sec
+#   port  curr  prev opened closed   8.5 sec
 #     81     4     4      0      0   (HTTP Alternate)
 #     88     1     1      0      0   (Kerberos)
 #    443   491   490     13     12   (HTTPS)
@@ -31,15 +31,22 @@ def main():
     def printOut (curr, prev, duration):
       os.system('clear')
       print ("   port   curr prev opened closed   %.1f sec" % duration)
-      for port in sorted(curr.keys()):
-        n = set(curr[port])
+
+      ports = curr.copy()
+      ports.update(prev)
+
+      for port in sorted(ports.keys()):
         if port in prev:
-          o = set(prev[port])
+          p = set(prev[port])
         else:
-          o = set({})
-        opened = n - o
-        closed = o - n
-        print ("  %5i %5i %5i %6i %6i   (%s)" % (port, len(n), len(o), len(opened), len(closed), port_usage(port)))
+          p = set({})
+        if port in curr:
+          c = set(curr[port])
+        else:
+          c = set({})
+        opened = c - p
+        closed = p - c
+        print ("  %5i %5i %5i %6i %6i   (%s)" % (port, len(c), len(p), len(opened), len(closed), port_usage(port)))
 
       return
 
