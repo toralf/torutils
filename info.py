@@ -89,12 +89,7 @@ def main():
       country = controller.get_info("ip-to-country/%s" % raddr, 'xx')
       lport, rport = conn.local_port, conn.remote_port
 
-      if policy.can_exit_to(raddr, rport):
-        ExitPorts[rport] += 1
-        if rport not in [80, 81, 443]:
-          ExitWithoutWWW[country] += 1
-
-      elif raddr in relays:
+      if raddr in relays:
         if lport == ORPort:
           relay2ORPort[country] += 1
         elif rport in relays[raddr]:
@@ -104,6 +99,11 @@ def main():
           #
           local2relayOther[country] += 1
           local2relayOtherPorts[rport] += 1
+
+      elif policy.can_exit_to(raddr, rport):
+        ExitPorts[rport] += 1
+        if rport not in [80, 81, 443]:
+          ExitWithoutWWW[country] += 1
 
       else:
         if lport == ORPort:
