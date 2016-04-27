@@ -50,21 +50,26 @@ def main():
       return
 
     controller.authenticate()
+    relays  = {}
+    for s in controller.get_network_statuses():
+      relays.setdefault(s.address, []).append(s.or_port)
 
     Curr = {}
-
     while True:
       try:
         start_time = time.time()
-
         connections = get_connections('lsof', process_name='tor')
+
         policy = controller.get_exit_policy()
 
         Prev = Curr.copy()
         Curr.clear()
-
         for conn in connections:
           raddr, rport, lport = conn.remote_address, conn.remote_port, conn.local_port
+          if raddr in relays:
+            continue  # this speeds up from 8.5 sec to 2.5 sec
+            if rport in relays[raddr]:
+              continue  # this speeds up from 8.5 sec to 6.5 sec
           if policy.can_exit_to(raddr, rport):
             Curr.setdefault(rport, []).append(str(lport) + ':' + raddr)
 
@@ -72,6 +77,8 @@ def main():
 
       except KeyboardInterrupt:
         break
+
+      time.sleep(1) # be nice to the CPU
 
 if __name__ == '__main__':
   main()
