@@ -95,7 +95,7 @@ def main():
         elif rport in relays[raddr]:
           local2relayORPort[country] += 1
         else:
-          # a relay hosts another service
+          # a server hosts beside a Tor relay another service too
           #
           local2relayOther[country] += 1
           local2relayOtherPorts[rport] += 1
