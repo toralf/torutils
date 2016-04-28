@@ -54,16 +54,19 @@ def main():
     for s in controller.get_network_statuses():
       relays.setdefault(s.address, []).append(s.or_port)
 
+    start_time = time.time()
     Curr = {}
+    
     while True:
       try:
-        start_time = time.time()
         connections = get_connections('lsof', process_name='tor')
-
         policy = controller.get_exit_policy()
 
+        last_time = start_time
+        start_time = time.time()
         Prev = Curr.copy()
         Curr.clear()
+
         for conn in connections:
           raddr, rport, lport = conn.remote_address, conn.remote_port, conn.local_port
           if raddr in relays:
@@ -73,12 +76,12 @@ def main():
           if policy.can_exit_to(raddr, rport):
             Curr.setdefault(rport, []).append(str(lport) + ':' + raddr)
 
-        printOut (Curr, Prev, time.time() - start_time)
+        printOut (Curr, Prev, start_time - last_time)
 
       except KeyboardInterrupt:
         break
 
-      time.sleep(1) # be nice to the CPU
+      time.sleep(1) # be nice and save energy for the world
 
 if __name__ == '__main__':
   main()
