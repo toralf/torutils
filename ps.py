@@ -45,7 +45,7 @@ def main():
           c = set({})
         opened = c - p
         closed = p - c
-        print ("  %5i %5i %5i %6i %6i   (%s)" % (port, len(c), len(p), len(opened), len(closed), port_usage(port)))
+        print ("  %5i %5i %5i %6.1f %6.1f   (%s)" % (port, len(c), len(p), len(opened) / duration, len(closed) / duration, port_usage(port)))
 
       return
 
@@ -56,7 +56,7 @@ def main():
 
     start_time = time.time()
     Curr = {}
-    
+
     while True:
       try:
         connections = get_connections('lsof', process_name='tor')
