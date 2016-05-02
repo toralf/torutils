@@ -30,7 +30,7 @@ def main():
 
     def printOut (curr, prev, duration):
       os.system('clear')
-      print ("   port   curr prev opened closed   %.1f sec" % duration)
+      print ("   port     # opened closed   %.1f sec" % duration)
 
       ports = set(list(curr.keys()) + list(prev.keys()))
 
@@ -43,18 +43,20 @@ def main():
           c = set(curr[port])
         else:
           c = set({})
-        opened = c - p
-        closed = p - c
-        print ("  %5i %5i %5i %6.1f %6.1f   (%s)" % (port, len(c), len(p), len(opened) / duration, len(closed) / duration, port_usage(port)))
+
+        print ("  %5i %5i %6.1f %6.1f   (%s)" % (port, len(c), len(c-p)/duration, len(p-c)/duration, port_usage(port)))
 
       return
 
     controller.authenticate()
+
+    # for the runtime of this script we do assume no changes in relays[]
+    #
     relays  = {}
     for s in controller.get_network_statuses():
       relays.setdefault(s.address, []).append(s.or_port)
 
-    start_time = time.time()
+    curr_time = time.time()
     Curr = {}
 
     while True:
@@ -62,10 +64,11 @@ def main():
         connections = get_connections('lsof', process_name='tor')
         policy = controller.get_exit_policy()
 
-        last_time = start_time
-        start_time = time.time()
-        Prev = Curr.copy()
-        Curr.clear()
+        prev_time = curr_time
+        curr_time = time.time()
+
+        Prev = Curr
+        Curr = {}
 
         for conn in connections:
           raddr, rport, lport = conn.remote_address, conn.remote_port, conn.local_port
@@ -76,12 +79,10 @@ def main():
           if policy.can_exit_to(raddr, rport):
             Curr.setdefault(rport, []).append(str(lport) + ':' + raddr)
 
-        printOut (Curr, Prev, start_time - last_time)
+        printOut (Curr, Prev, curr_time - prev_time)
 
       except KeyboardInterrupt:
         break
-
-      time.sleep(1) # be nice and save energy for the world
 
 if __name__ == '__main__':
   main()
