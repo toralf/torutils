@@ -60,19 +60,16 @@ def main():
     for s in controller.get_network_statuses():
       relays.setdefault(s.address, []).append(s.or_port)
 
-    curr_time = time.time()
+    curr_time = time.time() - 1   # avoid dvision by a small number in the first round
     Curr = {}
 
     while True:
       try:
+        prev_time, curr_time = curr_time, time.time()
+        Prev, Curr = Curr, {}
+
         connections = get_connections('lsof', process_name='tor')
         policy = controller.get_exit_policy()
-
-        prev_time = curr_time
-        curr_time = time.time()
-
-        Prev = Curr
-        Curr = {}
 
         for conn in connections:
           raddr, rport, lport = conn.remote_address, conn.remote_port, conn.local_port
