@@ -1,24 +1,28 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# exit port stats of a running Tor relay, eg.:
-#
-#   port  curr  prev opened closed   8.5 sec
-#     81     4     4      0      0   (HTTP Alternate)
-#     88     1     1      0      0   (Kerberos)
-#    443   491   490     13     12   (HTTPS)
-#    993     6     6      0      0   (IMAPS)
-#   1500     2     2      0      0   (NetGuard)
-#   3128     1     1      0      0   (SQUID)
-#   3389     1     1      0      0   (WBT)
-#   5222    21    21      0      0   (Jabber)
-#   5228    10    10      0      0   (Android Market)
-#   6667     4     4      0      0   (IRC)
-#   8082     4     4      0      0   (None)
-#   8333     4     4      0      0   (Bitcoin)
-#   8888     1     1      0      0   (NewsEDGE)
-#   9999     5     5      0      0   (distinct)
-#  50002    15    15      0      0   (Electrum Bitcoin SSL)
+"""
+  # exit port stats of a running Tor relay, eg.:
+  #
+   port     # opened closed   2.1 sec
+     81     8    0.0    0.0   (HTTP Alternate)
+    443  1541   37.5   46.0   (HTTPS)
+    587     2    0.0    0.0   (SMTP)
+    993    11    0.0    0.0   (IMAPS)
+   1863     1    0.0    0.0   (MSNP)
+   2083     1    0.0    0.0   (radsec)
+   5050     1    0.0    0.0   (Yahoo IM)
+   5190     3    0.0    0.0   (AIM/ICQ)
+   5222    27    0.0    0.0   (Jabber)
+   5228    35    0.0    0.0   (Android Market)
+   6667     4    0.0    0.0   (IRC)
+   6697     2    0.0    0.0   (IRC)
+   8082     5    0.0    0.0   (None)
+   8333     9    0.0    0.0   (Bitcoin)
+   8443     1    0.0    0.0   (PCsync HTTPS)
+   9999     1    0.0    0.0   (distinct)
+  50002    19    0.0    0.0   (Electrum Bitcoin SSL)
+"""
 
 import os
 import time

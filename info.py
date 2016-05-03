@@ -1,44 +1,37 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
 # country based stats of a Tor relay
-#
 # eg.:
-#
-# 0.2.8.2-alpha   1 day, 6:04:51   Exit  Fast  Guard  Running  Stable  V2Dir  Valid
-# overall            5664   IPv4: 5663   IPv6:    1
-# CtrlPort <= local     1   ??  1
-# DirPort  <= outer     1   hu  1
-# ORPort   <= outer    63   us 14    de 14    fr  8    nl  5    at  3    ua  2    hk  2    gb  2
-# ORPort   <= relay  3220   de684    us582    fr522    nl266    gb155    ru152    ca125    se123
-# => relay ORPort      34   fr 10    de  7    gb  3    ca  2    us  2    se  2    fi  2    au  1
-# => relay port         4   us  2    gb  1    de  1
-#            :  443     2 (HTTPS)
-#            : 5222     1 (Jabber)
-#            :50002     1 (Electrum Bitcoin SSL)
-# => non exit port      1   ch  1
-#            : 9001     1 (None)
-# => exit w/o www     173   us 68    de 24    nl 15    ru 14    fr  8    ca  7    gb  5    jp  4
-#            :   81     2 (HTTP Alternate)
-#            :  443  2165 (HTTPS)
-#            :  992     3 (Telnets)
-#            :  993    14 (IMAPS)
-#            :  995     1 (POP3S)
-#            : 1500     7 (NetGuard)
-#            : 3128     2 (SQUID)
-#            : 3389     1 (WBT)
-#            : 5050     1 (Yahoo IM)
-#            : 5190     2 (AIM/ICQ)
-#            : 5222    65 (Jabber)
-#            : 5228    30 (Android Market)
-#            : 6664     1 (IRC)
-#            : 6667     4 (IRC)
-#            : 8000     1 (iRDMI)
-#            : 8082     1 (None)
-#            : 8333    15 (Bitcoin)
-#            : 8443     5 (PCsync HTTPS)
-#            : 9999     2 (distinct)
-#            :50002    18 (Electrum Bitcoin SSL)
+
+ 0.2.8.2-alpha-dev   10:54:53   Exit  Fast  Guard  Running  Stable  V2Dir  Valid
+ overall            4818   IPv4: 4816   IPv6:    2
+ CtrlPort <= local     1   ??  1
+ DirPort  <= outer     0
+ ORPort   <= outer    39   de 10    us 10    nl  7    es  2    fr  2    se  2    id  2    ru  1
+ ORPort   <= relay  3311   de686    us609    fr521    nl263    gb178    ru167    ca130    se125
+ => relay ORPort      32   fr 11    us  5    nl  4    de  2    ru  2    dk  1    it  1    bg  1
+ => relay port         1   lt  1
+            :50002     1 (Electrum Bitcoin SSL)
+ => non exit port      0
+ => exit w/o www     116   us 59    de 15    ru  5    fr  5    se  4    cn  4    jp  3    nl  3
+            :   81     7 (HTTP Alternate)
+            :  443  1311 (HTTPS)
+            :  993    10 (IMAPS)
+            : 1863     1 (MSNP)
+            : 5050     1 (Yahoo IM)
+            : 5190     3 (AIM/ICQ)
+            : 5222    25 (Jabber)
+            : 5228    35 (Android Market)
+            : 6667     4 (IRC)
+            : 6697     2 (IRC)
+            : 8082     5 (None)
+            : 8333     9 (Bitcoin)
+            : 8443     1 (PCsync HTTPS)
+            : 9999     1 (distinct)
+            :50002    19 (Electrum Bitcoin SSL)
+"""
 
 import datetime
 from collections import Counter
