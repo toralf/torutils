@@ -26,6 +26,7 @@
 
 import os
 import time
+from math import ceil
 from stem.control import Controller
 from stem.util.connection import get_connections, port_usage
 
@@ -34,7 +35,7 @@ def main():
 
     def printOut (curr, prev, duration):
       os.system('clear')
-      print ("   port     # opened closed   %.1f sec" % duration)
+      print ("   port     # opened closed   / %.1f sec" % duration)
 
       ports = set(list(curr.keys()) + list(prev.keys()))
 
@@ -48,7 +49,7 @@ def main():
         else:
           c = set({})
 
-        print ("  %5i %5i %6.1f %6.1f   (%s)" % (port, len(c), len(c-p)/duration, len(p-c)/duration, port_usage(port)))
+        print ("  %5i %5i %6i %6i   (%s)" % (port, len(c), ceil(len(c-p)/duration), ceil(len(p-c)/duration), port_usage(port)))
 
       return
 
