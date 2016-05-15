@@ -4,24 +4,20 @@
 """
   # exit port stats of a running Tor relay, eg.:
   #
-   port     # opened closed   2.1 sec
-     81     8    0.0    0.0   (HTTP Alternate)
-    443  1541   37.5   46.0   (HTTPS)
-    587     2    0.0    0.0   (SMTP)
-    993    11    0.0    0.0   (IMAPS)
-   1863     1    0.0    0.0   (MSNP)
-   2083     1    0.0    0.0   (radsec)
-   5050     1    0.0    0.0   (Yahoo IM)
-   5190     3    0.0    0.0   (AIM/ICQ)
-   5222    27    0.0    0.0   (Jabber)
-   5228    35    0.0    0.0   (Android Market)
-   6667     4    0.0    0.0   (IRC)
-   6697     2    0.0    0.0   (IRC)
-   8082     5    0.0    0.0   (None)
-   8333     9    0.0    0.0   (Bitcoin)
-   8443     1    0.0    0.0   (PCsync HTTPS)
-   9999     1    0.0    0.0   (distinct)
-  50002    19    0.0    0.0   (Electrum Bitcoin SSL)
+   port     # opened closed   /sec  2.9
+     81     3      0      0   (HTTP Alternate)
+    443  1733     43     33   (HTTPS)
+    993    21      0      0   (IMAPS)
+   5190     1      0      0   (AIM/ICQ)
+   5222    61      0      0   (Jabber)
+   5228    47      0      0   (Android Market)
+   6667     3      0      0   (IRC)
+   6697     1      0      0   (IRC)
+   8082     3      0      0   (None)
+   8333    12      0      0   (Bitcoin)
+   9999     6      0      0   (distinct)
+  19294     1      0      0   (Google Voice)
+  50002    26      0      0   (Electrum Bitcoin SSL)
 """
 
 import os
@@ -35,7 +31,7 @@ def main():
 
     def printOut (curr, prev, duration):
       os.system('clear')
-      print ("   port     # opened closed   / %.1f sec" % duration)
+      print ("   port     # opened closed   /sec  %.1f " % duration)
 
       ports = set(list(curr.keys()) + list(prev.keys()))
 
