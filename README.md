@@ -1,13 +1,13 @@
 # torutils
 Few tools to derive the status of a Tor relay and more.
 
-*info.py* gives an overview about sthe status of a relays
+*info.py* gives an overview about the status of a relays.
 
-*ps.py* continuously shows all used exit ports
+*ps.py* continuously shows exit port usage.
 
-*err.py* is used to collect data for https://trac.torproject.org/projects/tor/ticket/13603
+*err.py* collects data for https://trac.torproject.org/projects/tor/ticket/13603
 
-*hs-hp.py* is a simple honeypot of a hidden service
+*hs-hp.py* is a simple honeypot proof of concept of a hidden service.
 
 ## typical call
     $> ./info.py
@@ -16,5 +16,5 @@ Few tools to derive the status of a Tor relay and more.
     $> ./hs-hp.py 6697 irc.log 'irc-hs NOTICE * :*** Looking up your hostname...'
 
 ## more info
-You need the Python lib Stem : https://stem.torproject.org/index.html for few of these scripts to run.
+You need the Python lib Stem : https://stem.torproject.org/index.html for most of these scripts to run.
 
