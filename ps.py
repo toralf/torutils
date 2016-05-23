@@ -57,23 +57,23 @@ def main():
     for s in controller.get_network_statuses():
       relays.setdefault(s.address, []).append(s.or_port)
 
-    curr_time = time.time() - 1   # avoid dvision by a small number in the first round
+    curr_time = time.time()
     Curr = {}
 
     while True:
       try:
-        prev_time, curr_time = curr_time, time.time()
+        prev_time = curr_time
         Prev, Curr = Curr, {}
 
-        # be not faster than 1/sec
-        #
-        diff = curr_time - prev_time
-        if diff < 1.0:
-            time.sleep(1.0 - diff)
-            curr_time = time.time()
-
-        connections = get_connections('lsof', process_name='tor')
         policy = controller.get_exit_policy()
+
+        # be not faster than 1 Hz, lsof usually takes 0.3 sec
+        #
+        diff = time.time() - prev_time
+        if diff < 0.7:
+            time.sleep(0.7 - diff)
+        connections = get_connections('lsof', process_name='tor')
+        curr_time = time.time()
 
         for conn in connections:
           raddr, rport, lport = conn.remote_address, conn.remote_port, conn.local_port
