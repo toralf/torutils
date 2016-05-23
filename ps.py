@@ -65,6 +65,13 @@ def main():
         prev_time, curr_time = curr_time, time.time()
         Prev, Curr = Curr, {}
 
+        # be not faster than 1/sec
+        #
+        diff = curr_time - prev_time
+        if diff < 1.0:
+            time.sleep(1.0 - diff)
+            curr_time = time.time()
+
         connections = get_connections('lsof', process_name='tor')
         policy = controller.get_exit_policy()
 
