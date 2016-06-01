@@ -7,7 +7,7 @@ Few tools to derive the status of a Tor relay and more.
 
 *err.py* collects data for https://trac.torproject.org/projects/tor/ticket/13603
 
-*hs-hp.py* is a simple honeypot proof of concept of a hidden service.
+*hs-hp.py* helps to play with network services.
 
 ## typical call
     $> ./info.py
