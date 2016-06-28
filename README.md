@@ -9,6 +9,8 @@ Few tools to derive the status of a Tor relay and more.
 
 *hs-hp.py* helps to play with network services.
 
+*hs.sh* configure and start a hidden service
+
 ## typical call
     $> ./info.py
     $> ./ps.py
