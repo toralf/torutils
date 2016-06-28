@@ -70,8 +70,8 @@ def main():
         # be not faster than 1 Hz, lsof usually takes 0.3 sec
         #
         diff = time.time() - prev_time
-        if diff < 0.7:
-            time.sleep(0.7 - diff)
+        if diff < 1:
+            time.sleep(1 - diff)
         connections = get_connections('lsof', process_name='tor')
         curr_time = time.time()
 
