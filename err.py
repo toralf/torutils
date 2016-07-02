@@ -39,7 +39,7 @@ def orconn_event(controller, c, event):
     if event.reason == ORClosureReason.DONE:
       c.done += 1
 
-    if event.reason == ORClosureReason.IOERROR:
+    elif event.reason == ORClosureReason.IOERROR:
       c.ioerror += 1
 
       fingerprint = event.endpoint_fingerprint
