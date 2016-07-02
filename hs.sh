@@ -1,6 +1,5 @@
 #!/bin/sh
 #
-
 #set -x
 
 if [[ "$(whoami)" != "root" ]]; then
@@ -8,11 +7,10 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-
-
 hs=/tmp/hs
 
-mkdir -m 0700 $hs
+[[ -e $hs ]] && exit 1
+mkdir -m 0700 $hs 
 chown tor:tor $hs
 
 cat << EOF > $hs/torrc
@@ -39,7 +37,9 @@ EOF
 /usr/bin/tor -f $hs/torrc
 rc=$?
 
-cat $hs/tor.pid
-cat $hs/data/hsdir/hostname
+echo "pid       $(cat $hs/tor.pid)"
+sleep 2
+echo "hostname  $(cat $hs/data/hsdir/hostname)"
 
 exit $rc
+
