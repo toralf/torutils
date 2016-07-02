@@ -31,7 +31,7 @@ def main():
 
     def printOut (curr, prev, duration):
       os.system('clear')
-      print ("   port     # opened closed   /sec  %.1f " % duration)
+      print ("   port     # opened closed   / %.1fsec " % duration)
 
       ports = set(list(curr.keys()) + list(prev.keys()))
 
