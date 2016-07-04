@@ -67,7 +67,7 @@ def main():
 
         policy = controller.get_exit_policy()
 
-        # be not faster than 1 Hz, lsof usually takes 0.3 sec
+        # don't update quicker than 1x per sec
         #
         diff = time.time() - prev_time
         if diff < 1:
