@@ -2,22 +2,29 @@
 # -*- coding: utf-8 -*-
 
 """
-  # exit port stats of a running Tor relay, eg.:
-  #
-   port     # opened closed   /sec  2.9
-     81     3      0      0   (HTTP Alternate)
-    443  1733     43     33   (HTTPS)
-    993    21      0      0   (IMAPS)
-   5190     1      0      0   (AIM/ICQ)
-   5222    61      0      0   (Jabber)
-   5228    47      0      0   (Android Market)
-   6667     3      0      0   (IRC)
-   6697     1      0      0   (IRC)
-   8082     3      0      0   (None)
-   8333    12      0      0   (Bitcoin)
-   9999     6      0      0   (distinct)
-  19294     1      0      0   (Google Voice)
-  50002    26      0      0   (Electrum Bitcoin SSL)
+  exit port stats of a running Tor relay eg.:
+
+   port     # opened closed   / 2.3sec    (get_conn=0.9 sec)
+     53     3      2      1   (DNS)
+     81     2      0      0   (HTTP Alternate)
+     88     5      1      0   (Kerberos)
+    443  2285     75     86   (HTTPS)
+    587     1      0      0   (SMTP)
+    706     1      0      0   (SILC)
+    993    20      0      0   (IMAPS)
+    995     1      0      0   (POP3S)
+   2096     1      1      0   (NBX DIR)
+   5050     1      0      0   (Yahoo IM)
+   5222    32      0      0   (Jabber)
+   5228    46      0      0   (Android Market)
+   6667     2      0      0   (IRC)
+   6697     2      0      0   (IRC)
+   8000     1      0      0   (iRDMI)
+   8082     2      0      0   (None)
+   8087     2      0      0   (SPP)
+   8333    14      0      0   (Bitcoin)
+   8443     1      0      0   (PCsync HTTPS)
+  50002    12      0      0   (Electrum Bitcoin SSL)
 """
 
 import os
@@ -29,9 +36,9 @@ from stem.util.connection import get_connections, port_usage
 def main():
   with Controller.from_port(port = 9051) as controller:
 
-    def printOut (curr, prev, duration):
+    def printOut (curr, prev, dt12, dt23):
       os.system('clear')
-      print ("   port     # opened closed   / %.1fsec " % duration)
+      print ("   port     # opened closed   / %.1fsec    (get_conn=%.1f sec) " % (dt23, dt12))
 
       ports = set(list(curr.keys()) + list(prev.keys()))
 
@@ -44,47 +51,49 @@ def main():
           c = set(curr[port])
         else:
           c = set({})
-
-        print ("  %5i %5i %6i %6i   (%s)" % (port, len(c), ceil(len(c-p)/duration), ceil(len(p-c)/duration), port_usage(port)))
-
+        print ("  %5i %5i %6i %6i   (%s)" % (port, len(c), ceil(len(c-p)/dt23), ceil(len(p-c)/dt23), port_usage(port)))
       return
 
-    controller.authenticate()
 
-    # for the runtime of this script we do assume no changes in relays[]
+    # for the runtime of this script we do assume no significant changes in relays[]
     #
+    controller.authenticate()
     relays  = {}
     for s in controller.get_network_statuses():
       relays.setdefault(s.address, []).append(s.or_port)
 
-    curr_time = time.time()
+    # store the exit connections as <remote port, local port + ":" + remote address> tupels
+    # we are interested in the amount for each port
+    # therefore strings should be sufficient to distinguish between them
+    #
     Curr = {}
 
     while True:
       try:
-        prev_time = curr_time
         Prev, Curr = Curr, {}
-
         policy = controller.get_exit_policy()
 
-        # don't update quicker than 1x per sec
+        # it usually needs 0.8 sec for 6,000 connections
         #
-        diff = time.time() - prev_time
-        if diff < 1:
-            time.sleep(1 - diff)
+        t1 = time.time()
         connections = get_connections('lsof', process_name='tor')
-        curr_time = time.time()
 
+        t2 = time.time()
         for conn in connections:
           raddr, rport, lport = conn.remote_address, conn.remote_port, conn.local_port
-          if raddr in relays:
-            continue  # this speeds up from 8.5 sec to 2.5 sec
-            if rport in relays[raddr]:
-              continue  # this speeds up from 8.5 sec to 6.5 sec
-          if policy.can_exit_to(raddr, rport):
-            Curr.setdefault(rport, []).append(str(lport) + ':' + raddr)
 
-        printOut (Curr, Prev, curr_time - prev_time)
+          # b/c can_exit_to() is sloow we prefer the inaccuracy of
+          # having an exit connection to a relay address
+          # this speeds up from 13 sec to 2 sec
+          #
+          if raddr in relays:
+            continue
+
+          if policy.can_exit_to(raddr, rport):
+            Curr.setdefault(rport, []).append(str(lport)+':'+raddr)
+
+        t3 = time.time()
+        printOut (Curr, Prev, t2 - t1, t3 - t2)
 
       except KeyboardInterrupt:
         break
