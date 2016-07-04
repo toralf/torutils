@@ -12,7 +12,7 @@ from stem.control import EventType, Controller
 
 
 def main():
-  class Cnt(object):
+  class Cnt:
     def __init__(self, done=0, closed=0, ioerror=0):
       self.done = done
       self.closed = closed
