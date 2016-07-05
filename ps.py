@@ -57,17 +57,15 @@ def main():
 
     controller.authenticate()
 
-    # for the runtime of this script we do assume no significant changes in relays or exit policy
-    # therefore calculate this outside of the loop
+    # for the runtime of this script we do assume to have no significant
+    # changes in relays or exit policy, therefore get it outside of the loop
     #
     relays  = {}
     for s in controller.get_network_statuses():
       relays.setdefault(s.address, []).append(s.or_port)
     policy = controller.get_exit_policy()
 
-    # store the exit connections as <remote port, local port + ":" + remote address> tupels
-    # we are interested in the amount for each port
-    # therefore strings should be sufficient to distinguish between them
+    # a unique connection is a <remote port, local port + ":" + remote address> tupel
     #
     Curr = {}
 
@@ -75,8 +73,6 @@ def main():
       try:
         Prev, Curr = Curr, {}
 
-        # it usually needs 0.8 sec for 6,000 connections
-        #
         t1 = time.time()
         connections = get_connections('lsof', process_name='tor')
 
@@ -84,9 +80,8 @@ def main():
         for conn in connections:
           raddr, rport, lport = conn.remote_address, conn.remote_port, conn.local_port
 
-          # b/c can_exit_to() is sloow we prefer the inaccuracy of
-          # having an exit connection to a relay address
-          # this speeds up from 13 sec to 2 sec
+          # b/c can_exit_to() is slooow we do ignore the case of an relay
+          # being an exit too to spped up the loop
           #
           if raddr in relays:
             continue
