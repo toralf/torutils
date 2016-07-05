@@ -57,12 +57,13 @@ def main():
 
     controller.authenticate()
 
-    # for the runtime of this script we do assume no significant changes in relays
-    # therefore do this outside of the loop
+    # for the runtime of this script we do assume no significant changes in relays or exit policy
+    # therefore calculate this outside of the loop
     #
     relays  = {}
     for s in controller.get_network_statuses():
       relays.setdefault(s.address, []).append(s.or_port)
+    policy = controller.get_exit_policy()
 
     # store the exit connections as <remote port, local port + ":" + remote address> tupels
     # we are interested in the amount for each port
@@ -73,7 +74,6 @@ def main():
     while True:
       try:
         Prev, Curr = Curr, {}
-        policy = controller.get_exit_policy()
 
         # it usually needs 0.8 sec for 6,000 connections
         #
