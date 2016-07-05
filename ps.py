@@ -1,31 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-  exit port stats of a running Tor relay eg.:
-
-   port     # opened closed   / 2.3sec    (get_conn=0.9 sec)
-     53     3      2      1   (DNS)
-     81     2      0      0   (HTTP Alternate)
-     88     5      1      0   (Kerberos)
-    443  2285     75     86   (HTTPS)
-    587     1      0      0   (SMTP)
-    706     1      0      0   (SILC)
-    993    20      0      0   (IMAPS)
-    995     1      0      0   (POP3S)
-   2096     1      1      0   (NBX DIR)
-   5050     1      0      0   (Yahoo IM)
-   5222    32      0      0   (Jabber)
-   5228    46      0      0   (Android Market)
-   6667     2      0      0   (IRC)
-   6697     2      0      0   (IRC)
-   8000     1      0      0   (iRDMI)
-   8082     2      0      0   (None)
-   8087     2      0      0   (SPP)
-   8333    14      0      0   (Bitcoin)
-   8443     1      0      0   (PCsync HTTPS)
-  50002    12      0      0   (Electrum Bitcoin SSL)
-"""
 
 import os
 import time
@@ -36,9 +11,34 @@ from stem.util.connection import get_connections, port_usage
 def main():
   with Controller.from_port(port = 9051) as controller:
 
-    def printOut (curr, prev, dt12, dt23):
+    """
+      print out exit port stats of a running Tor relay eg.:
+
+       port     # opened closed   / 2.3sec    (get_conn=0.9 sec)
+         53     3      2      1   (DNS)
+         81     2      0      0   (HTTP Alternate)
+         88     5      1      0   (Kerberos)
+        443  2285     75     86   (HTTPS)
+        587     1      0      0   (SMTP)
+        706     1      0      0   (SILC)
+        993    20      0      0   (IMAPS)
+        995     1      0      0   (POP3S)
+       2096     1      1      0   (NBX DIR)
+       5050     1      0      0   (Yahoo IM)
+       5222    32      0      0   (Jabber)
+       5228    46      0      0   (Android Market)
+       6667     2      0      0   (IRC)
+       6697     2      0      0   (IRC)
+       8000     1      0      0   (iRDMI)
+       8082     2      0      0   (None)
+       8087     2      0      0   (SPP)
+       8333    14      0      0   (Bitcoin)
+       8443     1      0      0   (PCsync HTTPS)
+      50002    12      0      0   (Electrum Bitcoin SSL)
+    """
+    def printOut (curr, prev, dt12, dt23, n):
       os.system('clear')
-      print ("   port     # opened closed   / %.1fsec    (get_conn=%.1f sec) " % (dt23, dt12))
+      print ("   port     # opened closed   / %.1fsec    (lsof: %i conns in %.1f sec) " % (dt23, n, dt12))
 
       ports = set(list(curr.keys()) + list(prev.keys()))
 
@@ -55,9 +55,11 @@ def main():
       return
 
 
-    # for the runtime of this script we do assume no significant changes in relays[]
-    #
     controller.authenticate()
+
+    # for the runtime of this script we do assume no significant changes in relays
+    # therefore do this outside of the loop
+    #
     relays  = {}
     for s in controller.get_network_statuses():
       relays.setdefault(s.address, []).append(s.or_port)
@@ -93,7 +95,7 @@ def main():
             Curr.setdefault(rport, []).append(str(lport)+':'+raddr)
 
         t3 = time.time()
-        printOut (Curr, Prev, t2 - t1, t3 - t2)
+        printOut (Curr, Prev, t2 - t1, t3 - t2, len(connections))
 
       except KeyboardInterrupt:
         break
