@@ -36,9 +36,9 @@ def main():
        8443     1      0      0   (PCsync HTTPS)
       50002    12      0      0   (Electrum Bitcoin SSL)
     """
-    def printOut (curr, prev, dt12, dt23, n):
+    def printOut (curr, prev, dt12, dt23, n, resolver):
       os.system('clear')
-      print ("   port     # opened closed   / %.1fsec    (lsof: %i conns in %.1f sec) " % (dt23, n, dt12))
+      print ("   port     # opened closed   / %.1fsec    (%s: %i conns in %.1f sec) " % (dt23, resolver, n, dt12))
 
       ports = set(list(curr.keys()) + list(prev.keys()))
 
@@ -69,12 +69,13 @@ def main():
     #
     Curr = {}
 
+    rslv = 'lsof'
     while True:
       try:
         Prev, Curr = Curr, {}
 
         t1 = time.time()
-        connections = get_connections('lsof', process_name='tor')
+        connections = get_connections(resolver=rslv, process_name='tor')
 
         t2 = time.time()
         for conn in connections:
@@ -90,7 +91,7 @@ def main():
             Curr.setdefault(rport, []).append(str(lport)+':'+raddr)
 
         t3 = time.time()
-        printOut (Curr, Prev, t2 - t1, t3 - t2, len(connections))
+        printOut (Curr, Prev, t2 - t1, t3 - t2, len(connections), rslv)
 
       except KeyboardInterrupt:
         break
