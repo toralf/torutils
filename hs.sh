@@ -30,7 +30,7 @@ BandwidthBurst 600 Kbytes
 
 HiddenServiceDir $hs/data/hsdir
 HiddenServicePort 80 127.0.0.1:8080
-HiddenServicePort 80 [::]:8080
+#HiddenServicePort 80 [::]:8080
 
 EOF
 
