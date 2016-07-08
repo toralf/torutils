@@ -2,14 +2,32 @@
 # -*- coding: utf-8 -*-
 
 
-import os
-import time
+import getopt, os, sys, time
 from math import ceil
 from stem.control import Controller
-from stem.util.connection import get_connections, port_usage
+from stem.util.connection import get_connections, port_usage, system_resolvers
 
 def main():
-  with Controller.from_port(port = 9051) as controller:
+  try:
+    opts, args = getopt.getopt(sys.argv[1:], "p:r:", ["ctrlport=", "resolver="])
+  except getopt.GetoptError as err:
+    print(err)
+    sys.exit(2)
+
+  ctrlport = 9051
+  rslv = 'lsof'
+
+  for o, a in opts:
+    if o in ("-h", "--help"):
+      print ("help help help")
+      sys.exit()
+    elif o in ('-p', '--ctrlport'):
+      ctrlport = a
+    elif o in ('-r', '--resolver'):
+      # print ("available system resolvers are %s" % system_resolvers()) : ['proc', 'netstat', 'lsof', 'ss']
+      rslv = a
+
+  with Controller.from_port(port = ctrlport) as controller:
 
     """
       print out exit port stats of a running Tor relay eg.:
@@ -69,7 +87,6 @@ def main():
     #
     Curr = {}
 
-    rslv = 'lsof'
     while True:
       try:
         Prev, Curr = Curr, {}
@@ -84,6 +101,8 @@ def main():
           # b/c can_exit_to() is slooow we do ignore the case of an relay
           # being an exit too to spped up the loop
           #
+          if rport == 0:
+            continue  # happens for 'proc' as resolver
           if raddr in relays:
             continue
 
