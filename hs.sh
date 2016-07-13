@@ -9,7 +9,11 @@ fi
 
 hs=/tmp/hs
 
-[[ -e $hs ]] && exit 1
+if [[ -e $hs ]]; then
+  echo "$hs does already exist !?"
+  exit 1
+fi
+
 mkdir -m 0700 $hs 
 chown tor:tor $hs
 
@@ -22,6 +26,8 @@ DataDirectory $hs/data
 PIDFile       $hs/tor.pid
 
 SocksPort   0
+
+SandBox 1
 
 Log notice file $hs/notice.log
 
