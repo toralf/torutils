@@ -89,7 +89,8 @@ def main():
 
     while True:
       try:
-        Prev, Curr = Curr, {}
+        Prev = Curr.copy()
+        Curr.clear()
 
         t1 = time.time()
         connections = get_connections(resolver=rslv, process_name='tor')
@@ -110,7 +111,7 @@ def main():
             Curr.setdefault(rport, []).append(str(lport)+':'+raddr)
 
         t3 = time.time()
-        printOut (Curr, Prev, t2 - t1, t3 - t2, len(connections), rslv)
+        printOut (Curr, Prev, t2-t1, t3-t2, len(connections), rslv)
 
       except KeyboardInterrupt:
         break
