@@ -60,6 +60,11 @@ def main():
 
       ports = set(list(curr.keys()) + list(prev.keys()))
 
+      if dt23<1.0:
+        dt=1.0
+      else:
+        dt=dt23
+
       for port in sorted(ports):
         if port in prev:
           p = set(prev[port])
@@ -69,10 +74,11 @@ def main():
           c = set(curr[port])
         else:
           c = set({})
-        print ("  %5i %5i %6i %6i   (%s)" % (port, len(c), ceil(len(c-p)/dt23), ceil(len(p-c)/dt23), port_usage(port)))
+        print ("  %5i %5i %6i %6i   (%s)" % (port, len(c), ceil(len(c-p)/dt), ceil(len(p-c)/dt), port_usage(port)))
       return
 
-
+    #
+    #
     controller.authenticate()
 
     # for the runtime of this script we do assume to have no significant
