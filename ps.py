@@ -51,6 +51,7 @@ def main():
       else:
         dt = dt23
 
+      lines = 0;
       for port in sorted(ports):
         if port in Prev:
           p = set(Prev[port])
@@ -77,6 +78,10 @@ def main():
           BurstClosed[port] = n_closed
 
         print (" %5i %5i %6i %6i   %6i %6i %6i  (%s)" % (port, n_curr, n_opened, n_closed, BurstAll[port], BurstOpened[port], BurstClosed[port], port_usage(port)))
+
+        lines += 1
+        if lines % 6 == 0:
+          print("")
       return
 
     #
