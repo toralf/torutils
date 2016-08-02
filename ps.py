@@ -60,10 +60,10 @@ def main():
 
       ports = set(list(curr.keys()) + list(prev.keys()))
 
-      if dt23<1.0:
-        dt=1.0
+      if dt23 < 1.0:
+        dt = 1.0
       else:
-        dt=dt23
+        dt = dt23
 
       for port in sorted(ports):
         if port in prev:
@@ -118,6 +118,8 @@ def main():
             continue
 
           # a unique connection is a <remote port, local port + ":" + remote address> tupel
+          # we need to store the connections and not only the count to calculate the
+          # the difference of 2 Dicts later in printOut()
           #
           if policy.can_exit_to(raddr, rport):
             Curr.setdefault(rport, []).append(str(lport)+':'+raddr)
