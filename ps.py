@@ -94,8 +94,6 @@ def main():
       relays.setdefault(s.address, []).append(s.or_port)
     policy = controller.get_exit_policy()
 
-    # a unique connection is a <remote port, local port + ":" + remote address> tupel
-    #
     Curr = {}
     first = 1
 
@@ -119,6 +117,8 @@ def main():
           if raddr in relays:
             continue
 
+          # a unique connection is a <remote port, local port + ":" + remote address> tupel
+          #
           if policy.can_exit_to(raddr, rport):
             Curr.setdefault(rport, []).append(str(lport)+':'+raddr)
 
