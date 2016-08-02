@@ -108,22 +108,26 @@ def main():
         for conn in connections:
           raddr, rport, lport = conn.remote_address, conn.remote_port, conn.local_port
 
-          # b/c can_exit_to() is slooow we do ignore the case of an relay
-          # being an exit too to spped up the loop
+          if rport == 0:    # happens for 'proc' as resolver
+            continue
+
+          # b/c can_exit_to() is slow we don't consider the case of an remote relay
+          # offering a web service beside Tor and therefore is the target of an exit connection
           #
-          if rport == 0:
-            continue  # happens for 'proc' as resolver
           if raddr in relays:
             continue
 
-          # a unique connection is a <remote port, local port + ":" + remote address> tupel
-          # we need to store the connections and not only the count to calculate the
-          # the difference of 2 Dicts later in printOut()
+          # we define an unique connection as a <remote port, local port + ":" + remote address> pair
+          # we need to store the connections itself here and do not only count them here
+          # to calculate the correct difference of 2 Dicts in printOut()
           #
           if policy.can_exit_to(raddr, rport):
             Curr.setdefault(rport, []).append(str(lport)+':'+raddr)
 
         t3 = time.time()
+
+        # avoid wrong calculation of the mean of closed and opened ports in printOut()
+        #
         if first == 1:
           first = 0
           Prev = Curr.copy()
