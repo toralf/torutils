@@ -15,17 +15,17 @@ def main():
     sys.exit(2)
 
   ctrlport = 9051
-  rslv = 'lsof'
+  netresolver = 'lsof'
 
-  for o, a in opts:
-    if o in ("-h", "--help"):
+  for opt, val in opts:
+    if opt in ("-h", "--help"):
       print ("help help help")
       sys.exit()
-    elif o in ('-p', '--ctrlport'):
-      ctrlport = a
-    elif o in ('-r', '--resolver'):
+    elif opt in ('-p', '--ctrlport'):
+      ctrlport = val
+    elif opt in ('-r', '--resolver'):
       # print ("available system resolvers are %s" % system_resolvers()) : ['proc', 'netstat', 'lsof', 'ss']
-      rslv = a
+      netresolver = val
 
   with Controller.from_port(port = ctrlport) as controller:
 
@@ -100,7 +100,7 @@ def main():
         Curr.clear()
 
         t1 = time.time()
-        connections = get_connections(resolver=rslv, process_name='tor')
+        connections = get_connections(resolver=netresolver, process_name='tor')
 
         t2 = time.time()
         for conn in connections:
@@ -122,7 +122,7 @@ def main():
           first = 0
           Prev = Curr.copy()
 
-        printOut (Curr, Prev, t2-t1, t3-t2, len(connections), rslv)
+        printOut (Curr, Prev, t2-t1, t3-t2, len(connections), netresolver)
 
       except KeyboardInterrupt:
         break
