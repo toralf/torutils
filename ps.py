@@ -74,7 +74,12 @@ def main():
           c = set(curr[port])
         else:
           c = set({})
-        print ("  %5i %5i %6i %6i   (%s)" % (port, len(c), ceil(len(c-p)/dt), ceil(len(p-c)/dt), port_usage(port)))
+
+        n_curr = len(c)
+        n_opened = ceil(len(c-p)/dt)
+        n_closed = ceil(len(p-c)/dt)
+
+        print ("  %5i %5i %6i %6i   (%s)" % (port, n_curr, n_opened, n_closed, port_usage(port)))
       return
 
     #
