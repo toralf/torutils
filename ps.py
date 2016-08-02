@@ -30,35 +30,19 @@ def main():
   with Controller.from_port(port = ctrlport) as controller:
 
     """
-      print out exit port stats of a running Tor relay eg.:
+      print out exit port statistics of a running Tor exit relay:
 
-       port     # opened closed   / 2.3sec    (get_conn=0.9 sec)
-         53     3      2      1   (DNS)
-         81     2      0      0   (HTTP Alternate)
-         88     5      1      0   (Kerberos)
-        443  2285     75     86   (HTTPS)
-        587     1      0      0   (SMTP)
-        706     1      0      0   (SILC)
-        993    20      0      0   (IMAPS)
-        995     1      0      0   (POP3S)
-       2096     1      1      0   (NBX DIR)
-       5050     1      0      0   (Yahoo IM)
-       5222    32      0      0   (Jabber)
-       5228    46      0      0   (Android Market)
-       6667     2      0      0   (IRC)
-       6697     2      0      0   (IRC)
-       8000     1      0      0   (iRDMI)
-       8082     2      0      0   (None)
-       8087     2      0      0   (SPP)
-       8333    14      0      0   (Bitcoin)
-       8443     1      0      0   (PCsync HTTPS)
-      50002    12      0      0   (Electrum Bitcoin SSL)
+      port     # opened closed      max    max    max  (2.7 sec, lsof: 13921 conns in 1.5 sec)
+        53     6      3      1       10      4      4  (DNS)
+        80  9170     83     69     9170   1906    104  (HTTP)
+       143     4      0      0        4      0      0  (IMAP)
+       443  1605     58     50     1708     58     87  (HTTPS)
     """
     def printOut (curr, prev, dt12, dt23, n, resolver):
       os.system('clear')
-      print ("   port     # opened closed   / %.1fsec    (%s: %i conns in %.1f sec) " % (dt23, resolver, n, dt12))
+      print ("  port     # opened closed      max    max    max  (%.1f sec, %s: %i conns in %.1f sec) " % (dt23, resolver, n, dt12))
 
-      ports = set(list(curr.keys()) + list(prev.keys()))
+      ports = set(list(curr.keys()) + list(prev.keys()) + list(BurstAll.keys()))
 
       if dt23 < 1.0:
         dt = 1.0
@@ -79,7 +63,18 @@ def main():
         n_opened = ceil(len(c-p)/dt)
         n_closed = ceil(len(p-c)/dt)
 
-        print ("  %5i %5i %6i %6i   (%s)" % (port, n_curr, n_opened, n_closed, port_usage(port)))
+        BurstAll.setdefault(port, 0)
+        BurstOpened.setdefault(port, 0)
+        BurstClosed.setdefault(port, 0)
+
+        if BurstAll[port] < n_curr:
+          BurstAll[port] = n_curr
+        if BurstOpened[port] < n_opened:
+          BurstOpened[port] = n_opened
+        if BurstClosed[port] < n_closed:
+          BurstClosed[port] = n_closed
+
+        print (" %5i %5i %6i %6i   %6i %6i %6i  (%s)" % (port, n_curr, n_opened, n_closed, BurstAll[port], BurstOpened[port], BurstClosed[port], port_usage(port)))
       return
 
     #
@@ -94,8 +89,12 @@ def main():
       relays.setdefault(s.address, []).append(s.or_port)
     policy = controller.get_exit_policy()
 
-    Curr = {}
-    first = 1
+    BurstOpened = {}  # catch the maximum of opened  ports
+    BurstClosed = {}  # catch the maximum of closed  ports
+    BurstAll    = {}  # catch the maximum of overall ports
+
+    Curr = {}   # the current opened exit connections
+    first = 1   # flag to avoid calcualtion a wrong mean value during start
 
     while True:
       try:
