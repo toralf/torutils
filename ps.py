@@ -38,24 +38,26 @@ def main():
        143     4      0      0        4      0      0  (IMAP)
        443  1605     58     50     1708     58     87  (HTTPS)
     """
-    def printOut (curr, prev, dt12, dt23, n, resolver):
+    def printOut (dt21, dt23, n):
       os.system('clear')
-      print ("  port     # opened closed      max    max    max  (%.1f sec, %s: %i conns in %.1f sec) " % (dt23, resolver, n, dt12))
+      print ("  port     # opened closed      max    max    max  (%.1f sec, %s: %i conns in %.1f sec) " % (dt23, netresolver, n, dt21))
 
-      ports = set(list(curr.keys()) + list(prev.keys()) + list(BurstAll.keys()))
+      ports = set(list(Curr.keys()) + list(Prev.keys()) + list(BurstAll.keys()))
 
+      # calculate the mean just for values above 1 second
+      #
       if dt23 < 1.0:
         dt = 1.0
       else:
         dt = dt23
 
       for port in sorted(ports):
-        if port in prev:
-          p = set(prev[port])
+        if port in Prev:
+          p = set(Prev[port])
         else:
           p = set({})
-        if port in curr:
-          c = set(curr[port])
+        if port in Curr:
+          c = set(Curr[port])
         else:
           c = set({})
 
@@ -132,7 +134,7 @@ def main():
           first = 0
           Prev = Curr.copy()
 
-        printOut (Curr, Prev, t2-t1, t3-t2, len(connections), netresolver)
+        printOut (t2-t1, t3-t2, len(connections))
 
       except KeyboardInterrupt:
         break
