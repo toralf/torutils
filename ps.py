@@ -92,6 +92,7 @@ def main():
     # a unique connection is a <remote port, local port + ":" + remote address> tupel
     #
     Curr = {}
+    first = 1
 
     while True:
       try:
@@ -117,6 +118,10 @@ def main():
             Curr.setdefault(rport, []).append(str(lport)+':'+raddr)
 
         t3 = time.time()
+        if first == 1:
+          first = 0
+          Prev = Curr.copy()
+
         printOut (Curr, Prev, t2-t1, t3-t2, len(connections), rslv)
 
       except KeyboardInterrupt:
