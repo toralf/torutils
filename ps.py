@@ -88,8 +88,7 @@ def main():
     #
     controller.authenticate()
 
-    # for the runtime of this script we do assume to have no significant
-    # changes in relays or exit policy, therefore get it outside of the loop
+    # assume to have no changes in relays or exit policy during runtime of this script
     #
     relays  = {}
     for s in controller.get_network_statuses():
@@ -100,9 +99,9 @@ def main():
     BurstClosed = {}  # catch the maximum of closed  ports
     BurstAll    = {}  # catch the maximum of overall ports
 
-    Curr = {}   # the current opened exit connections
-    first = 1   # flag to avoid calcualtion a wrong mean value during start
+    Curr = {}   # the current exit connections
 
+    first = 1
     while True:
       try:
         Prev = Curr.copy()
@@ -118,22 +117,21 @@ def main():
           if rport == 0:    # happens for 'proc' as resolver
             continue
 
-          # b/c can_exit_to() is slow we don't consider the case of an remote relay
-          # offering a web service beside Tor and therefore is the target of an exit connection
+          # b/c can_exit_to() is slow we don't consider the case of having a relay
+          # offering a service and therefore being a target of an exit connection too
           #
           if raddr in relays:
             continue
 
-          # we define an unique connection as a <remote port, local port + ":" + remote address> pair
           # we need to store the connections itself here and do not only count them here
-          # to calculate the correct difference of 2 Dicts in printOut()
+          # to calculate the correct difference of the 2 Dicts in printOut()
           #
           if policy.can_exit_to(raddr, rport):
             Curr.setdefault(rport, []).append(str(lport)+':'+raddr)
 
         t3 = time.time()
 
-        # avoid wrong calculation of the mean of closed and opened ports in printOut()
+        # avoid ueseless calculation of the mean in printOut() after start
         #
         if first == 1:
           first = 0
@@ -143,6 +141,7 @@ def main():
 
       except KeyboardInterrupt:
         break
+
 
 if __name__ == '__main__':
   main()
