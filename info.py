@@ -36,7 +36,7 @@
 import datetime
 from collections import Counter
 from stem.control import Controller
-from stem.util.connection import get_connections, port_usage, is_valid_ipv4_address
+from stem.util.connection import get_connections, port_usage
 
 def main():
   with Controller.from_port(port=9051) as controller:
@@ -110,10 +110,10 @@ def main():
 
       laddr, raddr = conn.local_address, conn.remote_address
 
-      if is_valid_ipv4_address(raddr):
-        IPv4 += 1
-      else:
+      if conn.is_ipv6:
         IPv6 += 1
+      else:
+        IPv4 += 1
 
       country = controller.get_info("ip-to-country/%s" % raddr, 'xx')
       lport, rport = conn.local_port, conn.remote_port
