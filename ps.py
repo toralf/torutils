@@ -10,15 +10,15 @@ from stem.util.connection import get_connections, port_usage, system_resolvers
 """
   print out exit port statistics of a running Tor exit relay:
 
-  port     # opened closed      max    max    max  (2.7 sec, lsof: 13921 conns in 1.5 sec)
-    53     6      3      1       10      4      4  (DNS)
-    80  9170     83     69     9170   1906    104  (HTTP)
-   143     4      0      0        4      0      0  (IMAP)
-   443  1605     58     50     1708     58     87  (HTTPS)
+  port     # opened closed      max                (3.6 sec, lsof: 6068 conns in 0.9 sec)
+    53     1      1      1        1      0      0  (DNS)
+    80  1250     54     48     1250     54     48  (HTTP)
+    81     1      0      0        1      0      0  (HTTP Alternate)
+   110     1      0      0        1      0      0  (POP3)
 """
 def printOut (dt21, dt23, n, netresolver, Curr, Prev, BurstAll, BurstOpened, BurstClosed):
   os.system('clear')
-  print ("  port     # opened closed      max    max    max  (%.1f sec, %s: %i conns in %.1f sec) " % (dt23, netresolver, n, dt21))
+  print ("  port     # opened closed      max                (%.1f sec, %s: %i conns in %.1f sec) " % (dt23, netresolver, n, dt21))
 
   ports = set(list(Curr.keys()) + list(Prev.keys()) + list(BurstAll.keys()))
 
@@ -49,10 +49,8 @@ def printOut (dt21, dt23, n, netresolver, Curr, Prev, BurstAll, BurstOpened, Bur
     BurstClosed.setdefault(port, 0)
 
     if BurstAll[port] < n_curr:
-      BurstAll[port] = n_curr
-    #if BurstOpened[port] < n_opened:
+      BurstAll[port]    = n_curr
       BurstOpened[port] = n_opened
-    #if BurstClosed[port] < n_closed:
       BurstClosed[port] = n_closed
 
     print (" %5i %5i %6i %6i   %6i %6i %6i  (%s)" % (port, n_curr, n_opened, n_closed, BurstAll[port], BurstOpened[port], BurstClosed[port], port_usage(port)))
@@ -84,10 +82,12 @@ def main():
       netresolver = val
 
   with Controller.from_port(port = ctrlport) as controller:
+    print ("authenticating ...")
     controller.authenticate()
 
     # assume to have no changes in relays or exit policy during runtime of this script
     #
+    print ("get relays ...")
     relays  = {}
     for s in controller.get_network_statuses():
       relays.setdefault(s.address, []).append(s.or_port)
@@ -99,6 +99,7 @@ def main():
 
     Curr = {}   # the current exit connections
 
+    print ("starting ...")
     first = 1
     while True:
       try:
