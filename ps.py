@@ -17,47 +17,6 @@ from stem.util.connection import get_connections, port_usage, system_resolvers
    110     1      0      0        1      0      0  (POP3)
 """
 def printOut (dt21, dt23, n, netresolver, Curr, Prev, BurstAll, BurstOpened, BurstClosed):
-  os.system('clear')
-  print ("  port     # opened closed      max                (%.1f sec, %s: %i conns in %.1f sec) " % (dt23, netresolver, n, dt21))
-
-  ports = set(list(Curr.keys()) + list(Prev.keys()) + list(BurstAll.keys()))
-
-  # calculate the mean just for values above 1 second
-  #
-  if dt23 < 1.0:
-    dt = 1.0
-  else:
-    dt = dt23
-
-  lines = 0;
-  for port in sorted(ports):
-    if port in Prev:
-      p = set(Prev[port])
-    else:
-      p = set({})
-    if port in Curr:
-      c = set(Curr[port])
-    else:
-      c = set({})
-
-    n_curr = len(c)
-    n_opened = ceil(len(c-p)/dt)
-    n_closed = ceil(len(p-c)/dt)
-
-    BurstAll.setdefault(port, 0)
-    BurstOpened.setdefault(port, 0)
-    BurstClosed.setdefault(port, 0)
-
-    if BurstAll[port] < n_curr:
-      BurstAll[port]    = n_curr
-      BurstOpened[port] = n_opened
-      BurstClosed[port] = n_closed
-
-    print (" %5i %5i %6i %6i   %6i %6i %6i  (%s)" % (port, n_curr, n_opened, n_closed, BurstAll[port], BurstOpened[port], BurstClosed[port], port_usage(port)))
-
-    lines += 1
-    if lines % 6 == 0:
-      print("")
   return
 
 
@@ -130,13 +89,55 @@ def main():
 
         t3 = time.time()
 
-        # avoid ueseless calculation of the mean in printOut() after start
+        # avoid ueseless calculation of the mean in printOut() immediately after start
         #
         if first == 1:
-          first = 0
           Prev = Curr.copy()
 
-        printOut (t2-t1, t3-t2, len(connections), netresolver, Curr, Prev, BurstAll, BurstOpened, BurstClosed)
+        dt23 = t3-t2
+        dt21 = t2-t1
+        # calculate the mean just for values above 1 second
+        #
+        if dt23 < 1.0:
+          dt = 1.0
+        else:
+          dt = dt23
+
+        os.system('clear')
+        print ("  port     # opened closed      max                (%.1f sec, %s: %i conns in %.1f sec) " % (dt23, netresolver, len(connections), dt21))
+        lines = 0;
+        ports = set(list(Curr.keys()) + list(Prev.keys()) + list(BurstAll.keys()))
+        for port in sorted(ports):
+          if port in Prev:
+            p = set(Prev[port])
+          else:
+            p = set({})
+          if port in Curr:
+            c = set(Curr[port])
+          else:
+            c = set({})
+
+          n_curr = len(c)
+          n_opened = ceil(len(c-p)/dt)
+          n_closed = ceil(len(p-c)/dt)
+
+          BurstAll.setdefault(port, 0)
+          BurstOpened.setdefault(port, 0)
+          BurstClosed.setdefault(port, 0)
+
+          if first == 0:
+            if BurstAll[port] < n_curr:
+              BurstAll[port]    = n_curr
+              BurstOpened[port] = n_opened
+              BurstClosed[port] = n_closed
+
+          print (" %5i %5i %6i %6i   %6i %6i %6i  (%s)" % (port, n_curr, n_opened, n_closed, BurstAll[port], BurstOpened[port], BurstClosed[port], port_usage(port)))
+
+          lines += 1
+          if lines % 6 == 0:
+            print("")
+
+        first = 0
 
       except KeyboardInterrupt:
         break
