@@ -16,8 +16,6 @@ from stem.util.connection import get_connections, port_usage, system_resolvers
     81     1      0      0        1      0      0  (HTTP Alternate)
    110     1      0      0        1      0      0  (POP3)
 """
-def printOut (dt21, dt23, n, netresolver, Curr, Prev, BurstAll, BurstOpened, BurstClosed):
-  return
 
 
 def main():
@@ -52,11 +50,11 @@ def main():
       relays.setdefault(s.address, []).append(s.or_port)
     policy = controller.get_exit_policy()
 
-    BurstOpened = {}  # catch the maximum of opened  ports
-    BurstClosed = {}  # catch the maximum of closed  ports
-    BurstAll    = {}  # catch the maximum of overall ports
+    BurstOpened = {}  # hold the maximum amount of opened  ports
+    BurstClosed = {}  # hold the maximum amount of closed  ports
+    BurstAll    = {}  # hold the maximum amount of overall ports
 
-    Curr = {}   # the current exit connections
+    Curr = {}   # the current network connections of Tor
 
     print ("starting ...")
     first = 1
