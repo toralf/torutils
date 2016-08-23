@@ -7,7 +7,7 @@ Few tools to derive the status of a Tor relay and more.
 
 *err.py* collects data for https://trac.torproject.org/projects/tor/ticket/13603
 
-*hs.sh* configure and start a hidden service
+*hs.sh* configures and starts a hidden service
 
 ## more info
 You need the Python lib Stem: https://stem.torproject.org/index.html for most of these scripts to run.
