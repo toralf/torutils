@@ -22,4 +22,6 @@ chmod 750 $dir
 
 cd $dir
 su websvc -c "cd /tmp/websvc && /tmp/websvc.py &>> $log" &
+sleep 2
+rm /tmp/websvc.py
 
