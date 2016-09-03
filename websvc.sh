@@ -25,9 +25,11 @@ chmod go-rwx /tmp/websvc{,.log}
 
 # start it within $dir !
 #
-su websvc -c "cd $dir && /tmp/websvc.py" &>> $log &
+cd $dir || exit 1
+su websvc -c /tmp/websvc.py &>> $log &
 
 sleep 2
+rm /tmp/websvc.py
 
 if [[ -s $log ]]; then
   echo "$0: failed to start"
