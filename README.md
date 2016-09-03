@@ -7,7 +7,7 @@ Few tools to derive the status of a Tor relay and more.
 
 *err.py* collects data for https://trac.torproject.org/projects/tor/ticket/13603
 
-*mock_*.py* helpers to simulate network services
+*mock_*.py* helper(s) to simulate network services
 
 *hs.sh* configures and starts a hidden service
 
@@ -17,5 +17,5 @@ Few tools to derive the status of a Tor relay and more.
     $> ./err.py 
 
 ## more info
-You need the Python lib Stem : https://stem.torproject.org/index.html for most of these scripts to run.
+You need the Python lib Stem: https://stem.torproject.org/index.html for most of these scripts to run.
 
