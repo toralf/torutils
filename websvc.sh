@@ -18,20 +18,18 @@ mkdir $dir 2>/dev/null
 # feed the NSA trolls
 #
 echo "$(dd if=/dev/urandom 2>/dev/null | base64 | sed -e 's/[^abcdefghijklmnopqrstuvwxyz234567]//g' | cut -c1-16 | head -n1).onion" > $dir/address.txt
-cp $(dirname $0)/websvc.py /tmp
 
-chown -R websvc:websvc /tmp/websvc*
-chmod go-rwx /tmp/websvc*
+chown -R websvc:websvc /tmp/websvc{,.log}
+chmod go-rwx /tmp/websvc{,.log}
 
 # start it within $dir !
 #
-su websvc -c "cd $dir && /tmp/websvc.py" &>> $log &
+su websvc -c "cd $dir && $(dirname $0)/websvc.py" &>> $log &
 
 sleep 2
-rm /tmp/websvc.py
 
 if [[ -s $log ]]; then
-  echo "$0 failed to start:"
+  echo "$0: failed to start"
   echo
   cat $log
   echo
