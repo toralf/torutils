@@ -1,15 +1,11 @@
 # torutils
 Few tools to derive the status of a Tor relay and more.
 
-*info.py* gives an overview about the status of a relays.
+*info.py* gives an overview about the status of a relays
 
-*ps.py* continuously shows exit port usage.
+*ps.py* continuously shows exit port usage
 
 *err.py* collects data for https://trac.torproject.org/projects/tor/ticket/13603
-
-*mock_*.py* helper(s) to simulate network services
-
-*hs.sh* configures and starts a hidden service
 
 ## typical call
     $> ./info.py
@@ -17,5 +13,5 @@ Few tools to derive the status of a Tor relay and more.
     $> ./err.py 
 
 ## more info
-You need the Python lib Stem: https://stem.torproject.org/index.html for most of these scripts to run.
+You need the Python lib Stem (https://stem.torproject.org/index.html) for these scripts to run.
 
