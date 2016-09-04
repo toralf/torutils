@@ -7,10 +7,10 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-hs=/tmp/hs
+os=/tmp/os
 
-if [[ -e $hs ]]; then
-  echo -en "\n $hs does already exist "
+if [[ -e $os ]]; then
+  echo -en "\n $os does already exist "
   if [[ "$1" = "-f" ]]; then
     echo " -  forced to overwrite it"
   else
@@ -20,27 +20,27 @@ if [[ -e $hs ]]; then
   fi
 fi
 
-mkdir -m 0700 $hs 2>/dev/null
-chown tor:tor $hs
+mkdir -m 0700 $os 2>/dev/null
+chown tor:tor $os
 
-cat << EOF > $hs/torrc
+cat << EOF > $os/torrc
 User tor
 
 RunAsDaemon 1
 
-DataDirectory $hs/data
-PIDFile       $hs/tor.pid
+DataDirectory $os/data
+PIDFile       $os/tor.pid
 
 SocksPort   0
 
 SandBox 1
 
-Log notice file $hs/notice.log
+Log notice file $os/notice.log
 
 BandwidthRate  500 KBytes
 BandwidthBurst 600 Kbytes
 
-HiddenServiceDir $hs/data/hsdir
+HiddenServiceDir $os/data/osdir
 HiddenServicePort 80 127.0.0.1:8080
 HiddenServicePort 80 [::]:8080
 
@@ -48,16 +48,16 @@ EOF
 
 #  shot up a previously running instance
 #
-if [[ -s $hs/tor.pid ]]; then
-  kill -s 0 $(cat $hs/tor.pid) && kill -s INT $(cat $hs/tor.pid)
+if [[ -s $os/tor.pid ]]; then
+  kill -s 0 $(cat $os/tor.pid) && kill -s INT $(cat $os/tor.pid)
 fi
 
-/usr/bin/tor -f $hs/torrc
+/usr/bin/tor -f $os/torrc
 rc=$?
 
-echo "pid       $(cat $hs/tor.pid)"
+echo "pid       $(cat $os/tor.pid)"
 sleep 2
-echo "hostname  $(cat $hs/data/hsdir/hostname)"
+echo "hostname  $(cat $os/data/osdir/hostname)"
 
 exit $rc
 
