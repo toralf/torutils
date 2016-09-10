@@ -4,7 +4,7 @@
 
 if [[ "$(whoami)" != "root" ]]; then
   echo "you must be root "
-  exit 1
+  exit 2
 fi
 
 os=/tmp/os
@@ -14,9 +14,22 @@ if [[ -e $os ]]; then
   if [[ "$1" = "-f" ]]; then
     echo " -  forced to overwrite it"
   else
-    echo
+    echo "stopping !"
     echo
     exit 1
+  fi
+fi
+
+if [[ -s $os/tor.pid ]]; then
+  pid=$(cat $os/tor.pid)
+  kill -s 0 $pid
+  if [[ $? -eq 0 ]]; then
+    echo "there's already a running instance at pid $pid , exiting ..."
+    echo
+    exit 3
+  else
+    echo "removing obsolete old pid-file containing pid $pid"
+    rm $os/tor.pid
   fi
 fi
 
@@ -35,29 +48,26 @@ SocksPort   0
 
 SandBox 1
 
-Log notice file $os/notice.log
+#Log debug   file $os/debug.log
+#Log info    file $os/info.log
+Log notice  file $os/notice.log
 
 BandwidthRate  500 KBytes
 BandwidthBurst 600 Kbytes
 
 HiddenServiceDir $os/data/osdir
-HiddenServicePort 80 127.0.0.1:8080
-HiddenServicePort 80 [::]:8080
+HiddenServicePort 80 127.0.0.1:1234
+#HiddenServicePort 80 [::1]:1234
 
 EOF
 
-#  shot up a previously running instance
-#
-if [[ -s $os/tor.pid ]]; then
-  kill -s 0 $(cat $os/tor.pid) && kill -s INT $(cat $os/tor.pid)
-fi
+chown tor:tor /tmp/os/torrc
 
 /usr/bin/tor -f $os/torrc
 rc=$?
 
 echo "pid       $(cat $os/tor.pid)"
-sleep 2
+sleep 1
 echo "hostname  $(cat $os/data/osdir/hostname)"
 
 exit $rc
-
