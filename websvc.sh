@@ -2,7 +2,7 @@
 #
 #set -x
 
-# start a minimalistic web server for webroot /tmp/websvc
+# start a micro web server in /tmp/websvc
 #
 
 if [[ "$(whoami)" != "root" ]]; then
@@ -23,13 +23,14 @@ log=/tmp/websvc.log
 cp /dev/null $log
 mkdir $dir 2>/dev/null
 cp $(dirname $0)/websvc.py /tmp
-chown -R websvc:websvc /tmp/websvc{,.log,.py}
 chmod go-rwx /tmp/websvc{,.log,.py}
+chown -R websvc:websvc /tmp/websvc{,.log,.py}
 
-# start it within $dir !
+# start it only within $dir !
 #
 cd $dir || exit 1
-su websvc -c /tmp/websvc.py &>> $log &
+#su websvc -c "/tmp/websvc.py --address ::1 --port 1234 &>> $log" &
+su websvc -c "/tmp/websvc.py --address 127.0.0.1 --port 1234 &>> $log" &
 
 sleep 2
 rm /tmp/websvc.py
