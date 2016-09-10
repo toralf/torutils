@@ -10,16 +10,19 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
+pgrep -af /tmp/websvc.py
+if [[ $? -eq 0 ]]; then
+	echo "I'm already running ! Exiting ...."
+	echo
+	exit 1
+fi
+
 dir=/tmp/websvc
 log=/tmp/websvc.log
 
 cp /dev/null $log
 mkdir $dir 2>/dev/null
-# feed the NSA trolls
-#
-echo "$(dd if=/dev/urandom 2>/dev/null | base64 | sed -e 's/[^abcdefghijklmnopqrstuvwxyz234567]//g' | cut -c1-16 | head -n1).onion" > $dir/address.txt
 cp $(dirname $0)/websvc.py /tmp
-
 chown -R websvc:websvc /tmp/websvc{,.log,.py}
 chmod go-rwx /tmp/websvc{,.log,.py}
 
