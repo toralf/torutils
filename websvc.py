@@ -22,14 +22,14 @@ def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("--address", help="default: " + address + ")")
   parser.add_argument("--port", help="default: " + str(port) + ")")
-  parser.add_argument("--is_ipv6", help="default: " + str(is_ipv6) + ")")
+  parser.add_argument("--is_ipv6", help="default: n)")
   args = parser.parse_args()
 
   if args.address:
-    address = str (args.address)
+    address = str(args.address)
 
   if args.port:
-    port = int (args.port)
+    port = int(args.port)
 
   if re.match (":", address):
     is_ipv6 = True
@@ -37,6 +37,9 @@ def main():
     is_ipv6 = False
 
   if args.is_ipv6:
+    if args.is_ipv6 == "n":
+      is_ipv6 = False
+    else:
       is_ipv6 = True
 
   if is_ipv6:
