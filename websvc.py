@@ -20,9 +20,9 @@ def main():
   port = 8080
 
   parser = argparse.ArgumentParser()
-  parser.add_argument("--address", help="default: " + address + ")")
-  parser.add_argument("--port", help="default: " + str(port) + ")")
-  parser.add_argument("--is_ipv6", help="default: n)")
+  parser.add_argument("--address", help="default: " + address)
+  parser.add_argument("--port", help="default: " + str(port))
+  parser.add_argument("--is_ipv6", help="needed if a hostname is given as an address, default: y")
   args = parser.parse_args()
 
   if args.address:
