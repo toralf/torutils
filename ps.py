@@ -73,28 +73,27 @@ def main():
           if rport == 0:    # happens for 'proc' as resolver
             continue
 
-          # b/c can_exit_to() is slow we don't consider the case of having a relay
-          # offering a service and therefore being a target of an exit connection too
+          # b/c can_exit_to() is slow we ignore the case that a relay offers an exit service too
           #
           if raddr in relays:
             continue
 
-          # we need to store the connections itself here and do not only count them here
-          # to calculate the correct difference of the 2 Dicts in printOut()
+          # we need to store the connections itself here and can't just count them here
+          # b/c we have to calculate a diff of both sets later
           #
           if policy.can_exit_to(raddr, rport):
             Curr.setdefault(rport, []).append(str(lport)+':'+raddr)
 
         t3 = time.time()
 
-        # avoid ueseless calculation of the mean in printOut() immediately after start
+        # avoid ueseless calculation of mean immediately after start
         #
         if first == 1:
           Prev = Curr.copy()
 
         dt23 = t3-t2
         dt21 = t2-t1
-        # calculate the mean just for values above 1 second
+        # calculate the mean only for values greater 1 sec
         #
         if dt23 < 1.0:
           dt = 1.0
