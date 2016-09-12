@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-import getopt, os, sys, time
+import argparse, os, sys, time
 from math import ceil
 from stem.control import Controller
 from stem.util.connection import get_connections, port_usage, system_resolvers
@@ -19,33 +19,28 @@ from stem.util.connection import get_connections, port_usage, system_resolvers
 
 
 def main():
-  try:
-    opts, args = getopt.getopt(sys.argv[1:], "p:r:", ["ctrlport=", "resolver="])
-  except getopt.GetoptError as err:
-    print(err)
-    sys.exit(2)
-
   ctrlport = 9051
-  netresolver = 'lsof'
+  resolver = 'lsof'
 
-  for opt, val in opts:
-    if opt in ("-h", "--help"):
-      print ("help help help")
-      sys.exit()
-    elif opt in ('-p', '--ctrlport'):
-      ctrlport = val
-    elif opt in ('-r', '--resolver'):
-      # print ("available system resolvers are %s" % system_resolvers()) : ['proc', 'netstat', 'lsof', 'ss']
-      netresolver = val
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--ctrlport", help="default: " + str(ctrlport))
+  parser.add_argument("--resolver", help="default: " + resolver)
+  args = parser.parse_args()
 
-  with Controller.from_port(port = ctrlport) as controller:
+  if args.ctrlport:
+    ctrlport = int(args.ctrlport)
+
+  if args.resolver:
+    resolver= str(args.resolver)
+
+  with Controller.from_port(port=ctrlport) as controller:
     print ("authenticating ...")
     controller.authenticate()
 
-    # assume to have no changes in relays or exit policy during runtime of this script
+    # we will ignore any changed relay or exit policy during the runtime of this script
     #
     print ("get relays ...")
-    relays  = {}
+    relays = {}
     for s in controller.get_network_statuses():
       relays.setdefault(s.address, []).append(s.or_port)
     policy = controller.get_exit_policy()
@@ -64,7 +59,7 @@ def main():
         Curr.clear()
 
         t1 = time.time()
-        connections = get_connections(resolver=netresolver, process_name='tor')
+        connections = get_connections(resolver=resolver, process_name='tor')
 
         t2 = time.time()
         for conn in connections:
@@ -101,7 +96,7 @@ def main():
           dt = dt23
 
         os.system('clear')
-        print ("  port     # opened closed      max                (%.1f sec, %s: %i conns in %.1f sec) " % (dt23, netresolver, len(connections), dt21))
+        print ("  port     # opened closed      max                (%.1f sec, %s: %i conns in %.1f sec) " % (dt23, resolver, len(connections), dt21))
         lines = 0;
         ports = set(list(Curr.keys()) + list(Prev.keys()) + list(BurstAll.keys()))
         for port in sorted(ports):
