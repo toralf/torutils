@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # collect data wrt to https://trac.torproject.org/projects/tor/ticket/13603
