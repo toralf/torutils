@@ -37,13 +37,12 @@ def main():
     print ("authenticating ...")
     controller.authenticate()
 
-    # we will ignore any changed relay or exit policy during the runtime of this script
+    # we will ignore changes of relays during the runtime of this script
     #
     print ("get relays ...")
     relays = {}
     for s in controller.get_network_statuses():
       relays.setdefault(s.address, []).append(s.or_port)
-    policy = controller.get_exit_policy()
 
     BurstOpened = {}  # hold the maximum amount of opened  ports
     BurstClosed = {}  # hold the maximum amount of closed  ports
@@ -59,7 +58,9 @@ def main():
         Curr.clear()
 
         t1 = time.time()
+
         connections = get_connections(resolver=resolver, process_name='tor')
+        policy = controller.get_exit_policy()
 
         t2 = time.time()
         for conn in connections:
