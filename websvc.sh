@@ -29,10 +29,8 @@ chown -R websvc:websvc /tmp/websvc{,.log,.py}
 # start it only within $dir !
 #
 cd $dir || exit 1
-#su websvc -c "/tmp/websvc.py --address ::1 --port 1234 &>> $log" &
-su websvc -c "/tmp/websvc.py --address 127.0.0.1 --port 1234 &>> $log" &
-
-sleep 2
+su websvc -c "nice /tmp/websvc.py --address 127.0.0.1 --port 1234 &>> $log" &
+sleep 1
 rm /tmp/websvc.py
 
 if [[ -s $log ]]; then
@@ -41,3 +39,4 @@ if [[ -s $log ]]; then
   cat $log
   echo
 fi
+
