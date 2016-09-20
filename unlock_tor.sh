@@ -10,6 +10,7 @@
 # 1.  echo "0x$(head -c 16 /dev/urandom | xxd -p)" > $ldir/.cryptoSalt
 # 2.  pwgen -s 32 -1 | head -n1 > $ldir/.cryptoPass
 # 3.  ensure that /var/lib/tor/data is empty at the Tor relay and owned by the tor user
+# 4.  encrypt /var/lib/tor/data
 
 ldir=~/hetzner/$host  # local dir
 
