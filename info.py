@@ -42,15 +42,24 @@ def main():
   with Controller.from_port(port=9051) as controller:
     controller.authenticate()
 
+    try:
+      ORPort   = int(controller.get_conf("ORPort"))
+      ControlPort = int(controller.get_conf("ControlPort"))
+      DirPort = int(controller.get_conf("DirPort"))
+    except Exception as Exs:
+      print ("Woops, ports aren't configured")
+      return
+
     # our version, uptime and relay flags
     #
     version = str(controller.get_version()).split()[0]
+
     try:
       srv = controller.get_server_descriptor()
       uptime = srv.uptime
       flags = controller.get_network_status(relay=srv.nickname).flags;
     except Exception as Exc:
-      print (Exc)
+      print ("Can' get descriptors (yet)")
       uptime = 0
       flags = ''
 
@@ -99,10 +108,6 @@ def main():
 
     policy = controller.get_exit_policy()
     connections = get_connections(resolver='lsof',process_name='tor')
-
-    ORPort   = int(controller.get_conf("ORPort"))
-    ControlPort = int(controller.get_conf("ControlPort"))
-    DirPort = int(controller.get_conf("DirPort"))
 
     for conn in connections:
       if conn.protocol == 'udp':
