@@ -35,11 +35,12 @@
 
 import datetime
 from collections import Counter
-from stem.control import Controller
+
+from stem.control import Controller, Listener
 from stem.util.connection import get_connections, port_usage, is_valid_ipv4_address, is_valid_ipv6_address
-from stem.control import Listener
 
 def main():
+
   with Controller.from_port(port=9051) as controller:
     controller.authenticate()
 
