@@ -36,16 +36,36 @@
 import datetime
 from collections import Counter
 from stem.control import Controller
-from stem.util.connection import get_connections, port_usage
+from stem.util.connection import get_connections, port_usage, is_valid_ipv4_address, is_valid_ipv6_address
+from stem.control import Listener
 
 def main():
   with Controller.from_port(port=9051) as controller:
     controller.authenticate()
 
     try:
-      ORPort   = int(controller.get_conf("ORPort"))
       ControlPort = int(controller.get_conf("ControlPort"))
-      DirPort = int(controller.get_conf("DirPort"))
+
+      for listener in controller.get_listeners(Listener.OR):
+        address, port = listener
+        if is_valid_ipv4_address(address):
+          ORPort = port
+        elif is_valid_ipv6_address(address):
+          ORPort6 = port
+        else:
+          print ("Woops, can't parse get_listeners(Listener.OR)")
+          return
+
+      for listener in controller.get_listeners(Listener.DIR):
+        address, port = listener
+        if is_valid_ipv4_address(address):
+          DirPort = port
+        elif is_valid_ipv6_address(address):
+          DirPort6 = port
+        else:
+          print ("Woops, can't parse get_listeners(Listener.DIR)")
+          return
+
     except Exception as Exs:
       print ("Woops, ports aren't configured")
       return
@@ -104,7 +124,7 @@ def main():
     noPolicy              = Country(name="! no policy")
     noPolicyPorts         = Port()
 
-    IPv4, IPv6 = 0, 0
+    IPv4, IPv6 = 0, 0     # just counters
 
     policy = controller.get_exit_policy()
     connections = get_connections(resolver='lsof',process_name='tor')
@@ -124,7 +144,7 @@ def main():
       lport, rport = conn.local_port, conn.remote_port
 
       if raddr in relays:
-        if lport == ORPort:
+        if not conn.is_ipv6 and lport == ORPort or conn.is_ipv6 and lport == ORPort6:
           relay2ORPort[country] += 1
         elif rport in relays[raddr]:
           local2relayORPort[country] += 1
@@ -140,9 +160,9 @@ def main():
           ExitWithoutWWW[country] += 1
 
       else:
-        if lport == ORPort:
+        if not conn.is_ipv6 and lport == ORPort or conn.is_ipv6 and lport == ORPort6:
           outer2ORPort[country] += 1
-        elif lport == DirPort:
+        elif not conn.is_ipv6 and lport == DirPort or conn.is_ipv6 and lport == DirPort6:
           outer2DirPort[country] += 1
         elif (lport == ControlPort):
           Local2Controlport[country] += 1
