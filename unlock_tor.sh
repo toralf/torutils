@@ -2,40 +2,70 @@
 #
 #set -x
 
-# unlock an ext4-fs encrypted directory and start the Tor daemon
+# unlock an ext4-fs encrypted remote Tor relay data directory to start Tor
 #
 
-host="mr-fox"         # Tor relay
-ldir=~/hetzner/$host  # local dir
-user="tfoerste"       # remote user
-
-# one time preparation before 1st run of this script:
+# one time preparation
 #
-# remote:
-# 1. mkdir /var/lib/tor/data
-# 2. chown tor:tor /var/lib/tor/data
-# 3. rc-update del tor default
-#
-# local:
-# 1. echo "0x$(head -c 16 /dev/urandom | xxd -p)" > $ldir/.cryptoSalt
-# 2. pwgen -s 32 -1 | head -n1 > $ldir/.cryptoPass
-# 3. chmod 400 $ldir/.crypto*
-# 4. scp $ldir/.cryptoSalt $host:/tmp
-# 5. cat $ldir/.cryptoPass | ssh $user@$host 'sudo -u tor e4crypt add_key -S $(cat /tmp/.cryptoSalt) /var/lib/tor/data; rm /tmp/.cryptoSalt'
+function Prepare()  {
+  ssh $user@$host "sudo mkdir $rdir; sudo chown tor:tor $rdir; sudo chmod 700 $rdir"
 
-if [[ ! -f $ldir/.cryptoSalt || ! -f $ldir/.cryptoPass ]]; then
-  echo "salt and/or pw file not found"
-  exit 1
-fi
+  chmod 600 $ldir/.crypto*                                          &&\
+  echo "0x$(head -c 16 /dev/urandom | xxd -p)" > $ldir/.cryptoSalt  &&\
+  pwgen -s 32 -1 | head -n1 > $ldir/.cryptoPass                     &&\
+  chmod 400 $ldir/.crypto*
+
+  return $?
+}
+
 
 # copy the salt to the Tor relay (/tmp is a tmpfs)
-# the password will never leave the local system
+# the password itself will never leave this local system
 #
-scp $ldir/.cryptoSalt $host:/tmp
+function Unlock() {
+  if [[ ! -f $ldir/.cryptoSalt || ! -f $ldir/.cryptoPass ]]; then
+    echo "salt and/or pw file not found"
+    return 1
+  fi
 
-# de-crypt the directory
+  scp $ldir/.cryptoSalt $host:/tmp || exit 1
+  cat $ldir/.cryptoPass | ssh $user@$host 'sudo -u tor e4crypt add_key -S $(cat /tmp/.cryptoSalt) $rdir; rm /tmp/.cryptoSalt'
+
+  return $?
+}
+
+# this is the iopenrc variant
 #
-cat $ldir/.cryptoPass | ssh $user@$host 'sudo -u tor e4crypt add_key -S $(cat /tmp/.cryptoSalt) /var/lib/tor/data && sudo /etc/init.d/tor start; rm /tmp/.cryptoSalt'
+function Start() {
+   ssh $user@$host 'sudo /etc/init.d/tor start'
+}
 
-exit $?
 
+#######################################################################
+#
+host="mr-fox"           # Tor relay host
+user="tfoerste"         # remote user
+ldir=~/hetzner/$host    # local dir
+rdir=/var/lib/tor/data  # remote dir
+
+while [[ $# -gt 0 ]]
+do
+  opt=$1
+  shift
+
+  case $opt in
+    prepare)  Prepare
+              ;;
+    unlock)   Unlock
+              ;;
+    start)    Start
+              ;;
+    *)        echo "go out !"
+              exit 1
+              ;;
+  esac
+
+  if [[ $? -ne 0 ]]; then
+    exit 2
+  fi
+done
