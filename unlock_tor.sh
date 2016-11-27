@@ -54,7 +54,11 @@ do
   shift
 
   case $opt in
-    prepare)  Prepare
+    prepare)  echo -n "you're sure ? (y/N) :"
+              read dummy
+              if [[ "$dummy" = "y" ]]; then
+                Prepare
+              fi
               ;;
     unlock)   Unlock
               ;;
