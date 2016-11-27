@@ -80,7 +80,7 @@ def main():
       uptime = srv.uptime
       flags = controller.get_network_status(relay=srv.nickname).flags;
     except Exception as Exc:
-      print ("Can' get descriptors (yet)")
+      print ("Woops, can't get descriptor")
       uptime = 0
       flags = ''
 
