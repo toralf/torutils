@@ -2,10 +2,13 @@
 #
 #set -x
 
-# unlock an ext4-fs encrypted remote Tor relay data directory to start Tor
+# unlock a remote ext4-fs encrypted Tor data directory
 #
 
-# typical call: /unlock_tor.sh unlock start
+# typical call: ./unlock_tor.sh unlock start
+#
+# before run once: ./unlock_tor.sh prepare
+#
 
 # one time preparation
 #
@@ -21,7 +24,7 @@ function Prepare()  {
 }
 
 
-# copy the salt to the Tor relay (/tmp is a tmpfs)
+# copy the salt to the Tor relay (/tmp is a tmpfs == secure delete)
 # the password itself will never leave this local system
 #
 function Unlock() {
@@ -36,7 +39,7 @@ function Unlock() {
   return $?
 }
 
-# this is the iopenrc variant
+# this is the OpenRC variant to start Tor
 #
 function Start() {
    ssh $user@$host 'sudo /etc/init.d/tor start'
@@ -45,8 +48,8 @@ function Start() {
 
 #######################################################################
 #
-host="mr-fox"           # Tor relay host
-user="tfoerste"         # remote user
+host="mr-fox"           # Tor relay
+user="tfoerste"         # remote user (needs sudo rights !)
 ldir=~/hetzner/$host    # local dir
 rdir=/var/lib/tor/data  # remote dir
 
