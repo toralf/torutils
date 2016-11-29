@@ -5,6 +5,8 @@
 # unlock an ext4-fs encrypted remote Tor relay data directory to start Tor
 #
 
+# typical call: /unlock_tor.sh unlock start
+
 # one time preparation
 #
 function Prepare()  {
