@@ -13,12 +13,8 @@
 # one time preparation
 #
 function Prepare()  {
-  ssh $user@$host "sudo mkdir $rdir; sudo chown tor:tor $rdir; sudo chmod 700 $rdir"
-
-  chmod 600 $ldir/.crypto*                                          &&\
   echo "0x$(head -c 16 /dev/urandom | xxd -p)" > $ldir/.cryptoSalt  &&\
-  pwgen -s 32 -1 | head -n1 > $ldir/.cryptoPass                     &&\
-  chmod 400 $ldir/.crypto*
+  pwgen -s 32 -1 | head -n1 > $ldir/.cryptoPass
 
   return $?
 }
