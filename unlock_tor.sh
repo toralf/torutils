@@ -33,16 +33,16 @@ function Unlock() {
     return 1
   fi
 
-  scp $ldir/.cryptoSalt $host:/tmp || exit 1
-  cat $ldir/.cryptoPass | ssh $user@$host 'sudo -u tor e4crypt add_key -S $(cat /tmp/.cryptoSalt) $rdir; rm /tmp/.cryptoSalt'
+  scp $ldir/.cryptoSalt $host:/tmp || return 2
+  cat $ldir/.cryptoPass | ssh $user@$host "sudo -u tor e4crypt add_key -S \$(cat /tmp/.cryptoSalt) $rdir; rm /tmp/.cryptoSalt"
 
   return $?
 }
 
-# this is the OpenRC variant to start Tor
+# this is the OpenRC variant
 #
-function Start() {
-   ssh $user@$host 'sudo /etc/init.d/tor start'
+function Init() {
+   ssh $user@$host "sudo /etc/init.d/tor $*"
 }
 
 
@@ -67,7 +67,7 @@ do
               ;;
     unlock)   Unlock
               ;;
-    start)    Start
+    start|stop|restart) Init $opt
               ;;
     *)        echo "go out !"
               exit 1
