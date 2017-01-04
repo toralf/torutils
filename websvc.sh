@@ -20,7 +20,7 @@ fi
 dir=/tmp/websvc
 log=/tmp/websvc.log
 
-cp /dev/null $log
+truncate -s0 $log
 mkdir $dir 2>/dev/null
 cp $(dirname $0)/websvc.py /tmp
 chmod go-rwx /tmp/websvc{,.log,.py}
@@ -29,7 +29,7 @@ chown -R websvc:websvc /tmp/websvc{,.log,.py}
 # start it only within $dir !
 #
 cd $dir || exit 1
-su websvc -c "nice /tmp/websvc.py --address 127.0.0.1 --port 1234 &>> $log" &
+su websvc -c "nice /tmp/websvc.py --address 127.0.0.1 --port 1234 &>> $log &"
 sleep 1
 rm /tmp/websvc.py
 
