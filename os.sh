@@ -10,11 +10,11 @@ fi
 os=/tmp/os
 
 if [[ -e $os ]]; then
-  echo -en "\n $os does already exist "
+  echo -en "\n $os does already exist"
   if [[ "$1" = "-f" ]]; then
     echo " -  forced to overwrite it"
   else
-    echo "stopping !"
+    echo " exiting ..."
     echo
     exit 1
   fi
