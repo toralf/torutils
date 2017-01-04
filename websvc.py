@@ -2,10 +2,16 @@
 #
 
 import socket
-from BaseHTTPServer import HTTPServer
-from SimpleHTTPServer import SimpleHTTPRequestHandler
 import argparse
 import re
+import sys
+
+if sys.version_info[0] == 3:
+  from http.server import HTTPServer, SimpleHTTPRequestHandler
+else:
+  from BaseHTTPServer   import HTTPServer
+  from SimpleHTTPServer import SimpleHTTPRequestHandler
+
 
 class MyHandler(SimpleHTTPRequestHandler):
   def do_GET(self):
