@@ -67,8 +67,9 @@ def main():
           print ("Woops, can't parse get_listeners(Listener.DIR)")
           return
 
-    except Exception as Exs:
+    except Exception as Exc:
       print ("Woops, ports aren't configured")
+      #print (Exc)
       return
 
     # our version, uptime and relay flags
@@ -81,6 +82,7 @@ def main():
       flags = controller.get_network_status(relay=srv.nickname).flags;
     except Exception as Exc:
       print ("Woops, can't get descriptor")
+      #print (Exc)
       uptime = 0
       flags = ''
 
