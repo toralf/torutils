@@ -97,7 +97,7 @@ def main():
           dt = dt23
 
         os.system('clear')
-        print ("  port     # opened closed      max                (%.1f sec, %s: %i conns in %.1f sec) " % (dt23, resolver, len(connections), dt21))
+        print ("  port     # open/s clos/s      max                (%.1f sec, %s: %i conns in %.1f sec) " % (dt23, resolver, len(connections), dt21))
         lines = 0;
         ports = set(list(Curr.keys()) + list(Prev.keys()) + list(BurstAll.keys()))
         for port in sorted(ports):
