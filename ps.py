@@ -44,9 +44,9 @@ def main():
     for s in controller.get_network_statuses():
       relays.setdefault(s.address, []).append(s.or_port)
 
-    BurstOpened = {}  # hold the maximum amount of opened  ports
-    BurstClosed = {}  # hold the maximum amount of closed  ports
-    BurstAll    = {}  # hold the maximum amount of overall ports
+    MaxOpened = {}  # hold the maximum amount of opened  ports
+    MaxClosed = {}  # hold the maximum amount of closed  ports
+    MaxAll    = {}  # hold the maximum amount of overall ports
 
     Curr = {}   # the current network connections of Tor
 
@@ -99,7 +99,7 @@ def main():
         os.system('clear')
         print ("  port     # open/s clos/s      max                (%.1f sec, %s: %i conns in %.1f sec) " % (dt23, resolver, len(connections), dt21))
         lines = 0;
-        ports = set(list(Curr.keys()) + list(Prev.keys()) + list(BurstAll.keys()))
+        ports = set(list(Curr.keys()) + list(Prev.keys()) + list(MaxAll.keys()))
         for port in sorted(ports):
           if port in Prev:
             p = set(Prev[port])
@@ -114,19 +114,19 @@ def main():
           n_opened = ceil(len(c-p)/dt)
           n_closed = ceil(len(p-c)/dt)
 
-          BurstAll.setdefault(port, 0)
-          BurstOpened.setdefault(port, 0)
-          BurstClosed.setdefault(port, 0)
+          MaxAll.setdefault(port, 0)
+          MaxOpened.setdefault(port, 0)
+          MaxClosed.setdefault(port, 0)
 
           if first == 0:
-            if BurstAll[port] < n_curr:
-              BurstAll[port]    = n_curr
-            if BurstOpened[port] < n_opened:
-              BurstOpened[port] = n_opened
-            if BurstClosed[port] < n_closed:
-              BurstClosed[port] = n_closed
+            if MaxAll[port] < n_curr:
+              MaxAll[port]    = n_curr
+            if MaxOpened[port] < n_opened:
+              MaxOpened[port] = n_opened
+            if MaxClosed[port] < n_closed:
+              MaxClosed[port] = n_closed
 
-          print (" %5i %5i %6i %6i   %6i %6i %6i  (%s)" % (port, n_curr, n_opened, n_closed, BurstAll[port], BurstOpened[port], BurstClosed[port], port_usage(port)))
+          print (" %5i %5i %6i %6i   %6i %6i %6i  (%s)" % (port, n_curr, n_opened, n_closed, MaxAll[port], MaxOpened[port], MaxClosed[port], port_usage(port)))
 
           lines += 1
           if lines % 6 == 0:
