@@ -121,7 +121,9 @@ def main():
           if first == 0:
             if BurstAll[port] < n_curr:
               BurstAll[port]    = n_curr
+            if BurstOpened[port] < n_opened:
               BurstOpened[port] = n_opened
+            if BurstClosed[port] < n_closed:
               BurstClosed[port] = n_closed
 
           print (" %5i %5i %6i %6i   %6i %6i %6i  (%s)" % (port, n_curr, n_opened, n_closed, BurstAll[port], BurstOpened[port], BurstClosed[port], port_usage(port)))
