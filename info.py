@@ -2,35 +2,44 @@
 # -*- coding: utf-8 -*-
 
 """
-# country based stats of a Tor relay
-# eg.:
+ produces an output like:
 
- 0.2.8.2-alpha-dev   10:54:53   Exit  Fast  Guard  Running  Stable  V2Dir  Valid
- overall            4818   IPv4: 4816   IPv6:    2
- CtrlPort <= local     1   ??  1
- DirPort  <= outer     0
- ORPort   <= outer    39   de 10    us 10    nl  7    es  2    fr  2    se  2    id  2    ru  1
- ORPort   <= relay  3311   de686    us609    fr521    nl263    gb178    ru167    ca130    se125
- => relay ORPort      32   fr 11    us  5    nl  4    de  2    ru  2    dk  1    it  1    bg  1
- => relay port         1   lt  1
-            :50002     1 (Electrum Bitcoin SSL)
- => non exit port      0
- => exit w/o www     116   us 59    de 15    ru  5    fr  5    se  4    cn  4    jp  3    nl  3
-            :   81     7 (HTTP Alternate)
-            :  443  1311 (HTTPS)
-            :  993    10 (IMAPS)
-            : 1863     1 (MSNP)
-            : 5050     1 (Yahoo IM)
-            : 5190     3 (AIM/ICQ)
-            : 5222    25 (Jabber)
-            : 5228    35 (Android Market)
-            : 6667     4 (IRC)
-            : 6697     2 (IRC)
-            : 8082     5 (None)
-            : 8333     9 (Bitcoin)
-            : 8443     1 (PCsync HTTPS)
-            : 9999     1 (distinct)
-            :50002    19 (Electrum Bitcoin SSL)
+ 0.3.0.3-alpha   1:10:40   Exit  Fast  Guard  Running  Stable  V2Dir  Valid
+  v4 => relay ORPort         218
+  v4 CtrlPort <= local         1
+  v4 DirPort  <= outer         2
+  v4 ORPort   <= outer       125
+  v4 ORPort   <= relay      4035
+  v6 ORPort   <= outer         3
+
+
+  v4 => exit                  81      8
+  v4 => exit                  88      1
+  v4 => exit                 143      2
+  v4 => exit                 443   1103
+  v4 => exit                 993     24
+  v4 => exit                1883      1
+  v4 => exit                5222     29
+  v4 => exit                5223     14
+  v4 => exit                5228     38
+  v4 => exit                6667     17
+  v4 => exit                6669      1
+  v4 => exit                7777      1
+  v4 => exit                8074      1
+  v4 => exit                8333     11
+  v4 => exit               10000      1
+  v4 => exit               50002     13
+  v4 => non exit port       9001      1
+  v4 => non exit port       9002      1
+  v4 => relay port          5222      1
+  v4 => relay port          8333      2
+  v6 => exit                 443    616
+  v6 => exit                8333      1
+
+
+ exits:
+ v4 : 1265
+ v6:  617
 """
 
 import datetime
@@ -64,7 +73,7 @@ def main():
         elif is_valid_ipv6_address(address):
           DirPort6 = port
         else:
-          print ("Woops, can't parse get_listeners(Listener.DIR)")
+          print ("Woops, can't get listeners)")
           return
 
     except Exception as Exc:
@@ -88,114 +97,83 @@ def main():
 
     print (" %s   %s   %s" % (version, datetime.timedelta(seconds=uptime), "  ".join(flags)))
 
-    # classify network connections by port and country
-    #
+    policy = controller.get_exit_policy()
+    connections = get_connections(resolver='lsof',process_name='tor')
+
     relays  = {}
     for s in controller.get_network_statuses():
       relays.setdefault(s.address, []).append(s.or_port)
 
-    class Country(Counter):
-      def __init__(self, name="<none>"):
-        self.name = name
+    # classify network connections by port and country
+    #
+    ports_int = {}
+    ports_ext = {}
 
-      def __str__(self):
-        ret=""
-        for tupel in self.most_common(8):
-          ret += "%s%3i    " % tupel
-        return " %-17s %5i   %s" % (self.name, sum(self.values()), ret)
+    def inc_ports_int (description):
+      if conn.is_ipv6:
+        version = 'v6'
+      else:
+        version = 'v4'
+      t = (version, description)
+      ports_int[t] = ports_int.get(t,0) + 1
 
-    class Port(Counter):
-      def __str__(self):
-        ret = ""
-        for port in sorted(self.keys()):
-          ret += "            :%5i  %4i (%s)\n" % (port, self[port], port_usage(port))
-        return ret.rstrip("\n")
+    def inc_ports_ext (description):
+      if conn.is_ipv6:
+        version = 'v6'
+      else:
+        version = 'v4'
+      t = (version, description, rport)
+      ports_ext[t] = ports_ext.get(t,0) + 1
 
-    Local2Controlport     = Country(name="CtrlPort <= local")
-    outer2DirPort         = Country(name="DirPort  <= outer")
-    outer2ORPort          = Country(name="ORPort   <= outer")
-    relay2ORPort          = Country(name="ORPort   <= relay")
-
-    local2relayORPort     = Country(name="=> relay ORPort")
-    local2relayOther      = Country(name="=> relay port")
-    local2relayOtherPorts = Port()
-    nonExit               = Country(name="=> non exit port")
-    NonExitPorts          = Port()
-    ExitWithoutWWW        = Country(name="=> exit w/o www")
-    ExitPorts             = Port()
-
-    noPolicy              = Country(name="! no policy")
-    noPolicyPorts         = Port()
-
-    IPv4, IPv6 = 0, 0     # just counters
-
-    policy = controller.get_exit_policy()
-    connections = get_connections(resolver='lsof',process_name='tor')
-
+    # now run over all connections
+    #
     for conn in connections:
       if conn.protocol == 'udp':
           continue
 
       laddr, raddr = conn.local_address, conn.remote_address
-
-      if conn.is_ipv6:
-        IPv6 += 1
-      else:
-        IPv4 += 1
-
-      country = controller.get_info("ip-to-country/%s" % raddr, 'xx')
-      lport, rport = conn.local_port, conn.remote_port
+      lport, rport = conn.local_port,    conn.remote_port
 
       if raddr in relays:
         if not conn.is_ipv6 and lport == ORPort or conn.is_ipv6 and lport == ORPort6:
-          relay2ORPort[country] += 1
+          inc_ports_int('ORPort   <= relay')
         elif rport in relays[raddr]:
-          local2relayORPort[country] += 1
+          inc_ports_int('=> relay ORPort')
         else:
           # a server hosts beside a Tor relay another service too
           #
-          local2relayOther[country] += 1
-          local2relayOtherPorts[rport] += 1
+          inc_ports_ext ('=> relay port')
 
       elif policy.can_exit_to(raddr, rport):
-        ExitPorts[rport] += 1
-        if rport not in [80, 81, 443]:
-          ExitWithoutWWW[country] += 1
+        inc_ports_ext ('=> exit')
 
       else:
         if not conn.is_ipv6 and lport == ORPort or conn.is_ipv6 and lport == ORPort6:
-          outer2ORPort[country] += 1
+          inc_ports_int('ORPort   <= outer')
         elif not conn.is_ipv6 and lport == DirPort or conn.is_ipv6 and lport == DirPort6:
-          outer2DirPort[country] += 1
+          inc_ports_int('DirPort  <= outer')
         elif (lport == ControlPort):
-          Local2Controlport[country] += 1
+          inc_ports_int('CtrlPort <= local')
         else:
-          nonExit[country] += 1
-          NonExitPorts[rport] += 1
+          inc_ports_ext ('=> non exit port')
 
-    print (" %-17s %5i   IPv4:%5i   IPv6:%5i" % ("overall", len(connections), IPv4, IPv6))
+    # print out the amount of ports_ext
+    #
+    sum = {'v4':0, 'v6':0};
+    for t in sorted(ports_int):
+      version, name = t
+      print ("  %s %-20s  %5s" % (version, name, ports_int[t]))
+    print ("\n")
 
-    print (Local2Controlport)
-    print (outer2DirPort)
-    print (outer2ORPort)
-    print (relay2ORPort)
+    for t in sorted(ports_ext):
+      version, name, port = t
+      if name == '=> exit':
+        sum[version] += ports_ext[t]
+      print ("  %s %-20s  %5s  %5i" % (version, name, port, ports_ext[t]))
+    print ("\n")
 
-    print (local2relayORPort)
-    print (local2relayOther)
-    if (local2relayOtherPorts):
-      print (local2relayOtherPorts)
-    if (ExitPorts):
-      print (nonExit)
-      if (NonExitPorts):
-        print (NonExitPorts)
-
-      print (ExitWithoutWWW)
-      print (ExitPorts)
-    else:
-      if (noPolicy):
-        print (noPolicy)
-        print (noPolicyPorts)
-
+    print (" exits:\n v4 :%5i\n v6:%5i" % (sum['v4'], sum['v6']))
+    print ("\n")
 
 if __name__ == '__main__':
   main()
