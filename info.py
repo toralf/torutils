@@ -99,7 +99,7 @@ def main():
         version = 'v6'
       else:
         version = 'v4'
-      t = (version, description)
+      t = (description, version)
       ports_int[t] = ports_int.get(t,0) + 1
 
     def inc_ports_ext (description):
@@ -107,7 +107,7 @@ def main():
         version = 'v6'
       else:
         version = 'v4'
-      t = (version, description, rport)
+      t = (description, rport, version)
       ports_ext[t] = ports_ext.get(t,0) + 1
 
     # now run over all connections
@@ -146,15 +146,15 @@ def main():
     #
     sum = {'v4':0, 'v6':0};
     for t in sorted(ports_int):
-      version, name = t
-      print ("  %s %-20s  %5s" % (version, name, ports_int[t]))
+      name, version = t
+      print ("  %-20s         %s  %5s" % (name, version, ports_int[t]))
     print ()
 
     for t in sorted(ports_ext):
-      version, name, port = t
+      name, port, version = t
       if name == '=> exit':
         sum[version] += ports_ext[t]
-      print ("  %s %-20s  %5s  %5i" % (version, name, port, ports_ext[t]))
+      print ("  %-20s  %5s  %s  %5i" % (name, port, version, ports_ext[t]))
     print ()
 
     print (" exits:\n v4 :%5i\n v6:%5i" % (sum['v4'], sum['v6']))
