@@ -94,21 +94,20 @@ def main():
     ports_int = {}
     ports_ext = {}
 
+    def inc_ports (ports, t):
+      v4, v6 = ports.get(t,(0,0))
+      if conn.is_ipv6:
+        ports[t] = (v4, v6+1)
+      else:
+        ports[t] = (v4+1, v6)
+
     def inc_ports_int (description):
       t = (description)
-      v4, v6 = ports_ext.get(t,(0,0))
-      if conn.is_ipv6:
-        ports_int[t] = (v4, v6+1)
-      else:
-        ports_int[t] = (v4+1, v6)
+      inc_ports (ports_int, t)
 
     def inc_ports_ext (description):
       t = (description, rport)
-      v4, v6 = ports_ext.get(t,(0,0))
-      if conn.is_ipv6:
-        ports_ext[t] = (v4, v6+1)
-      else:
-        ports_ext[t] = (v4+1, v6)
+      inc_ports (ports_ext, t)
 
     # now run over all connections
     #
