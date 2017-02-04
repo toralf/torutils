@@ -12,26 +12,10 @@
   v4 ORPort   <= relay      4035
   v6 ORPort   <= outer         3
 
-
   v4 => exit                  81      8
   v4 => exit                  88      1
-  v4 => exit                 143      2
-  v4 => exit                 443   1103
-  v4 => exit                 993     24
-  v4 => exit                1883      1
-  v4 => exit                5222     29
-  v4 => exit                5223     14
-  v4 => exit                5228     38
-  v4 => exit                6667     17
-  v4 => exit                6669      1
-  v4 => exit                7777      1
-  v4 => exit                8074      1
-  v4 => exit                8333     11
-  v4 => exit               10000      1
-  v4 => exit               50002     13
+...
   v4 => non exit port       9001      1
-  v4 => non exit port       9002      1
-  v4 => relay port          5222      1
   v4 => relay port          8333      2
   v6 => exit                 443    616
   v6 => exit                8333      1
