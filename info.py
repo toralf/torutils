@@ -4,26 +4,26 @@
 """
  produces an output like:
 
- 0.3.0.3-alpha   1:10:40   Exit  Fast  Guard  Running  Stable  V2Dir  Valid
-  v4 => relay ORPort         218
-  v4 CtrlPort <= local         1
-  v4 DirPort  <= outer         2
-  v4 ORPort   <= outer       125
-  v4 ORPort   <= relay      4035
-  v6 ORPort   <= outer         3
+ 0.3.0.3-alpha   10:53:12   Exit  Fast  Guard  Running  Stable  V2Dir  Valid
 
-  v4 => exit                  81      8
-  v4 => exit                  88      1
+  --------------------   port   ipv4  ipv6
+
+  => relay ORPort                  1     0
+  CtrlPort <= local                1     0
+  ORPort   <= outer                1     0
+  ORPort   <= relay                1     0
+
+  => exit                  81     10     0
+  => exit                  88      1     0
+  => exit                 143      2     0
+  => exit                 443   1089   713
 ...
-  v4 => non exit port       9001      1
-  v4 => relay port          8333      2
-  v6 => exit                 443    616
-  v6 => exit                8333      1
-
+  => exit               50002     11     0
+  => relay port          8333      2     0
 
  exits:
- v4 : 1265
- v6:  617
+ v4 : 1252
+ v6:  718
 """
 
 import datetime
@@ -95,20 +95,20 @@ def main():
     ports_ext = {}
 
     def inc_ports_int (description):
+      t = (description)
+      v4, v6 = ports_ext.get(t,(0,0))
       if conn.is_ipv6:
-        version = 'v6'
+        ports_int[t] = (v4, v6+1)
       else:
-        version = 'v4'
-      t = (description, version)
-      ports_int[t] = ports_int.get(t,0) + 1
+        ports_int[t] = (v4+1, v6)
 
     def inc_ports_ext (description):
+      t = (description, rport)
+      v4, v6 = ports_ext.get(t,(0,0))
       if conn.is_ipv6:
-        version = 'v6'
+        ports_ext[t] = (v4, v6+1)
       else:
-        version = 'v4'
-      t = (description, rport, version)
-      ports_ext[t] = ports_ext.get(t,0) + 1
+        ports_ext[t] = (v4+1, v6)
 
     # now run over all connections
     #
@@ -144,17 +144,23 @@ def main():
 
     # print out the amount of ports_ext
     #
-    sum = {'v4':0, 'v6':0};
-    for t in sorted(ports_int):
-      name, version = t
-      print ("  %-20s         %s  %5s" % (name, version, ports_int[t]))
+    print ('  --------------------   port   ipv4  ipv6')
     print ()
 
+    for t in sorted(ports_int):
+      name = t
+      v4, v6 = ports_int[t]
+      print ("  %-20s         %5i %5i" % (name, v4, v6))
+    print ()
+
+    sum = {'v4':0, 'v6':0};
     for t in sorted(ports_ext):
-      name, port, version = t
+      name, port = t
+      v4, v6 = ports_ext[t]
       if name == '=> exit':
-        sum[version] += ports_ext[t]
-      print ("  %-20s  %5s  %s  %5i" % (name, port, version, ports_ext[t]))
+        sum['v4'] += v4
+        sum['v6'] += v6
+      print ("  %-20s  %5i  %5i %5i" % (name, port, v4, v6))
     print ()
 
     print (" exits:\n v4 :%5i\n v6:%5i" % (sum['v4'], sum['v6']))
