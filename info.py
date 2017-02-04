@@ -80,6 +80,7 @@ def main():
       flags = ''
 
     print (" %s   %s   %s" % (version, datetime.timedelta(seconds=uptime), "  ".join(flags)))
+    print ()
 
     policy = controller.get_exit_policy()
     connections = get_connections(resolver='lsof',process_name='tor')
@@ -147,17 +148,17 @@ def main():
     for t in sorted(ports_int):
       version, name = t
       print ("  %s %-20s  %5s" % (version, name, ports_int[t]))
-    print ("\n")
+    print ()
 
     for t in sorted(ports_ext):
       version, name, port = t
       if name == '=> exit':
         sum[version] += ports_ext[t]
       print ("  %s %-20s  %5s  %5i" % (version, name, port, ports_ext[t]))
-    print ("\n")
+    print ()
 
     print (" exits:\n v4 :%5i\n v6:%5i" % (sum['v4'], sum['v6']))
-    print ("\n")
+    print ()
 
 if __name__ == '__main__':
   main()
