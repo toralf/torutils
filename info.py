@@ -162,7 +162,7 @@ def main():
       print ("  %-20s  %5i  %5s %5s" % (name, port, str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else ''))
     print ()
 
-    print ("  %-20s  %5s  %5i %5i" % ('', '', sum['v4'], sum['v6']))
+    print ("  %-20s  %5s  %5i %5i" % ('=> exit', '', sum['v4'], sum['v6']))
     print ()
 
 if __name__ == '__main__':
