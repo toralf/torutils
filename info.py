@@ -143,7 +143,7 @@ def main():
 
     # print out the amount of ports_ext
     #
-    print ('  --------------------   port   ipv4  ipv6')
+    print ('  --------------------   port   ipv4  ipv6  service')
     print ()
 
     for t in sorted(ports_int):
@@ -159,7 +159,7 @@ def main():
       if description == '=> exit':
         sum['v4'] += v4
         sum['v6'] += v6
-      print ("  %-20s  %5i  %5s %5s" % (description, port, str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else ''))
+      print ("  %-20s  %5i  %5s %5s  %s" % (description, port, str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else '', port_usage(port)))
     print ()
 
     print ("  %-20s  %5s  %5i %5i" % ('=> exit', '', sum['v4'], sum['v6']))
