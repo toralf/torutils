@@ -147,19 +147,19 @@ def main():
     print ()
 
     for t in sorted(ports_int):
-      name = t
+      description = t
       v4, v6 = ports_int[t]
-      print ("  %-20s  %5s  %5s %5s" % (name, '', str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else ''))
+      print ("  %-20s  %5s  %5s %5s" % (description, '', str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else ''))
     print ()
 
     sum = {'v4':0, 'v6':0};
     for t in sorted(ports_ext):
-      name, port = t
+      description, port = t
       v4, v6 = ports_ext[t]
-      if name == '=> exit':
+      if description == '=> exit':
         sum['v4'] += v4
         sum['v6'] += v6
-      print ("  %-20s  %5i  %5s %5s" % (name, port, str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else ''))
+      print ("  %-20s  %5i  %5s %5s" % (description, port, str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else ''))
     print ()
 
     print ("  %-20s  %5s  %5i %5i" % ('=> exit', '', sum['v4'], sum['v6']))
