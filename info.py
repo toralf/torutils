@@ -143,13 +143,13 @@ def main():
 
     # print out the amount of ports_ext
     #
-    print ('  --------------------   port   ipv4  ipv6  service')
-    print ()
+    print ('  description         port   ipv4  ipv6  service')
+    print ('  -----------------  -----   ----  ----  -------------')
 
     for t in sorted(ports_int):
       description = t
       v4, v6 = ports_int[t]
-      print ("  %-20s  %5s  %5s %5s" % (description, '', str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else ''))
+      print ("  %-17s  %5s  %5s %5s" % (description, '', str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else ''))
     print ()
 
     count4 = 0
@@ -160,10 +160,10 @@ def main():
       if description == '=> exit':
         count4 += v4
         count6 += v6
-      print ("  %-20s  %5i  %5s %5s  %s" % (description, port, str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else '', port_usage(port)))
+      print ("  %-17s  %5i  %5s %5s  %s" % (description, port, str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else '', port_usage(port)))
     print ()
 
-    print ("  %-20s  %5s  %5i %5i" % ('=> exit', '', count4, count6))
+    print ("  %-17s  %5s  %5i %5i" % ('=> exit', '', count4, count6))
     print ()
 
 if __name__ == '__main__':
