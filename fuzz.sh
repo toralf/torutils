@@ -168,7 +168,7 @@ do
           break
         fi
         ;;
-    *)  help
+    *)  Help
         break
         ;;
   esac
