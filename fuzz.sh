@@ -51,7 +51,7 @@ function update() {
   git pull -q
   after=$(git describe)
 
-  if [[ "$before" != "$after" ]]; then
+  if [[ "$before" != "$after" || ! -f ./configure || ! -f Makefile || ! -f ./src/or/tor || -z "$(ls ./src/test/fuzz/fuzz-* 2> /dev/null)" ]]; then
     make distclean
     ./autogen.sh || return $?
     CC="afl-clang" ./configure --config-cache --enable-hard-errors --disable-gcc-hardening --disable-shared || return $?
@@ -95,7 +95,7 @@ function startup()  {
 #
 function archive()  {
   cd ~/work || return 1
-  ls -1d 201?????-??????_???????_* |\
+  ls -1d 201?????-??????_???????_* 2> /dev/null |\
   while read d
   do
     out=$(mktemp /tmp/crashesXXXXXX)
