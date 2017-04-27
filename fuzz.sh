@@ -43,8 +43,11 @@ function kill_fuzzers()  {
 # update Tor and its build/test dependencies
 #
 function update() {
-  cd $CHUTNEY_PATH && git pull -q
-  cd $TOR_FUZZ_CORPORA && git pull -q
+  cd $CHUTNEY_PATH || return 1
+  git pull -q
+
+  cd $TOR_FUZZ_CORPORA || return 1
+  git pull -q
 
   cd $TOR_DIR || return 1
   before=$(git describe)
@@ -54,9 +57,8 @@ function update() {
   if [[ "$before" != "$after" || ! -f ./configure || ! -f Makefile || ! -f ./src/or/tor || -z "$(ls ./src/test/fuzz/fuzz-* 2> /dev/null)" ]]; then
     make distclean
     ./autogen.sh || return $?
-    CC="afl-clang" ./configure --config-cache --enable-hard-errors --disable-gcc-hardening --disable-shared || return $?
-    make clean
-    AFL_HARDEN=1 make -j $N && make test-fuzz-corpora
+    CC="afl-clang" ./configure --config-cache --disable-gcc-hardening || return $?
+    AFL_HARDEN=1 make -j $N fuzzers && make test-fuzz-corpora
     return $?
   fi
 }
