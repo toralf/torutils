@@ -54,7 +54,7 @@ function update() {
   git pull -q
   after=$(git describe)
 
-  if [[ "$before" != "$after" || ! -f ./configure || ! -f Makefile || ! -f ./src/or/tor || -z "$(ls ./src/test/fuzz/fuzz-* 2> /dev/null)" ]]; then
+  if [[ "$1" = "force" || "$before" != "$after" || ! -f ./configure || ! -f Makefile || ! -f ./src/or/tor || -z "$(ls ./src/test/fuzz/fuzz-* 2> /dev/null)" ]]; then
     make distclean
     ./autogen.sh || return $?
     CC="afl-clang" ./configure --config-cache --disable-gcc-hardening || return $?
@@ -146,7 +146,7 @@ export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora/
 fuzzers=$( ls ${TOR_FUZZ_CORPORA} | sort --random-sort | head -n $N | xargs )
 
 log=$(mktemp /tmp/fuzzXXXXXX)
-while getopts af:hksu\? opt
+while getopts af:hksuU\? opt
 do
   case $opt in
     a)  kill_fuzzers
@@ -159,8 +159,9 @@ do
         ;;
     s)  startup
         ;;
-    u)  kill_fuzzers
-        update &> $log
+    u|U)
+        kill_fuzzers
+        update $([[ $opt = "U" ]] && echo "force") &> $log
         rc=$?
         if [[ $rc -ne 0 ]]; then
           echo rc=$rc
