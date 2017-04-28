@@ -42,7 +42,7 @@ function kill_fuzzers()  {
 
 # update Tor and its build/test dependencies
 #
-function update() {
+function update_tor() {
   cd $CHUTNEY_PATH || return 1
   git pull -q
 
@@ -54,7 +54,7 @@ function update() {
   git pull -q
   after=$(git describe)
 
-  if [[ "$1" = "force" || "$before" != "$after" || ! -f ./configure || ! -f Makefile || ! -f ./src/or/tor || -z "$(ls ./src/test/fuzz/fuzz-* 2> /dev/null)" ]]; then
+  if [[ "$1" = "force" || "$before" != "$after" || ! -f ./configure || ! -f Makefile || -z "$(ls ./src/test/fuzz/fuzz-* 2> /dev/null)" ]]; then
     make distclean
     ./autogen.sh || return $?
     CC="afl-clang" ./configure --config-cache --disable-gcc-hardening || return $?
@@ -141,7 +141,7 @@ export CHUTNEY_PATH=~/chutney/
 export TOR_DIR=~/tor/
 export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora/
 
-# fuzzers contains targets like "http consensus extrainfo"
+# eg.: "http consensus extrainfo"
 #
 fuzzers=$( ls ${TOR_FUZZ_CORPORA} | sort --random-sort | head -n $N | xargs )
 
@@ -161,7 +161,7 @@ do
         ;;
     u|U)
         kill_fuzzers
-        update $([[ $opt = "U" ]] && echo "force") &> $log
+        update_tor $( [[ "$opt" = "U" ]] && echo "force" ) &> $log
         rc=$?
         if [[ $rc -ne 0 ]]; then
           echo rc=$rc
