@@ -57,8 +57,8 @@ function update_tor() {
   if [[ "$1" = "force" || "$before" != "$after" || ! -f ./configure || ! -f Makefile || -z "$(ls ./src/test/fuzz/fuzz-* 2> /dev/null)" ]]; then
     make distclean
     ./autogen.sh || return $?
-    CC="afl-clang" ./configure --config-cache --disable-gcc-hardening || return $?
-    AFL_HARDEN=1 make -j $N fuzzers && make test-fuzz-corpora
+    CC="afl-clang" ./configure --config-cache --disable-memory-sentinels --enable-expensive-hardening || return $?
+    AFL_HARDEN=1 make -j $N test-fuzz-corpora
     return $?
   fi
 }
