@@ -93,15 +93,15 @@ function startup()  {
 }
 
 
-# check for crashes and archive the old results (mostly hangs)
+# check for and archive findings
 #
 function archive()  {
   cd ~/work || return 1
   ls -1d 201?????-??????_???????_* 2> /dev/null |\
   while read d
   do
-    out=$(mktemp /tmp/crashesXXXXXX)
-    ls -l $d/crashes/* 1> $out 2> /dev/null
+    out=$(mktemp /tmp/fuzzXXXXXX)
+    ls -l $d/{crashes,hangs}/* 1> $out 2> /dev/null
 
     if [[ -s $out ]]; then
       a=~/archive/$d.tbz2
@@ -109,7 +109,7 @@ function archive()  {
         mkdir ~/archive
       fi
       tar -cjpf $a $d &>> $out
-      (cat $out; uuencode $a $(basename $a)) | timeout 120 mail -s "fuzz crashes in $d" $mailto
+      (cat $out; uuencode $a $(basename $a)) | timeout 120 mail -s "fuzz finding in $d" $mailto
     fi
 
     rm -rf $d $out
