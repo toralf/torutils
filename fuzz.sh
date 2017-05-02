@@ -54,13 +54,18 @@ function update_tor() {
   git pull -q
   after=$(git describe)
 
-  if [[ "$1" = "force" || "$before" != "$after" || ! -f ./configure || ! -f Makefile || -z "$(ls ./src/test/fuzz/fuzz-* 2> /dev/null)" ]]; then
-    make distclean
+  if [[ "$1" = "force" ||  ! -f ./configure ]]; then
     ./autogen.sh || return $?
-    CC="afl-clang" ./configure --config-cache --disable-memory-sentinels --enable-expensive-hardening || return $?
-    AFL_HARDEN=1 make -j $N test-fuzz-corpora
-    return $?
   fi
+
+  if [[ "$1" = "force" || "$before" != "$after" || ! -f Makefile ]]; then
+    make distclean
+    CC="afl-clang" ./configure --disable-memory-sentinels --enable-expensive-hardening || return $?
+    make -j $N clean
+  fi
+
+  AFL_HARDEN=1 make -j $N fuzzers
+  return $?
 }
 
 
