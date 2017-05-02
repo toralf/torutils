@@ -132,7 +132,8 @@ function archive()  {
 # main
 #
 
-#N=$(expr 11 - $(cut -f3 -d' ' /proc/loadavg | cut -f1 -d'.'))  # parallel jobs
+# parallel jobs
+#
 N=2
 
 if [[ $# -eq 0 ]]; then
@@ -153,7 +154,7 @@ export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora/
 
 # eg.: "http consensus extrainfo"
 #
-fuzzers=$( ls ${TOR_FUZZ_CORPORA} | sort --random-sort | head -n $N | xargs )
+fuzzers=$( ls ${TOR_FUZZ_CORPORA} 2> /dev/null | sort --random-sort | head -n $N | xargs )
 
 log=$(mktemp /tmp/fuzzXXXXXX)
 while getopts af:hksuU\? opt
