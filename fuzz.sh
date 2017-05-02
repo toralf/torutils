@@ -105,19 +105,24 @@ function archive()  {
   ls -1d 201?????-??????_???????_* 2> /dev/null |\
   while read d
   do
-    out=$(mktemp /tmp/fuzzXXXXXX)
-    ls -l $d/{crashes,hangs}/* 1> $out 2> /dev/null
+    for issue in crashes hangs
+    do
+      out=$(mktemp /tmp/${issue}_XXXXXX)
+      ls -l $d/$issue/* 1> $out 2> /dev/null
 
-    if [[ -s $out ]]; then
-      a=~/archive/$d.tbz2
-      if [[ ! -d ~/archive ]]; then
-        mkdir ~/archive
+      if [[ -s $out ]]; then
+        a=~/archive/$issue_$d.tbz2
+        if [[ ! -d ~/archive ]]; then
+          mkdir ~/archive
+        fi
+        tar -cjpf $a $d &>> $out
+        if [[ "$issue" = "crashes" ]]; then
+          (cat $out; uuencode $a $(basename $a)) | timeout 120 mail -s "fuzz $issue in $d" $mailto
+        fi
       fi
-      tar -cjpf $a $d &>> $out
-      (cat $out; uuencode $a $(basename $a)) | timeout 120 mail -s "fuzz finding in $d" $mailto
-    fi
-
-    rm -rf $d $out
+      rm $out
+    done
+    rm -rf $d
   done
 }
 
