@@ -71,14 +71,14 @@ function startup()  {
     mkdir ~/work
   fi
 
-  commit=$( cd ~/tor && git describe | cut -f2 -d'g' )
+  commit=$( cd $TOR_DIR && git describe | cut -f2 -d'g' )
   timestamp=$( date +%Y%m%d-%H%M%S )
 
   cd ~
 
   for f in $fuzzers
   do
-    exe=~/tor/src/test/fuzz/fuzz-$f
+    exe=$TOR_DIR/src/test/fuzz/fuzz-$f
     if [[ ! -x $exe ]]; then
       echo "fuzzer not found: $exe"
       continue
