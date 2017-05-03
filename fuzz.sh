@@ -101,6 +101,10 @@ function startup()  {
 # check for and archive findings
 #
 function archive()  {
+  if [[ ! -d ~/archive ]]; then
+    mkdir ~/archive
+  fi
+
   cd ~/work || return 1
   ls -1d 201?????-??????_???????_* 2> /dev/null |\
   while read d
@@ -111,9 +115,6 @@ function archive()  {
       ls -l $d/$issue/* 1> $out 2> /dev/null  # "/*" forces an error and an empty stdout
 
       if [[ -s $out ]]; then
-        if [[ ! -d ~/archive ]]; then
-          mkdir ~/archive
-        fi
         a=~/archive/${issue}_$d.tbz2
         tar -cjpf $a $d &>> $out
         if [[ "$issue" = "crashes" ]]; then
