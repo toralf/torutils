@@ -108,13 +108,13 @@ function archive()  {
     for issue in crashes hangs
     do
       out=$(mktemp /tmp/${issue}_XXXXXX)
-      ls -l $d/$issue/* 1> $out 2> /dev/null
+      ls -l $d/$issue/* 1> $out 2> /dev/null  # "/*" forces an error and an empty stdout
 
       if [[ -s $out ]]; then
-        a=~/archive/$issue_$d.tbz2
         if [[ ! -d ~/archive ]]; then
           mkdir ~/archive
         fi
+        a=~/archive/${issue}_$d.tbz2
         tar -cjpf $a $d &>> $out
         if [[ "$issue" = "crashes" ]]; then
           (cat $out; uuencode $a $(basename $a)) | timeout 120 mail -s "fuzz $issue in $d" $mailto
