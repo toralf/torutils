@@ -22,14 +22,15 @@ class HTTPServerV6(HTTPServer):
 
 
 def main():
-  is_ipv6 = True
-  address = '::1'
+  is_ipv6 = False
+  #address = '::1'
+  address = 'localhost'
   port = 8080
 
   parser = argparse.ArgumentParser()
   parser.add_argument("--address", help="default: " + address)
   parser.add_argument("--port", help="default: " + str(port))
-  parser.add_argument("--is_ipv6", help="mandatory if a given hostname for '--address' should be IPv4, default: y")
+  parser.add_argument("--is_ipv6", help="mandatory if a given hostname for '--address' should be IPv6, default: n")
   args = parser.parse_args()
 
   if args.address:
@@ -42,8 +43,8 @@ def main():
     is_ipv6 = True
   else:
     if args.is_ipv6:
-      if args.is_ipv6 == "n" or args.is_ipv6 == "N":
-        is_ipv6 = False
+      if args.is_ipv6 == "y" or args.is_ipv6 == "Y":
+        is_ipv6 = True
 
   if is_ipv6:
     server = HTTPServerV6((address, port), MyHandler)
