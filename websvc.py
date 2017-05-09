@@ -23,7 +23,6 @@ class HTTPServerV6(HTTPServer):
 
 def main():
   is_ipv6 = False
-  #address = '::1'
   address = 'localhost'
   port = 8080
 
