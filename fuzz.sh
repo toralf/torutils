@@ -76,7 +76,7 @@ function startup()  {
     mkdir ~/work
   fi
 
-  commit=$( cd $TOR_DIR && git describe | cut -f2 -d'g' )
+  commit=$( cd $TOR_DIR && git describe | sed 's/.*\-g//g' )
   timestamp=$( date +%Y%m%d-%H%M%S )
 
   cd ~
@@ -106,10 +106,10 @@ function archive()  {
   fi
 
   cd ~/work || return 1
-  ls -1d 201?????-??????_???????_* 2> /dev/null |\
+  ls -1d 201?????-??????_?????????_* 2> /dev/null |\
   while read d
   do
-    for issue in crashes hangs
+    for issue in crashes
     do
       out=$(mktemp /tmp/${issue}_XXXXXX)
       ls -l $d/$issue/* 1> $out 2> /dev/null  # "/*" forces an error and an empty stdout
@@ -135,7 +135,7 @@ function archive()  {
 
 # parallel jobs
 #
-N=2
+N=1
 
 if [[ $# -eq 0 ]]; then
   Help
