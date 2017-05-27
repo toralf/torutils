@@ -135,7 +135,7 @@ function archive()  {
 
 # parallel jobs
 #
-N=1
+N=2
 
 if [[ $# -eq 0 ]]; then
   Help
