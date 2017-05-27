@@ -126,7 +126,8 @@ def main():
             if MaxClosed[port] < n_closed:
               MaxClosed[port] = n_closed
 
-          print (" %5i %5i %6i %6i   %6i %6i %6i  (%s)" % (port, n_curr, n_opened, n_closed, MaxAll[port], MaxOpened[port], MaxClosed[port], port_usage(port)))
+          stri = " %5i %5i %6i %6i   %6i %6i %6i  (%s)" % (port, n_curr, n_opened, n_closed, MaxAll[port], MaxOpened[port], MaxClosed[port], port_usage(port))
+          print (stri.replace(' 0', '  '))
 
           lines += 1
           if lines % 6 == 0:
