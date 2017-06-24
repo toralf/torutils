@@ -64,7 +64,7 @@ def main():
 
         t2 = time.time()
         for conn in connections:
-          raddr, rport, lport = conn.remote_address, conn.remote_port, conn.local_port
+          raddr, rport, laddr, lport = conn.remote_address, conn.remote_port, conn.local_address, conn.local_port
 
           if rport == 0:    # happens for 'proc' as resolver
             continue
@@ -74,21 +74,31 @@ def main():
           if raddr in relays:
             continue
 
-          # we need to store the connections itself here and can't just count them here
-          # b/c we have to calculate a diff of both sets later
+          # incoming
           #
-          if policy.can_exit_to(raddr, rport):
-            Curr.setdefault(rport, []).append(str(lport)+':'+raddr)
+          if laddr == '5.9.158.75' and lport == 443:
+            continue
+
+          # very slow
+          #
+          #if not policy.can_exit_to(raddr, rport):
+          #  continue
+
+          # store the connections itself instead just counting them here
+          # b/c we have to calculate the diff of 2 sets later
+          #
+          Curr.setdefault(rport, []).append(str(lport)+':'+raddr)
 
         t3 = time.time()
 
-        # avoid ueseless calculation of mean immediately after start
+        # avoid useless calculation of mean immediately after start
         #
         if first == 1:
           Prev = Curr.copy()
 
         dt23 = t3-t2
         dt21 = t2-t1
+
         # calculate the mean only for values greater 1 sec
         #
         if dt23 < 1.0:
@@ -130,14 +140,13 @@ def main():
           print (stri.replace(' 0', '  '))
 
           lines += 1
-          if lines % 6 == 0:
+          if lines % 5 == 0:
             print("")
 
         first = 0
 
       except KeyboardInterrupt:
         break
-
 
 if __name__ == '__main__':
   main()
