@@ -19,6 +19,18 @@ from stem.util.connection import get_connections, port_usage, system_resolvers
 
 
 def main():
+  # read in all allowed ports
+  #
+  exit_ports = []
+  inputfile = open('/etc/tor/torrc.d/90_accept_reduced')
+  lines = inputfile.readlines()
+  inputfile.close()
+  for line in lines:
+    for word in line.split():
+      if '*:' in word:
+        port = word.split(':')[1]
+        exit_ports.append(int(port))
+
   ctrlport = 9051
   resolver = 'lsof'
 
@@ -84,6 +96,11 @@ def main():
           #if not policy.can_exit_to(raddr, rport):
           #  continue
 
+          # fast
+          #
+          if not rport in exit_ports:
+            continue
+
           # store the connections itself instead just counting them here
           # b/c we have to calculate the diff of 2 sets later
           #
@@ -141,7 +158,7 @@ def main():
 
           lines += 1
           if lines % 5 == 0:
-            print("")
+            print
 
         first = 0
 
