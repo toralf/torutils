@@ -133,10 +133,6 @@ function archive()  {
 # main
 #
 
-# parallel jobs
-#
-N=2
-
 if [[ $# -eq 0 ]]; then
   Help
   exit 0
@@ -153,21 +149,18 @@ export CHUTNEY_PATH=~/chutney/
 export TOR_DIR=~/tor/
 export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora/
 
-# eg.: "http consensus extrainfo"
-#
-fuzzers=$( ls ${TOR_FUZZ_CORPORA} 2> /dev/null | sort --random-sort | head -n $N | xargs )
-
 log=$(mktemp /tmp/fuzzXXXXXX)
-while getopts af:hksuU\? opt
+while getopts af:hkn:suU\? opt
 do
   case $opt in
     a)  kill_fuzzers
         archive
         ;;
     f)  fuzzers="$OPTARG"
-        startup
         ;;
     k)  kill_fuzzers
+        ;;
+    n)  fuzzers=$( ls ${TOR_FUZZ_CORPORA} 2> /dev/null | sort --random-sort | head -n $OPTARG | xargs )
         ;;
     s)  startup
         ;;
