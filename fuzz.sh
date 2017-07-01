@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# set -x
+#set -x
 
 # wrapper of common commands to fuzz test of Tor
 #
@@ -27,6 +27,7 @@ mailto="torproject@zwiebeltoralf.de"
 # 40888156 ./tor/src/test/fuzz/fuzz-descriptor
 # 40897371 ./tor/src/test/fuzz/fuzz-microdesc
 # 40955570 ./tor/src/test/fuzz/fuzz-vrs
+
 
 function Help() {
   echo
@@ -76,8 +77,8 @@ function startup()  {
     mkdir ~/work
   fi
 
-  commit=$( cd $TOR_DIR && git describe | sed 's/.*\-g//g' )
-  timestamp=$( date +%Y%m%d-%H%M%S )
+  cd $TOR_DIR
+  commit=$( git describe | sed 's/.*\-g//g' )
 
   cd ~
 
@@ -89,12 +90,19 @@ function startup()  {
       continue
     fi
 
+    timestamp=$( date +%Y%m%d-%H%M%S )
+
     odir="./work/${timestamp}_${commit}_${f}"
     mkdir -p $odir || continue
 
     nohup nice afl-fuzz -i ${TOR_FUZZ_CORPORA}/$f -o $odir -m 50000000 -- $exe &>$odir/log &
-    sleep 1
+    sleep 1 # important if the same fuzzer runs twice or more
   done
+
+  pgrep -a "fuzz"
+  if [[ $? -ne 0 ]]; then
+    echo "didn't found any running fuzzers ?!"
+  fi
 }
 
 
@@ -149,8 +157,10 @@ export CHUTNEY_PATH=~/chutney/
 export TOR_DIR=~/tor/
 export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora/
 
+export AFL_SKIP_CPUFREQ=1
+
 log=$(mktemp /tmp/fuzzXXXXXX)
-while getopts af:hkn:suU\? opt
+while getopts af:hkn:suU opt
 do
   case $opt in
     a)  kill_fuzzers
