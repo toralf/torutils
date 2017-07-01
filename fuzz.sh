@@ -99,7 +99,7 @@ function startup()  {
     sleep 1 # important if the same fuzzer runs twice or more
   done
 
-  pgrep -a "fuzz"
+  pgrep "afl-fuzz" &>/dev/null
   if [[ $? -ne 0 ]]; then
     echo "didn't found any running fuzzers ?!"
   fi
