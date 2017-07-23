@@ -57,21 +57,19 @@ function update_tor() {
   after=$(git describe)
 
   if [[ "$1" = "force" ||  ! -f ./configure ]]; then
-    ./autogen.sh
-    if [[ $? -ne 0 ]]; then
-      return 1
+    ./autogen.sh || return $?
+    rc=$?
+    if [[ $rc -ne 0 ]]; then
+      return $rc
     fi
-  fi
-
   fi
 
   if [[ "$1" = "force" || "$before" != "$after" || ! -f Makefile ]]; then
-    make distclean
-    CC="afl-clang" ./configure --disable-memory-sentinels --enable-expensive-hardening
-    if [[ $? -ne 0 ]]; then
-      return 1
+    make distclean && CC="afl-clang" ./configure --disable-memory-sentinels --enable-expensive-hardening
+    rc=$?
+    if [[ $rc -ne 0 ]]; then
+      return $rc
     fi
-    make -j $N clean
   fi
 
   make -j $N fuzzers
