@@ -45,24 +45,32 @@ function kill_fuzzers()  {
 # update build/test dependencies
 #
 function update_tor() {
-  cd $CHUTNEY_PATH || return 1
+  cd $CHUTNEY_PATH
   git pull -q
 
-  cd $TOR_FUZZ_CORPORA || return 1
+  cd $TOR_FUZZ_CORPORA
   git pull -q
 
-  cd $TOR_DIR || return 1
+  cd $TOR_DIR
   before=$(git describe)
   git pull -q
   after=$(git describe)
 
   if [[ "$1" = "force" ||  ! -f ./configure ]]; then
-    ./autogen.sh || return $?
+    ./autogen.sh
+    if [[ $? -ne 0 ]]; then
+      return 1
+    fi
+  fi
+
   fi
 
   if [[ "$1" = "force" || "$before" != "$after" || ! -f Makefile ]]; then
     make distclean
-    CC="afl-clang" ./configure --disable-memory-sentinels --enable-expensive-hardening || return $?
+    CC="afl-clang" ./configure --disable-memory-sentinels --enable-expensive-hardening
+    if [[ $? -ne 0 ]]; then
+      return 1
+    fi
     make -j $N clean
   fi
 
@@ -119,7 +127,7 @@ function archive()  {
   ls -1d ~/work/201?????-??????_?????????_* 2>/dev/null |\
   while read d
   do
-    for issue in "crashes"    # "hang" gives too much falso positives
+    for issue in "crashes"    # "hang" gives too much false positives with non-max-CPU governor and the the overall load at this machine
     do
       out=$(mktemp /tmp/${issue}_XXXXXX)
       ls -l $d/$issue/* 1>$out 2>/dev/null  # "/*" forces an error and an empty stdout
