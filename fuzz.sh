@@ -3,7 +3,7 @@
 #set -x
 
 # wrapper of common commands to fuzz test of Tor
-#
+# see https://gitweb.torproject.org/tor.git/tree/doc/HACKING/Fuzzing.md
 
 mailto="torproject@zwiebeltoralf.de"
 
@@ -41,7 +41,7 @@ function kill_fuzzers()  {
 }
 
 
-# update Tor and its build/test dependencies
+# update build/test dependencies
 #
 function update_tor() {
   cd $CHUTNEY_PATH || return 1
@@ -65,7 +65,7 @@ function update_tor() {
     make -j $N clean
   fi
 
-  AFL_HARDEN=1 make -j $N fuzzers
+  make -j $N fuzzers
   return $?
 }
 
@@ -73,10 +73,6 @@ function update_tor() {
 # spin up fuzzers
 #
 function startup()  {
-  if [[ ! -d ~/work ]]; then
-    mkdir ~/work
-  fi
-
   cd $TOR_DIR
   commit=$( git describe | sed 's/.*\-g//g' )
 
@@ -96,7 +92,9 @@ function startup()  {
     mkdir -p $odir || continue
 
     nohup nice afl-fuzz -i ${TOR_FUZZ_CORPORA}/$f -o $odir -m 50000000 -- $exe &>$odir/log &
-    sleep 1 # important if the same fuzzer runs twice or more
+    # needed for a unique output dir if the same fuzzer
+    # runs more than once at the same time
+    sleep 1
   done
 
   pgrep "afl-fuzz" &>/dev/null
@@ -106,7 +104,7 @@ function startup()  {
 }
 
 
-# check for and archive findings
+# check for findings and archive them
 #
 function archive()  {
   if [[ ! -d ~/archive ]]; then
@@ -153,6 +151,7 @@ fi
 
 touch ~/.lock
 
+export AFL_HARDEN=1
 export CHUTNEY_PATH=~/chutney/
 export TOR_DIR=~/tor/
 export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora/
