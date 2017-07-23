@@ -7,10 +7,12 @@
 
 mailto="torproject@zwiebeltoralf.de"
 
-# preparation:
+# preparation (Gentoo Linux way):
 #
 # echo "sys-devel/llvm clang" >> /etc/portage/package.use/llvm
 # emerge --update sys-devel/clang
+#
+# cd ~
 #
 # git clone https://github.com/nmathewson/tor-fuzz-corpora.git
 # git clone https://git.torproject.org/tor.git
