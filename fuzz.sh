@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#set -x
+# set -x
 
 # wrapper of common commands to fuzz test of Tor
 # see https://gitweb.torproject.org/tor.git/tree/doc/HACKING/Fuzzing.md
@@ -18,7 +18,7 @@ mailto="torproject@zwiebeltoralf.de"
 #
 # <install recidivm>
 #
-# $ for i  in ./tor/src/test/fuzz/fuzz-*; do echo $(./recidivm-0.1.1/recidivm -v $i 2>&1 | tail -n 1) $i ;  done | sort
+# cd ~; for i  in ./tor/src/test/fuzz/fuzz-*; do echo $(./recidivm-0.1.1/recidivm -v $i 2>&1 | tail -n 1) $i ;  done | sort -n
 # 40880663 ./tor/src/test/fuzz/fuzz-iptsv2
 # 40880757 ./tor/src/test/fuzz/fuzz-consensus
 # 40880890 ./tor/src/test/fuzz/fuzz-extrainfo
@@ -27,7 +27,6 @@ mailto="torproject@zwiebeltoralf.de"
 # 40888156 ./tor/src/test/fuzz/fuzz-descriptor
 # 40897371 ./tor/src/test/fuzz/fuzz-microdesc
 # 40955570 ./tor/src/test/fuzz/fuzz-vrs
-
 
 function Help() {
   echo
@@ -76,8 +75,6 @@ function startup()  {
   cd $TOR_DIR
   commit=$( git describe | sed 's/.*\-g//g' )
 
-  cd ~
-
   for f in $fuzzers
   do
     exe=$TOR_DIR/src/test/fuzz/fuzz-$f
@@ -88,18 +85,24 @@ function startup()  {
 
     timestamp=$( date +%Y%m%d-%H%M%S )
 
+    cd ~
     odir="./work/${timestamp}_${commit}_${f}"
-    mkdir -p $odir || continue
+    mkdir -p $odir
+    if [[ $? -ne 0 ]]; then
+      continue
+    fi
 
     nohup nice afl-fuzz -i ${TOR_FUZZ_CORPORA}/$f -o $odir -m 50000000 -- $exe &>$odir/log &
     # needed for a unique output dir if the same fuzzer
     # runs more than once at the same time
     sleep 1
+
+    grep -A 100 'Whoops' $odir/log
   done
 
   pgrep "afl-fuzz" &>/dev/null
   if [[ $? -ne 0 ]]; then
-    echo "didn't found any running fuzzers ?!"
+    echo "didn't found any running fuzzers ?!?"
   fi
 }
 
@@ -107,24 +110,27 @@ function startup()  {
 # check for findings and archive them
 #
 function archive()  {
-  if [[ ! -d ~/archive ]]; then
-    mkdir ~/archive
+  if [[ ! -d ~/work ]]; then
+    return
   fi
 
-  cd ~/work || return 1
-  ls -1d 201?????-??????_?????????_* 2> /dev/null |\
+  ls -1d ~/work/201?????-??????_?????????_* 2>/dev/null |\
   while read d
   do
-    for issue in crashes
+    for issue in "crashes"    # "hang" gives too much falso positives
     do
       out=$(mktemp /tmp/${issue}_XXXXXX)
-      ls -l $d/$issue/* 1> $out 2> /dev/null  # "/*" forces an error and an empty stdout
+      ls -l $d/$issue/* 1>$out 2>/dev/null  # "/*" forces an error and an empty stdout
 
       if [[ -s $out ]]; then
-        a=~/archive/${issue}_$d.tbz2
-        tar -cjpf $a $d &>> $out
+        if [[ ! -d ~/archive ]]; then
+          mkdir ~/archive
+        fi
+        b=$(basename $d)
+        a=~/archive/${issue}_$b.tbz2
+        tar -cjpf $a $b &>> $out
         if [[ "$issue" = "crashes" ]]; then
-          (cat $out; uuencode $a $(basename $a)) | timeout 120 mail -s "fuzz $issue in $d" $mailto
+          (cat $out; uuencode $a $(basename $a)) | timeout 120 mail -s "fuzz $issue in $b" $mailto
         fi
       fi
       rm $out
@@ -145,10 +151,9 @@ if [[ $# -eq 0 ]]; then
 fi
 
 if [[ -f ~/.lock ]]; then
-  echo "found lock file"
+  echo "found lock file ~/.lock"
   exit 1
 fi
-
 touch ~/.lock
 
 export AFL_HARDEN=1
