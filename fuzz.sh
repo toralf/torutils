@@ -14,7 +14,7 @@ mailto="torproject@zwiebeltoralf.de"
 #
 # cd ~
 #
-# <install recidivm> : https://jwilk.net/software/recidivm
+# <install recidivm>: https://jwilk.net/software/recidivm
 #
 # git clone https://github.com/nmathewson/tor-fuzz-corpora.git
 # git clone https://git.torproject.org/tor.git
@@ -22,19 +22,20 @@ mailto="torproject@zwiebeltoralf.de"
 #
 #
 # for i  in ./tor/src/test/fuzz/fuzz-*; do echo $(./recidivm-0.1.1/recidivm -v $i -u M 2>&1 | tail -n 1) $i ;  done | sort -n
-# 38 ./tor/src/test/fuzz/fuzz-iptsv2
-# 38 ./tor/src/test/fuzz/fuzz-consensus
-# 38 ./tor/src/test/fuzz/fuzz-extrainfo
-# 38 ./tor/src/test/fuzz/fuzz-hsdescv2
-# 38 ./tor/src/test/fuzz/fuzz-http
-# 38 ./tor/src/test/fuzz/fuzz-descriptor
-# 38 ./tor/src/test/fuzz/fuzz-microdesc
-# 38 ./tor/src/test/fuzz/fuzz-vrs
+# 42 ./tor/src/test/fuzz/fuzz-iptsv2
+# 42 ./tor/src/test/fuzz/fuzz-consensus
+# 42 ./tor/src/test/fuzz/fuzz-extrainfo
+# 42 ./tor/src/test/fuzz/fuzz-hsdescv2
+# 42 ./tor/src/test/fuzz/fuzz-http
+# 42 ./tor/src/test/fuzz/fuzz-descriptor
+# 42 ./tor/src/test/fuzz/fuzz-microdesc
+# 42 ./tor/src/test/fuzz/fuzz-vrs
 
 function Help() {
   echo
   echo "  call: $(basename $0) [-h|-?] [-a] [-f '<fuzzer(s)>'] [-k] [-s] [-u]"
   echo
+  exit 0
 }
 
 
@@ -131,7 +132,7 @@ function archive()  {
         fi
         b=$(basename $d)
         a=~/archive/${issue}_$b.tbz2
-        tar -cjpf $a $b &>> $out
+        tar -cjpf $a $b &>>$out
         if [[ "$issue" = "crashes" ]]; then
           (cat $out; uuencode $a $(basename $a)) | timeout 120 mail -s "fuzz $issue in $b" $mailto
         fi
@@ -147,10 +148,8 @@ function archive()  {
 #
 # main
 #
-
 if [[ $# -eq 0 ]]; then
   Help
-  exit 0
 fi
 
 if [[ -f ~/.lock ]]; then
@@ -159,44 +158,41 @@ if [[ -f ~/.lock ]]; then
 fi
 touch ~/.lock
 
-export AFL_HARDEN=1
-export CC="afl-clang"
-
 export CHUTNEY_PATH=~/chutney/
 export TOR_DIR=~/tor/
 export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora/
 
+export CC="afl-clang"
+export AFL_HARDEN=1
 export AFL_SKIP_CPUFREQ=1
 
 log=$(mktemp /tmp/fuzz_XXXXXX)
 while getopts af:hkn:su opt
 do
   case $opt in
-    a)  kill_fuzzers
-        archive
+    a)  archive
         ;;
     f)  fuzzers="$OPTARG"
         ;;
     k)  kill_fuzzers
         ;;
-    n)  fuzzers=$( ls ${TOR_FUZZ_CORPORA} 2> /dev/null | sort --random-sort | head -n $OPTARG | xargs )
+    n)  fuzzers=$( ls ${TOR_FUZZ_CORPORA} 2>/dev/null | sort --random-sort | head -n $OPTARG | xargs )
         ;;
     s)  startup
         ;;
     u)
         kill_fuzzers
-        update_tor &> $log
+        update_tor &>$log
         rc=$?
         if [[ $rc -ne 0 ]]; then
           echo rc=$rc
           echo
           cat $log
           echo
-          break
+          exit $rc
         fi
         ;;
     *)  Help
-        break
         ;;
   esac
 done
