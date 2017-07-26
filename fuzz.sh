@@ -33,7 +33,7 @@ mailto="torproject@zwiebeltoralf.de"
 
 function Help() {
   echo
-  echo "  call: $(basename $0) [-h|-?] [-a] [-f '<fuzzer(s)>'] [-k] [-s] [-u]"
+  echo "  call: $(basename $0) [-h|-?] [-a] [-f '<fuzzer(s)>'] [-k] [-u]"
   echo
   exit 0
 }
@@ -54,23 +54,23 @@ function update_tor() {
   git pull -q
 
   cd $TOR_DIR
-  before=$(git describe)
+  before=$( git describe )
   git pull -q
-  after=$(git describe)
+  after=$( git describe )
 
   if [[ ! -f ./configure ]]; then
     ./autogen.sh || return $?
   fi
 
   if [[ "$before" != "$after" ]]; then
-    make distclean 2>/dev/null
+    make distclean || return $?
   fi
 
   if [[ ! -f Makefile ]]; then
-    ./configure || return $?   # --enable-expensive-hardening
+    ./configure || return $?    # --enable-expensive-hardening
   fi
 
-  make -j $N fuzzers || freturn $?
+  make -j $N fuzzers || return $?
 }
 
 
@@ -78,7 +78,7 @@ function update_tor() {
 #
 function startup()  {
   cd $TOR_DIR
-  commit=$( git describe | sed 's/.*\-g//g' )
+  cid=$( git describe | sed 's/.*\-g//g' )
 
   cd ~
   for f in $fuzzers
@@ -89,25 +89,23 @@ function startup()  {
       continue
     fi
 
-    # needed for a unique output dir if the same fuzzer
-    # runs more than once at the same time
-    sleep 1
     timestamp=$( date +%Y%m%d-%H%M%S )
 
-    odir="./work/${timestamp}_${commit}_${f}"
+    odir=~/work/${timestamp}_${cid}_${f}
     mkdir -p $odir
     if [[ $? -ne 0 ]]; then
       continue
     fi
 
     nohup nice afl-fuzz -i ${TOR_FUZZ_CORPORA}/$f -o $odir -m 50 -- $exe &>$odir/log &
-    grep -A 20 'Whoops' $odir/log
-  done
 
-  pgrep "afl-fuzz" &>/dev/null
-  if [[ $? -ne 0 ]]; then
-    echo "didn't found any running fuzzers ?!?"
-  fi
+    # needed for a unique output dir if the same fuzzer
+    # runs more than once at the same time
+    #
+    sleep 1
+
+    grep -A 10 -F '[-]' $odir/log && ls -l $odir/log
+  done
 }
 
 
@@ -158,45 +156,48 @@ if [[ -f ~/.lock ]]; then
 fi
 touch ~/.lock
 
+# paths to the sources
+#
 export CHUTNEY_PATH=~/chutney/
 export TOR_DIR=~/tor/
 export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora/
 
+# https://github.com/mirrorer/afl/blob/master/docs/env_variables.txt
+#
 export CC="afl-clang"
 export AFL_HARDEN=1
 export AFL_SKIP_CPUFREQ=1
+export AFL_EXIT_WHEN_DONE=1
 
-log=$(mktemp /tmp/fuzz_XXXXXX)
-while getopts af:hkn:su opt
+while getopts af:hku opt
 do
   case $opt in
     a)  archive
         ;;
-    f)  fuzzers="$OPTARG"
+    f)  if [[ $OPTARG =~ [[:digit:]] ]]; then
+          fuzzers=$( ls ${TOR_FUZZ_CORPORA} 2>/dev/null | sort --random-sort | head -n $OPTARG | xargs )
+        else
+          fuzzers="$OPTARG"
+        fi
+        startup
         ;;
     k)  kill_fuzzers
         ;;
-    n)  fuzzers=$( ls ${TOR_FUZZ_CORPORA} 2>/dev/null | sort --random-sort | head -n $OPTARG | xargs )
-        ;;
-    s)  startup
-        ;;
-    u)
-        kill_fuzzers
+    u)  kill_fuzzers
+        log=$(mktemp /tmp/fuzz_XXXXXX)
         update_tor &>$log
         rc=$?
         if [[ $rc -ne 0 ]]; then
           echo rc=$rc
-          echo
-          cat $log
-          echo
+          ls -l $log
           exit $rc
         fi
+        rm -f $log
         ;;
     *)  Help
         ;;
   esac
 done
-rm -f $log
 
 rm ~/.lock
 
