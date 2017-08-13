@@ -22,14 +22,15 @@ def main():
   # read in all allowed ports
   #
   exit_ports = []
-  inputfile = open('/etc/tor/torrc.d/90_accept_reduced')
+  inputfile = open('/etc/tor/torrc.d/90_accept')
   lines = inputfile.readlines()
   inputfile.close()
   for line in lines:
-    for word in line.split():
-      if '*:' in word:
-        port = word.split(':')[1]
-        exit_ports.append(int(port))
+    if line.startswith("ExitPolicy accept "):
+       for word in line.split():
+         if '*:' in word:
+           port = word.split(':')[1]
+           exit_ports.append(int(port))
 
   ctrlport = 9051
   resolver = 'lsof'
