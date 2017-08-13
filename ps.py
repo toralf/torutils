@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-import argparse, os, sys, time
+import argparse, os, sys, time, glob
 from math import ceil
 from stem.control import Controller
 from stem.util.connection import get_connections, port_usage, system_resolvers
@@ -22,15 +22,17 @@ def main():
   # read in all allowed ports
   #
   exit_ports = []
-  inputfile = open('/etc/tor/torrc.d/90_accept')
-  lines = inputfile.readlines()
-  inputfile.close()
-  for line in lines:
-    if line.startswith("ExitPolicy accept "):
-       for word in line.split():
-         if '*:' in word:
-           port = word.split(':')[1]
-           exit_ports.append(int(port))
+  for filename in glob.glob("/etc/tor/torrc.d/*"):
+    inputfile = open(filename)
+    lines = inputfile.readlines()
+    inputfile.close()
+    for line in lines:
+      if line.startswith("ExitPolicy accept "):
+        for word in line.split():
+          if '*:' in word:
+            port = int (word.split(':')[1])
+            if port > 0 and port < 2**16:
+              exit_ports.append(port)
 
   ctrlport = 9051
   resolver = 'lsof'
