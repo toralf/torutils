@@ -2,12 +2,12 @@
 #
 # set -x
 
-# wrapper of common commands to fuzz test of Tor
-# see https://gitweb.torproject.org/tor.git/tree/doc/HACKING/Fuzzing.md
+# fuzz testing of Tor software as mentioned in
+# https://gitweb.torproject.org/tor.git/tree/doc/HACKING/Fuzzing.md
 
 mailto="torproject@zwiebeltoralf.de"
 
-# preparation (Gentoo Linux way):
+# preparation at Gentoo Linux:
 #
 # echo "sys-devel/llvm clang" >> /etc/portage/package.use/llvm
 # emerge --update sys-devel/clang
@@ -22,14 +22,14 @@ mailto="torproject@zwiebeltoralf.de"
 #
 #
 # for i  in ./tor/src/test/fuzz/fuzz-*; do echo $(./recidivm-0.1.1/recidivm -v $i -u M 2>&1 | tail -n 1) $i ;  done | sort -n
-# 42 ./tor/src/test/fuzz/fuzz-iptsv2
-# 42 ./tor/src/test/fuzz/fuzz-consensus
-# 42 ./tor/src/test/fuzz/fuzz-extrainfo
-# 42 ./tor/src/test/fuzz/fuzz-hsdescv2
-# 42 ./tor/src/test/fuzz/fuzz-http
-# 42 ./tor/src/test/fuzz/fuzz-descriptor
-# 42 ./tor/src/test/fuzz/fuzz-microdesc
-# 42 ./tor/src/test/fuzz/fuzz-vrs
+# 45 ./tor/src/test/fuzz/fuzz-iptsv2
+# 45 ./tor/src/test/fuzz/fuzz-consensus
+# 45 ./tor/src/test/fuzz/fuzz-extrainfo
+# 45 ./tor/src/test/fuzz/fuzz-hsdescv2
+# 45 ./tor/src/test/fuzz/fuzz-http
+# 45 ./tor/src/test/fuzz/fuzz-descriptor
+# 45 ./tor/src/test/fuzz/fuzz-microdesc
+# 45 ./tor/src/test/fuzz/fuzz-vrs
 
 function Help() {
   echo
@@ -41,6 +41,39 @@ function Help() {
 
 function kill_fuzzers()  {
   pkill "fuzz-"
+}
+
+
+# check for findings and archive them
+#
+function archive()  {
+  if [[ ! -d ~/work ]]; then
+    return
+  fi
+
+  ls -1d ~/work/201?????-??????_?????????_* 2>/dev/null |\
+  while read d
+  do
+    for issue in "crashes"    # "hang" gives too much false positives with non-max-CPU governor and the the overall load at this machine
+    do
+      out=$(mktemp /tmp/${issue}_XXXXXX)
+      ls -l $d/$issue/* 1>$out 2>/dev/null  # "/*" forces an error and an empty stdout
+
+      if [[ -s $out ]]; then
+        if [[ ! -d ~/archive ]]; then
+          mkdir ~/archive
+        fi
+        b=$(basename $d)
+        a=~/archive/${issue}_$b.tbz2
+        tar -cjpf $a $b &>>$out
+        if [[ "$issue" = "crashes" ]]; then
+          (cat $out; uuencode $a $(basename $a)) | timeout 120 mail -s "fuzz $issue in $b" $mailto
+        fi
+      fi
+      rm $out
+    done
+    rm -rf $d
+  done
 }
 
 
@@ -106,39 +139,6 @@ function startup()  {
 }
 
 
-# check for findings and archive them
-#
-function archive()  {
-  if [[ ! -d ~/work ]]; then
-    return
-  fi
-
-  ls -1d ~/work/201?????-??????_?????????_* 2>/dev/null |\
-  while read d
-  do
-    for issue in "crashes"    # "hang" gives too much false positives with non-max-CPU governor and the the overall load at this machine
-    do
-      out=$(mktemp /tmp/${issue}_XXXXXX)
-      ls -l $d/$issue/* 1>$out 2>/dev/null  # "/*" forces an error and an empty stdout
-
-      if [[ -s $out ]]; then
-        if [[ ! -d ~/archive ]]; then
-          mkdir ~/archive
-        fi
-        b=$(basename $d)
-        a=~/archive/${issue}_$b.tbz2
-        tar -cjpf $a $b &>>$out
-        if [[ "$issue" = "crashes" ]]; then
-          (cat $out; uuencode $a $(basename $a)) | timeout 120 mail -s "fuzz $issue in $b" $mailto
-        fi
-      fi
-      rm $out
-    done
-    rm -rf $d
-  done
-}
-
-
 #######################################################################
 #
 # main
@@ -161,6 +161,7 @@ export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora/
 
 # https://github.com/mirrorer/afl/blob/master/docs/env_variables.txt
 #
+export CFLAGS="-O2 -pipe -march=native"
 export CC="afl-gcc"
 export AFL_HARDEN=1
 export AFL_SKIP_CPUFREQ=1
