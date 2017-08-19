@@ -58,12 +58,9 @@ function update_tor() {
   git pull -q
   after=$( git describe )
 
-  if [[ ! -f ./configure ]]; then
-    ./autogen.sh || return $?
-  fi
-
   if [[ "$before" != "$after" ]]; then
     make distclean || return $?
+    ./autogen.sh || return $?
   fi
 
   if [[ ! -f Makefile ]]; then
@@ -164,7 +161,7 @@ export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora/
 
 # https://github.com/mirrorer/afl/blob/master/docs/env_variables.txt
 #
-export CC="afl-clang"
+export CC="afl-gcc"
 export AFL_HARDEN=1
 export AFL_SKIP_CPUFREQ=1
 export AFL_EXIT_WHEN_DONE=1
