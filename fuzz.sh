@@ -97,7 +97,10 @@ function update_tor() {
   fi
 
   if [[ ! -f Makefile ]]; then
-    ./configure || return $?    # --enable-expensive-hardening
+    # gcc hardened has USE="(-sanitize)"
+    # therefore --enable-expensive-hardening doesn't work
+    #
+    ./configure || return $?
   fi
 
   make -j $N fuzzers || return $?
