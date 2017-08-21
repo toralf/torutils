@@ -36,12 +36,17 @@ from stem.util.connection import get_connections, port_usage, is_valid_ipv4_addr
 
 def main():
   ctrlport = 9051
+  pid = int(open('/var/run/tor/tor.pid').read())
   parser = argparse.ArgumentParser()
   parser.add_argument("--ctrlport", help="default: " + str(ctrlport))
+  parser.add_argument("--pid", help="default: " + str(pid))
   args = parser.parse_args()
 
   if args.ctrlport:
     ctrlport = int(args.ctrlport)
+
+  if args.pid:
+    pid = int(args.pid)
 
   with Controller.from_port(port=ctrlport) as controller:
     controller.authenticate()
@@ -91,7 +96,7 @@ def main():
     print (" %s   %s   %s\n" % (version, datetime.timedelta(seconds=uptime), "  ".join(flags)))
 
     policy = controller.get_exit_policy()
-    connections = get_connections(resolver='lsof',process_name='tor')
+    connections = get_connections(resolver='lsof',process_pid=pid)
 
     relays  = {}
     for s in controller.get_network_statuses():

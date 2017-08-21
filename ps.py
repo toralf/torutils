@@ -19,6 +19,25 @@ from stem.util.connection import get_connections, port_usage, system_resolvers
 
 
 def main():
+  ctrlport = 9051
+  pid = int(open('/var/run/tor/tor.pid').read())
+  resolver = 'lsof'
+
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--ctrlport", help="default: " + str(ctrlport))
+  parser.add_argument("--pid", help="default: " + str(pid))
+  parser.add_argument("--resolver", help="default: " + resolver)
+  args = parser.parse_args()
+
+  if args.ctrlport:
+    ctrlport = int(args.ctrlport)
+
+  if args.pid:
+    pid = int(args.pid)
+
+  if args.resolver:
+    resolver= str(args.resolver)
+
   # read in all allowed ports
   #
   exit_ports = []
@@ -33,20 +52,6 @@ def main():
             port = int (word.split(':')[1])
             if port > 0 and port < 2**16:
               exit_ports.append(port)
-
-  ctrlport = 9051
-  resolver = 'lsof'
-
-  parser = argparse.ArgumentParser()
-  parser.add_argument("--ctrlport", help="default: " + str(ctrlport))
-  parser.add_argument("--resolver", help="default: " + resolver)
-  args = parser.parse_args()
-
-  if args.ctrlport:
-    ctrlport = int(args.ctrlport)
-
-  if args.resolver:
-    resolver= str(args.resolver)
 
   with Controller.from_port(port=ctrlport) as controller:
     print ("authenticating ...")
@@ -74,7 +79,7 @@ def main():
 
         t1 = time.time()
 
-        connections = get_connections(resolver=resolver, process_name='tor')
+        connections = get_connections(resolver=resolver, process_pid=pid)
         policy = controller.get_exit_policy()
 
         t2 = time.time()
