@@ -28,13 +28,22 @@
 
 import datetime
 from collections import Counter
+import argparse
+import sys
 
 from stem.control import Controller, Listener
 from stem.util.connection import get_connections, port_usage, is_valid_ipv4_address, is_valid_ipv6_address
 
 def main():
+  ctrlport = 9051
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--ctrlport", help="default: " + str(ctrlport))
+  args = parser.parse_args()
 
-  with Controller.from_port(port=9051) as controller:
+  if args.ctrlport:
+    ctrlport = int(args.ctrlport)
+
+  with Controller.from_port(port=ctrlport) as controller:
     controller.authenticate()
 
     try:
