@@ -20,20 +20,15 @@ from stem.util.connection import get_connections, port_usage, system_resolvers
 
 def main():
   ctrlport = 9051
-  pid = int(open('/var/run/tor/tor.pid').read())
   resolver = 'lsof'
 
   parser = argparse.ArgumentParser()
   parser.add_argument("--ctrlport", help="default: " + str(ctrlport))
-  parser.add_argument("--pid", help="default: " + str(pid))
   parser.add_argument("--resolver", help="default: " + resolver)
   args = parser.parse_args()
 
   if args.ctrlport:
     ctrlport = int(args.ctrlport)
-
-  if args.pid:
-    pid = int(args.pid)
 
   if args.resolver:
     resolver= str(args.resolver)
@@ -79,6 +74,7 @@ def main():
 
         t1 = time.time()
 
+        pid = controller.get_info("process/pid")
         connections = get_connections(resolver=resolver, process_pid=pid)
         policy = controller.get_exit_policy()
 
