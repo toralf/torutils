@@ -44,33 +44,28 @@ function kill_fuzzers()  {
 }
 
 
-# check for findings and archive them
+# archive all found issues
 #
 function archive()  {
   if [[ ! -d ~/work ]]; then
     return
   fi
 
+  if [[ ! -d ~/archive ]]; then
+    mkdir ~/archive
+  fi
+
   ls -1d ~/work/201?????-??????_?????????_* 2>/dev/null |\
   while read d
   do
-    for issue in "crashes"    # "hang" gives too much false positives with non-max-CPU governor and the the overall load at this machine
+    for issue in crashes hangs
     do
-      out=$(mktemp /tmp/${issue}_XXXXXX)
-      ls -l $d/$issue/* 1>$out 2>/dev/null  # "/*" forces an error and an empty stdout
-
-      if [[ -s $out ]]; then
-        if [[ ! -d ~/archive ]]; then
-          mkdir ~/archive
-        fi
+      if [[ -n "$(ls $d/$issue)" ]]; then
         b=$(basename $d)
-        a=~/archive/${issue}_$b.tbz2
-        tar -cjpf $a $b &>>$out
-        if [[ "$issue" = "crashes" ]]; then
-          (cat $out; uuencode $a $(basename $a)) | timeout 120 mail -s "fuzz $issue in $b" $mailto
-        fi
+        tbz2=~/archive/${issue}_$b.tbz22
+
+        (tar -cjvpf $d/$issue $tbz2 2>&1; uuencode $tbz2 $(basename $tbz2)) | timeout 120 mail -s "fuzz $issue found in $b" $mailto
       fi
-      rm $out
     done
     rm -rf $d
   done
