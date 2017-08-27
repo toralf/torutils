@@ -153,9 +153,9 @@ touch ~/.lock
 
 # paths to the sources
 #
-export CHUTNEY_PATH=~/chutney/
-export TOR_DIR=~/tor/
-export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora/
+export CHUTNEY_PATH=~/chutney
+export TOR_DIR=~/tor
+export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora
 
 # https://github.com/mirrorer/afl/blob/master/docs/env_variables.txt
 #
