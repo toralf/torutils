@@ -128,7 +128,7 @@ function startup()  {
     nohup nice afl-fuzz -i ${TOR_FUZZ_CORPORA}/$f -o $odir -m 50 -- $exe &>$odir/log &
 
     # needed for a unique output dir if the same fuzzer
-    # runs more than once at the same time
+    # should be run more than once
     #
     sleep 1
 
