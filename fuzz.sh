@@ -62,9 +62,9 @@ function archive()  {
     do
       if [[ -n "$(ls $d/$issue)" ]]; then
         b=$(basename $d)
-        tbz2=~/archive/${issue}_$b.tbz22
+        tbz2=~/archive/${issue}_$b.tbz2
 
-        (tar -cjvpf $d/$issue $tbz2 2>&1; uuencode $tbz2 $(basename $tbz2)) | timeout 120 mail -s "fuzz $issue found in $b" $mailto
+        (tar -cjvpf $tbz2 $d/$issue 2>&1; uuencode $tbz2 $(basename $tbz2)) | timeout 120 mail -s "fuzz $issue found in $b" $mailto
       fi
     done
     rm -rf $d
