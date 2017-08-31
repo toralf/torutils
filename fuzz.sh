@@ -126,13 +126,15 @@ function startup()  {
     fi
 
     nohup nice afl-fuzz -i ${TOR_FUZZ_CORPORA}/$f -o $odir -m 50 -- $exe &>$odir/log &
+  done
 
-    # needed for a unique output dir if the same fuzzer
-    # should be run more than once
-    #
-    sleep 1
-
-    grep -A 10 -F '[-]' $odir/log && ls -l $odir/log
+  # check for lines like:
+  # [-] PROGRAM ABORT : Unable to communicate with fork server (OOM?)
+  #
+  sleep 5
+  for d in $(ls ~/work)
+  do
+    grep -A 10 -F '[-]' $d/log && echo && ls -l $d/log
   done
 }
 
