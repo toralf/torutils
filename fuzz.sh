@@ -148,10 +148,13 @@ if [[ $# -eq 0 ]]; then
 fi
 
 if [[ -f ~/.lock ]]; then
-  echo "found lock file ~/.lock"
-  exit 1
+  kill -0 $(cat ~/.lock)
+  if [[ $? -eq 0 ]]; then
+    echo "found valid lock file ~/.lock"
+    exit 1
+  fi
 fi
-touch ~/.lock
+echo $$ > ~/.lock
 
 # paths to the sources
 #
