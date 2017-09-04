@@ -87,7 +87,7 @@ function update_tor() {
   after=$( git describe )
 
   if [[ "$before" != "$after" ]]; then
-    make distclean || return $?
+    make distclean 2>/dev/null || make clean 2>/dev/null
     ./autogen.sh || return $?
   fi
 
