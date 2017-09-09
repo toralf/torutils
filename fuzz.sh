@@ -87,13 +87,11 @@ function update_tor() {
   after=$( git describe )
 
   if [[ "$before" != "$after" ]]; then
-    make distclean 2>/dev/null || make clean 2>/dev/null
-    ./autogen.sh || return $?
+    make clean 2>/dev/null
   fi
 
   if [[ ! -f Makefile ]]; then
-    # gcc hardened has USE="(-sanitize)"
-    # therefore --enable-expensive-hardening doesn't work
+    # --enable-expensive-hardening doesn't work b/c gcc hardened has USE="(-sanitize)"
     #
     ./configure || return $?
   fi
@@ -131,10 +129,10 @@ function startup()  {
   # check for lines like:
   # [-] PROGRAM ABORT : Unable to communicate with fork server (OOM?)
   #
-  sleep 5
+  sleep 15
   for d in $(ls ~/work)
   do
-    grep -A 10 -F '[-]' $d/log && echo && ls -l $d/log
+    grep -A 10 -F '[-]' ~/work/$d/log && echo && ls -l ~/work/$d/log
   done
 }
 
@@ -148,7 +146,7 @@ if [[ $# -eq 0 ]]; then
 fi
 
 if [[ -f ~/.lock ]]; then
-  kill -0 $(cat ~/.lock)
+  kill -0 $(cat ~/.lock) 2>/dev/null
   if [[ $? -eq 0 ]]; then
     echo "found valid lock file ~/.lock"
     exit 1
@@ -176,6 +174,8 @@ do
     a)  archive
         ;;
     f)  if [[ $OPTARG =~ [[:digit:]] ]]; then
+          # this works b/c there're currently 10 fuzzers defined
+          #
           fuzzers=$( ls ${TOR_FUZZ_CORPORA} 2>/dev/null | sort --random-sort | head -n $OPTARG | xargs )
         else
           fuzzers="$OPTARG"
