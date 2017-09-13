@@ -7,40 +7,41 @@
 
 mailto="torproject@zwiebeltoralf.de"
 
-# preparation at Gentoo Linux:
+# 3 preparation steps at Gentoo Linux:
+#
+# (I)
 #
 # echo "sys-devel/llvm clang" >> /etc/portage/package.use/llvm
-# emerge --update sys-devel/clang
+# emerge --update sys-devel/clang app-forensics/afl
+#
+# (II)
 #
 # cd ~
-#
-# <install recidivm>: https://jwilk.net/software/recidivm
-#
 # git clone https://github.com/nmathewson/tor-fuzz-corpora.git
 # git clone https://git.torproject.org/tor.git
 # git clone https://git.torproject.org/chutney.git
 #
+# (III)
 #
+# <install recidivm>: https://jwilk.net/software/recidivm
 # for i  in ./tor/src/test/fuzz/fuzz-*; do echo $(./recidivm-0.1.1/recidivm -v $i -u M 2>&1 | tail -n 1) $i ;  done | sort -n
-# 45 ./tor/src/test/fuzz/fuzz-iptsv2
-# 45 ./tor/src/test/fuzz/fuzz-consensus
-# 45 ./tor/src/test/fuzz/fuzz-extrainfo
-# 45 ./tor/src/test/fuzz/fuzz-hsdescv2
-# 45 ./tor/src/test/fuzz/fuzz-http
-# 45 ./tor/src/test/fuzz/fuzz-descriptor
-# 45 ./tor/src/test/fuzz/fuzz-microdesc
-# 45 ./tor/src/test/fuzz/fuzz-vrs
+# 46 ./tor/src/test/fuzz/fuzz-consensus
+# 46 ./tor/src/test/fuzz/fuzz-descriptor
+# 46 ./tor/src/test/fuzz/fuzz-diff
+# 46 ./tor/src/test/fuzz/fuzz-diff-apply
+# 46 ./tor/src/test/fuzz/fuzz-extrainfo
+# 46 ./tor/src/test/fuzz/fuzz-hsdescv2
+# 46 ./tor/src/test/fuzz/fuzz-http
+# 46 ./tor/src/test/fuzz/fuzz-http-connect
+# 46 ./tor/src/test/fuzz/fuzz-iptsv2
+# 46 ./tor/src/test/fuzz/fuzz-microdesc
+# 46 ./tor/src/test/fuzz/fuzz-vrs
 
 function Help() {
   echo
   echo "  call: $(basename $0) [-h|-?] [-a] [-f '<fuzzer(s)>'] [-k] [-u]"
   echo
   exit 0
-}
-
-
-function kill_fuzzers()  {
-  pkill "fuzz-"
 }
 
 
@@ -58,21 +59,26 @@ function archive()  {
   ls -1d ~/work/201?????-??????_?????????_* 2>/dev/null |\
   while read d
   do
+    b=$(basename $d)
+
     for issue in crashes hangs
     do
       if [[ -n "$(ls $d/$issue)" ]]; then
-        b=$(basename $d)
         tbz2=~/archive/${issue}_$b.tbz2
-
         (tar -cjvpf $tbz2 $d/$issue 2>&1; uuencode $tbz2 $(basename $tbz2)) | timeout 120 mail -s "fuzz $issue found in $b" $mailto
       fi
     done
+
+    # catch eg.: [-] PROGRAM ABORT : Unable to communicate with fork server (OOM?)
+    #
+    grep -q -F '[-]' $d/log && uuencode $d/log $b.log | timeout 120 mail -s "failed fuzzer: $b" $mailto
+
     rm -rf $d
   done
 }
 
 
-# update build/test dependencies
+# update dependencies and Tor
 #
 function update_tor() {
   cd $CHUTNEY_PATH
@@ -86,17 +92,22 @@ function update_tor() {
   git pull -q
   after=$( git describe )
 
-  if [[ "$before" != "$after" ]]; then
-    make clean 2>/dev/null
+  if [[ "$before" = "$after" ]]; then
+    return 0
   fi
 
-  if [[ ! -f Makefile ]]; then
-    # --enable-expensive-hardening doesn't work b/c gcc hardened has USE="(-sanitize)"
-    #
-    ./configure || return $?
+  make clean 2>/dev/null
+  # --enable-expensive-hardening doesn't work b/c gcc hardened has USE="(-sanitize)"
+  #
+  ./configure
+  if [[ $? -ne 0 ]]; then
+    return 1
   fi
 
-  make -j $N fuzzers || return $?
+  make -j $N fuzzers
+  if [[ $? -ne 0 ]]; then
+    return 1
+  fi
 }
 
 
@@ -124,15 +135,6 @@ function startup()  {
     fi
 
     nohup nice afl-fuzz -i ${TOR_FUZZ_CORPORA}/$f -o $odir -m 50 -- $exe &>$odir/log &
-  done
-
-  # check for lines like:
-  # [-] PROGRAM ABORT : Unable to communicate with fork server (OOM?)
-  #
-  sleep 15
-  for d in $(ls ~/work)
-  do
-    grep -A 10 -F '[-]' ~/work/$d/log && echo && ls -l ~/work/$d/log
   done
 }
 
@@ -182,10 +184,9 @@ do
         fi
         startup
         ;;
-    k)  kill_fuzzers
+    k)  pkill "fuzz-"
         ;;
-    u)  kill_fuzzers
-        log=$(mktemp /tmp/fuzz_XXXXXX)
+    u)  log=$(mktemp /tmp/fuzz_XXXXXX)
         update_tor &>$log
         rc=$?
         if [[ $rc -ne 0 ]]; then
