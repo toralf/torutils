@@ -107,7 +107,7 @@ function update_tor() {
     return 1
   fi
 
-  make -j $N fuzzers
+  make -j 1 fuzzers
   if [[ $? -ne 0 ]]; then
     return 1
   fi
@@ -159,8 +159,6 @@ if [[ -f ~/.lock ]]; then
 fi
 echo $$ > ~/.lock
 
-# paths to the sources
-#
 export CHUTNEY_PATH=~/chutney
 export TOR_DIR=~/tor
 export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora
