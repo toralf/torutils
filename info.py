@@ -87,7 +87,7 @@ def main():
     try:
       srv = controller.get_server_descriptor()
       uptime = srv.uptime
-      flags = controller.get_network_status(relay=srv.nickname).flags
+      flags = controller.get_network_status(relay=srv.fingerprint).flags
     except Exception as Exc:
       #print ("Woops, can't get descriptor")
       print (Exc)
