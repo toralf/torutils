@@ -68,14 +68,6 @@ function archive()  {
         (tar -cjvpf $tbz2 $d/$issue 2>&1; uuencode $tbz2 $(basename $tbz2)) | timeout 120 mail -s "fuzz $issue found in $b" $mailto
       fi
     done
-
-    # catch eg.: [-] PROGRAM ABORT : Unable to communicate with fork server (OOM?)
-    #
-#     grep -q -F '[-]' $d/log
-#     if [[ $? -eq 0 ]]; then
-#       (grep -q -B 5 -A 5 -F '[-]' $d/log; uuencode $d/log $b.log) | timeout 120 mail -s "failed fuzzer: $b" $mailto
-#     fi
-
     rm -rf $d
   done
 }
