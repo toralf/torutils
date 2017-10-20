@@ -73,7 +73,7 @@ function archive()  {
 }
 
 
-# update dependencies and Tor
+# update Torand its dependencies
 #
 function update_tor() {
   cd $CHUTNEY_PATH
@@ -83,26 +83,26 @@ function update_tor() {
   git pull -q
 
   cd $TOR_DIR
-  before=$( git describe )
   git pull -q
-  after=$( git describe )
 
-  if [[ "$before" = "$after" ]]; then
-    return 0
-  fi
-
-  make clean 2>/dev/null
-  # --enable-expensive-hardening doesn't work b/c gcc hardened has USE="(-sanitize)"
+  # eg. "268435456 ./tor/src/test/fuzz/fuzz-vrs" indicates that there's something broken
   #
-  ./configure
-  if [[ $? -ne 0 ]]; then
-    return 1
+  m=$(for i  in ./src/test/fuzz/fuzz-*; do echo $(../recidivm-0.1.1/recidivm -v $i -u M 2>&1 | tail -n 1) $i;  done | sort -n | tail -n 1 | cut -f1 -d ' ')
+  if [[ $m -gt 1000 ]]; then
+    make distclean
   fi
 
-  make -j 1 fuzzers
-  if [[ $? -ne 0 ]]; then
-    return 1
+  if [[ ! -x ./configure ]]; then
+    ./autogen.sh || return 1
   fi
+
+  if [[ ! -f Makefile ]]; then
+    # --enable-expensive-hardening doesn't work b/c gcc hardened has USE="(-sanitize)"
+    #
+    ./configure || return 1
+  fi
+
+  make -j 1 fuzzers || return 1
 }
 
 
