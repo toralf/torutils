@@ -145,8 +145,10 @@ fi
 if [[ -f ~/.lock ]]; then
   kill -0 $(cat ~/.lock) 2>/dev/null
   if [[ $? -eq 0 ]]; then
-    echo "found valid lock file ~/.lock"
+    echo "found valid lock file"
     exit 1
+  else
+    echo "ignore stalled lock file"
   fi
 fi
 echo $$ > ~/.lock
