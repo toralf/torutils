@@ -7,7 +7,7 @@
 
 mailto="torproject@zwiebeltoralf.de"
 
-# 3 preparation steps at Gentoo Linux:
+# preparation steps at Gentoo Linux:
 #
 # (I)
 #
@@ -17,14 +17,14 @@ mailto="torproject@zwiebeltoralf.de"
 # (II)
 #
 # cd ~
+# git clone https://github.com/jwilk/recidivm
+# git clone https://git.torproject.org/chutney.git
 # git clone https://github.com/nmathewson/tor-fuzz-corpora.git
 # git clone https://git.torproject.org/tor.git
-# git clone https://git.torproject.org/chutney.git
 #
 # (III)
 #
-# <install recidivm>: https://jwilk.net/software/recidivm
-# for i  in ./tor/src/test/fuzz/fuzz-*; do echo $(./recidivm-0.1.1/recidivm -v $i -u M 2>&1 | tail -n 1) $i ;  done | sort -n
+# for i  in ./tor/src/test/fuzz/fuzz-*; do echo $(./recidivm/recidivm -v $i -u M 2>&1 | tail -n 1) $i ;  done | sort -n
 # 46 ./tor/src/test/fuzz/fuzz-consensus
 # 46 ./tor/src/test/fuzz/fuzz-descriptor
 # 46 ./tor/src/test/fuzz/fuzz-diff
@@ -45,11 +45,11 @@ function Help() {
 }
 
 
-# archive all found issues
+# keep found issues
 #
 function archive()  {
   if [[ ! -d ~/work ]]; then
-    return
+    mkdir ~/work
   fi
 
   if [[ ! -d ~/archive ]]; then
@@ -61,11 +61,11 @@ function archive()  {
   do
     b=$(basename $d)
 
-    for issue in crashes hangs
+    for i in crashes hangs
     do
-      if [[ -n "$(ls $d/$issue)" ]]; then
-        tbz2=~/archive/${issue}_$b.tbz2
-        (tar -cjvpf $tbz2 $d/$issue 2>&1; uuencode $tbz2 $(basename $tbz2)) | timeout 120 mail -s "fuzz $issue found in $b" $mailto
+      if [[ -n "$(ls $d/$i 2>/dev/null)" ]]; then
+        tbz2=~/archive/${i}_$b.tbz2
+        (tar -cjvpf $tbz2 $d/$i 2>&1; uuencode $tbz2 $(basename $tbz2)) | timeout 120 mail -s "fuzz $i found in $b" $mailto
       fi
     done
     rm -rf $d
@@ -76,6 +76,10 @@ function archive()  {
 # update Torand its dependencies
 #
 function update_tor() {
+  cd $RECIDIVM_DIR
+  git pull -q
+  make
+
   cd $CHUTNEY_PATH
   git pull -q
 
@@ -115,21 +119,29 @@ function startup()  {
   cd ~
   for f in $fuzzers
   do
-    exe=$TOR_DIR/src/test/fuzz/fuzz-$f
+    exe="$TOR_DIR/src/test/fuzz/fuzz-$f"
     if [[ ! -x $exe ]]; then
       echo "fuzzer not found: $exe"
       continue
     fi
 
-    timestamp=$( date +%Y%m%d-%H%M%S )
+    idir=$TOR_FUZZ_CORPORA/$f
 
+    timestamp=$( date +%Y%m%d-%H%M%S )
     odir=~/work/${timestamp}_${cid}_${f}
     mkdir -p $odir
     if [[ $? -ne 0 ]]; then
       continue
     fi
 
-    nohup nice afl-fuzz -i ${TOR_FUZZ_CORPORA}/$f -o $odir -m 50 -- $exe &>$odir/log &
+    dict="$TOR_DIR/src/test/fuzz/dict/$f"
+    if [[ -e $dict ]]; then
+      dict="-x $dict"
+    else
+      dict=""
+    fi
+
+    nohup nice /usr/bin/afl-fuzz -i $idir -o $odir $dict -m 50 -- $exe &>$odir/log &
   done
 }
 
@@ -153,17 +165,26 @@ if [[ -f ~/.lock ]]; then
 fi
 echo $$ > ~/.lock
 
+export RECIDIVM_DIR=~/recidivm
 export CHUTNEY_PATH=~/chutney
-export TOR_DIR=~/tor
 export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora
+export TOR_DIR=~/tor
 
 # https://github.com/mirrorer/afl/blob/master/docs/env_variables.txt
 #
 export CFLAGS="-O2 -pipe -march=native"
 export CC="afl-gcc"
+
+# for afl-gcc
+#
 export AFL_HARDEN=1
+export AFL_DONT_OPTIMIZE=1
+
+# for afl-fuzz
+#
 export AFL_SKIP_CPUFREQ=1
-export AFL_EXIT_WHEN_DONE=1
+#export AFL_EXIT_WHEN_DONE=1
+
 
 while getopts af:hku opt
 do
@@ -173,13 +194,15 @@ do
     f)  if [[ $OPTARG =~ [[:digit:]] ]]; then
           # this works b/c there're currently 10 fuzzers defined
           #
-          fuzzers=$( ls ${TOR_FUZZ_CORPORA} 2>/dev/null | sort --random-sort | head -n $OPTARG | xargs )
+          fuzzers=$( ls $TOR_FUZZ_CORPORA 2>/dev/null | sort --random-sort | head -n $OPTARG | xargs )
         else
           fuzzers="$OPTARG"
         fi
         startup
         ;;
-    k)  pkill "fuzz-"
+    k)  # kill the childs spawned by afl-fuzz
+    #
+        pkill "fuzz-"
         ;;
     u)  log=$(mktemp /tmp/fuzz_XXXXXX)
         update_tor &>$log
