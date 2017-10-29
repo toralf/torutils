@@ -65,7 +65,7 @@ function archive()  {
     do
       if [[ -n "$(ls $d/$i 2>/dev/null)" ]]; then
         tbz2=~/archive/${i}_$b.tbz2
-        (tar -cjvpf $tbz2 $d/$i 2>&1; uuencode $tbz2 $(basename $tbz2)) | timeout 120 mail -s "fuzz $i found in $b" $mailto
+        (tar -cjvpf $tbz2 $d/$i 2>&1; uuencode $tbz2 $(basename $tbz2)) | mail -s "fuzz $i found in $b" $mailto
       fi
     done
     rm -rf $d
@@ -107,6 +107,14 @@ function update_tor() {
   fi
 
   make -j 1 fuzzers || return 1
+
+  tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.out)
+  make -j 1 test &> $tmpfile
+  rc=$?
+  if [[ $rc -ne 0 ]]; then
+    cat $tmpfile | mail -s "make test failed with rc=$rc" $mailto
+  fi
+  rm $tmpfile
 }
 
 
