@@ -134,6 +134,10 @@ function startup()  {
     fi
 
     idir=$TOR_FUZZ_CORPORA/$f
+    if [[ ! -d $idir ]]; then
+      echo "idir not found: $idir"
+      continue
+    fi
 
     timestamp=$( date +%Y%m%d-%H%M%S )
     odir=~/work/${timestamp}_${cid}_${f}
@@ -150,6 +154,8 @@ function startup()  {
     fi
 
     nohup nice /usr/bin/afl-fuzz -i $idir -o $odir $dict -m 50 -- $exe &>$odir/log &
+
+    sleep 1
   done
 }
 
@@ -199,7 +205,7 @@ do
   case $opt in
     a)  archive
         ;;
-    f)  if [[ $OPTARG =~ [[:digit:]] ]]; then
+    f)  if [[ $OPTARG =~ ^[[:digit:]] ]]; then
           # this works b/c there're currently 10 fuzzers defined
           #
           fuzzers=$( ls $TOR_FUZZ_CORPORA 2>/dev/null | sort --random-sort | head -n $OPTARG | xargs )
