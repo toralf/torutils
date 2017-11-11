@@ -89,9 +89,9 @@ function update_tor() {
   cd $TOR_DIR
   git pull -q
 
-  # eg. "268435456 ./tor/src/test/fuzz/fuzz-vrs" indicates that there's something broken
+  # eg. something like "268435456 ./tor/src/test/fuzz/fuzz-vrs" indicates a broken (link) state
   #
-  m=$(for i  in ./src/test/fuzz/fuzz-*; do echo $(../recidivm-0.1.1/recidivm -v $i -u M 2>&1 | tail -n 1) $i;  done | sort -n | tail -n 1 | cut -f1 -d ' ')
+  m=$(for i in ./src/test/fuzz/fuzz-*; do echo $(../recidivm/recidivm -v $i -u M 2>&1 | tail -n 1) $i; done | sort -n | tail -n 1 | cut -f1 -d ' ')
   if [[ $m -gt 1000 ]]; then
     make distclean
   fi
@@ -101,7 +101,7 @@ function update_tor() {
   fi
 
   if [[ ! -f Makefile ]]; then
-    # --enable-expensive-hardening doesn't work b/c gcc hardened has USE="(-sanitize)"
+    # --enable-expensive-hardening doesn't work b/c hardened GCC was built with USE="(-sanitize)"
     #
     ./configure || return 1
   fi
