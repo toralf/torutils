@@ -199,7 +199,7 @@ export AFL_DONT_OPTIMIZE=1
 export AFL_SKIP_CPUFREQ=1
 #export AFL_EXIT_WHEN_DONE=1
 
-
+rc=0
 while getopts af:hku opt
 do
   case $opt in
@@ -215,7 +215,7 @@ do
         startup
         ;;
     k)  # kill the childs spawned by afl-fuzz
-    #
+        #
         pkill "fuzz-"
         ;;
     u)  log=$(mktemp /tmp/fuzz_XXXXXX)
@@ -224,7 +224,7 @@ do
         if [[ $rc -ne 0 ]]; then
           echo rc=$rc
           ls -l $log
-          exit $rc
+          break
         fi
         rm -f $log
         ;;
@@ -235,4 +235,4 @@ done
 
 rm ~/.lock
 
-exit 0
+exit $rc
