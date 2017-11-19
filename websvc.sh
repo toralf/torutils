@@ -2,7 +2,8 @@
 #
 #set -x
 
-# start a micro web server in /tmp/websvc
+# start a python web server daemon in /tmp/websvc
+# $1 is the ip-address (default localhost)
 #
 
 if [[ "$(whoami)" != "root" ]]; then
@@ -29,7 +30,12 @@ chown -R websvc:websvc /tmp/websvc{,.log,.py}
 # start it only within $dir !
 #
 cd $dir || exit 1
-su websvc -c "nice /tmp/websvc.py --address 127.0.0.1 --port 1234 &>> $log &"
+
+# choose a random unprivileged port
+#
+let p="$((RANDOM % 64000 )) + 1025"
+echo "port = $p"
+su websvc -c "nice /tmp/websvc.py --address ${1:-127.0.0.1} --port $p &>> $log &"
 sleep 1
 rm /tmp/websvc.py
 
@@ -38,5 +44,6 @@ if [[ -s $log ]]; then
   echo
   cat $log
   echo
+else
+  pgrep -af /tmp/websvc.py
 fi
-

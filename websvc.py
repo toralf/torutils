@@ -5,6 +5,7 @@ import socket
 import argparse
 import re
 import sys
+import random
 
 if sys.version_info[0] == 3:
   from http.server import HTTPServer, SimpleHTTPRequestHandler
@@ -24,7 +25,7 @@ class HTTPServerV6(HTTPServer):
 def main():
   is_ipv6 = False
   address = 'localhost'
-  port = 8080
+  port = random.randint (1025,65535)
 
   parser = argparse.ArgumentParser()
   parser.add_argument("--address", help="default: " + address)
@@ -37,6 +38,8 @@ def main():
 
   if args.port:
     port = int(args.port)
+  else:
+    print ("port = %i" % port)
 
   if re.match (":", address):
     is_ipv6 = True
