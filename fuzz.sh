@@ -59,13 +59,12 @@ function archive()  {
   ls -1d ~/work/201?????-??????_* 2>/dev/null |\
   while read d
   do
-    b=$(basename $d)
-
     for i in crashes hangs
     do
       if [[ -n "$(ls $d/$i 2>/dev/null)" ]]; then
+        b=$(basename $d)
         tbz2=~/archive/${i}_$b.tbz2
-        (tar -cjvpf $tbz2 $d/$i 2>&1; uuencode $tbz2 $(basename $tbz2)) | mail -s "fuzz $i found in $b" $mailto
+        (tar -cjvpf $tbz2 $d/$i 2>&1; uuencode $tbz2 $(basename $tbz2)) | mail -s "fuzzer catched $i in $b" $mailto
       fi
     done
     rm -rf $d
@@ -73,7 +72,7 @@ function archive()  {
 }
 
 
-# update Torand its dependencies
+# update Tor and its dependencies
 #
 function update_tor() {
   cd $RECIDIVM_DIR
