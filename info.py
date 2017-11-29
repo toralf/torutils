@@ -166,7 +166,7 @@ def main():
       v4, v6 = ports_int[t]
       print ("  %-17s  %5s  %5s %5s" % (description, '', str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else ''))
 
-    print ()
+    print
 
     count4 = 0
     count6 = 0
@@ -179,8 +179,7 @@ def main():
         count6 += v6
       else:
         if not sum_was_printed:
-          print ()
-          print ("  %-17s  %5s  %5i %5i\n" % ('   sum', '', count4, count6))
+          print ("\n  %-17s  %5s  %5i %5i\n" % ('   sum', '', count4, count6))
           sum_was_printed = 1
 
       print ("  %-17s  %5i  %5s %5s  %s" % (description, port, str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else '', port_usage(port)))
