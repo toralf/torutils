@@ -36,17 +36,18 @@ def main():
   # read in all allowed ports
   #
   exit_ports = []
-  for filename in glob.glob("/etc/tor/torrc.d/*"):
-    inputfile = open(filename)
-    lines = inputfile.readlines()
-    inputfile.close()
-    for line in lines:
-      if line.startswith("ExitPolicy accept "):
-        for word in line.split():
-          if '*:' in word:
-            port = int (word.split(':')[1])
-            if port > 0 and port < 2**16:
-              exit_ports.append(port)
+  for filename in glob.glob("/etc/tor/torrc.d/*") + (glob.glob("/etc/tor/*")):
+    if os.path.isfile(filename):
+      inputfile = open(filename)
+      lines = inputfile.readlines()
+      inputfile.close()
+      for line in lines:
+        if line.startswith("ExitPolicy accept "):
+          for word in line.split():
+            if '*:' in word:
+              port = int (word.split(':')[1])
+              if port > 0 and port < 2**16:
+                exit_ports.append(port)
 
   with Controller.from_port(port=ctrlport) as controller:
     controller.authenticate()
@@ -82,20 +83,16 @@ def main():
           if rport == 0:    # happens for 'proc' as resolver
             continue
 
-          # b/c can_exit_to() is slow we ignore the case that a relay offers an exit service too
+          # ignore incoming connections
           #
-          if raddr in relays:
-            continue
-
-          # incoming
-          #
-          if laddr == '5.9.158.75' and lport == 443:
-            continue
+          if lport == 443:
+            if laddr == '5.9.158.75' or laddr == '2a01:4f8:190:514a::2':
+              continue
 
           # very slow
           #
           #if not policy.can_exit_to(raddr, rport):
-          #  continue
+            #continue
 
           # fast
           #
