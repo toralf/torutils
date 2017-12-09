@@ -49,12 +49,10 @@ def main():
               exit_ports.append(port)
 
   with Controller.from_port(port=ctrlport) as controller:
-    print ("authenticating ...")
     controller.authenticate()
 
     # we will ignore changes of relays during the runtime of this script
     #
-    print ("get relays ...")
     relays = {}
     for s in controller.get_network_statuses():
       relays.setdefault(s.address, []).append(s.or_port)
@@ -65,7 +63,6 @@ def main():
 
     Curr = {}   # the current network connections of Tor
 
-    print ("starting ...")
     first = 1
     while True:
       try:
