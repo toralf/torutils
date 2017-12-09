@@ -76,23 +76,21 @@ def main():
           return
 
     except Exception as Exc:
-      print ("Woops, ports aren't configured")
-      #print (Exc)
+      print ("Woops, control ports aren't configured")
       return
 
-    # our version, uptime and relay flags
+    # our version, uptime and flags
     #
     version = str(controller.get_version()).split()[0]
+    uptime = 0
+    flags = ''
 
     try:
-      srv = controller.get_server_descriptor()
-      uptime = srv.uptime
-      flags = controller.get_network_status(relay=srv.fingerprint).flags
+      descriptor = controller.get_microdescriptor()
+      uptime = descriptor.uptime
+      flags = controller.get_network_status(relay=descriptor.fingerprint).flags
     except Exception as Exc:
-      #print ("Woops, can't get descriptor")
       print (Exc)
-      uptime = 0
-      flags = ''
 
     print (" %s   %s   %s\n" % (version, datetime.timedelta(seconds=uptime), "  ".join(flags)))
 
