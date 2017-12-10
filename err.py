@@ -6,21 +6,31 @@
 
 import time
 import functools
+import argparse
 
 from stem import ORStatus, ORClosureReason
 from stem.control import EventType, Controller
 
-
 def main():
+  ctrlport = 9051
+
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--ctrlport", help="default: " + str(ctrlport))
+
+  args = parser.parse_args()
+
+  if args.ctrlport:
+    ctrlport = int(args.ctrlport)
+
   class Cnt:
     def __init__(self, done=0, closed=0, ioerror=0):
-      self.done = done
-      self.closed = closed
-      self.ioerror = ioerror
+      self.done     = done
+      self.closed   = closed
+      self.ioerror  = ioerror
 
   c = Cnt()
 
-  with Controller.from_port(port=9051) as controller:
+  with Controller.from_port(port=ctrlport) as controller:
     controller.authenticate()
 
     orconn_listener = functools.partial(orconn_event, controller, c)
@@ -43,7 +53,7 @@ def orconn_event(controller, c, event):
       c.ioerror += 1
 
       fingerprint = event.endpoint_fingerprint
-      print (" %i %i %i %i %s %40s" % (c.closed, c.done, c.ioerror, event.arrived_at, time.ctime(event.arrived_at), fingerprint), end='')
+      print (" %5i %5i %5i  %i %s %40s" % (c.closed, c.done, c.ioerror, event.arrived_at, time.ctime(event.arrived_at), fingerprint), end='')
       relay = controller.get_network_status(fingerprint, None)
       if (relay):
         print (" %15s %5i %s %s" % (relay.address, relay.or_port, controller.get_info("ip-to-country/%s" % relay.address, 'unknown'), relay.nickname))
