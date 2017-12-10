@@ -86,7 +86,7 @@ def main():
     flags = ''
 
     try:
-      descriptor = controller.get_microdescriptor()
+      descriptor = controller.get_server_descriptor()
       uptime = descriptor.uptime
       flags = controller.get_network_status(relay=descriptor.fingerprint).flags
     except Exception as Exc:
