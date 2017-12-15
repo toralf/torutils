@@ -145,9 +145,9 @@ def main():
         inc_ports_ext ('=> exit')
 
       else:
-        if not (conn.is_ipv6 and lport == ORPort or conn.is_ipv6 and lport == ORPort6):
+        if not conn.is_ipv6 and lport == ORPort or conn.is_ipv6 and lport == ORPort6:
           inc_ports_int('ORPort   <= outer')
-        elif not (conn.is_ipv6 and lport == DirPort or conn.is_ipv6 and lport == DirPort6):
+        elif not conn.is_ipv6 and lport == DirPort or conn.is_ipv6 and lport == DirPort6:
           inc_ports_int('DirPort  <= outer')
         elif lport == ControlPort:
           inc_ports_int('CtrlPort <= local')
