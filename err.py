@@ -10,6 +10,7 @@ import argparse
 
 from stem import ORStatus, ORClosureReason
 from stem.control import EventType, Controller
+from stem.util.connection import is_valid_ipv6_address
 
 def main():
   ctrlport = 9051
@@ -44,21 +45,18 @@ def main():
 
 def orconn_event(controller, c, event):
   if event.status == ORStatus.CLOSED:
-    c.closed += 1
 
-    if event.reason == ORClosureReason.DONE:
-      c.done += 1
-
-    elif event.reason == ORClosureReason.IOERROR:
-      c.ioerror += 1
-
-      fingerprint = event.endpoint_fingerprint
-      print (" %5i %5i %5i  %i %s %40s" % (c.closed, c.done, c.ioerror, event.arrived_at, time.ctime(event.arrived_at), fingerprint), end='')
-      relay = controller.get_network_status(fingerprint, None)
-      if (relay):
-        print (" %15s %5i %s %s" % (relay.address, relay.or_port, controller.get_info("ip-to-country/%s" % relay.address, 'unknown'), relay.nickname))
+    fingerprint = event.endpoint_fingerprint
+    print ("%i %-15s %s" % (event.arrived_at, event.reason, fingerprint), end='')
+    relay = controller.get_network_status(fingerprint, None)
+    if (relay):
+      if is_valid_ipv6_address(relay.address):
+        ip = 'v6'
       else:
-        print ('', flush=True)
+        ip = 'v4'
+      print (" %17s  %5i  %s  %s  %s" % (relay.address, relay.or_port, ip, controller.get_info("ip-to-country/%s" % relay.address, 'unknown'), relay.nickname))
+    else:
+      print ('', flush=True)
 
 if __name__ == '__main__':
   main()

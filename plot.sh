@@ -1,31 +1,34 @@
 #!/bin/sh
 #
-#set -x
+# set -x
 
 # work on the output of err.py
-# got eg. by: nohup bash -c "./err.py --ctrlport 9051 &> err.$(date +%Y%m%d-%H%M%S).tor" &
+#   format:
+#   513193091 IOERROR         8DA235C46D5AFC41058FA368F5CF8C4EC7539B1F     77.27.140.228  20576  v4  es  flymylittlepretties
 
-# sort fingerprints by their amounts of ioerrors
-#
-# input file has this format :
-#   3196   256  2734  1512928870 Sun Dec 10 19:01:10 2017 ED4B112B...   209.141.36.42  9001 us nick
-#
+cat $* |\
+
 perl -we '
   my %h = ();
 
   while (<>) {
-    @line = split();
-    $h{$line[9]}++;
+    @line = split(/\s+/);
+    $h{$line[2]}++;
   }
 
   foreach $key (sort { $h{$b} <=> $h{$a} } keys %h) {
     print $key, "\t", $h{$key}, "\n";
   }
-  ' err* |\
+  ' |\
+
+# this file contains the fingerprints versus their counts
+#   format:
+#   5F276A6F7AA74AFB2AF100EADA28C7A6F48BA50F        24
+#
 tee fingerprints |\
 
-# create a histogram over count values
-# output will look like:
+# create a histogram over the count values only
+#   format:
 #   1       1222
 #   2       702
 #   3       245
@@ -50,8 +53,8 @@ perl -we '
 # display the histogram
 #
 gnuplot -e '
-  set xrange [0:50];
-  set yrange [0:];
+  set logscale x 10;
+  set logscale y 10;
   set xlabel "ioerrors";
   set ylabel "relays";
   set style line 1 lc rgb "#0060ad" lt 1 lw 1 pt 7 ps 1.5;
