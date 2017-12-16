@@ -2,28 +2,33 @@
 # -*- coding: utf-8 -*-
 
 """
- produces an output like:
+$> info.py --ctrlport 29051
+ 0.3.2.7-rc   21:33:06   Exit  Fast  Guard  Running  Stable  V2Dir  Valid
 
- 0.3.0.3-alpha   10:53:12   Exit  Fast  Guard  Running  Stable  V2Dir  Valid
+  description         port   ipv4  ipv6  service
+  -----------------  -----   ----  ----  -------------
+  => relay ORPort             396
+  CtrlPort <= local             1
+  ORPort   <= outer            80     4
+  ORPort   <= relay          3382
 
-  --------------------   port   ipv4  ipv6
+  => exit              443    611   232  HTTPS
+  => exit              587      1        SMTP
+  => exit              993     14        IMAPS
+  => exit              995      2        POP3S
+  => exit             5222     35        Jabber
+  => exit             5223     20        Jabber
+  => exit             6667      1        IRC
+  => exit             7777      1        None
+  => exit             8233      1     1  None
+  => exit             8333     14     1  Bitcoin
+  => exit            50002     11        Electrum Bitcoin SSL
 
-  => relay ORPort                  1     0
-  CtrlPort <= local                1     0
-  ORPort   <= outer                1     0
-  ORPort   <= relay                1     0
+     sum                      711   234
 
-  => exit                  81     10     0
-  => exit                  88      1     0
-  => exit                 143      2     0
-  => exit                 443   1089   713
-...
-  => exit               50002     11     0
-  => relay port          8333      2     0
-
- exits:
- v4 : 1252
- v6:  718
+  => non exit port    9002      1        None
+  => relay port       5222      5        Jabber
+  => relay port      50002      2        Electrum Bitcoin SSL
 """
 
 import datetime
@@ -32,7 +37,7 @@ import argparse
 import sys
 
 from stem.control import Controller, Listener
-from stem.util.connection import get_connections, port_usage, is_valid_ipv4_address, is_valid_ipv6_address
+from stem.util.connection import get_connections, port_usage, is_valid_ipv4_address
 
 def main():
   ctrlport = 9051
@@ -59,21 +64,15 @@ def main():
         address, port = listener
         if is_valid_ipv4_address(address):
           ORPort = port
-        elif is_valid_ipv6_address(address):
-          ORPort6 = port
         else:
-          print ("Woops, can't parse get_listeners(Listener.OR)")
-          return
+          ORPort6 = port
 
       for listener in controller.get_listeners(Listener.DIR):
         address, port = listener
         if is_valid_ipv4_address(address):
           DirPort = port
-        elif is_valid_ipv6_address(address):
-          DirPort6 = port
         else:
-          print ("Woops, can't get listeners)")
-          return
+          DirPort6 = port
 
     except Exception as Exc:
       print ("Woops, control ports aren't configured")
