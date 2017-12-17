@@ -60,15 +60,13 @@ def main():
     try:
       ControlPort = int(controller.get_conf("ControlPort"))
 
-      for listener in controller.get_listeners(Listener.OR):
-        address, port = listener
+      for address, port in controller.get_listeners(Listener.OR):
         if is_valid_ipv4_address(address):
           ORPort = port
         else:
           ORPort6 = port
 
-      for listener in controller.get_listeners(Listener.DIR):
-        address, port = listener
+      for address, port in controller.get_listeners(Listener.DIR):
         if is_valid_ipv4_address(address):
           DirPort = port
         else:
