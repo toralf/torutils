@@ -23,18 +23,12 @@ def main():
   if args.ctrlport:
     ctrlport = int(args.ctrlport)
 
-  class Cnt:
-    def __init__(self, done=0, closed=0, ioerror=0):
-      self.done     = done
-      self.closed   = closed
-      self.ioerror  = ioerror
-
-  c = Cnt()
+  relays = {}
 
   with Controller.from_port(port=ctrlport) as controller:
     controller.authenticate()
 
-    orconn_listener = functools.partial(orconn_event, controller, c)
+    orconn_listener = functools.partial(orconn_event, controller, relays)
     controller.add_event_listener(orconn_listener, EventType.ORCONN)
 
     while True:
@@ -43,18 +37,20 @@ def main():
       except KeyboardInterrupt:
         break
 
-def orconn_event(controller, c, event):
+def orconn_event(controller, relays, event):
   if event.status == ORStatus.CLOSED:
 
     fingerprint = event.endpoint_fingerprint
-    print ("%i %-15s %s" % (event.arrived_at, event.reason, fingerprint), end='')
+
+    print ("%-12s %s" % (event.reason, fingerprint), end='')
+
     relay = controller.get_network_status(fingerprint, None)
     if (relay):
       if is_valid_ipv4_address(relay.address):
         ip = 'v4'
       else:
         ip = 'v6'
-      print (" %17s  %5i  %s  %s  %s" % (relay.address, relay.or_port, ip, controller.get_info("ip-to-country/%s" % relay.address, 'unknown'), relay.nickname))
+      print (" %15s %5i %s" % (relay.address, relay.or_port, ip))
     else:
       print ('', flush=True)
 
