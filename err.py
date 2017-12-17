@@ -10,7 +10,7 @@ import argparse
 
 from stem import ORStatus, ORClosureReason
 from stem.control import EventType, Controller
-from stem.util.connection import is_valid_ipv6_address
+from stem.util.connection import is_valid_ipv4_address
 
 def main():
   ctrlport = 9051
@@ -50,10 +50,10 @@ def orconn_event(controller, c, event):
     print ("%i %-15s %s" % (event.arrived_at, event.reason, fingerprint), end='')
     relay = controller.get_network_status(fingerprint, None)
     if (relay):
-      if is_valid_ipv6_address(relay.address):
-        ip = 'v6'
-      else:
+      if is_valid_ipv4_address(relay.address):
         ip = 'v4'
+      else:
+        ip = 'v6'
       print (" %17s  %5i  %s  %s  %s" % (relay.address, relay.or_port, ip, controller.get_info("ip-to-country/%s" % relay.address, 'unknown'), relay.nickname))
     else:
       print ('', flush=True)
