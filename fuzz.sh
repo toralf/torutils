@@ -91,7 +91,7 @@ function update_tor() {
   cd $TOR_DIR
   git pull -q
 
-  # eg. something like "268435456 ./tor/src/test/fuzz/fuzz-vrs" indicates a broken (link) state
+  # something like "268435456 ./tor/src/test/fuzz/fuzz-vrs" indicates a broken (link) state
   #
   m=$(for i in ./src/test/fuzz/fuzz-*; do echo $(../recidivm/recidivm -v $i -u M 2>&1 | tail -n 1) $i; done | sort -n | tail -n 1 | cut -f1 -d ' ')
   if [[ $m -gt 1000 ]]; then
@@ -99,16 +99,19 @@ function update_tor() {
   fi
 
   if [[ ! -x ./configure ]]; then
-    ./autogen.sh || return 1
+    ./autogen.sh || return $?
   fi
-set -x
+
   if [[ ! -f Makefile ]]; then
     # https://github.com/mirrorer/afl/blob/master/docs/env_variables.txt
     #   --enable-expensive-hardening doesn't work b/c hardened GCC is built with USE="(-sanitize)"
     #
-    CFLAGS="-O2 -pipe -march=native" CC="afl-gcc" ./configure || return 1
+    CFLAGS="-O2 -pipe -march=native" CC="afl-gcc" ./configure || return $?
   fi
-set +x
+
+  # target "fuzzers" seems not to build main target which yields into compile error like
+  # "src/or/git_revision.c:14:28: fatal error: micro-revision.i: No such file or directory"
+  #
   make -j 1         || return $?
   make -j 1 fuzzers || return $?
 }
