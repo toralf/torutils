@@ -9,12 +9,11 @@ mailto="torproject@zwiebeltoralf.de"
 
 # preparation steps at Gentoo Linux:
 #
-# (I)
+# (I) install AFL
 #
-# echo "sys-devel/llvm clang" >> /etc/portage/package.use/llvm
 # emerge --update sys-devel/clang app-forensics/afl
 #
-# (II)
+# (II) clone repos
 #
 # cd ~
 # git clone https://github.com/jwilk/recidivm
@@ -22,7 +21,11 @@ mailto="torproject@zwiebeltoralf.de"
 # git clone https://github.com/nmathewson/tor-fuzz-corpora.git
 # git clone https://git.torproject.org/tor.git
 #
-# (III)
+# (III) build Tor:
+#
+#/opt/torutils/fuzz.sh -k -a -u
+#
+# (IV) check memory limit
 #
 # for i  in ./tor/src/test/fuzz/fuzz-*; do echo $(./recidivm/recidivm -v $i -u M 2>&1 | tail -n 1) $i ;  done | sort -n
 # 46 ./tor/src/test/fuzz/fuzz-consensus
@@ -98,26 +101,20 @@ function update_tor() {
   if [[ ! -x ./configure ]]; then
     ./autogen.sh || return 1
   fi
-
+set -x
   if [[ ! -f Makefile ]]; then
-    # --enable-expensive-hardening doesn't work b/c hardened GCC was built with USE="(-sanitize)"
+    # https://github.com/mirrorer/afl/blob/master/docs/env_variables.txt
+    #   --enable-expensive-hardening doesn't work b/c hardened GCC is built with USE="(-sanitize)"
     #
-    ./configure || return 1
+    CFLAGS="-O2 -pipe -march=native" CC="afl-gcc" ./configure || return 1
   fi
-
-  make -j 1 fuzzers || return 1
-
-  tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.out)
-  make -j 1 test &> $tmpfile
-  rc=$?
-  if [[ $rc -ne 0 ]]; then
-    cat $tmpfile | mail -s "make test failed with rc=$rc" $mailto
-  fi
-  rm $tmpfile
+set +x
+  make -j 1         || return $?
+  make -j 1 fuzzers || return $?
 }
 
 
-# spin up fuzzers
+# spin up fuzzer(s)
 #
 function startup()  {
   cd $TOR_DIR
@@ -170,10 +167,10 @@ fi
 if [[ -f ~/.lock ]]; then
   kill -0 $(cat ~/.lock) 2>/dev/null
   if [[ $? -eq 0 ]]; then
-    echo "found valid lock file"
+    echo " found a valid lock file, exiting ..."
     exit 1
   else
-    echo "ignore stalled lock file"
+    echo " will ignore stalled lock file, continuing ..."
   fi
 fi
 echo $$ > ~/.lock
@@ -182,11 +179,6 @@ export RECIDIVM_DIR=~/recidivm
 export CHUTNEY_PATH=~/chutney
 export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora
 export TOR_DIR=~/tor
-
-# https://github.com/mirrorer/afl/blob/master/docs/env_variables.txt
-#
-export CFLAGS="-O2 -pipe -march=native"
-export CC="afl-gcc"
 
 # for afl-gcc
 #
@@ -205,7 +197,7 @@ do
     a)  archive
         ;;
     f)  if [[ $OPTARG =~ ^[[:digit:]] ]]; then
-          # this works b/c there're currently 10 fuzzers defined
+          # this works for up to 10 different fuzzers
           #
           fuzzers=$( ls $TOR_FUZZ_CORPORA 2>/dev/null | sort --random-sort | head -n $OPTARG | xargs )
         else
@@ -222,7 +214,7 @@ do
         rc=$?
         if [[ $rc -ne 0 ]]; then
           echo rc=$rc
-          ls -l $log
+          cat $log
           break
         fi
         rm -f $log
