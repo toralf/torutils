@@ -50,27 +50,43 @@ function Help() {
 
 # keep found issues
 #
-function archive()  {
-  if [[ ! -d ~/work ]]; then
-    mkdir ~/work
+function checkResult()  {
+  if [[ ! -d ~/findings ]]; then
+    mkdir ~/findings
   fi
 
-  if [[ ! -d ~/archive ]]; then
-    mkdir ~/archive
-  fi
-
-  ls -1d ~/work/201?????-??????_* 2>/dev/null |\
-  while read d
+  for d in $(ls -1d ~/work/20??????-??????_* 2>/dev/null)
   do
+    found=0
+
     for i in crashes hangs
     do
       if [[ -n "$(ls $d/$i 2>/dev/null)" ]]; then
+        found=1
         b=$(basename $d)
-        tbz2=~/archive/${i}_$b.tbz2
-        (tar -cjvpf $tbz2 $d/$i 2>&1; uuencode $tbz2 $(basename $tbz2)) | mail -s "fuzzer catched $i in $b" $mailto
+        date | mail -s "$(basename $0) catched $i in $b" $mailto
       fi
     done
-    rm -rf $d
+
+    pid=$d/fuzz.pid
+    if [[ $found -eq 1 ]]; then
+      kill $(cat $pid)
+      sleep 5
+    fi
+
+    # archive findings only
+    #
+    if [[ -s $pid ]]; then
+      kill -0 $(cat $pid)
+      if [[ $? -ne 0 ]]; then
+        if [[ $found -eq 0 ]]; then
+          rm -rf $d
+        else
+          mv $d ~/findings
+        fi
+      fi
+    fi
+
   done
 }
 
@@ -103,7 +119,6 @@ function update_tor() {
   fi
 
   if [[ ! -f Makefile ]]; then
-    # https://github.com/mirrorer/afl/blob/master/docs/env_variables.txt
     #   --enable-expensive-hardening doesn't work b/c hardened GCC is built with USE="(-sanitize)"
     #
     CFLAGS="-O2 -pipe -march=native" CC="afl-gcc" ./configure || return $?
@@ -119,7 +134,11 @@ function update_tor() {
 
 # spin up fuzzer(s)
 #
-function startup()  {
+function startFuzzer()  {
+  if [[ ! -d ~/work ]]; then
+    mkdir ~/work
+  fi
+
   cd $TOR_DIR
   cid=$( git describe | sed 's/.*\-g//g' )
 
@@ -152,7 +171,8 @@ function startup()  {
       dict=""
     fi
 
-    nohup nice /usr/bin/afl-fuzz -i $idir -o $odir $dict -m 50 -- $exe &>$odir/log &
+    nohup nice /usr/bin/afl-fuzz -i $idir -o $odir $dict -m 50 -- $exe &>$odir/fuzz.log &
+    echo "$!" > $odir/fuzz.pid
 
     sleep 1
   done
@@ -187,49 +207,47 @@ export CHUTNEY_PATH=~/chutney
 export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora
 export TOR_DIR=~/tor
 
+# https://github.com/mirrorer/afl/blob/master/docs/env_variables.txt
+#
 # for afl-gcc
 #
 export AFL_HARDEN=1
 export AFL_DONT_OPTIMIZE=1
-
 # for afl-fuzz
 #
 export AFL_SKIP_CPUFREQ=1
 export AFL_EXIT_WHEN_DONE=1
+export AFL_NO_AFFINITY=1
 
-rc=0
-while getopts af:hku opt
+while getopts chs:u opt
 do
   case $opt in
-    a)  archive
-        ;;
-    f)  if [[ $OPTARG =~ ^[[:digit:]] ]]; then
+    c)  checkResult
+    ;;
+
+    s)  if [[ $OPTARG =~ ^[[:digit:]] ]]; then
           # this works for up to 10 different fuzzers
           #
           fuzzers=$( ls $TOR_FUZZ_CORPORA 2>/dev/null | sort --random-sort | head -n $OPTARG | xargs )
         else
           fuzzers="$OPTARG"
         fi
-        startup
-        ;;
-    k)  # kill the childs spawned by afl-fuzz
-        #
-        pkill "fuzz-"
-        ;;
-    u)  log=$(mktemp /tmp/fuzz_XXXXXX)
+        startFuzzer
+    ;;
+
+    u)  log=/tmp/$(basename $0).update.log
         update_tor &>$log
         rc=$?
         if [[ $rc -ne 0 ]]; then
-          echo rc=$rc
-          cat $log
+          exit $rc
         fi
         rm -f $log
         ;;
     *)  Help
-        ;;
+    ;;
   esac
 done
 
 rm ~/.lock
 
-exit $rc
+exit 0
