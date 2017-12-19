@@ -9,7 +9,7 @@ mailto="torproject@zwiebeltoralf.de"
 
 # preparation steps at Gentoo Linux:
 #
-# (I) install AFL
+# (I) install AFL (as root)
 #
 # emerge --update sys-devel/clang app-forensics/afl
 #
@@ -25,9 +25,9 @@ mailto="torproject@zwiebeltoralf.de"
 #
 #/opt/torutils/fuzz.sh -k -a -u
 #
-# (IV) check memory limit
+# (IV) get/check memory limit
 #
-# for i  in ./tor/src/test/fuzz/fuzz-*; do echo $(./recidivm/recidivm -v $i -u M 2>&1 | tail -n 1) $i ;  done | sort -n
+# cd ~/tor; for i in ./tor/src/test/fuzz/fuzz-*; do echo $(./recidivm/recidivm -v $i -u M 2>&1 | tail -n 1) $i ;  done | sort -n
 # 46 ./tor/src/test/fuzz/fuzz-consensus
 # 46 ./tor/src/test/fuzz/fuzz-descriptor
 # 46 ./tor/src/test/fuzz/fuzz-diff
@@ -59,6 +59,8 @@ function checkResult()  {
   do
     found=0
 
+    # check for findings
+    #
     for i in crashes hangs
     do
       reported=$d/fuzz.$i.reported
@@ -73,7 +75,7 @@ function checkResult()  {
       fi
     done
 
-    # archive findings only
+    # archive complete dir if fuzzer finished and a finding happened
     #
     pid=$d/fuzz.pid
     if [[ -s $pid ]]; then
@@ -91,7 +93,7 @@ function checkResult()  {
 }
 
 
-# update Tor and its dependencies
+# update Tor fuzzer software stack
 #
 function update_tor() {
   cd $RECIDIVM_DIR
@@ -107,7 +109,7 @@ function update_tor() {
   cd $TOR_DIR
   git pull -q
 
-  # something like "268435456 ./tor/src/test/fuzz/fuzz-vrs" indicates a broken (link) state
+  # something like "268435456 ./tor/src/test/fuzz/fuzz-vrs" indicates a broken (linker) state
   #
   m=$(for i in ./src/test/fuzz/fuzz-*; do echo $(../recidivm/recidivm -v $i -u M 2>&1 | tail -n 1) $i; done | sort -n | tail -n 1 | cut -f1 -d ' ')
   if [[ $m -gt 1000 ]]; then
@@ -124,7 +126,7 @@ function update_tor() {
     CFLAGS="-O2 -pipe -march=native" CC="afl-gcc" ./configure || return $?
   fi
 
-  # target "fuzzers" seems not to build main target which yields into compile error like
+  # target "fuzzers" seems not to build main target before which yields into compile error like
   # "src/or/git_revision.c:14:28: fatal error: micro-revision.i: No such file or directory"
   #
   make -j 1         || return $?
@@ -132,7 +134,7 @@ function update_tor() {
 }
 
 
-# spin up fuzzer(s)
+# spin up new fuzzer(s)
 #
 function startFuzzer()  {
   if [[ ! -d ~/work ]]; then
@@ -145,18 +147,24 @@ function startFuzzer()  {
   cd ~
   for f in $fuzzers
   do
+    # the fuzzer itslef
+    #
     exe="$TOR_DIR/src/test/fuzz/fuzz-$f"
     if [[ ! -x $exe ]]; then
       echo "fuzzer not found: $exe"
       continue
     fi
 
+    # input data files for the fuzzer
+    #
     idir=$TOR_FUZZ_CORPORA/$f
     if [[ ! -d $idir ]]; then
       echo "idir not found: $idir"
       continue
     fi
 
+    # output directory
+    #
     timestamp=$( date +%Y%m%d-%H%M%S )
     odir=~/work/${timestamp}_${cid}_${f}
     mkdir -p $odir
@@ -164,6 +172,8 @@ function startFuzzer()  {
       continue
     fi
 
+    # optional: dictionare for the fuzzer
+    #
     dict="$TOR_DIR/src/test/fuzz/dict/$f"
     if [[ -e $dict ]]; then
       dict="-x $dict"
@@ -171,9 +181,13 @@ function startFuzzer()  {
       dict=""
     fi
 
+    # fire it up
+    #
     nohup nice /usr/bin/afl-fuzz -i $idir -o $odir $dict -m 50 -- $exe &>$odir/fuzz.log &
     echo "$!" > $odir/fuzz.pid
 
+    # avoid same timestamp for the same fuzzer
+    #
     sleep 1
   done
 }
