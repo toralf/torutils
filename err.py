@@ -52,12 +52,12 @@ def orconn_event(controller, relays, event):
         ip = 'v6'
 
       version = relay.version
-      #if version == None:
-        #try:
-          #desc = controller.get_server_descriptor(fingerprint)
-          #version = desc.tor_version
-        #except Exception as Exc:
-          #version = 'error'
+      if version == None:
+        try:
+          desc = controller.get_server_descriptor(fingerprint)
+          version = desc.tor_version
+        except Exception as Exc:
+          version = 'error'
 
       print (" %15s %5i %s %s" % (relay.address, relay.or_port, ip, version))
     else:
