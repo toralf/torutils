@@ -61,21 +61,21 @@ function checkResult()  {
 
     for i in crashes hangs
     do
+      reported=$d/fuzz.$i.reported
+      if [[ -f $reported ]]; then
+        continue
+      fi
+
       if [[ -n "$(ls $d/$i 2>/dev/null)" ]]; then
         found=1
         b=$(basename $d)
-        date | mail -s "$(basename $0) catched $i in $b" $mailto
+        date | mail -s "$(basename $0) catched $i in $b" $mailto && touch $reported
       fi
     done
 
-    pid=$d/fuzz.pid
-    if [[ $found -eq 1 ]]; then
-      kill $(cat $pid)
-      sleep 5
-    fi
-
     # archive findings only
     #
+    pid=$d/fuzz.pid
     if [[ -s $pid ]]; then
       kill -0 $(cat $pid)
       if [[ $? -ne 0 ]]; then
