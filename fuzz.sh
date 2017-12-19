@@ -191,7 +191,7 @@ export AFL_DONT_OPTIMIZE=1
 # for afl-fuzz
 #
 export AFL_SKIP_CPUFREQ=1
-#export AFL_EXIT_WHEN_DONE=1
+export AFL_EXIT_WHEN_DONE=1
 
 rc=0
 while getopts af:hku opt
@@ -218,7 +218,6 @@ do
         if [[ $rc -ne 0 ]]; then
           echo rc=$rc
           cat $log
-          break
         fi
         rm -f $log
         ;;
