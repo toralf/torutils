@@ -55,35 +55,37 @@ function checkResult()  {
     mkdir ~/findings
   fi
 
+  if [[ ! -d ~/done ]]; then
+    mkdir ~/done
+  fi
+
   for d in $(ls -1d ~/work/20??????-??????_* 2>/dev/null)
   do
-    found=0
-
     # check for findings
     #
     for i in crashes hangs
     do
-      reported=$d/fuzz.$i.reported
-      if [[ -f $reported ]]; then
+      tbz2=$d/$i.tbz2
+      if [[ -f $tbz2 ]]; then
         continue
       fi
 
       if [[ -n "$(ls $d/$i 2>/dev/null)" ]]; then
-        b=$(basename $d)
-        date | mail -s "$(basename $0) catched $i in $b" $mailto && touch $reported
+        ( tar -cjpf $tbz2 $d/$i 2>&1; uuencode $tbz2 $(basename $tbz2) ) |\
+          mail -s "$(basename $0) catched $i in $(basename $d)" $mailto
       fi
     done
 
-    # keep complete dir after finish if finding(s) happened
+    # keep found issue(s)
     #
     pid=$d/fuzz.pid
     if [[ -s $pid ]]; then
       kill -0 $(cat $pid)
       if [[ $? -ne 0 ]]; then
-        if [[ -n "$(ls $d/fuzz.*.reported 2>/dev/null)" ]]; then
+        if [[ -f "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
           mv $d ~/findings
         else
-          rm -rf $d
+          mv $d ~/done
         fi
       fi
     fi
