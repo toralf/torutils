@@ -167,6 +167,8 @@ if [[ $# -eq 0 ]]; then
   Help
 fi
 
+# do not run this script in parallel
+#
 if [[ -f ~/.lock ]]; then
   kill -0 $(cat ~/.lock) 2>/dev/null
   if [[ $? -eq 0 ]]; then
@@ -178,6 +180,8 @@ if [[ -f ~/.lock ]]; then
 fi
 echo $$ > ~/.lock
 
+# pathes to sources
+#
 export RECIDIVM_DIR=~/recidivm
 export CHUTNEY_PATH=~/chutney
 export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora
