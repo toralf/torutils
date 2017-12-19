@@ -6,7 +6,7 @@
 #   format:
 #   event         fingerprint                                 address       port version
 #
-#   IOERROR       069E732EC96774ED5609D4803D7B1130E338B0EB    94.19.14.183  9001 v4
+#   IOERROR       069E732EC96774ED5609D4803D7B1130E338B0EB    94.19.14.183  9001 0.3.2.7-rc
 
 cat $* |\
 
@@ -44,7 +44,7 @@ perl -we '
   }
   ' |\
 
-# this file contains the fingerprints versus their counts
+# this file contains the fingerprints versus their counts of DONE/IOERROR/TIMEOUT/CONNECTRESET
 #
 #   format:
 #   ABCD1234     8     6     0     0
@@ -58,15 +58,20 @@ tee fingerprints |\
 #     2       355
 #
 # read this as:
-#   417 nodes are fine. 1065 had 1 ioerror, 355 had 2, ...
+#   417 nodes are fine. 1065 had 1 ioerror, 355 had 2 ioerrors, ...
 #
 perl -we '
   my %h = ();
 
   while (<>) {
     chomp();
-    my ($fingerprint, undef, $ioerror) = split();
-    $h{$ioerror}++
+    s/^\s+//g;
+
+    my ($fingerprint, $done, $ioerror, $timeout, $connectreset) = split();
+
+    # currently we are only interested in ioerrors
+    #
+    $h{$ioerror}++;
   }
 
   foreach my $key (sort { $a <=> $b } keys %h) {
@@ -93,4 +98,3 @@ gnuplot -e '
   '
 
 wc -l $* fingerprints histogram
-
