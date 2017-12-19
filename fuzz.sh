@@ -69,22 +69,21 @@ function checkResult()  {
       fi
 
       if [[ -n "$(ls $d/$i 2>/dev/null)" ]]; then
-        found=1
         b=$(basename $d)
         date | mail -s "$(basename $0) catched $i in $b" $mailto && touch $reported
       fi
     done
 
-    # archive complete dir if fuzzer finished and a finding happened
+    # keep complete dir after finish if finding(s) happened
     #
     pid=$d/fuzz.pid
     if [[ -s $pid ]]; then
       kill -0 $(cat $pid)
       if [[ $? -ne 0 ]]; then
-        if [[ $found -eq 0 ]]; then
-          rm -rf $d
-        else
+        if [[ -n "$(ls $d/fuzz.*.reported 2>/dev/null)" ]]; then
           mv $d ~/findings
+        else
+          rm -rf $d
         fi
       fi
     fi
