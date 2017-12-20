@@ -79,6 +79,8 @@ perl -we '
   }
   ' > histogram
 
+wc -l $* fingerprints histogram
+
 # plot the histogram
 #
 gnuplot -e '
@@ -96,5 +98,3 @@ gnuplot -e '
   plot "histogram" with linespoints ls 1;
   pause(-1);
   '
-
-wc -l $* fingerprints histogram
