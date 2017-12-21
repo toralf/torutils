@@ -7,15 +7,11 @@ Few tools to derive the status of a Tor relay and more.
 
 *ps.py* continuously shows exit port usage.
 
-*err.py* collects data for https://trac.torproject.org/projects/tor/ticket/13603 .
+*orstatus.py* collects data for https://trac.torproject.org/projects/tor/ticket/13603 .
 
 ##  play with a hidden service
 
 *websvc.sh*, *websvc.py*, *os.sh*, *mock_irc.py*
-
-## play with encrypted ext4 FS
-
-*unlock_tor.sh*
 
 ## fuzz testing
 
