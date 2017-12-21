@@ -80,9 +80,11 @@ function checkResult()  {
     #
     pid=$d/fuzz.pid
     if [[ -s $pid ]]; then
-      kill -0 $(cat $pid)
+      kill -0 $(cat $pid) 2>/dev/null
+      echo "$d finished"
       if [[ $? -ne 0 ]]; then
         if [[ -f "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
+          echo "has findings"
           mv $d ~/findings
         else
           mv $d ~/done
