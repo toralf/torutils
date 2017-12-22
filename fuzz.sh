@@ -82,11 +82,11 @@ function checkResult()  {
     if [[ -s $pid ]]; then
       kill -0 $(cat $pid) 2>/dev/null
       if [[ $? -ne 0 ]]; then
-        echo "$d finished"
         if [[ -f "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
           echo "$d has findings"
           mv $d ~/findings
         else
+          echo "$d is done"
           mv $d ~/done
         fi
       fi
@@ -126,7 +126,7 @@ function update_tor() {
   if [[ ! -f Makefile ]]; then
     #   --enable-expensive-hardening doesn't work b/c hardened GCC is built with USE="(-sanitize)"
     #
-    CFLAGS="-O2 -pipe -march=native" CC="afl-gcc" ./configure || return $?
+    ./configure CFLAGS="$CFLAGS" CC="$CC" || return $?
   fi
 
   # target "fuzzers" seems not to build main target before which yields into compile error like
@@ -187,7 +187,9 @@ function startFuzzer()  {
     # fire it up
     #
     nohup nice /usr/bin/afl-fuzz -i $idir -o $odir $dict -m 50 -- $exe &>$odir/fuzz.log &
-    echo "$!" > $odir/fuzz.pid
+    pid="$!"
+    echo "$pid" > $odir/fuzz.pid
+    echo "started $exe pid=$pid"
 
     # avoid same timestamp for the same fuzzer
     #
@@ -236,6 +238,9 @@ export AFL_SKIP_CPUFREQ=1
 export AFL_EXIT_WHEN_DONE=1
 export AFL_NO_AFFINITY=1
 
+export CFLAGS="-O2 -pipe -march=native"
+export CC="afl-gcc"
+
 while getopts chs:u opt
 do
   case $opt in
@@ -252,14 +257,9 @@ do
         startFuzzer
     ;;
 
-    u)  log=/tmp/$(basename $0).update.log
-        update_tor &>$log
-        rc=$?
-        if [[ $rc -ne 0 ]]; then
-          exit $rc
-        fi
-        rm -f $log
-        ;;
+    u)  update_tor || exit $?
+    ;;
+
     *)  Help
     ;;
   esac
