@@ -78,11 +78,13 @@ function checkResult()  {
 
     # keep found issue(s)
     #
+    # TODO: recheck for new findings
+    #
     pid=$d/fuzz.pid
     if [[ -s $pid ]]; then
       kill -0 $(cat $pid) 2>/dev/null
       if [[ $? -ne 0 ]]; then
-        if [[ -f "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
+        if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
           echo "$d has findings"
           mv $d ~/findings
         else
