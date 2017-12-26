@@ -85,10 +85,10 @@ function checkResult()  {
       kill -0 $(cat $pid) 2>/dev/null
       if [[ $? -ne 0 ]]; then
         if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
-          echo "$d has findings"
+          echo "$d *has* findings, kept it in ./findings"
           mv $d ~/findings
         else
-          echo "$d is done"
+          echo "$d has no findings, moved to ./done"
           mv $d ~/done
         fi
       fi
@@ -128,7 +128,7 @@ function update_tor() {
   if [[ ! -f Makefile ]]; then
     #   --enable-expensive-hardening doesn't work b/c hardened GCC is built with USE="(-sanitize)"
     #
-    ./configure CFLAGS="$CFLAGS" CC="$CC" || return $?
+    CFLAGS="$CFLAGS" CC="$CC" ./configure || return $?
   fi
 
   # target "fuzzers" seems not to build main target before which yields into compile error like
@@ -191,9 +191,9 @@ function startFuzzer()  {
     nohup nice /usr/bin/afl-fuzz -i $idir -o $odir $dict -m 50 -- $exe &>$odir/fuzz.log &
     pid="$!"
     echo "$pid" > $odir/fuzz.pid
-    echo "started $exe pid=$pid"
+    echo "started $f pid=$pid odir=$odir"
 
-    # avoid same timestamp for the same fuzzer
+    # avoid equal timestamp for the same fuzzer
     #
     sleep 1
   done
@@ -211,7 +211,9 @@ fi
 # do not run this script in parallel
 #
 if [[ -f ~/.lock ]]; then
-  kill -0 $(cat ~/.lock) 2>/dev/null
+  ls -l ~/.lock
+  tail -v ~/.lock
+  kill -0 $(cat ~/.lock)
   if [[ $? -eq 0 ]]; then
     echo " found a valid lock file, exiting ..."
     exit 1
