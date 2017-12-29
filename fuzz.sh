@@ -51,45 +51,41 @@ function Help() {
 # keep found issues
 #
 function checkResult()  {
-  if [[ ! -d ~/findings ]]; then
-    mkdir ~/findings
+  if [[ ! -d ./findings ]]; then
+    mkdir ./findings
   fi
 
-  if [[ ! -d ~/done ]]; then
-    mkdir ~/done
-  fi
-
-  for d in $(ls -1d ~/work/20??????-??????_* 2>/dev/null)
+  cd ./work
+  for d in $(ls -1d ./20??????-??????_* 2>/dev/null)
   do
     # check for findings
     #
     for i in crashes hangs
     do
-      tbz2=$d/$i.tbz2
-      if [[ -f $tbz2 ]]; then
+      # prefix archive file name intentionally with $d
+      #
+      tbz2=$(basename $d)-$i.tbz2
+      if [[ -f $d/$tbz2 && -z "$(find $d/$i -newer $d/$tbz2)" || -z "$(ls $d/$i 2>/dev/null)" ]]; then
         continue
       fi
 
-      if [[ -n "$(ls $d/$i 2>/dev/null)" ]]; then
-        ( tar -cjpf $tbz2 $d/$i 2>&1; uuencode $tbz2 $(basename $tbz2) ) |\
-          mail -s "$(basename $0) catched $i in $(basename $d)" $mailto
-      fi
+      ( cd $d && tar -cjpf $tbz2 ./$i 2>&1 && uuencode $tbz2 $(basename $tbz2) ) |\
+        mail -s "$(basename $0) catched new $i in $d" $mailto
     done
 
     # keep found issue(s)
-    #
-    # TODO: recheck for new findings
     #
     pid=$d/fuzz.pid
     if [[ -s $pid ]]; then
       kill -0 $(cat $pid) 2>/dev/null
       if [[ $? -ne 0 ]]; then
+        echo "$d finished"
         if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
-          echo "$d *has* findings, kept it in ./findings"
-          mv $d ~/findings
+          echo "$d contains issues"
+          mv $d ../findings
         else
-          echo "$d has no findings, moved to ./done"
-          mv $d ~/done
+          echo "$d has no findings - will be removed"
+          rm -rf $d
         fi
       fi
     fi
@@ -114,7 +110,7 @@ function update_tor() {
   cd $TOR_DIR
   git pull -q
 
-  # something like "268435456 ./tor/src/test/fuzz/fuzz-vrs" indicates a broken (linker) state
+  # something like "268435456 ./tor/src/test/fuzz/fuzz-vrs" often indicates a broken (linker) state
   #
   m=$(for i in ./src/test/fuzz/fuzz-*; do echo $(../recidivm/recidivm -v $i -u M 2>&1 | tail -n 1) $i; done | sort -n | tail -n 1 | cut -f1 -d ' ')
   if [[ $m -gt 1000 ]]; then
@@ -142,8 +138,8 @@ function update_tor() {
 # spin up new fuzzer(s)
 #
 function startFuzzer()  {
-  if [[ ! -d ~/work ]]; then
-    mkdir ~/work
+  if [[ ! -d ./work ]]; then
+    mkdir ./work
   fi
 
   cd $TOR_DIR
@@ -171,7 +167,7 @@ function startFuzzer()  {
     # output directory
     #
     timestamp=$( date +%Y%m%d-%H%M%S )
-    odir=~/work/${timestamp}_${cid}_${f}
+    odir=./work/${timestamp}_${cid}_${f}
     mkdir -p $odir
     if [[ $? -ne 0 ]]; then
       continue
@@ -208,12 +204,14 @@ if [[ $# -eq 0 ]]; then
   Help
 fi
 
+cd ~ 1>/dev/null
+
 # do not run this script in parallel
 #
-if [[ -f ~/.lock ]]; then
-  ls -l ~/.lock
-  tail -v ~/.lock
-  kill -0 $(cat ~/.lock)
+if [[ -f ./.lock ]]; then
+  ls -l ./.lock
+  tail -v ./.lock
+  kill -0 $(cat ./.lock)
   if [[ $? -eq 0 ]]; then
     echo " found a valid lock file, exiting ..."
     exit 1
