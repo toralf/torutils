@@ -31,11 +31,12 @@ chown -R websvc:websvc /tmp/websvc{,.log,.py}
 #
 cd $dir || exit 1
 
-# choose a random unprivileged port
+# choose an arbitrarily choosen unprivileged port if not given
 #
-let p="$((RANDOM % 64000 )) + 1025"
-echo "port = $p"
-su websvc -c "nice /tmp/websvc.py --address ${1:-127.0.0.1} --port $p &>> $log &"
+let p="$((RANDOM % 64510 )) + 1025"
+command="/tmp/websvc.py --address ${1:-localhost} --port ${2:-$p}"
+echo "will run now: '$command'"
+su websvc -c "nice $command &> $log &"
 sleep 1
 rm /tmp/websvc.py
 
