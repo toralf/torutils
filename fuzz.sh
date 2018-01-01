@@ -244,27 +244,28 @@ export AFL_NO_AFFINITY=1
 export CFLAGS="-O2 -pipe -march=native"
 export CC="afl-gcc"
 
-while getopts chs:u opt
+while getopts chf:s:u opt
 do
   case $opt in
-    c)  checkResult
-    ;;
-
-    s)  if [[ $OPTARG =~ ^[[:digit:]] ]]; then
-          # this works for up to 10 different fuzzers
-          #
-          fuzzers=$( ls $TOR_FUZZ_CORPORA 2>/dev/null | sort --random-sort | head -n $OPTARG | xargs )
-        else
-          fuzzers="$OPTARG"
-        fi
-        startFuzzer
-    ;;
-
-    u)  update_tor || exit $?
-    ;;
-
-    *)  Help
-    ;;
+    c)
+      checkResult
+      ;;
+    f)
+      # directly specified
+      fuzzers="$OPTARG"
+      startFuzzer
+      ;;
+    s)
+      # amount given
+      fuzzers=$( ls $TOR_FUZZ_CORPORA 2>/dev/null | sort --random-sort | head -n $OPTARG | xargs )
+      startFuzzer
+      ;;
+    u)
+      update_tor || exit $?
+      ;;
+    *)
+      Help
+      ;;
   esac
 done
 
