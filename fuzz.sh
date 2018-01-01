@@ -27,18 +27,19 @@ mailto="torproject@zwiebeltoralf.de"
 #
 # (IV) get/check memory limit
 #
-# cd ~/tor; for i in ./tor/src/test/fuzz/fuzz-*; do echo $(./recidivm/recidivm -v $i -u M 2>&1 | tail -n 1) $i ;  done | sort -n
-# 46 ./tor/src/test/fuzz/fuzz-consensus
-# 46 ./tor/src/test/fuzz/fuzz-descriptor
-# 46 ./tor/src/test/fuzz/fuzz-diff
-# 46 ./tor/src/test/fuzz/fuzz-diff-apply
-# 46 ./tor/src/test/fuzz/fuzz-extrainfo
-# 46 ./tor/src/test/fuzz/fuzz-hsdescv2
-# 46 ./tor/src/test/fuzz/fuzz-http
-# 46 ./tor/src/test/fuzz/fuzz-http-connect
-# 46 ./tor/src/test/fuzz/fuzz-iptsv2
-# 46 ./tor/src/test/fuzz/fuzz-microdesc
-# 46 ./tor/src/test/fuzz/fuzz-vrs
+# cd ~/tor; for i in ./src/test/fuzz/fuzz-*; do echo $(../recidivm/recidivm -v -u M $i 2>&1 | tail -n 1) $i ; done | sort -n
+# 42 ./src/test/fuzz/fuzz-consensus
+# 42 ./src/test/fuzz/fuzz-descriptor
+# 42 ./src/test/fuzz/fuzz-diff
+# 42 ./src/test/fuzz/fuzz-diff-apply
+# 42 ./src/test/fuzz/fuzz-extrainfo
+# 42 ./src/test/fuzz/fuzz-hsdescv2
+# 42 ./src/test/fuzz/fuzz-hsdescv3
+# 42 ./src/test/fuzz/fuzz-http
+# 42 ./src/test/fuzz/fuzz-http-connect
+# 42 ./src/test/fuzz/fuzz-iptsv2
+# 42 ./src/test/fuzz/fuzz-microdesc
+# 42 ./src/test/fuzz/fuzz-vrs
 
 function Help() {
   echo
@@ -110,10 +111,10 @@ function update_tor() {
   cd $TOR_DIR
   git pull -q
 
-  # something like "268435456 ./tor/src/test/fuzz/fuzz-vrs" often indicates a broken (linker) state
+  # anything much bigger than 50 indicates a broken (linker) state
   #
-  m=$(for i in ./src/test/fuzz/fuzz-*; do echo $(../recidivm/recidivm -v $i -u M 2>&1 | tail -n 1) $i; done | sort -n | tail -n 1 | cut -f1 -d ' ')
-  if [[ $m -gt 1000 ]]; then
+  m=$(for i in ./src/test/fuzz/fuzz-*; do echo $(../recidivm/recidivm -v -u M $i 2>&1 | tail -n 1); done | sort -n | tail -n 1)
+  if [[ $m -gt 100 ]]; then
     make distclean
   fi
 
@@ -127,8 +128,8 @@ function update_tor() {
     CFLAGS="$CFLAGS" CC="$CC" ./configure || return $?
   fi
 
-  # target "fuzzers" seems not to build main target before which yields into compile error like
-  # "src/or/git_revision.c:14:28: fatal error: micro-revision.i: No such file or directory"
+  # target "fuzzers" seems not to build the make target "main"
+  # this yields into compile errors like "src/or/git_revision.c:14:28: fatal error: micro-revision.i: No such file or directory"
   #
   make -j 1         || return $?
   make -j 1 fuzzers || return $?
@@ -211,12 +212,12 @@ cd ~ 1>/dev/null
 if [[ -f ./.lock ]]; then
   ls -l ./.lock
   tail -v ./.lock
-  kill -0 $(cat ./.lock)
+  kill -0 $(cat ./.lock) 2>/dev/null
   if [[ $? -eq 0 ]]; then
-    echo " found a valid lock file, exiting ..."
+    echo "lock file is valid, exiting ..."
     exit 1
   else
-    echo " will ignore stalled lock file, continuing ..."
+    echo "lock file si stalled, continuing ..."
   fi
 fi
 echo $$ > ~/.lock
