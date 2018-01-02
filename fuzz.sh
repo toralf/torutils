@@ -71,7 +71,7 @@ function checkResult()  {
       fi
 
       ( cd $d && tar -cjpf $tbz2 ./$i 2>&1 && uuencode $tbz2 $(basename $tbz2) ) |\
-        mail -s "$(basename $0) catched new $i in $d" $mailto
+        mail -s "$(basename $0) catched new $i in $d" $mailto -a ''
     done
 
     # keep found issue(s)
