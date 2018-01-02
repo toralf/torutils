@@ -70,7 +70,10 @@ function checkResult()  {
         continue
       fi
 
-      ( cd $d && tar -cjpf $tbz2 ./$i 2>&1 && uuencode $tbz2 $(basename $tbz2) ) |\
+      (
+        echo "re-test it like:  $TOR_DIR/src/test/fuzz/fuzz-$(dirname $d | cut -f3 -d'_') < $d/$i/..."
+        cd $d && tar -cjpf $tbz2 ./$i 2>&1 && uuencode $tbz2 $(basename $tbz2)
+      ) |\
         mail -s "$(basename $0) catched new $i in $d" $mailto -a ''
     done
 
