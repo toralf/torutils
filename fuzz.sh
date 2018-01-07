@@ -67,9 +67,9 @@ function checkResult()  {
     #
     if [[ -f $log ]]; then
       let "t = $(date +%s) - $(date +%s -r $log)"
-      if [[ $t -gt 3600 ]]; then
+      if [[ $t -gt 86400 ]]; then
         echo
-        echo "logfile $log is older than $t seconds"
+        echo "logfile $log is older than $t seconds (> 1 day)"
         echo
         if [[ -n $pid ]]; then
           echo "will kill process $pid"
