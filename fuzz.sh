@@ -57,8 +57,27 @@ function checkResult()  {
   fi
 
   cd ./work
+
   for d in $(ls -1d ./20??????-??????_* 2>/dev/null)
   do
+    log=$d/fuzz.log
+    pid=$(cat $d/fuzz.pid 2>/dev/null)
+
+    # kill hanging fuzzers
+    #
+    if [[ -f $log ]]; then
+      let "t = $(date +%s) - $(date +%s -r $log)"
+      if [[ $t -gt 3600 ]]; then
+        echo
+        echo "logfile $log is older than $t seconds"
+        echo
+        if [[ -n $pid ]]; then
+          echo "will kill process $pid"
+          kill $pid
+        fi
+      fi
+    fi
+
     # check for findings
     #
     for i in crashes hangs
@@ -79,18 +98,19 @@ function checkResult()  {
 
     # keep found issue(s)
     #
-    pid=$d/fuzz.pid
-    if [[ -s $pid ]]; then
-      kill -0 $(cat $pid) 2>/dev/null
+    if [[ -n $pid ]]; then
+      kill -0 $pid 2>/dev/null
       if [[ $? -ne 0 ]]; then
+        echo
         echo "$d finished"
         if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
-          echo "$d contains issues"
+          echo "$d *has* findings, kept it"
           mv $d ../findings
         else
-          echo "$d has no findings - will be removed"
+          echo "$d has no findings"
           rm -rf $d
         fi
+        echo
       fi
     fi
 
@@ -198,7 +218,9 @@ function startFuzzer()  {
     nohup nice /usr/bin/afl-fuzz -i $idir -o $odir $dict -m 50 -- $exe &>$odir/fuzz.log &
     pid="$!"
     echo "$pid" > $odir/fuzz.pid
+    echo
     echo "started $f pid=$pid odir=$odir"
+    echo
 
     # avoid equal timestamp for the same fuzzer
     #
