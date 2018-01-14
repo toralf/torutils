@@ -80,6 +80,7 @@ function checkResult()  {
 
     # keep found issue(s)
     #
+    pid=$(cat $d/fuzz.pid 2>/dev/null)
     if [[ -n $pid ]]; then
       kill -0 $pid 2>/dev/null
       if [[ $? -ne 0 ]]; then
@@ -130,7 +131,7 @@ function update_tor() {
   if [[ ! -f Makefile ]]; then
     #   --enable-expensive-hardening doesn't work b/c hardened GCC is built with USE="(-sanitize)"
     #
-    CFLAGS="$CFLAGS" CC="$CC" ./configure || return $?
+    ./configure || return $?
   fi
 
   # choose free cpu slots
