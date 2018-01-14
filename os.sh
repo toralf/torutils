@@ -2,6 +2,9 @@
 #
 #set -x
 
+# setup an onion service
+# optional parameters: $1: port (default: 1234), $2: address (default: 127.0.0.1), $3: ControlPort
+
 if [[ "$(whoami)" != "root" ]]; then
   echo "you must be root "
   exit 2
@@ -24,17 +27,17 @@ if [[ -s $os/tor.pid ]]; then
   pid=$(cat $os/tor.pid)
   kill -s 0 $pid
   if [[ $? -eq 0 ]]; then
-    echo "there's already a running instance at pid $pid , exiting ..."
+    echo "there's a running instance at pid=$pid, exiting ..."
     echo
     exit 3
   else
-    echo "removing obsolete old pid-file containing pid $pid"
+    echo "removing stalled old pid-file (pid=$pid)"
     rm $os/tor.pid
   fi
 fi
 
-mkdir -m 0700 $os 2>/dev/null
-chown tor:tor $os
+mkdir -m 0700 $os
+chown -R tor:tor $os
 
 cat << EOF > $os/torrc
 User tor
@@ -44,30 +47,35 @@ RunAsDaemon 1
 DataDirectory $os/data
 PIDFile       $os/tor.pid
 
-SocksPort   0
+ControlPort ${3:-59051}
+CookieAuthentication 1
 
-SandBox 1
+SocksPort 0
 
-#Log debug   file $os/debug.log
-#Log info    file $os/info.log
-Log notice  file $os/notice.log
+# gives for v3: "[err] sandbox_getaddrinfo(): Bug: (Sandbox) failed to get address mr-fox!"
+#
+# SandBox 1
 
-BandwidthRate  500 KBytes
-BandwidthBurst 600 Kbytes
+Log notice file $os/notice.log
+Log warn   file $os/warn.log
+
+# BandwidthRate  500 KBytes
+# BandwidthBurst 600 Kbytes
 
 HiddenServiceDir $os/data/osdir
-HiddenServicePort 80 127.0.0.1:1234
-#HiddenServicePort 80 [::1]:1234
+# HiddenServiceVersion 3
+HiddenServicePort 80 ${2:-127.0.0.1}:${1:-1234}
 
 EOF
-
 chown tor:tor /tmp/os/torrc
 
 /usr/bin/tor -f $os/torrc
 rc=$?
 
-echo "pid       $(cat $os/tor.pid)"
-sleep 1
 echo "hostname  $(cat $os/data/osdir/hostname)"
+sleep 1
+pid=$(cat $os/tor.pid 2>/dev/null)
+echo "pid       $pid"
+ps -efla | grep $pid
 
 exit $rc

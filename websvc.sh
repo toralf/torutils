@@ -3,7 +3,7 @@
 #set -x
 
 # start a python web server daemon in /tmp/websvc
-# $1 is the ip-address (default localhost)
+# optional parameters: $1: port (default: random), $2: ip-address (default: 127.0.0.1)
 #
 
 if [[ "$(whoami)" != "root" ]]; then
@@ -18,11 +18,11 @@ if [[ $? -eq 0 ]]; then
 	exit 1
 fi
 
-dir=/tmp/websvc
+dir=/tmp/websvc.d
 log=/tmp/websvc.log
 
 truncate -s0 $log
-mkdir $dir 2>/dev/null
+mkdir $dir
 cp $(dirname $0)/websvc.py /tmp
 chmod go-rwx /tmp/websvc{,.log,.py}
 chown -R websvc:websvc /tmp/websvc{,.log,.py}
@@ -31,10 +31,10 @@ chown -R websvc:websvc /tmp/websvc{,.log,.py}
 #
 cd $dir || exit 1
 
-# choose an arbitrarily choosen unprivileged port if not given
+# choose an arbitrary unprivileged port if no one is given
 #
 let p="$((RANDOM % 64510 )) + 1025"
-command="/tmp/websvc.py --address ${1:-localhost} --port ${2:-$p}"
+command="/tmp/websvc.py --port ${1:-$p} --address ${2:-127.0.0.1}"
 echo "will run now: '$command'"
 su websvc -c "nice $command &> $log &"
 sleep 1
