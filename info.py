@@ -59,6 +59,10 @@ def main():
 
     try:
       ControlPort = int(controller.get_conf("ControlPort"))
+      ORPort   = None
+      ORPort6  = None
+      DirPort  = None
+      DirPort6 = None
 
       for address, port in controller.get_listeners(Listener.OR):
         if is_valid_ipv4_address(address):
