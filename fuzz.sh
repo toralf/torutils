@@ -60,24 +60,6 @@ function checkResult()  {
 
   for d in $(ls -1d ./20??????-??????_* 2>/dev/null)
   do
-    log=$d/fuzz.log
-    pid=$(cat $d/fuzz.pid 2>/dev/null)
-
-    # kill hanging fuzzers
-    #
-    if [[ -f $log ]]; then
-      let "t = $(date +%s) - $(date +%s -r $log)"
-      if [[ $t -gt 86400 ]]; then
-        echo
-        echo "logfile $log is older than $t seconds (> 1 day)"
-        echo
-        if [[ -n $pid ]]; then
-          echo "will kill process $pid"
-          kill $pid
-        fi
-      fi
-    fi
-
     # check for findings
     #
     for i in crashes hangs
