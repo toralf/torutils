@@ -43,7 +43,7 @@ mailto="torproject@zwiebeltoralf.de"
 
 function Help() {
   echo
-  echo "  call: $(basename $0) [-h|-?] [-a] [-f '<fuzzer(s)>'] [-k] [-u]"
+  echo "  call: $(basename $0) [-h|-?] [-v] [-f '<fuzzer(s)>'] [-r '<fuzzer(s)>'] [-s <number>] [-u]"
   echo
   exit 0
 }
@@ -162,7 +162,7 @@ function startFuzzer()  {
   cd ~
   for f in $fuzzers
   do
-    # the fuzzer itslef
+    # the fuzzer itself
     #
     exe="$TOR_DIR/src/test/fuzz/fuzz-$f"
     if [[ ! -x $exe ]]; then
@@ -212,6 +212,55 @@ function startFuzzer()  {
 }
 
 
+# resume after reboot
+#
+function resumeFuzzer ()  {
+  cd ~
+
+  for d in $(ls -1d ~/work/20??????-??????_* 2>/dev/null)
+  do
+    pid=$(cat $odir/fuzz.pid)
+    kill -0 $pid
+    if [[ $? -eq 0 ]]; then
+      continue
+    fi
+
+    echo
+    echo "attempt to resume $d ..."
+
+    f=$(echo $d | cut -f3 -d'_')
+
+    exe="$TOR_DIR/src/test/fuzz/fuzz-$f"
+    if [[ ! -x $exe ]]; then
+      echo "fuzzer not found: $exe"
+      continue
+    fi
+
+    idir="-"
+    odir=$d
+
+    # optional: dictionare for the fuzzer
+    #
+    dict="$TOR_DIR/src/test/fuzz/dict/$f"
+    if [[ -e $dict ]]; then
+      dict="-x $dict"
+    else
+      dict=""
+    fi
+
+    # fire it up
+    #
+    nohup nice /usr/bin/afl-fuzz -i $idir -o $odir $dict -m 50 -- $exe &>$odir/fuzz.log &
+    pid="$!"
+    echo "$pid" > $odir/fuzz.pid
+    echo
+    echo "started $f pid=$pid odir=$odir"
+    echo
+
+  done
+}
+
+
 #######################################################################
 #
 # main
@@ -232,7 +281,7 @@ if [[ -f ./.lock ]]; then
     echo "lock file is valid, exiting ..."
     exit 1
   else
-    echo "lock file si stalled, continuing ..."
+    echo "lock file is stalled, continuing ..."
   fi
 fi
 echo $$ > ~/.lock
@@ -259,20 +308,22 @@ export AFL_NO_AFFINITY=1
 export CFLAGS="-O2 -pipe -march=native"
 export CC="afl-gcc"
 
-while getopts chf:s:u opt
+while getopts chf:rs:u opt
 do
   case $opt in
     c)
       checkResult
       ;;
     f)
-      # directly specified
       fuzzers="$OPTARG"
       startFuzzer
       ;;
+    r)
+      resumeFuzzer
+      ;;
     s)
-      # amount given
-      fuzzers=$( ls $TOR_FUZZ_CORPORA 2>/dev/null | sort --random-sort | head -n $OPTARG | xargs )
+      n=$OPTARG
+      fuzzers=$( ls $TOR_FUZZ_CORPORA 2>/dev/null | sort --random-sort | head -n $n | xargs )
       startFuzzer
       ;;
     u)
