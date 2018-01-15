@@ -52,18 +52,15 @@ CookieAuthentication 1
 
 SocksPort 0
 
-# gives for v3: "[err] sandbox_getaddrinfo(): Bug: (Sandbox) failed to get address mr-fox!"
-#
-# SandBox 1
+SandBox 1
 
 Log notice file $os/notice.log
-Log warn   file $os/warn.log
 
 # BandwidthRate  500 KBytes
 # BandwidthBurst 600 Kbytes
 
 HiddenServiceDir $os/data/osdir
-# HiddenServiceVersion 3
+HiddenServiceVersion 3
 HiddenServicePort 80 ${2:-127.0.0.1}:${1:-1234}
 
 EOF
