@@ -219,6 +219,9 @@ function resumeFuzzer ()  {
 
   for d in $(ls -1d ~/work/20??????-??????_* 2>/dev/null)
   do
+    idir="-"
+    odir=$d
+
     pid=$(cat $odir/fuzz.pid)
     kill -0 $pid
     if [[ $? -eq 0 ]]; then
@@ -236,9 +239,6 @@ function resumeFuzzer ()  {
       continue
     fi
 
-    idir="-"
-    odir=$d
-
     # optional: dictionare for the fuzzer
     #
     dict="$TOR_DIR/src/test/fuzz/dict/$f"
@@ -254,7 +254,7 @@ function resumeFuzzer ()  {
     pid="$!"
     echo "$pid" > $odir/fuzz.pid
     echo
-    echo "started $f pid=$pid odir=$odir"
+    echo "resumed $f pid=$pid odir=$odir"
     echo
 
   done
