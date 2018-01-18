@@ -134,18 +134,11 @@ function update_tor() {
     ./configure || return $?
   fi
 
-  # choose free cpu slots
-  #
-  if [[ -n "$fuzzers" ]]; then
-    j=$(echo $fuzzers | wc -w)
-  else
-    j="1"
-  fi
   # target "fuzzers" seems not to build the make target "main"
-  # this yields into compile errors like "src/or/git_revision.c:14:28: fatal error: micro-revision.i: No such file or directory"
+  # this yields into compile errors, eg.:
+  #   "src/or/git_revision.c:14:28: fatal error: micro-revision.i: No such file or directory"
   #
-  make -j $j         || return $?
-  make -j $j fuzzers || return $?
+  make && make fuzzers || return $?
 }
 
 
