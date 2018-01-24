@@ -151,9 +151,6 @@ function startFuzzer()  {
     mkdir ./work
   fi
 
-  cd $TOR_DIR
-  cid=$( git describe | sed 's/.*\-g//g' )
-
   cd ~
   for f in $fuzzers
   do
@@ -305,6 +302,9 @@ export CC="afl-gcc"
 
 while getopts chf:rs:u opt
 do
+  cd $TOR_DIR
+  cid=$( git describe | sed 's/.*\-g//g' )
+
   case $opt in
     c)
       checkResult
@@ -317,8 +317,21 @@ do
       resumeFuzzer
       ;;
     s)
-      n=$OPTARG
-      fuzzers=$( ls $TOR_FUZZ_CORPORA 2>/dev/null | sort --random-sort | head -n $n | xargs )
+      fuzzers=""
+      i=0
+      for f in $( ls $TOR_FUZZ_CORPORA 2>/dev/null | sort --random-sort )
+      do
+        ls -d ./work/*-*_${cid}_${f} &>/dev/null
+        if [[ $? -eq 0 ]]; then
+          echo "there's already a fuzzer at git commit $cid"
+          continue
+        fi
+        fuzzers="$fuzzers $f"
+        ((i=i+1))
+        if [[ $i -ge $OPTARG ]]; then
+          break
+        fi
+      done
       startFuzzer
       ;;
     u)
