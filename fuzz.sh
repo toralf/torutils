@@ -52,13 +52,15 @@ function Help() {
 # keep found issues
 #
 function checkResult()  {
+  cd ~
+
   if [[ ! -d ./findings ]]; then
     mkdir ./findings
   fi
 
   cd ./work
 
-  for d in $(ls -1d ./20??????-??????_* 2>/dev/null)
+  for d in $( ls -1d ./20??????-??????_* 2>/dev/null )
   do
     # check for findings
     #
