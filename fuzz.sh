@@ -64,6 +64,10 @@ function checkResult()  {
   do
     for i in crashes hangs
     do
+      if [[ -z "$(ls $d/$i 2>/dev/null)" ]]; then
+        continue
+      fi
+
       tbz2=$(basename $d)-$i.tbz2
       if [[ -f $d/$tbz2 && $tbz2 -nt $d/$i ]]; then
         continue
