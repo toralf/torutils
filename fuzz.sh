@@ -89,7 +89,7 @@ function checkResult()  {
         echo
         echo "$d finished"
         if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
-          echo "$d *has* findings, kept it"
+          echo "$d *has* findings, kept it in ~/findings"
           mv $d ../findings
         else
           echo "$d has no findings"
