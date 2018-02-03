@@ -252,6 +252,26 @@ function resumeFuzzer ()  {
 }
 
 
+function terminateOldFuzzer()  {
+  for d in $(ls -1d ~/work/20??????-??????_* 2>/dev/null)
+  do
+    start=$( stat -c%X $d )
+    curr=$(  date +%s )
+    let "diff = $curr - $start"
+    let "max = 86400 * 28"
+    if [[ $diff -gt $max ]]; then
+      echo
+      echo "$d is too old"
+      pf=$( cat $d/fuzz.pid 2>/dev/null )
+      if [[ -n $pid ]]; then
+        echo "will kill process $pid"
+        kill $pid
+      fi
+    fi
+  done
+}
+
+
 #######################################################################
 #
 # main
@@ -299,7 +319,7 @@ export AFL_NO_AFFINITY=1
 export CFLAGS="-O2 -pipe -march=native"
 export CC="afl-gcc"
 
-while getopts chf:rs:u opt
+while getopts chf:rs:tu opt
 do
   cd $TOR_DIR
   cid=$( git describe | sed 's/.*\-g//g' )
@@ -332,6 +352,9 @@ do
         fi
       done
       startFuzzer
+      ;;
+    t)
+      terminateOldFuzzer
       ;;
     u)
       update_tor || exit $?
