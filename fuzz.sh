@@ -179,6 +179,11 @@ function startFuzzer()  {
       continue
     fi
 
+    # the Tor repo need might be updated and rebuild in the mean while
+    #
+    cp $exe $odir
+    exe="$odir/fuzz-$f"
+
     # optional: dictionare for the fuzzer
     #
     dict="$TOR_DIR/src/test/fuzz/dict/$f"
@@ -224,7 +229,7 @@ function resumeFuzzer ()  {
 
     f=$(echo $d | cut -f3 -d'_')
 
-    exe="$TOR_DIR/src/test/fuzz/fuzz-$f"
+    exe="$odir/fuzz-$f"
     if [[ ! -x $exe ]]; then
       echo "can't resume $f"
       continue
