@@ -221,17 +221,16 @@ function resumeFuzzer ()  {
     fi
 
     echo
-    echo "attempt to resume $d ..."
 
     f=$(echo $d | cut -f3 -d'_')
 
     exe="$TOR_DIR/src/test/fuzz/fuzz-$f"
     if [[ ! -x $exe ]]; then
-      echo "fuzzer not found: $exe"
+      echo "can't resume $f"
       continue
     fi
 
-    # optional: dictionare for the fuzzer
+    # optional: dictionaire for the fuzzer
     #
     dict="$TOR_DIR/src/test/fuzz/dict/$f"
     if [[ -e $dict ]]; then
