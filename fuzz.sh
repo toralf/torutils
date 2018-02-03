@@ -49,7 +49,7 @@ function Help() {
 }
 
 
-# keep found issues
+# check for and keep findings
 #
 function checkResult()  {
   cd ~
@@ -62,22 +62,18 @@ function checkResult()  {
 
   for d in $( ls -1d ./20??????-??????_* 2>/dev/null )
   do
-    # check for findings
-    #
     for i in crashes hangs
     do
-      # prefix archive file name intentionally with $d
-      #
       tbz2=$(basename $d)-$i.tbz2
-      if [[ -f $d/$tbz2 && -z "$(find $d/$i -newer $d/$tbz2)" || -z "$(ls $d/$i 2>/dev/null)" ]]; then
+      if [[ -f $d/$tbz2 && $tbz2 -nt $d/$i ]]; then
         continue
       fi
 
       (
-        echo "re-test it like:  $TOR_DIR/src/test/fuzz/fuzz-$(dirname $d | cut -f3 -d'_') < $d/$i/..."
+        echo "re-test:  $TOR_DIR/src/test/fuzz/fuzz-$(dirname $d | cut -f3 -d'_') < $d/$i/..."
         cd $d && tar -cjpf $tbz2 ./$i 2>&1 && uuencode $tbz2 $(basename $tbz2)
       ) |\
-        mail -s "$(basename $0) catched new $i in $d" $mailto -a ''
+      mail -s "$(basename $0) catched $i in $d" $mailto -a ''
     done
 
     # keep found issue(s)
