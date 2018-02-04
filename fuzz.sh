@@ -300,7 +300,7 @@ if [[ -f ./.lock ]]; then
     echo "lock file is stalled, continuing ..."
   fi
 fi
-echo $$ > ~/.lock
+echo $$ > ./.lock
 
 # pathes to sources
 #
@@ -345,15 +345,15 @@ do
       i=0
       for f in $( ls $TOR_FUZZ_CORPORA 2>/dev/null | sort --random-sort )
       do
-        ls -d ./work/*-*_${cid}_${f} &>/dev/null
+        ls -d ./work/*-*_*_${f} &>/dev/null
         if [[ $? -eq 0 ]]; then
-          echo "there's already a fuzzer at git commit $cid"
-          continue
-        fi
-        fuzzers="$fuzzers $f"
-        ((i=i+1))
-        if [[ $i -ge $OPTARG ]]; then
-          break
+          echo "there's already a fuzzer running: '$f'"
+        else
+          fuzzers="$fuzzers $f"
+          ((i=i+1))
+          if [[ $i -ge $OPTARG ]]; then
+            break
+          fi
         fi
       done
       startFuzzer
