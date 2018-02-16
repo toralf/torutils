@@ -136,11 +136,11 @@ function update_tor() {
     ./configure || return $?
   fi
 
-  # target "fuzzers" seems not to build the make target "main"
-  # this yields into compile errors, eg.:
+  # target "fuzzers" seems not to depend on target "main"
+  # which yields into compile errors, eg.:
   #   "src/or/git_revision.c:14:28: fatal error: micro-revision.i: No such file or directory"
   #
-  make && make fuzzers || return $?
+  ( make && make fuzzers ) || return $?
 }
 
 
