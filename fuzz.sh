@@ -256,14 +256,15 @@ function resumeFuzzer ()  {
   done
 }
 
-
-function terminateOldFuzzer()  {
+# after a year the test might not be useful anymore
+#
+function killOldFuzzer()  {
   for d in $(ls -1d ~/work/20??????-??????_* 2>/dev/null)
   do
     start=$( stat -c%X $d )
     curr=$(  date +%s )
     let "diff = $curr - $start"
-    let "max = 86400 * 28"
+    let "max = 86400 * 365"
     if [[ $diff -gt $max ]]; then
       echo
       echo "$d is too old"
@@ -324,7 +325,7 @@ export AFL_NO_AFFINITY=1
 export CFLAGS="-O2 -pipe -march=native"
 export CC="afl-gcc"
 
-while getopts chf:rs:tu opt
+while getopts chf:krs:u opt
 do
   cd $TOR_DIR
   cid=$( git describe | sed 's/.*\-g//g' )
@@ -336,6 +337,9 @@ do
     f)
       fuzzers="$OPTARG"
       startFuzzer
+      ;;
+    k)
+      killOldFuzzer
       ;;
     r)
       resumeFuzzer
@@ -358,8 +362,6 @@ do
       done
       startFuzzer
       ;;
-    t)
-      terminateOldFuzzer
       ;;
     u)
       update_tor || exit $?
