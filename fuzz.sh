@@ -21,9 +21,9 @@ mailto="torproject@zwiebeltoralf.de"
 # git clone https://github.com/nmathewson/tor-fuzz-corpora.git
 # git clone https://git.torproject.org/tor.git
 #
-# (III) build Tor:
+# (III) build fuzzers:
 #
-#/opt/torutils/fuzz.sh -k -a -u
+# /opt/torutils/fuzz.sh -u
 #
 # (IV) get/check memory limit
 #
@@ -40,6 +40,10 @@ mailto="torproject@zwiebeltoralf.de"
 # 42 ./src/test/fuzz/fuzz-iptsv2
 # 42 ./src/test/fuzz/fuzz-microdesc
 # 42 ./src/test/fuzz/fuzz-vrs
+#
+# (V) start fuzzers:
+#
+# /opt/torutils/fuzz.sh -s 10
 
 function Help() {
   echo
@@ -52,13 +56,11 @@ function Help() {
 # check for and keep findings
 #
 function checkResult()  {
-  cd ~
-
-  if [[ ! -d ./findings ]]; then
-    mkdir ./findings
+  if [[ ! -d ~/findings ]]; then
+    mkdir ~/findings
   fi
 
-  cd ./work
+  cd ~/work
 
   for d in $( ls -1d ./20??????-??????_* 2>/dev/null )
   do
@@ -147,11 +149,13 @@ function update_tor() {
 # spin up new fuzzer(s)
 #
 function startFuzzer()  {
-  if [[ ! -d ./work ]]; then
-    mkdir ./work
+  if [[ ! -d ~/work ]]; then
+    mkdir ~/work
   fi
 
-  cd ~
+  cd $TOR_DIR
+  cid=$( git describe | sed 's/.*\-g//g' )
+
   for f in $fuzzers
   do
     # the fuzzer itself
@@ -173,7 +177,7 @@ function startFuzzer()  {
     # output directory
     #
     timestamp=$( date +%Y%m%d-%H%M%S )
-    odir=./work/${timestamp}_${cid}_${f}
+    odir=~/work/${timestamp}_${cid}_${f}
     mkdir -p $odir
     if [[ $? -ne 0 ]]; then
       continue
@@ -202,7 +206,7 @@ function startFuzzer()  {
     echo "started $f pid=$pid odir=$odir"
     echo
 
-    # avoid equal timestamp for the same fuzzer
+    # guarantee a unique timestamp
     #
     sleep 1
   done
@@ -212,8 +216,6 @@ function startFuzzer()  {
 # resume after reboot
 #
 function resumeFuzzer ()  {
-  cd ~
-
   for d in $(ls -1d ~/work/20??????-??????_* 2>/dev/null)
   do
     idir="-"
@@ -286,14 +288,12 @@ if [[ $# -eq 0 ]]; then
   Help
 fi
 
-cd ~ 1>/dev/null
-
 # do not run this script in parallel
 #
-if [[ -f ./.lock ]]; then
-  ls -l ./.lock
-  tail -v ./.lock
-  kill -0 $(cat ./.lock) 2>/dev/null
+if [[ -f ~/.lock ]]; then
+  ls -l ~/.lock
+  tail -v ~/.lock
+  kill -0 $(cat ~/.lock) 2>/dev/null
   if [[ $? -eq 0 ]]; then
     echo "lock file is valid, exiting ..."
     exit 1
@@ -301,7 +301,7 @@ if [[ -f ./.lock ]]; then
     echo "lock file is stalled, continuing ..."
   fi
 fi
-echo $$ > ./.lock
+echo $$ > ~/.lock
 
 # pathes to sources
 #
@@ -327,9 +327,6 @@ export CC="afl-gcc"
 
 while getopts chf:krs:u opt
 do
-  cd $TOR_DIR
-  cid=$( git describe | sed 's/.*\-g//g' )
-
   case $opt in
     c)
       checkResult
@@ -361,7 +358,6 @@ do
         fi
       done
       startFuzzer
-      ;;
       ;;
     u)
       update_tor || exit $?
