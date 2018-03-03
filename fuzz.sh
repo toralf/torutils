@@ -258,7 +258,7 @@ function resumeFuzzer ()  {
   done
 }
 
-# after a year the test might not be useful anymore
+# after n days the test might not be useful anymore
 #
 function killOldFuzzer()  {
   for d in $(ls -1d ~/work/20??????-??????_* 2>/dev/null)
@@ -266,7 +266,7 @@ function killOldFuzzer()  {
     start=$( stat -c%X $d )
     curr=$(  date +%s )
     let "diff = $curr - $start"
-    let "max = 86400 * 365"
+    let "max = 86400 * 90"
     if [[ $diff -gt $max ]]; then
       echo
       echo "$d is too old"
