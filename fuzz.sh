@@ -199,7 +199,7 @@ function startFuzzer()  {
 
     # fire it up
     #
-    nohup nice /usr/bin/afl-fuzz -i $idir -o $odir $dict -m 50 -- $exe &>$odir/fuzz.log &
+    nohup nice /usr/bin/afl-fuzz -i $idir -o $odir -m 50 $dict -- $exe &>$odir/fuzz.log &
     pid="$!"
     echo "$pid" > $odir/fuzz.pid
     echo
