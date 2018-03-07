@@ -348,9 +348,7 @@ do
       for f in $( ls $TOR_FUZZ_CORPORA 2>/dev/null | sort --random-sort )
       do
         ls -d ~/work/*-*_*_${f} &>/dev/null
-        if [[ $? -eq 0 ]]; then
-          echo "there's already a fuzzer running: '$f'"
-        else
+        if [[ $? -ne 0 ]]; then
           fuzzers="$fuzzers $f"
           ((i=i+1))
           if [[ $i -ge $OPTARG ]]; then
