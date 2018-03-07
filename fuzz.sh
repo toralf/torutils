@@ -76,10 +76,11 @@ function checkResult()  {
       fi
 
       (
-        echo "re-test:  $TOR_DIR/src/test/fuzz/fuzz-$(dirname $d | cut -f3 -d'_') < $d/$i/..."
-        cd $d && tar -cjpf $tbz2 ./$i 2>&1 && uuencode $tbz2 $(basename $tbz2)
+        cd $d                             &&\
+        tar -cjpf $tbz2 ./$i 2>&1         &&\
+        uuencode $tbz2 $(basename $tbz2)
       ) |\
-      mail -s "$(basename $0) catched $i in $d" $mailto -a ''
+      mail -s "$(basename $0) $i in $d" $mailto -a ''
     done
 
     # keep found issue(s)
