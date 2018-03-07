@@ -265,7 +265,7 @@ function killOldFuzzer()  {
   for d in $(ls -1d ~/work/20??????-??????_* 2>/dev/null)
   do
     start=$( stat -c%X $d )
-    curr=$(  date +%s )
+    curr=$( date +%s )
     let "diff = $curr - $start"
     let "max = 86400 * 90"
     if [[ $diff -gt $max ]]; then
@@ -347,7 +347,7 @@ do
       i=0
       for f in $( ls $TOR_FUZZ_CORPORA 2>/dev/null | sort --random-sort )
       do
-        ls -d ./work/*-*_*_${f} &>/dev/null
+        ls -d ~/work/*-*_*_${f} &>/dev/null
         if [[ $? -eq 0 ]]; then
           echo "there's already a fuzzer running: '$f'"
         else
