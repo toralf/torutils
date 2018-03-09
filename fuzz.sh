@@ -47,7 +47,7 @@ mailto="torproject@zwiebeltoralf.de"
 
 function Help() {
   echo
-  echo "  call: $(basename $0) [-h|-?] [-v] [-f '<fuzzer(s)>'] [-r '<fuzzer(s)>'] [-s <number>] [-u]"
+  echo "  call: $(basename $0) [-h|-?] [-ackr] [-f '<fuzzer(s)>'] [-s <number>] [-u]"
   echo
   exit 0
 }
@@ -56,10 +56,6 @@ function Help() {
 # check for and keep findings
 #
 function checkResult()  {
-  if [[ ! -d ~/findings ]]; then
-    mkdir ~/findings
-  fi
-
   cd ~/work
 
   for d in $( ls -1d ./20??????-??????_* 2>/dev/null )
@@ -82,9 +78,16 @@ function checkResult()  {
       ) |\
       mail -s "$(basename $0) $i in $d" $mailto -a ''
     done
+}
 
-    # keep found issue(s)
-    #
+
+# archive findings
+#
+function archiveFindings()  {
+  cd ~/work
+
+  for d in $( ls -1d ./20??????-??????_* 2>/dev/null )
+  do
     pid=$(cat $d/fuzz.pid 2>/dev/null)
     if [[ -n $pid ]]; then
       kill -0 $pid 2>/dev/null
@@ -92,8 +95,11 @@ function checkResult()  {
         echo
         echo "$d finished"
         if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
-          echo "$d *has* findings, kept it in ~/findings"
-          mv $d ../findings
+          echo "$d *has* findings, kept it in ~/archive"
+          if [[ ! -d ~/archive ]]; then
+            mkdir ~/archive
+          fi
+          mv $d ../archive
         else
           echo "$d has no findings"
           rm -rf $d
@@ -101,7 +107,6 @@ function checkResult()  {
         echo
       fi
     fi
-
   done
 }
 
@@ -326,9 +331,12 @@ export AFL_NO_AFFINITY=1
 export CFLAGS="-O2 -pipe -march=native"
 export CC="afl-gcc"
 
-while getopts chf:krs:u opt
+while getopts achf:krs:u opt
 do
   case $opt in
+    a)
+      archiveFindings
+      ;;
     c)
       checkResult
       ;;
