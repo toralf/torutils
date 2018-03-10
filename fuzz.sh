@@ -68,7 +68,7 @@ function checkForFindings()  {
       fi
 
       tbz2=$(basename $d)-$i.tbz2
-      if [[ -f $d/$tbz2 && $tbz2 -nt $d/$i ]]; then
+      if [[ -f $d/$tbz2 && $tbz2 -ot $d/$i ]]; then
         continue
       fi
 
