@@ -45,6 +45,7 @@ mailto="torproject@zwiebeltoralf.de"
 #
 # /opt/torutils/fuzz.sh -s 10
 
+
 function Help() {
   echo
   echo "  call: $(basename $0) [-h|-?] [-ackr] [-f '<fuzzer(s)>'] [-s <number>] [-u]"
@@ -53,9 +54,9 @@ function Help() {
 }
 
 
-# check for and keep findings
+# check for findings
 #
-function checkResult()  {
+function checkForFindings()  {
   cd ~/work
 
   for d in $( ls -1d ./20??????-??????_* 2>/dev/null )
@@ -78,6 +79,7 @@ function checkResult()  {
       ) |\
       mail -s "$(basename $0) $i in $d" $mailto -a ''
     done
+  done
 }
 
 
@@ -95,7 +97,7 @@ function archiveFindings()  {
         echo
         echo "$d finished"
         if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
-          echo "$d *has* findings, kept it in ~/archive"
+          echo "$d *has* findings, keep it"
           if [[ ! -d ~/archive ]]; then
             mkdir ~/archive
           fi
@@ -338,7 +340,7 @@ do
       archiveFindings
       ;;
     c)
-      checkResult
+      checkForFindings
       ;;
     f)
       fuzzers="$OPTARG"
