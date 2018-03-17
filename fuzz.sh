@@ -337,6 +337,7 @@ while getopts achf:krs:u opt
 do
   case $opt in
     a)
+      checkForFindings
       archiveFindings
       ;;
     c)
