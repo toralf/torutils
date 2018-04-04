@@ -155,6 +155,10 @@ def main():
         else:
           inc_ports_ext ('=> non exit port')
 
+      # try to catch an issue of the proc resolver
+      #
+      #print ("debug: %s:%i\t%s:%i" % (laddr, lport, raddr, rport) )
+
     # print out the amount of ports_ext
     #
     print ('  description         port   ipv4  ipv6  service')
