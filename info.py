@@ -173,7 +173,7 @@ def main():
       sum6 += v6
       print ("  %-17s  %5s  %5s %5s" % (description, '', str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else ''))
 
-    print
+    print ("")
 
     exit4 = 0
     exit6 = 0
