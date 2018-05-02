@@ -137,20 +137,21 @@ function update_tor() {
   fi
 
   if [[ ! -x ./configure ]]; then
-    ./autogen.sh || return $?
+    ./autogen.sh 2>&1 || return $?
   fi
 
   if [[ ! -f Makefile ]]; then
     #   --enable-expensive-hardening doesn't work b/c hardened GCC is built with USE="(-sanitize)"
     #
-    ./configure || return $?
+    ./configure 2>&1 || return $?
   fi
 
   # target "fuzzers" seems not to depend on target "main"
   # which yields into compile errors, eg.:
   #   "src/or/git_revision.c:14:28: fatal error: micro-revision.i: No such file or directory"
   #
-  ( make && make fuzzers ) || return $?
+  make 2>&1 || return $?
+  make fuzzers 2>&1 || return $?
 }
 
 
