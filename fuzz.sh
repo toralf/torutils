@@ -27,7 +27,7 @@ mailto="torproject@zwiebeltoralf.de"
 #
 # (IV) get/check memory limit
 #
-# cd ~/tor; for i in ./src/test/fuzz/fuzz-*; do echo $(../recidivm/recidivm -v -u M $i 2>&1 | tail -n 1) $i ; done | sort -n
+# cd ~/tor; for i in $(ls ./src/test/fuzz/fuzz-* 2>/dev/null); do echo $(../recidivm/recidivm -v -u M $i 2>&1 | tail -n 1) $i ; done | sort -n
 # 42 ./src/test/fuzz/fuzz-consensus
 # 42 ./src/test/fuzz/fuzz-descriptor
 # 42 ./src/test/fuzz/fuzz-diff
@@ -131,8 +131,8 @@ function update_tor() {
 
   # anything much bigger than 50 indicates a broken (linker) state
   #
-  m=$(for i in ./src/test/fuzz/fuzz-*; do echo $(../recidivm/recidivm -v -u M $i 2>&1 | tail -n 1); done | sort -n | tail -n 1)
-  if [[ $m -gt 100 ]]; then
+  m=$(for i in $(ls ./src/test/fuzz/fuzz-* 2>/dev/null); do echo $(../recidivm/recidivm -v -u M $i 2>&1 | tail -n 1); done | sort -n | tail -n 1)
+  if [[ -n "$m" && $m -gt 100 ]]; then
     make distclean
   fi
 
