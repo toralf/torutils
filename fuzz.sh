@@ -304,10 +304,11 @@ if [[ -f ~/.lock ]]; then
   tail -v ~/.lock
   kill -0 $(cat ~/.lock) 2>/dev/null
   if [[ $? -eq 0 ]]; then
-    echo "lock file is valid, exiting ..."
+    echo " lock file is valid, exiting ..."
     exit 1
   else
-    echo "lock file is stalled, continuing ..."
+    echo " lock file is stalled, continuing ..."
+    echo
   fi
 fi
 echo $$ > ~/.lock
