@@ -4,8 +4,8 @@
 
 import argparse, os, sys, time, glob
 from math import ceil
-from stem.control import Controller
-from stem.util.connection import get_connections, port_usage, system_resolvers
+from stem.control import Controller, Listener
+from stem.util.connection import get_connections, port_usage, system_resolvers, is_valid_ipv4_address
 
 """
   print out exit port statistics of a running Tor exit relay:
@@ -20,7 +20,7 @@ from stem.util.connection import get_connections, port_usage, system_resolvers
 
 def main():
   ctrlport = 9051
-  resolver = 'lsof'
+  resolver = 'proc'
 
   parser = argparse.ArgumentParser()
   parser.add_argument("--ctrlport", help="default: " + str(ctrlport))
@@ -33,24 +33,32 @@ def main():
   if args.resolver:
     resolver= str(args.resolver)
 
-  # read in all allowed ports
-  #
-  exit_ports = []
-  for filename in glob.glob("/etc/tor/torrc.d/*") + (glob.glob("/etc/tor/*")):
-    if os.path.isfile(filename):
-      inputfile = open(filename)
-      lines = inputfile.readlines()
-      inputfile.close()
-      for line in lines:
-        if line.startswith("ExitPolicy accept "):
-          for word in line.split():
-            if '*:' in word:
-              port = int (word.split(':')[1])
-              if port > 0 and port < 2**16:
-                exit_ports.append(port)
-
   with Controller.from_port(port=ctrlport) as controller:
     controller.authenticate()
+
+    try:
+      ControlPort = int(controller.get_conf("ControlPort"))
+      ORPort   = None
+      ORPort6  = None
+      DirPort  = None
+      DirPort6 = None
+
+      for address, port in controller.get_listeners(Listener.OR):
+        if is_valid_ipv4_address(address):
+          ORPort = port
+        else:
+          ORPort6 = port
+
+      for address, port in controller.get_listeners(Listener.DIR):
+        if is_valid_ipv4_address(address):
+          DirPort = port
+        else:
+          DirPort6 = port
+
+    except Exception as Exc:
+      print ("Woops, control ports aren't configured")
+      print (Exc)
+      return
 
     # we will ignore changes of relays during the runtime of this script
     #
@@ -64,65 +72,80 @@ def main():
 
     Curr = {}   # the current network connections of Tor
 
+    # avoid useless calculation of mean immediately after start
+    #
     first = 1
+
     while True:
+      # read in all allowed exit ports
+      #
+      exit_ports = []
+      for filename in glob.glob("/etc/tor/torrc.d/*") + (glob.glob("/etc/tor/*")):
+        if os.path.isfile(filename):
+          inputfile = open(filename)
+          lines = inputfile.readlines()
+          inputfile.close()
+          for line in lines:
+            if line.startswith("ExitPolicy accept "):
+              for word in line.split():
+                if '*:' in word:    # do consider classX ports
+                  port = int (word.split(':')[1])
+                  exit_ports.append(port)
+
       try:
+        t1 = time.time()
+
         Prev = Curr.copy()
         Curr.clear()
 
-        t1 = time.time()
-
         pid = controller.get_info("process/pid")
-        connections = get_connections(resolver=resolver, process_pid=pid)
+        connections = get_connections(resolver=resolver, process_pid=pid,process_name='tor')
         policy = controller.get_exit_policy()
 
         t2 = time.time()
         for conn in connections:
-          raddr, rport, laddr, lport = conn.remote_address, conn.remote_port, conn.local_address, conn.local_port
-
-          if rport == 0:    # happens for 'proc' as resolver
-            continue
+          laddr, raddr = conn.local_address, conn.remote_address
+          lport, rport = conn.local_port,    conn.remote_port
 
           # ignore incoming connections
           #
-          if lport == 443:
-            if laddr == '5.9.158.75' or laddr == '2a01:4f8:190:514a::2':
+          if lport == ORPort  and laddr == '5.9.158.75' or lport == ORPort6  and laddr == '2a01:4f8:190:514a::2':
+              continue
+          if lport == DirPort and laddr == '5.9.158.75' or lport == DirPort6 and laddr == '2a01:4f8:190:514a::2':
               continue
 
-          # very slow
-          #
-          #if not policy.can_exit_to(raddr, rport):
-            #continue
-
-          # fast
-          #
-          if not rport in exit_ports:
-            continue
+          if 0 == 1:
+            # sloooow
+            #
+            if not policy.can_exit_to(raddr, rport):
+              continue
+          else:
+            # fast
+            #
+            if not rport in exit_ports:
+              continue
 
           # store the connections itself instead just counting them here
           # b/c we have to calculate the diff of 2 sets later
           #
           Curr.setdefault(rport, []).append(str(lport)+':'+raddr)
-
         t3 = time.time()
 
-        # avoid useless calculation of mean immediately after start
-        #
         if first == 1:
           Prev = Curr.copy()
 
-        dt23 = t3-t2
-        dt21 = t2-t1
+        delta23 = t3-t2
+        delta12 = t2-t1
 
-        # calculate the mean only for values greater 1 sec
+        # calculate the mean for values greater 1 sec
         #
-        if dt23 < 1.0:
+        if delta23 < 1.0:
           dt = 1.0
         else:
-          dt = dt23
+          dt = delta23
 
         os.system('clear')
-        print ("  port     # open/s clos/s      max                (%.1f sec, %s: %i conns in %.1f sec) " % (dt23, resolver, len(connections), dt21))
+        print ("  port     # open/s clos/s      max                ( %s %i conns in %.2f sec, %.2f sec ) " % (resolver, len(connections), delta12, delta23))
         lines = 0;
         ports = set(list(Curr.keys()) + list(Prev.keys()) + list(MaxAll.keys()))
         for port in sorted(ports):

@@ -39,9 +39,25 @@ import sys
 from stem.control import Controller, Listener
 from stem.util.connection import get_connections, port_usage, is_valid_ipv4_address
 
+#import os
+#import logging
+#import stem.util.log
+
 def main():
   ctrlport = 9051
-  resolver = 'lsof'
+  resolver = 'proc'
+
+  #handler = logging.FileHandler('/tmp/stem_debug')
+  #handler.setFormatter(logging.Formatter(
+    #fmt = '%(asctime)s [%(levelname)s] %(message)s',
+    #datefmt = '%m/%d/%Y %H:%M:%S',
+  #))
+
+  #log = stem.util.log.get_logger()
+  #log.setLevel(logging.DEBUG)
+  #log.addHandler(handler)
+
+  #stem.util.connection.LOG_CONNECTION_RESOLUTION = True
 
   parser = argparse.ArgumentParser()
   parser.add_argument("--ctrlport", help="default: " + str(ctrlport))
@@ -93,17 +109,20 @@ def main():
     except Exception as Exc:
       print (Exc)
 
-    print (" %s   %s   %s\n" % (version, datetime.timedelta(seconds=uptime), "  ".join(flags)))
-
     policy = controller.get_exit_policy()
+    #print (policy)
+
     pid = controller.get_info("process/pid")
-    connections = get_connections(resolver=resolver,process_pid=pid)
+    connections = get_connections(resolver=resolver,process_pid=pid,process_name='tor')
+    print (" resolver=%s  pid=%s  conns=%i" % (resolver, pid, len(connections)))
 
-    relays  = {}
+    relaysOr  = {}
+    relaysDir = {}
     for s in controller.get_network_statuses():
-      relays.setdefault(s.address, []).append(s.or_port)
+      relaysOr.setdefault(s.address, []).append(s.or_port)
+      relaysDir.setdefault(s.address, []).append(s.dir_port)
 
-    # classify network connections by port and country
+    # classify network connections by port and relationship to the Tor relay
     #
     ports_int = {}
     ports_ext = {}
@@ -123,7 +142,7 @@ def main():
       t = (description, rport)
       inc_ports (ports_ext, t)
 
-    # now run over all connections
+    # classify each connection
     #
     for conn in connections:
       if conn.protocol == 'udp':
@@ -132,36 +151,45 @@ def main():
       laddr, raddr = conn.local_address, conn.remote_address
       lport, rport = conn.local_port,    conn.remote_port
 
-      if raddr in relays:
-        if not conn.is_ipv6 and lport == ORPort or conn.is_ipv6 and lport == ORPort6:
+      if rport == 0:
+        print ("WTF ?: %s:%i %s:%i" % (laddr, lport, raddr, rport))
+        continue
+
+      if raddr in relaysOr:
+        if (lport == ORPort and not conn.is_ipv6) or (lport == ORPort6 and conn.is_ipv6):
           inc_ports_int('ORPort   <= relay')
-        elif rport in relays[raddr]:
+        elif (lport == DirPort and not conn.is_ipv6) or (lport == DirPort6 and conn.is_ipv6):
+          inc_ports_int('DirPort   <= relay')
+        elif rport in relaysOr[raddr]:
           inc_ports_int('=> relay ORPort')
+        elif rport in relaysDir[raddr]:
+          inc_ports_int('=> relay DirPort')
         else:
-          # a server hosts beside a Tor relay another service too
+          # a system hosts beside a Tor relay another service too
           #
           inc_ports_ext ('=> relay port')
 
       elif policy.can_exit_to(raddr, rport):
-        inc_ports_ext ('=> exit')
+        if policy.is_exiting_allowed():
+          inc_ports_ext ('=> exit')
+        else:
+          print ("this is a bug %s %i" % (raddr, rport))
 
       else:
-        if not conn.is_ipv6 and lport == ORPort or conn.is_ipv6 and lport == ORPort6:
+        if (lport == ORPort and not conn.is_ipv6) or (lport == ORPort6 and conn.is_ipv6):
           inc_ports_int('ORPort   <= outer')
-        elif not conn.is_ipv6 and lport == DirPort or conn.is_ipv6 and lport == DirPort6:
+        elif (lport == DirPort and not conn.is_ipv6) or (lport == DirPort6 and conn.is_ipv6):
           inc_ports_int('DirPort  <= outer')
         elif lport == ControlPort:
           inc_ports_int('CtrlPort <= local')
         else:
           inc_ports_ext ('=> non exit port')
 
-      # try to catch an issue of the proc resolver
-      #
-      #print ("debug: %s:%i\t%s:%i" % (laddr, lport, raddr, rport) )
+    print (" %s   %s   %s\n" % (version, datetime.timedelta(seconds=uptime), "  ".join(flags)))
 
-    # print out the amount of ports_ext
+    # print out *_ports_*
     #
-    print ('  description         port   ipv4  ipv6  service')
+    print ('  description         port   ipv4  ipv6  servicename')
     print ('  -----------------  -----   ----  ----  -------------')
 
     sum4 = 0
