@@ -205,7 +205,7 @@ def main():
 
     exit4 = 0
     exit6 = 0
-    sum_was_printed = 0
+
     for t in sorted(ports_ext):
       description, port = t
       v4, v6 = ports_ext[t]
@@ -215,14 +215,11 @@ def main():
       if description == '=> exit':
         exit4 += v4
         exit6 += v6
-      else:
-        if not sum_was_printed:
-          print ("\n  %-17s  %5s  %5i %5i\n" % (' exits', '', exit4, exit6))
-          sum_was_printed = 1
 
       print ("  %-17s  %5i  %5s %5s  %s" % (description, port, str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else '', port_usage(port)))
 
-    print ("\n  %-17s  %5s  %5i %5i\n" % ('   sum', '', sum4, sum6))
+    print ("\n  %17s  %5s  %5i %5i" % ('sum', '', sum4, sum6))
+    print ("  %17s  %5s  %5i %5i" % ('exits among them', '', exit4, exit6))
 
 if __name__ == '__main__':
   main()
