@@ -325,12 +325,14 @@ export TOR_DIR=~/tor
 # for afl-gcc
 #
 export AFL_HARDEN=1
-export AFL_DONT_OPTIMIZE=1
+# export AFL_DONT_OPTIMIZE=1
+#
 # for afl-fuzz
 #
 export AFL_SKIP_CPUFREQ=1
 export AFL_EXIT_WHEN_DONE=1
-export AFL_NO_AFFINITY=1
+# export AFL_NO_AFFINITY=1
+export AFL_SHUFFLE_QUEUE=1
 
 export CFLAGS="-O2 -pipe -march=native"
 export CC="afl-gcc"
