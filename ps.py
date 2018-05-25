@@ -109,9 +109,9 @@ def main():
 
           # ignore incoming connections
           #
-          if lport == ORPort  and laddr == '5.9.158.75' or lport == ORPort6  and laddr == '2a01:4f8:190:514a::2':
+          if (lport == ORPort  and laddr == '5.9.158.75') or (lport == ORPort6  and laddr == '2a01:4f8:190:514a::2'):
               continue
-          if lport == DirPort and laddr == '5.9.158.75' or lport == DirPort6 and laddr == '2a01:4f8:190:514a::2':
+          if (lport == DirPort and laddr == '5.9.158.75') or (lport == DirPort6 and laddr == '2a01:4f8:190:514a::2'):
               continue
 
           if 0 == 1:

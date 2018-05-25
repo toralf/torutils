@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -151,10 +151,6 @@ def main():
       laddr, raddr = conn.local_address, conn.remote_address
       lport, rport = conn.local_port,    conn.remote_port
 
-      if rport == 0:
-        print ("WTF ?: %s:%i %s:%i" % (laddr, lport, raddr, rport))
-        continue
-
       if raddr in relaysOr:
         if (lport == ORPort and not conn.is_ipv6) or (lport == ORPort6 and conn.is_ipv6):
           inc_ports_int('ORPort   <= relay')
@@ -170,13 +166,10 @@ def main():
           inc_ports_ext ('=> relay port')
 
       elif policy.can_exit_to(raddr, rport):
-        if policy.is_exiting_allowed():
-          inc_ports_ext ('=> exit')
-        else:
-          print ("this is a bug %s %i" % (raddr, rport))
+        inc_ports_ext ('=> exit')
 
       else:
-        if (lport == ORPort and not conn.is_ipv6) or (lport == ORPort6 and conn.is_ipv6):
+        if (lport == ORPort and not conn.is_ipv6)    or (lport == ORPort6 and conn.is_ipv6):
           inc_ports_int('ORPort   <= outer')
         elif (lport == DirPort and not conn.is_ipv6) or (lport == DirPort6 and conn.is_ipv6):
           inc_ports_int('DirPort  <= outer')
@@ -218,7 +211,9 @@ def main():
 
       print ("  %-17s  %5i  %5s %5s  %s" % (description, port, str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else '', port_usage(port)))
 
-    print ("\n  %17s  %5s  %5i %5i" % ('sum', '', sum4, sum6))
+    print ("")
+
+    print ("  %17s  %5s  %5i %5i" % ('sum', '', sum4, sum6))
     print ("  %17s  %5s  %5i %5i" % ('exits among them', '', exit4, exit6))
 
 if __name__ == '__main__':
