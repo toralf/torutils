@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 
@@ -114,16 +114,12 @@ def main():
           if (lport == DirPort and laddr == '5.9.158.75') or (lport == DirPort6 and laddr == '2a01:4f8:190:514a::2'):
               continue
 
-          if 0 == 1:
-            # sloooow
-            #
-            if not policy.can_exit_to(raddr, rport):
+          if raddr in relays:
+            if rport in relays[raddr]:
               continue
-          else:
-            # fast
-            #
-            if not rport in exit_ports:
-              continue
+
+          if not policy.can_exit_to(raddr, rport):
+            continue
 
           # store the connections itself instead just counting them here
           # b/c we have to calculate the diff of 2 sets later
