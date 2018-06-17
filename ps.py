@@ -100,9 +100,10 @@ def main():
 
         pid = controller.get_info("process/pid")
         connections = get_connections(resolver=resolver, process_pid=pid,process_name='tor')
-        policy = controller.get_exit_policy()
 
         t2 = time.time()
+
+        policy = controller.get_exit_policy()
         for conn in connections:
           laddr, raddr = conn.local_address, conn.remote_address
           lport, rport = conn.local_port,    conn.remote_port
@@ -125,23 +126,14 @@ def main():
           # b/c we have to calculate the diff of 2 sets later
           #
           Curr.setdefault(rport, []).append(str(lport)+':'+raddr)
-        t3 = time.time()
 
         if first == 1:
           Prev = Curr.copy()
 
-        delta23 = t3-t2
         delta12 = t2-t1
 
-        # calculate the mean for values greater 1 sec
-        #
-        if delta23 < 1.0:
-          dt = 1.0
-        else:
-          dt = delta23
-
         os.system('clear')
-        print ("  port     # open/s clos/s      max                ( %s %i conns in %.2f sec, %.2f sec ) " % (resolver, len(connections), delta12, delta23))
+        print ("  port     # open/s clos/s      max                ( %s %i conns %.2f sec ) " % (resolver, len(connections), delta12))
         lines = 0;
         ports = set(list(Curr.keys()) + list(Prev.keys()) + list(MaxAll.keys()))
         for port in sorted(ports):
@@ -155,8 +147,8 @@ def main():
             c = set({})
 
           n_curr = len(c)
-          n_opened = ceil(len(c-p)/dt)
-          n_closed = ceil(len(p-c)/dt)
+          n_opened = len(c-p)
+          n_closed = len(p-c)
 
           MaxAll.setdefault(port, 0)
           MaxOpened.setdefault(port, 0)
