@@ -128,6 +128,7 @@ function update_tor() {
 
   cd $TOR_DIR
   git pull -q
+  git describe
 
   # anything much bigger than 50 indicates a broken (linker) state
   #
