@@ -109,8 +109,9 @@ def main():
     except Exception as Exc:
       print (Exc)
 
+    print (" %s   %s   %s" % (version, datetime.timedelta(seconds=uptime), "  ".join(flags)))
+
     policy = controller.get_exit_policy()
-    #print (policy)
 
     pid = controller.get_info("process/pid")
     connections = get_connections(resolver=resolver,process_pid=pid,process_name='tor')
@@ -178,10 +179,7 @@ def main():
         else:
           inc_ports_ext ('=> non exit port')
 
-    print (" %s   %s   %s\n" % (version, datetime.timedelta(seconds=uptime), "  ".join(flags)))
-
-    # print out *_ports_*
-    #
+    print ()
     print ('  description         port   ipv4  ipv6  servicename')
     print ('  -----------------  -----   ----  ----  -------------')
 
