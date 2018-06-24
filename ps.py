@@ -133,7 +133,7 @@ def main():
         delta12 = t2-t1
 
         os.system('clear')
-        print ("  port     # open/s clos/s      max                ( %s %i conns %.2f sec ) " % (resolver, len(connections), delta12))
+        print ("  port     # open/s clos/s      max                ( %s:%s, %i conns %.2f sec ) " % (resolver, ctrlport, len(connections), delta12))
         lines = 0;
         ports = set(list(Curr.keys()) + list(Prev.keys()) + list(MaxAll.keys()))
         for port in sorted(ports):
