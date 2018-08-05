@@ -14,13 +14,8 @@ else:
   from SimpleHTTPServer import SimpleHTTPRequestHandler
 
 
-class MyHandler(SimpleHTTPRequestHandler):
-  def do_GET(self):
-    return SimpleHTTPRequestHandler.do_GET(self)
-
 class HTTPServerV6(HTTPServer):
   address_family = socket.AF_INET6
-
 
 def main():
   is_ipv6 = False
@@ -30,7 +25,7 @@ def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("--address", help="default: " + address)
   parser.add_argument("--port", help="default: " + str(port))
-  parser.add_argument("--is_ipv6", help="mandatory if a given hostname for '--address' should be IPv6, default: n")
+  parser.add_argument("--is_ipv6", help="mandatory if parameter for --address is a hostname and should be IPv6, default: n")
   args = parser.parse_args()
 
   if args.address:
@@ -49,11 +44,12 @@ def main():
         is_ipv6 = True
 
   if is_ipv6:
-    server = HTTPServerV6((address, port), MyHandler)
+    server = HTTPServerV6((address, port), SimpleHTTPRequestHandler)
   else:
-    server = HTTPServer((address, port), MyHandler)
+    server = HTTPServer((address, port), SimpleHTTPRequestHandler)
 
   server.serve_forever()
+
 
 if __name__ == '__main__':
   main()
