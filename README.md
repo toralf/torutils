@@ -1,7 +1,7 @@
 # torutils
-Few tools to derive the status of a Tor relay and more.
+Few tools around a Tor relay.
 
-## gather data from a Tor process:
+### gather data from a Tor process:
 
 *info.py* gives an overview about the status of a relay.
 
@@ -9,7 +9,7 @@ Few tools to derive the status of a Tor relay and more.
 
 *orstatus.py* collects data for https://trac.torproject.org/projects/tor/ticket/13603 .
 
-##  play with an onion service
+### simple setup of an onion service
 
 *websvc.sh*, *websvc.py*, *os.sh*, *mock_irc.py*
 
@@ -29,10 +29,10 @@ and
     ...
     GET / HTTP/1.1
 
-## fuzz testing
+### fuzz testing of the Tor sources
 
 *fuzz.sh*
 
-## more info
+### more info
 You need the Python lib Stem (https://stem.torproject.org/index.html) for the python scripts.
 
