@@ -11,6 +11,11 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
+id websvc 1>/dev/null
+if [[ $? -ne 0 ]]; then
+  exit
+fi
+
 echo "checking if I'm already running ..."
 pgrep -af /tmp/websvc.py
 
