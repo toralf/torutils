@@ -13,6 +13,18 @@ Few tools to derive the status of a Tor relay and more.
 
 *websvc.sh*, *websvc.py*, *os.sh*, *mock_irc.py*
 
+Running
+    ./websvc.sh; ./os.sh
+
+should give you a HTTP onion service.
+All files are created under /tmp/.
+Verify it with
+    tail -f /tmp/websvc.d/websvc.log /tmp/onionsvc.d/notice.log
+and
+    telnet 127.0.0.1 1234
+    ...
+    GET / HTTP/1.1
+
 ## fuzz testing
 
 *fuzz.sh*
