@@ -5,6 +5,7 @@ import socket
 import argparse
 import re
 import sys
+import logging
 
 if sys.version_info[0] == 3:
   from http.server import HTTPServer, SimpleHTTPRequestHandler
@@ -18,18 +19,21 @@ class HTTPServerV6(HTTPServer):
 
 class MyHandler(SimpleHTTPRequestHandler):
   def do_GET(self):
-    print(self.path)
+    #logging.debug(self.requestline)
     return SimpleHTTPRequestHandler.do_GET(self)
 
 def main():
-  is_ipv6 = False
   address = 'localhost'
   port = 1234
+  ipv6 = "n"
 
+  logging.basicConfig(format='%(asctime)s + %(name)s + %(levelname)s + %(message)s', level=logging.INFO)
+
+  logging.debug('Parsing args...')
   parser = argparse.ArgumentParser()
   parser.add_argument("--address", help="default: " + address)
   parser.add_argument("--port", help="default: " + str(port))
-  parser.add_argument("--is_ipv6", help="mandatory if parameter for --address is a hostname and should be IPv6, default: n")
+  parser.add_argument("--is_ipv6", help="mandatory if parameter for --address is an IPv6 hostname, default: " + ipv6)
   args = parser.parse_args()
 
   if args.address:
@@ -37,23 +41,20 @@ def main():
 
   if args.port:
     port = int(args.port)
-  else:
-    print ("port = %i" % port)
 
-  if re.match (":", address):
-    is_ipv6 = True
+  if args.is_ipv6:
+      ipv6 = str(args.is_ipv6)
   else:
-    if args.is_ipv6:
-      if args.is_ipv6 == "y" or args.is_ipv6 == "Y":
-        is_ipv6 = True
+    if re.match (":", address):
+      ipv6 = "y"
 
-  if is_ipv6:
+  if ipv6 == "y":
     server = HTTPServerV6((address, port), MyHandler)
   else:
     server = HTTPServer((address, port), MyHandler)
 
+  logging.info('Starting httpd...')
   server.serve_forever()
-
 
 if __name__ == '__main__':
   main()
