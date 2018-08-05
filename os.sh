@@ -14,26 +14,9 @@ dir=/tmp/onionsvc.d
 
 if [[ -e $dir ]]; then
   echo -en "\n $dir does already exist"
-  if [[ "$1" = "-f" ]]; then
-    echo " -  forced to overwrite it"
-  else
-    echo " exiting ..."
-    echo
-    exit 1
-  fi
-fi
-
-if [[ -s $dir/tor.pid ]]; then
-  pid=$(cat $dir/tor.pid)
-  kill -s 0 $pid
-  if [[ $? -eq 0 ]]; then
-    echo "there's a running instance at pid=$pid, exiting ..."
-    echo
-    exit 3
-  else
-    echo "removing stalled old pid-file (pid=$pid)"
-    rm $dir/tor.pid
-  fi
+  echo " exiting ..."
+  echo
+  exit 1
 fi
 
 mkdir -m 0700 $dir
@@ -62,11 +45,14 @@ HiddenServiceVersion 3
 HiddenServicePort 80 ${2:-127.0.0.1}:${1:-1234}
 
 EOF
-chown tor:tor /tmp/os/torrc
+
+chmod 600     $dir/torrc
+chown tor:tor $dir/torrc
 
 /usr/bin/tor -f $dir/torrc
 rc=$?
 
+echo
 echo "hostname  $(cat $dir/data/osdir/hostname)"
 sleep 1
 pid=$(cat $dir/tor.pid 2>/dev/null)
