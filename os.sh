@@ -1,9 +1,8 @@
 #!/bin/sh
 #
-#set -x
+# set -x
 
 # setup an onion service
-# optional parameters: $1: port (default: 1234), $2: address (default: 127.0.0.1), $3: ControlPort
 
 if [[ "$(whoami)" != "root" ]]; then
   echo "you must be root "
@@ -31,15 +30,12 @@ RunAsDaemon 1
 DataDirectory $dir/data
 PIDFile       $dir/tor.pid
 
-#ControlPort ${3:-59051}
-#CookieAuthentication 1
-
 SocksPort 0
 
 Log notice file $dir/notice.log
 
-BandwidthRate  1000 KBytes
-BandwidthBurst 1600 Kbytes
+BandwidthRate  1 MBytes
+BandwidthBurst 2 MBytes
 
 HiddenServiceDir $dir/data/osdir
 HiddenServiceVersion 3

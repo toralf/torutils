@@ -15,10 +15,10 @@ Few tools around a Tor relay.
 
 Running
 
-    ./websvc.sh; ./os.sh
+    ./os.sh; ./websvc.sh
 
-should give you a HTTP onion service.
-All files are created under /tmp/.
+should give you an onion service pointiung to a local running simple HTTP server.
+All files are created under */tmp*.
 Verify it with
 
     tail -f /tmp/websvc.d/websvc.log /tmp/onionsvc.d/notice.log
