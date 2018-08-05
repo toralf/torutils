@@ -9,7 +9,7 @@ Few tools to derive the status of a Tor relay and more.
 
 *orstatus.py* collects data for https://trac.torproject.org/projects/tor/ticket/13603 .
 
-##  play with a hidden service
+##  play with an onion service
 
 *websvc.sh*, *websvc.py*, *os.sh*, *mock_irc.py*
 
