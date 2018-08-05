@@ -21,27 +21,27 @@ if [[ $? -eq 0 ]]; then
 fi
 
 dir=/tmp/websvc.d
-log=/tmp/websvc.log
+log=$dir/websvc.log
 
-if [[ ! -d $dir ]]; then
-  mkdir $dir || exit 1
+if [[ -e $dir/data ]]; then
+  echo "$dir does already exists! Exiting ..."
+  exit 1
 fi
-chown websvc:websvc $dir
-chmod g+s $dir
+
+mkdir -p $dir/data || exit 1
+chmod -R 775            $dir
+chmod -R g+s            $dir
+chown -R websvc:websvc  $dir
 
 truncate -s0 $log
-chmod 600 /tmp/websvc.log
-chown websvc:websvc /tmp/websvc.log
+chmod 600           $log
+chown websvc:websvc $log
 
-# choose an arbitrary unprivileged port if no one is given
-#
-let port="$((RANDOM % 64510 )) + 1025"
+cp $(dirname $0)/websvc.py $dir
+chmod 700           $dir/websvc.py
+chown websvc:websvc $dir/websvc.py
 
-cp $(dirname $0)/websvc.py /tmp
-chown websvc:websvc /tmp/websvc.py
-chmod 700 /tmp/websvc.py
-
-command="cd $dir && /tmp/websvc.py --port ${1:-$port} --address ${2:-127.0.0.1}"
+command="cd $dir/data && ../websvc.py --port ${1:-1234} --address ${2:-127.0.0.1}"
 echo "will run now: '$command'"
 su websvc -c "nice bash -c '$command &>>$log' &>>$log &"
 sleep 1
@@ -52,5 +52,5 @@ if [[ -s $log ]]; then
   cat $log
   echo
 else
-  pgrep -af /tmp/websvc.py
+  pgrep -af websvc.py
 fi
