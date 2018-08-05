@@ -53,10 +53,7 @@ chown tor:tor $dir/torrc
 rc=$?
 
 echo
-echo "hostname  $(cat $dir/data/osdir/hostname)"
-sleep 1
-pid=$(cat $dir/tor.pid 2>/dev/null)
-echo "pid       $pid"
-ps -efla | grep $pid
+echo "onion address:  $(cat $dir/data/osdir/hostname)"
+echo
 
 exit $rc
