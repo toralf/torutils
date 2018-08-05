@@ -44,6 +44,6 @@ chown websvc:websvc $log
 cp $(dirname $0)/websvc.py $dir
 chown websvc:websvc $dir/websvc.py
 
-command="cd $dir/data && ../websvc.py --port ${1:-1234} --address ${2:-127.0.0.1} --is_ipv6 ${3:-n}"
+command="cd $dir/data && ../websvc.py --port ${1:-1234} --address ${2:-127.0.0.1} $3"
 echo "will run now: '$command'"
 su websvc -c "nice bash -c '$command &>>$log' &"

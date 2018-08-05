@@ -19,7 +19,7 @@ class HTTPServerV6(HTTPServer):
 
 class MyHandler(SimpleHTTPRequestHandler):
   def do_GET(self):
-    #logging.debug(self.requestline)
+    logging.debug(self.requestline)
     return SimpleHTTPRequestHandler.do_GET(self)
 
 def main():
@@ -37,7 +37,7 @@ def main():
   args = parser.parse_args()
 
   if args.address:
-    address = str(args.address)
+    address = str(args.address).replace('[','').replace(']','')
 
   if args.port:
     port = int(args.port)
