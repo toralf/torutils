@@ -13,14 +13,15 @@ fi
 dir=/tmp/onionsvc.d
 
 if [[ -e $dir ]]; then
-  echo -en "\n $dir does already exist"
+  echo
+  echo " $dir does already exist"
   echo " exiting ..."
   echo
   exit 1
 fi
 
-mkdir -m 0700 $dir
-chown -R tor:tor $dir
+mkdir -m 0700     $dir
+chown -R tor:tor  $dir
 
 cat << EOF > $dir/torrc
 User tor
@@ -30,8 +31,8 @@ RunAsDaemon 1
 DataDirectory $dir/data
 PIDFile       $dir/tor.pid
 
-ControlPort ${3:-59051}
-CookieAuthentication 1
+#ControlPort ${3:-59051}
+#CookieAuthentication 1
 
 SocksPort 0
 
