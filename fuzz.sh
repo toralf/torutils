@@ -360,6 +360,9 @@ do
       ;;
     s)
       fuzzers=""
+      # start up to $OPTARG arbitrarily choosen fuzzers
+      # not currently running
+      #
       i=0
       for f in $( ls $TOR_FUZZ_CORPORA 2>/dev/null | sort --random-sort )
       do
