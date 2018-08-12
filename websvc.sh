@@ -23,7 +23,6 @@ if [[ $? -eq 0 ]]; then
 fi
 
 dir=/tmp/websvc.d
-log=$dir/websvc.log
 
 if [[ -e $dir/data ]]; then
   echo "$dir does already exists! Exiting ..."
@@ -34,14 +33,16 @@ mkdir -p $dir/data
 if [[ $? -ne 0 ]]; then
   exit 1
 fi
-chmod -R 700            $dir
-chmod -R g+s            $dir
-chown -R websvc:websvc  $dir
-
-truncate -s0 $log
-chown websvc:websvc $log
+chmod -R 700 $dir
+chmod -R g+s $dir
 
 cp $(dirname $0)/websvc.py $dir
-chown websvc:websvc $dir/websvc.py
 
+echo "<h1>This is an empty page.<h1>" > $dir/data/index.html
+chmod 444 $dir/data/index.html
+
+log=$dir/websvc.log
+truncate -s0 $log
+
+chown -R websvc:websvc  $dir
 sudo -u websvc bash -c "cd $dir/data && ../websvc.py --port ${1:-1234} --address ${2:-127.0.0.1} $3 &>>$log"
