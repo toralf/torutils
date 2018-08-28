@@ -271,12 +271,16 @@ function resumeFuzzer ()  {
 # after n days the test might not be useful anymore
 #
 function killOldFuzzer()  {
+  let "max = 86400 * $1"
+  if [[ $# -ne 1 || $max -eq 0 ]]; then
+    exit 1
+  fi
+
   for d in $(ls -1d ~/work/20??????-??????_* 2>/dev/null)
   do
     start=$( stat -c%X $d )
     curr=$( date +%s )
     let "diff = $curr - $start"
-    let "max = 86400 * 90"
     if [[ $diff -gt $max ]]; then
       echo
       echo "$d is too old"
@@ -338,7 +342,7 @@ export AFL_SHUFFLE_QUEUE=1
 export CFLAGS="-O2 -pipe -march=native"
 export CC="afl-gcc"
 
-while getopts achf:krs:u opt
+while getopts achf:k:rs:u opt
 do
   case $opt in
     a)
@@ -353,7 +357,7 @@ do
       startFuzzer
       ;;
     k)
-      killOldFuzzer
+      killOldFuzzer $OPTARG
       ;;
     r)
       resumeFuzzer
