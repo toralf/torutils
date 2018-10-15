@@ -3,8 +3,7 @@ Few tools around a Tor relay.
 
 ### gather data from a Tor process:
 
-*info.py* gives an overview about the connections of a relay (have a look of stem's tool too: \_static/example/relayo\_connections.py --ctrlport 9051)
-
+*info.py* gives an overview about the connections of a relay (have a look of stem's tool too: \_static/example/relay\_connections.py --ctrlport 9051)
 
 *ps.py* continuously shows exit port usage.
 
