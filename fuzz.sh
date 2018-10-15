@@ -28,18 +28,19 @@ mailto="torproject@zwiebeltoralf.de"
 # (IV) get/check memory limit
 #
 # cd ~/tor; for i in $(ls ./src/test/fuzz/fuzz-* 2>/dev/null); do echo $(../recidivm/recidivm -v -u M $i 2>&1 | tail -n 1) $i ; done | sort -n
-# 42 ./src/test/fuzz/fuzz-consensus
-# 42 ./src/test/fuzz/fuzz-descriptor
-# 42 ./src/test/fuzz/fuzz-diff
-# 42 ./src/test/fuzz/fuzz-diff-apply
-# 42 ./src/test/fuzz/fuzz-extrainfo
-# 42 ./src/test/fuzz/fuzz-hsdescv2
-# 42 ./src/test/fuzz/fuzz-hsdescv3
-# 42 ./src/test/fuzz/fuzz-http
-# 42 ./src/test/fuzz/fuzz-http-connect
-# 42 ./src/test/fuzz/fuzz-iptsv2
-# 42 ./src/test/fuzz/fuzz-microdesc
-# 42 ./src/test/fuzz/fuzz-vrs
+# 41 ./src/test/fuzz/fuzz-consensus
+# 41 ./src/test/fuzz/fuzz-descriptor
+# 41 ./src/test/fuzz/fuzz-diff
+# 41 ./src/test/fuzz/fuzz-diff-apply
+# 41 ./src/test/fuzz/fuzz-extrainfo
+# 41 ./src/test/fuzz/fuzz-hsdescv2
+# 41 ./src/test/fuzz/fuzz-hsdescv3
+# 41 ./src/test/fuzz/fuzz-http
+# 41 ./src/test/fuzz/fuzz-http-connect
+# 41 ./src/test/fuzz/fuzz-iptsv2
+# 41 ./src/test/fuzz/fuzz-microdesc
+# 41 ./src/test/fuzz/fuzz-socks
+# 41 ./src/test/fuzz/fuzz-vrs
 #
 # (V) start fuzzers:
 #
