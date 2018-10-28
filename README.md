@@ -3,7 +3,9 @@ Few tools around a Tor relay.
 
 ### gather data from a Tor process:
 
-*info.py* gives an overview about the connections of a relay (have a look of stem's tool too: \_static/example/relay\_connections.py --ctrlport 9051)
+*info.py* gives an overview about the connections of a relay, have a look of stem's tool too:
+
+    _static/example/relay_connections.py --ctrlport 9051
 
 *ps.py* continuously shows exit port usage.
 
@@ -17,7 +19,7 @@ Running
 
     ./os.sh; ./websvc.sh
 
-should give you an onion service pointiung to a local running simple HTTP server.
+should give you an onion service pointing to a local running simple HTTP server.
 All files are created under */tmp*.
 Verify it with
 
