@@ -78,7 +78,7 @@ function checkForFindings()  {
         tar -cjpf $tbz2 ./$i 2>&1         &&\
         uuencode $tbz2 $(basename $tbz2)
       ) |\
-      mail -s "$(basename $0) $i in $d" $mailto -a ''
+      mail -s "$(basename $0) $i in $d" $mailto -a ""
     done
   done
 }
@@ -269,7 +269,7 @@ function resumeFuzzer ()  {
   done
 }
 
-# after n days the test might not be useful anymore
+# kill a fuzzer after $1 days
 #
 function killOldFuzzer()  {
   let "max = 86400 * $1"
@@ -285,7 +285,7 @@ function killOldFuzzer()  {
     if [[ $diff -gt $max ]]; then
       echo
       echo "$d is too old"
-      pf=$( cat $d/fuzz.pid 2>/dev/null )
+      pid=$( cat $d/fuzz.pid 2>/dev/null )
       if [[ -n $pid ]]; then
         echo "will kill process $pid"
         kill $pid
@@ -319,8 +319,6 @@ if [[ -f ~/.lock ]]; then
 fi
 echo $$ > ~/.lock
 
-# pathes to sources
-#
 export RECIDIVM_DIR=~/recidivm
 export CHUTNEY_PATH=~/chutney
 export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora
@@ -328,20 +326,20 @@ export TOR_DIR=~/tor
 
 # https://github.com/mirrorer/afl/blob/master/docs/env_variables.txt
 #
-# for afl-gcc
+# afl-gcc
 #
 export AFL_HARDEN=1
-# export AFL_DONT_OPTIMIZE=1
 #
-# for afl-fuzz
+# afl-fuzz
 #
 export AFL_SKIP_CPUFREQ=1
 export AFL_EXIT_WHEN_DONE=1
-# export AFL_NO_AFFINITY=1
 export AFL_SHUFFLE_QUEUE=1
 
 export CFLAGS="-O2 -pipe -march=native"
 export CC="afl-gcc"
+
+export GCC_COLORS=""
 
 while getopts achf:k:rs:u opt
 do
