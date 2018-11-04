@@ -287,8 +287,9 @@ function killOldFuzzer()  {
       echo "$d is too old"
       pid=$( cat $d/fuzz.pid 2>/dev/null )
       if [[ -n $pid ]]; then
-        echo "will kill process $pid"
+        echo "kill process $pid ..."
         kill $pid
+        sleep 1
       fi
     fi
   done
