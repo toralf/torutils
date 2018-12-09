@@ -117,6 +117,8 @@ function archiveFindings()  {
 # update Tor fuzzer software stack
 #
 function update_tor() {
+  echo "update deps ..."
+
   cd $RECIDIVM_DIR
   git pull -q
   make
@@ -131,29 +133,38 @@ function update_tor() {
   git pull -q
   git describe
 
+  echo "check broken linker state ..."
+
   # anything much bigger than 50 indicates a broken (linker) state
   #
   m=$(for i in $(ls ./src/test/fuzz/fuzz-* 2>/dev/null); do echo $(../recidivm/recidivm -v -u M $i 2>&1 | tail -n 1); done | sort -n | tail -n 1)
-  if [[ -n "$m" && $m -gt 100 ]]; then
-    make distclean
+  if [[ -n "$m" ]]; then
+    if [[ $m -gt 100 ]]; then
+      make distclean
+    fi
+  else
+    echo "can't run recidivm, exiting ..."
+    return
   fi
 
+  echo "build fuzzers ..."
+
   if [[ ! -x ./configure ]]; then
-    ./autogen.sh 2>&1 || return $?
+    ./autogen.sh 2>&1 || return
   fi
 
   if [[ ! -f Makefile ]]; then
     #   --enable-expensive-hardening doesn't work b/c hardened GCC is built with USE="(-sanitize)"
     #
-    ./configure 2>&1 || return $?
+    ./configure 2>&1 || return
   fi
 
   # target "fuzzers" seems not to depend on target "main"
   # which yields into compile errors, eg.:
   #   "src/or/git_revision.c:14:28: fatal error: micro-revision.i: No such file or directory"
   #
-  make 2>&1 || return $?
-  make fuzzers 2>&1 || return $?
+  make 2>&1 || return
+  make fuzzers 2>&1 || return
 }
 
 
@@ -274,7 +285,7 @@ function resumeFuzzer ()  {
 function killOldFuzzer()  {
   let "max = 86400 * $1"
   if [[ $# -ne 1 || $max -eq 0 ]]; then
-    exit 1
+    return
   fi
 
   for d in $(ls -1d ~/work/20??????-??????_* 2>/dev/null)
@@ -284,7 +295,7 @@ function killOldFuzzer()  {
     let "diff = $curr - $start"
     if [[ $diff -gt $max ]]; then
       echo
-      echo "$d is too old"
+      echo "$d reached EOL"
       pid=$( cat $d/fuzz.pid 2>/dev/null )
       if [[ -n $pid ]]; then
         echo "kill process $pid ..."
@@ -306,7 +317,7 @@ fi
 
 # do not run this script in parallel
 #
-if [[ -f ~/.lock ]]; then
+if [[ -s ~/.lock ]]; then
   ls -l ~/.lock
   tail -v ~/.lock
   kill -0 $(cat ~/.lock) 2>/dev/null
@@ -382,7 +393,7 @@ do
       startFuzzer
       ;;
     u)
-      update_tor || exit $?
+      update_tor
       ;;
     *)
       Help
