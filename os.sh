@@ -3,6 +3,7 @@
 # set -x
 
 # setup an onion service
+# $1: <port number>, $2: <ip address>
 
 if [[ "$(whoami)" != "root" ]]; then
   echo "you must be root "
@@ -34,8 +35,8 @@ SocksPort 0
 
 Log notice file $dir/notice.log
 
-BandwidthRate  1 MBytes
-BandwidthBurst 2 MBytes
+BandwidthRate   512 KBytes
+BandwidthBurst 1024 KBytes
 
 HiddenServiceDir $dir/data/osdir
 HiddenServiceVersion 3

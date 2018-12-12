@@ -27,7 +27,9 @@ def main():
   port = 1234
   ipv6 = "n"
 
-  logging.basicConfig(format='%(asctime)s + %(name)s + %(levelname)s + %(message)s', level=logging.INFO)
+  # set this to logging.DEBUG to see each request
+  #
+  logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s + %(message)s', level=logging.INFO)
 
   logging.debug('Parsing args...')
   parser = argparse.ArgumentParser()
@@ -53,7 +55,7 @@ def main():
   else:
     server = HTTPServer((address, port), MyHandler)
 
-  logging.info('Starting httpd...')
+  logging.info('Starting ...')
   server.serve_forever()
 
 if __name__ == '__main__':

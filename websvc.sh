@@ -3,6 +3,7 @@
 # set -x
 
 # start a python web server
+# $1: <port number>, $2: <ip address>, $3 (optional): "--is_ipv6"
 #
 
 if [[ "$(whoami)" != "root" ]]; then
@@ -12,7 +13,8 @@ fi
 
 id websvc 1>/dev/null
 if [[ $? -ne 0 ]]; then
-  exit
+  echo "create it with 'useradd websvc --no-create-home --shell=/sbin/nologin'"
+  exit 1
 fi
 
 pgrep -af /tmp/websvc.py
