@@ -18,7 +18,7 @@ mailto="torproject@zwiebeltoralf.de"
 # cd ~
 # git clone https://github.com/jwilk/recidivm
 # git clone https://git.torproject.org/chutney.git
-# git clone https://github.com/nmathewson/tor-fuzz-corpora.git
+# git clone https://git.torproject.org/fuzzing-corpora.git
 # git clone https://git.torproject.org/tor.git
 #
 # (III) build fuzzers:
