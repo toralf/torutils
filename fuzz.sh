@@ -171,13 +171,6 @@ function update_tor() {
 # spin up new fuzzer(s)
 #
 function startFuzzer()  {
-  if [[ ! -d ~/work ]]; then
-    mkdir ~/work
-  fi
-
-  cd $TOR_DIR
-  cid=$( git describe | sed 's/.*\-g//g' )
-
   f=$1
 
   # input data file for the fuzzer
@@ -190,6 +183,7 @@ function startFuzzer()  {
 
   # output directory
   #
+  cid=$(cd $TOR_DIR; git describe | sed 's/.*\-g//g' )
   odir=~/work/$( date +%Y%m%d-%H%M%S )_${cid}_${f}
   mkdir -p $odir
   if [[ $? -ne 0 ]]; then
