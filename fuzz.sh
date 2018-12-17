@@ -49,7 +49,7 @@ mailto="torproject@zwiebeltoralf.de"
 
 function Help() {
   echo
-  echo "  call: $(basename $0) [-h|-?] [-ackr] [-f '<fuzzer(s)>'] [-s <number>] [-u]"
+  echo "  call: $(basename $0) [-h|-?] [-ac] [-k <days>] [-f '<fuzzer(s)>'] [-s <number>] [-u]"
   echo
   exit 0
 }
@@ -178,115 +178,57 @@ function startFuzzer()  {
   cd $TOR_DIR
   cid=$( git describe | sed 's/.*\-g//g' )
 
-  for f in $fuzzers
-  do
-    # the fuzzer itself
-    #
-    exe="$TOR_DIR/src/test/fuzz/fuzz-$f"
-    if [[ ! -x $exe ]]; then
-      echo "fuzzer not found: $exe"
-      continue
-    fi
+  f=$1
 
-    # input data files for the fuzzer
-    #
-    idir=$TOR_FUZZ_CORPORA/$f
-    if [[ ! -d $idir ]]; then
-      echo "idir not found: $idir"
-      continue
-    fi
+  # input data file for the fuzzer
+  #
+  idir=$TOR_FUZZ_CORPORA/$f
+  if [[ ! -d $idir ]]; then
+    echo "idir not found: $idir"
+    return
+  fi
 
-    # output directory
-    #
-    timestamp=$( date +%Y%m%d-%H%M%S )
-    odir=~/work/${timestamp}_${cid}_${f}
-    mkdir -p $odir
-    if [[ $? -ne 0 ]]; then
-      continue
-    fi
+  # output directory
+  #
+  odir=~/work/$( date +%Y%m%d-%H%M%S )_${cid}_${f}
+  mkdir -p $odir
+  if [[ $? -ne 0 ]]; then
+    return
+  fi
 
-    # the Tor repo need might be updated and rebuild in the mean while
-    #
-    cp $exe $odir
-    exe="$odir/fuzz-$f"
+  # run a copy of the fuzzer b/c git repo is subject of change
+  #
+  cp $TOR_DIR/src/test/fuzz/fuzz-$f $odir
+  exe=$odir/fuzz-$f
 
-    # optional: dictionare for the fuzzer
-    #
-    dict="$TOR_DIR/src/test/fuzz/dict/$f"
-    if [[ -e $dict ]]; then
-      dict="-x $dict"
-    else
-      dict=""
-    fi
+  # optional: dictionary for the fuzzer
+  #
+  dict="$TOR_DIR/src/test/fuzz/dict/$f"
+  if [[ -e $dict ]]; then
+    dict="-x $dict"
+  else
+    dict=""
+  fi
 
-    # fire it up
-    #
-    nohup nice /usr/bin/afl-fuzz -i $idir -o $odir -m 50 $dict -- $exe &>$odir/fuzz.log &
-    pid="$!"
-    echo "$pid" > $odir/fuzz.pid
-    echo
-    echo "started $f pid=$pid odir=$odir"
-    echo
-
-    # guarantee a unique timestamp
-    #
-    sleep 1
-  done
+  # fire it up
+  #
+  nohup nice /usr/bin/afl-fuzz -i $idir -o $odir -m 50 $dict -- $exe &>$odir/fuzz.log &
+  pid="$!"
+  echo "$pid" > $odir/fuzz.pid
+  echo
+  echo "started $f pid=$pid odir=$odir"
+  echo
 }
 
-
-# resume after reboot
-#
-function resumeFuzzer ()  {
-  for d in $(ls -1d ~/work/20??????-??????_* 2>/dev/null)
-  do
-    idir="-"
-    odir=$d
-
-    pid=$(cat $odir/fuzz.pid)
-    kill -0 $pid
-    if [[ $? -eq 0 ]]; then
-      continue
-    fi
-
-    echo
-
-    f=$(echo $d | cut -f3 -d'_')
-
-    exe="$odir/fuzz-$f"
-    if [[ ! -x $exe ]]; then
-      echo "can't resume $f"
-      continue
-    fi
-
-    # optional: dictionaire for the fuzzer
-    #
-    dict="$TOR_DIR/src/test/fuzz/dict/$f"
-    if [[ -e $dict ]]; then
-      dict="-x $dict"
-    else
-      dict=""
-    fi
-
-    # fire it up
-    #
-    nohup nice /usr/bin/afl-fuzz -i $idir -o $odir $dict -m 50 -- $exe &>$odir/fuzz.log &
-    pid="$!"
-    echo "$pid" > $odir/fuzz.pid
-    echo
-    echo "resumed $f pid=$pid odir=$odir"
-    echo
-
-  done
-}
 
 # kill a fuzzer after $1 days
 #
 function killOldFuzzer()  {
-  let "max = 86400 * $1"
-  if [[ $# -ne 1 || $max -eq 0 ]]; then
+  if [[ $# -ne 1 ]]; then
     return
   fi
+
+  let "max = 86400 * $1"
 
   for d in $(ls -1d ~/work/20??????-??????_* 2>/dev/null)
   do
@@ -353,7 +295,7 @@ export CC="afl-gcc"
 
 export GCC_COLORS=""
 
-while getopts achf:k:rs:u opt
+while getopts achf:k:s:u opt
 do
   case $opt in
     a)
@@ -364,33 +306,30 @@ do
       checkForFindings
       ;;
     f)
-      fuzzers="$OPTARG"
-      startFuzzer
+      startFuzzer $OPTARG
       ;;
     k)
       killOldFuzzer $OPTARG
       ;;
-    r)
-      resumeFuzzer
-      ;;
     s)
-      fuzzers=""
-      # start up to $OPTARG arbitrarily choosen fuzzers
-      # not currently running
+      # spin up $OPTARG arbitrarily choosen fuzzers
       #
       i=0
       for f in $( ls $TOR_FUZZ_CORPORA 2>/dev/null | sort --random-sort )
       do
-        ls -d ~/work/*-*_*_${f} &>/dev/null
+        if [[ ! -x $TOR_DIR/src/test/fuzz/fuzz-$f ]]; then
+          continue
+        fi
+
+        ls -d ~/work/*-*_*_$f &>/dev/null
         if [[ $? -ne 0 ]]; then
-          fuzzers="$fuzzers $f"
+          startFuzzer $f
           ((i=i+1))
           if [[ $i -ge $OPTARG ]]; then
             break
           fi
         fi
       done
-      startFuzzer
       ;;
     u)
       update_tor
