@@ -49,7 +49,7 @@ mailto="torproject@zwiebeltoralf.de"
 
 function Help() {
   echo
-  echo "  call: $(basename $0) [-h|-?] [-ac] [-k <days>] [-f '<fuzzer(s)>'] [-s <number>] [-u]"
+  echo "  call: $(basename $0) [-h|-?] [-ac] [-f '<fuzzer(s)>'] [-s <number>] [-u]"
   echo
   exit 0
 }
@@ -210,34 +210,6 @@ function startFuzzer()  {
 }
 
 
-# kill a fuzzer after $1 days
-#
-function killOldFuzzer()  {
-  if [[ $# -ne 1 ]]; then
-    return
-  fi
-
-  let "max = 86400 * $1"
-
-  for d in $(ls -1d ~/work/20??????-??????_* 2>/dev/null)
-  do
-    start=$( stat -c%X $d )
-    curr=$( date +%s )
-    let "diff = $curr - $start"
-    if [[ $diff -gt $max ]]; then
-      echo
-      echo "$d reached EOL"
-      pid=$( cat $d/fuzz.pid 2>/dev/null )
-      if [[ -n $pid ]]; then
-        echo "kill process $pid ..."
-        kill $pid
-        sleep 1
-      fi
-    fi
-  done
-}
-
-
 #######################################################################
 #
 # main
@@ -284,7 +256,7 @@ export CC="afl-gcc"
 
 export GCC_COLORS=""
 
-while getopts achf:k:s:u opt
+while getopts achf:s:u opt
 do
   case $opt in
     a)
@@ -296,9 +268,6 @@ do
       ;;
     f)
       startFuzzer $OPTARG
-      ;;
-    k)
-      killOldFuzzer $OPTARG
       ;;
     s)
       # spin up $OPTARG arbitrarily choosen fuzzers
