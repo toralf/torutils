@@ -95,8 +95,6 @@ function archiveFindings()  {
     if [[ -n $pid ]]; then
       kill -0 $pid 2>/dev/null
       if [[ $? -ne 0 ]]; then
-        echo
-        echo "$d finished"
         if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
           echo "$d *has* findings, keep it"
           if [[ ! -d ~/archive ]]; then
@@ -104,10 +102,8 @@ function archiveFindings()  {
           fi
           mv $d ../archive
         else
-          echo "$d has no findings"
           rm -rf $d
         fi
-        echo
       fi
     fi
   done
@@ -221,14 +217,15 @@ fi
 # do not run this script in parallel
 #
 if [[ -s ~/.lock ]]; then
+  echo " found old lock file"
   ls -l ~/.lock
   tail -v ~/.lock
   kill -0 $(cat ~/.lock) 2>/dev/null
   if [[ $? -eq 0 ]]; then
-    echo " lock file is valid, exiting ..."
+    echo " valid, exiting ..."
     exit 1
   else
-    echo " lock file is stalled, continuing ..."
+    echo " stalled, continuing ..."
     echo
   fi
 fi
@@ -254,13 +251,10 @@ export AFL_SHUFFLE_QUEUE=1
 export CFLAGS="-O2 -pipe -march=native"
 export CC="afl-gcc"
 
-export GCC_COLORS=""
-
 while getopts achf:s:u opt
 do
   case $opt in
     a)
-      checkForFindings
       archiveFindings
       ;;
     c)
