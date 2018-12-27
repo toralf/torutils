@@ -9,7 +9,7 @@ mailto="torproject@zwiebeltoralf.de"
 
 # preparation steps at Gentoo Linux:
 #
-# (I) install AFL (as root)
+# (I) install AFL
 #
 # emerge --update sys-devel/clang app-forensics/afl
 #
@@ -23,7 +23,7 @@ mailto="torproject@zwiebeltoralf.de"
 #
 # (III) build fuzzers:
 #
-# /opt/torutils/fuzz.sh -u
+# fuzz.sh -u
 #
 # (IV) get/check memory limit
 #
@@ -42,9 +42,9 @@ mailto="torproject@zwiebeltoralf.de"
 # 41 ./src/test/fuzz/fuzz-socks
 # 41 ./src/test/fuzz/fuzz-vrs
 #
-# (V) start fuzzers:
+# (V) start one fuzzer:
 #
-# /opt/torutils/fuzz.sh -s 10
+# fuzz.sh -s 1
 
 
 function Help() {
@@ -52,6 +52,32 @@ function Help() {
   echo "  call: $(basename $0) [-h|-?] [-ac] [-f '<fuzzer(s)>'] [-s <number>] [-u]"
   echo
   exit 0
+}
+
+
+# archive findings
+#
+function archiveFindings()  {
+  cd ~/work
+
+  for d in $( ls -1d ./20??????-??????_* 2>/dev/null )
+  do
+    pid=$(cat $d/fuzz.pid 2>/dev/null)
+    if [[ -n $pid ]]; then
+      kill -0 $pid 2>/dev/null
+      if [[ $? -ne 0 ]]; then
+        if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
+          echo "$d *has* findings, keep it"
+          if [[ ! -d ~/archive ]]; then
+            mkdir ~/archive
+          fi
+          mv $d ../archive
+        else
+          rm -rf $d
+        fi
+      fi
+    fi
+  done
 }
 
 
@@ -84,29 +110,65 @@ function checkForFindings()  {
 }
 
 
-# archive findings
 #
-function archiveFindings()  {
+#
+function LogFilesCheck() {
   cd ~/work
 
   for d in $( ls -1d ./20??????-??????_* 2>/dev/null )
   do
-    pid=$(cat $d/fuzz.pid 2>/dev/null)
-    if [[ -n $pid ]]; then
-      kill -0 $pid 2>/dev/null
-      if [[ $? -ne 0 ]]; then
-        if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
-          echo "$d *has* findings, keep it"
-          if [[ ! -d ~/archive ]]; then
-            mkdir ~/archive
-          fi
-          mv $d ../archive
-        else
-          rm -rf $d
-        fi
-      fi
+    log=$(cat $d/fuzz.log 2>/dev/null)
+    if [[ -f $log ]]; then
+      grep -H 'PROGRAM ABORT :' $log
     fi
   done
+}
+
+
+# spin up new fuzzer(s)
+#
+function startFuzzer()  {
+  f=$1
+
+  # input data file for the fuzzer
+  #
+  idir=$TOR_FUZZ_CORPORA/$f
+  if [[ ! -d $idir ]]; then
+    echo "idir not found: $idir"
+    return
+  fi
+
+  # output directory
+  #
+  cid=$(cd $TOR_DIR; git describe | sed 's/.*\-g//g' )
+  odir=~/work/$( date +%Y%m%d-%H%M%S )_${cid}_${f}
+  mkdir -p $odir
+  if [[ $? -ne 0 ]]; then
+    return
+  fi
+
+  # run a copy of the fuzzer b/c git repo is subject of change
+  #
+  cp $TOR_DIR/src/test/fuzz/fuzz-$f $odir
+  exe=$odir/fuzz-$f
+
+  # optional: dictionary for the fuzzer
+  #
+  dict="$TOR_DIR/src/test/fuzz/dict/$f"
+  if [[ -e $dict ]]; then
+    dict="-x $dict"
+  else
+    dict=""
+  fi
+
+  # fire it up
+  #
+  nohup nice /usr/bin/afl-fuzz -i $idir -o $odir -m 53 $dict -- $exe &>$odir/fuzz.log &
+  pid="$!"
+  echo "$pid" > $odir/fuzz.pid
+  echo
+  echo "started $f pid=$pid odir=$odir"
+  echo
 }
 
 
@@ -159,53 +221,6 @@ function update_tor() {
 }
 
 
-# spin up new fuzzer(s)
-#
-function startFuzzer()  {
-  f=$1
-
-  # input data file for the fuzzer
-  #
-  idir=$TOR_FUZZ_CORPORA/$f
-  if [[ ! -d $idir ]]; then
-    echo "idir not found: $idir"
-    return
-  fi
-
-  # output directory
-  #
-  cid=$(cd $TOR_DIR; git describe | sed 's/.*\-g//g' )
-  odir=~/work/$( date +%Y%m%d-%H%M%S )_${cid}_${f}
-  mkdir -p $odir
-  if [[ $? -ne 0 ]]; then
-    return
-  fi
-
-  # run a copy of the fuzzer b/c git repo is subject of change
-  #
-  cp $TOR_DIR/src/test/fuzz/fuzz-$f $odir
-  exe=$odir/fuzz-$f
-
-  # optional: dictionary for the fuzzer
-  #
-  dict="$TOR_DIR/src/test/fuzz/dict/$f"
-  if [[ -e $dict ]]; then
-    dict="-x $dict"
-  else
-    dict=""
-  fi
-
-  # fire it up
-  #
-  nohup nice /usr/bin/afl-fuzz -i $idir -o $odir -m 50 $dict -- $exe &>$odir/fuzz.log &
-  pid="$!"
-  echo "$pid" > $odir/fuzz.pid
-  echo
-  echo "started $f pid=$pid odir=$odir"
-  echo
-}
-
-
 #######################################################################
 #
 # main
@@ -251,7 +266,7 @@ export AFL_SHUFFLE_QUEUE=1
 export CFLAGS="-O2 -pipe -march=native"
 export CC="afl-gcc"
 
-while getopts achf:s:u opt
+while getopts acHhlf:s:u\? opt
 do
   case $opt in
     a)
@@ -261,7 +276,13 @@ do
       checkForFindings
       ;;
     f)
-      startFuzzer $OPTARG
+      for f in $OPTARG
+      do
+        startFuzzer $f
+      done
+      ;;
+    l)
+      LogFilesCheck
       ;;
     s)
       # spin up $OPTARG arbitrarily choosen fuzzers
