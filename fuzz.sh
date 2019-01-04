@@ -25,22 +25,9 @@ mailto="torproject@zwiebeltoralf.de"
 #
 # fuzz.sh -u
 #
-# (IV) get/check memory limit
+# (IV) get/check memory limit (add 50M at the highest value as suggested by recidivm upstream)
 #
 # cd ~/tor; for i in $(ls ./src/test/fuzz/fuzz-* 2>/dev/null); do echo $(../recidivm/recidivm -v -u M $i 2>&1 | tail -n 1) $i ; done | sort -n
-# 41 ./src/test/fuzz/fuzz-consensus
-# 41 ./src/test/fuzz/fuzz-descriptor
-# 41 ./src/test/fuzz/fuzz-diff
-# 41 ./src/test/fuzz/fuzz-diff-apply
-# 41 ./src/test/fuzz/fuzz-extrainfo
-# 41 ./src/test/fuzz/fuzz-hsdescv2
-# 41 ./src/test/fuzz/fuzz-hsdescv3
-# 41 ./src/test/fuzz/fuzz-http
-# 41 ./src/test/fuzz/fuzz-http-connect
-# 41 ./src/test/fuzz/fuzz-iptsv2
-# 41 ./src/test/fuzz/fuzz-microdesc
-# 41 ./src/test/fuzz/fuzz-socks
-# 41 ./src/test/fuzz/fuzz-vrs
 #
 # (V) start one fuzzer:
 #
@@ -163,7 +150,7 @@ function startFuzzer()  {
 
   # fire it up
   #
-  nohup nice /usr/bin/afl-fuzz -i $idir -o $odir -m 53 $dict -- $exe &>$odir/fuzz.log &
+  nohup nice /usr/bin/afl-fuzz -i $idir -o $odir -m 100 $dict -- $exe &>$odir/fuzz.log &
   pid="$!"
   echo "$pid" > $odir/fuzz.pid
   echo
@@ -197,7 +184,7 @@ function update_tor() {
   #
   m=$(for i in $(ls ./src/test/fuzz/fuzz-* 2>/dev/null); do echo $(../recidivm/recidivm -v -u M $i 2>&1 | tail -n 1); done | sort -n | tail -n 1)
   if [[ -n "$m" ]]; then
-    if [[ $m -gt 100 ]]; then
+    if [[ $m -gt 1000 ]]; then
       make distclean
     fi
   else
