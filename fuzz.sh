@@ -125,7 +125,7 @@ function startFuzzer()  {
     return
   fi
 
-  # output directory
+  # output directory: timestamp + git commit id + fuzzer name
   #
   cid=$(cd $TOR_DIR; git describe | sed 's/.*\-g//g' )
   odir=~/work/$( date +%Y%m%d-%H%M%S )_${cid}_${f}
@@ -195,6 +195,7 @@ function update_tor() {
   echo "build fuzzers ..."
 
   if [[ ! -x ./configure ]]; then
+    rm -f Makefile
     ./autogen.sh 2>&1 || return
   fi
 
