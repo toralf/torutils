@@ -188,18 +188,19 @@ function update_tor() {
       make distclean
     fi
   else
-    echo "can't run recidivm, exiting ..."
-    return
+    echo " can't run recidivm, using m=100 ..."
   fi
 
   echo "build fuzzers ..."
 
   if [[ ! -x ./configure ]]; then
     rm -f Makefile
+    echo " autogen ..."
     ./autogen.sh 2>&1 || return
   fi
 
   if [[ ! -f Makefile ]]; then
+    echo " configure ..."
     #   --enable-expensive-hardening doesn't work b/c hardened GCC is built with USE="(-sanitize)"
     #
     ./configure 2>&1 || return
