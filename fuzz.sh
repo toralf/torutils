@@ -182,7 +182,7 @@ function update_tor() {
 
   # anything much bigger than 50 indicates a broken (linker) state
   #
-  m=$(for i in $(ls ./src/test/fuzz/fuzz-* 2>/dev/null); do echo $(../recidivm/recidivm -v -u M $i 2>&1 | tail -n 1); done | sort -n | tail -n 1)
+  m=$(for i in $(ls ./src/test/fuzz/fuzz-* 2>/dev/null); do echo $(../recidivm/recidivm -v -u M $i 2>/dev/null | tail -n 1); done | sort -n | tail -n 1)
   if [[ -n "$m" ]]; then
     if [[ $m -gt 1000 ]]; then
       make distclean
