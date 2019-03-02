@@ -82,11 +82,16 @@ function checkForFindings()  {
       fi
 
       tbz2=$(basename $d)-$i.tbz2
+
+      # already anything reported ?
+      #
       if [[ -f $d/$tbz2 && $tbz2 -ot $d/$i ]]; then
         continue
       fi
 
       (
+        echo "verify it with '$(basename $( ls ~/work/$d/fuzz* ) ) < file' before reporting it to tor-security@lists.torproject.org"
+        echo
         cd $d                             &&\
         tar -cjpf $tbz2 ./$i 2>&1         &&\
         uuencode $tbz2 $(basename $tbz2)
