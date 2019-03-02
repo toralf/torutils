@@ -190,10 +190,8 @@ function update_tor() {
   m=$(for i in $(ls ./src/test/fuzz/fuzz-* 2>/dev/null); do echo $(../recidivm/recidivm -v -u M $i 2>/dev/null | tail -n 1); done | sort -n | tail -n 1)
   if [[ -n "$m" ]]; then
     if [[ $m -gt 1000 ]]; then
-      make distclean
+      make distclean 2>&1
     fi
-  else
-    echo " can't run recidivm, using m=100 ..."
   fi
 
   echo "build fuzzers ..."
