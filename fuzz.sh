@@ -204,7 +204,7 @@ function update_tor() {
 
   if [[ ! -f Makefile ]]; then
     echo " configure ..."
-    #   --enable-expensive-hardening doesn't work b/c hardened GCC is built with USE="(-sanitize)"
+    #   --enable-expensive-hardening doesn't work
     #
     ./configure 2>&1 || return
   fi
