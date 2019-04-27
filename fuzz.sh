@@ -209,6 +209,11 @@ function update_tor() {
     ./configure 2>&1 || return
   fi
 
+  # https://trac.torproject.org/projects/tor/ticket/29520
+  #
+  echo " make ..."
+  make micro-revision.i 2>&1 || return
+
   make fuzzers 2>&1 || return
 }
 
