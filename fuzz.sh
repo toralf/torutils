@@ -285,22 +285,14 @@ do
     s)
       # spin up $OPTARG arbitrarily choosen fuzzers
       #
-      i=0
-      for f in $( ls $TOR_FUZZ_CORPORA 2>/dev/null | sort --random-sort )
+      fuzzers=""
+      for f in $(ls $TOR_FUZZ_CORPORA 2>/dev/null)
       do
-        if [[ ! -x $TOR_DIR/src/test/fuzz/fuzz-$f ]]; then
-          continue
-        fi
-
-        ls -d ~/work/*-*_*_$f &>/dev/null
-        if [[ $? -ne 0 ]]; then
-          startFuzzer $f
-          ((i=i+1))
-          if [[ $i -ge $OPTARG ]]; then
-            break
-          fi
+        if [[ -x $TOR_DIR/src/test/fuzz/fuzz-$f ]]; then
+          fuzzers="$fuzzers $f"
         fi
       done
+      echo $fuzzers | xargs -n 1 | shuf -n $OPTARG | while read f; do startFuzzer $f; done
       ;;
     u)
       update_tor
