@@ -228,11 +228,12 @@ fi
 
 # do not run this script in parallel
 #
-if [[ -s ~/.lock ]]; then
+lck=~/.lock
+if [[ -s $lck ]]; then
   echo " found old lock file"
-  ls -l ~/.lock
-  tail -v ~/.lock
-  kill -0 $(cat ~/.lock) 2>/dev/null
+  ls -l $lck
+  tail -v $lck
+  kill -0 $(cat $lck) 2>/dev/null
   if [[ $? -eq 0 ]]; then
     echo " valid, exiting ..."
     exit 1
@@ -241,7 +242,7 @@ if [[ -s ~/.lock ]]; then
     echo
   fi
 fi
-echo $$ > ~/.lock
+echo $$ > $lck
 
 export RECIDIVM_DIR=~/recidivm
 export CHUTNEY_PATH=~/chutney
@@ -310,6 +311,4 @@ do
   esac
 done
 
-rm ~/.lock
-
-exit 0
+rm $lck
