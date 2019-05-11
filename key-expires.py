@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# put out the time (in seconds) before the key expires
+
 import codecs
 import sys
 import time
