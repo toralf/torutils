@@ -54,7 +54,7 @@ function archiveFindings()  {
       kill -0 $pid 2>/dev/null
       if [[ $? -ne 0 ]]; then
         if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
-          echo "$d *has* findings, keep it"
+          echo " $d *has* findings, keep it"
           if [[ ! -d ~/archive ]]; then
             mkdir ~/archive
           fi
@@ -126,7 +126,7 @@ function startFuzzer()  {
   #
   idir=$TOR_FUZZ_CORPORA/$f
   if [[ ! -d $idir ]]; then
-    echo "idir not found: $idir"
+    echo " idir not found: $idir"
     return
   fi
 
@@ -159,7 +159,7 @@ function startFuzzer()  {
   pid="$!"
   echo "$pid" > $odir/fuzz.pid
   echo
-  echo "started $f pid=$pid odir=$odir"
+  echo " started $f pid=$pid odir=$odir"
   echo
 }
 
@@ -167,7 +167,7 @@ function startFuzzer()  {
 # update Tor fuzzer software stack
 #
 function update_tor() {
-  echo "update deps ..."
+  echo " update deps ..."
 
   cd $RECIDIVM_DIR
   git pull -q
@@ -183,7 +183,7 @@ function update_tor() {
   git pull -q
   git describe
 
-  echo "check broken linker state ..."
+  echo " check broken linker state ..."
 
   # anything much bigger than 50 indicates a broken (linker) state
   #
@@ -194,7 +194,7 @@ function update_tor() {
     fi
   fi
 
-  echo "build fuzzers ..."
+  echo " build fuzzers ..."
 
   if [[ ! -x ./configure ]]; then
     rm -f Makefile
