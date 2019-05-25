@@ -12,7 +12,7 @@ Few tools around a Tor relay.
 *orstatus.py* collects data for https://trac.torproject.org/projects/tor/ticket/13603 .
 
 ### simple setup of an onion service
-**Update:** look at https://github.com/micahflee/onionshare.git/README.md for a matured solution.
+**Update:** look at https://github.com/micahflee/onionshare for a matured solution.
 
 *websvc.sh*, *websvc.py*, *os.sh*, *mock_irc.py*
 
