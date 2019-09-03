@@ -170,18 +170,17 @@ function update_tor() {
   echo " update deps ..."
 
   cd $RECIDIVM_DIR
-  git pull -q
+  git pull
   make
 
   cd $CHUTNEY_PATH
-  git pull -q
+  git pull
 
   cd $TOR_FUZZ_CORPORA
-  git pull -q
+  git pull
 
   cd $TOR_DIR
-  git pull -q
-  git describe
+  git pull
 
   echo " check broken linker state ..."
 
