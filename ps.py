@@ -99,7 +99,7 @@ def main():
         Curr.clear()
 
         pid = controller.get_info("process/pid")
-        connections = get_connections(resolver=resolver, process_pid=pid,process_name='tor')
+        connections = get_connections(resolver=resolver,process_pid=pid,process_name='tor')
 
         t2 = time.time()
 
