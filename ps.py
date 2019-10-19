@@ -87,9 +87,15 @@ def main():
           inputfile.close()
           for line in lines:
             if line.startswith("ExitPolicy accept "):
-              for word in line.split():
-                if '*:' in word:    # do consider classX ports
-                  port = int (word.split(':')[1])
+              accept = line.split()[2]
+              if ':' in accept:
+                port = accept.split(':')[1]
+                if '-' in port:
+                  min = port.split('-')[0]
+                  max = port.split('-')[1]
+                  for port in range(int(min),int(max)):
+                    exit_ports.append(port)
+                else:
                   exit_ports.append(port)
 
       try:
