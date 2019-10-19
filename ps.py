@@ -86,7 +86,7 @@ def main():
           lines = inputfile.readlines()
           inputfile.close()
           for line in lines:
-            if line.startswith("ExitPolicy accept "):
+            if line.startswith("ExitPolicy  *accept "):
               accept = line.split()[2]
               if ':' in accept:
                 port = accept.split(':')[1]
