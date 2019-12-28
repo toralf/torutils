@@ -123,9 +123,6 @@ def main():
       relaysOr.setdefault(s.address, []).append(s.or_port)
       relaysDir.setdefault(s.address, []).append(s.dir_port)
 
-    print (" relays DIR:  %i" % len(list(relaysDir)))
-    print (" relays  OR:  %i" % len(list(relaysOr)))
-
     # classify network connections by port and relationship to the Tor relay
     #
     ports_int = {}
@@ -148,6 +145,7 @@ def main():
 
     # classify each connection
     #
+    relays = {}
     for conn in connections:
       if conn.protocol == 'udp':
           continue
@@ -158,10 +156,12 @@ def main():
       if raddr in relaysOr:
         if (lport == ORport and not conn.is_ipv6) or (lport == ORport6 and conn.is_ipv6):
           inc_ports_int('ORport   <= relay')
+          relays[raddr] = relays.get(raddr,0)+1
         elif (lport == DIRport and not conn.is_ipv6) or (lport == DIRport6 and conn.is_ipv6):
           inc_ports_int('DIRport   <= relay')
         elif rport in relaysOr[raddr]:
           inc_ports_int('=> relay ORport')
+          relays[raddr] = relays.get(raddr,0)+1
         elif rport in relaysDir[raddr]:
           inc_ports_int('=> relay DIRport')
         else:
@@ -181,6 +181,14 @@ def main():
           inc_ports_int('CtrlPort <= local')
         else:
           inc_ports_ext ('=> non exit port')
+
+    count = {}
+    for r in sorted(relays):
+      n = relays[r]
+      count[n] = count.get(n,0) + 1
+    print (" relays: %5i" % len(list(relays)))
+    for i in sorted(count):
+      print ("         %5i with %2i connections" % (count[i], i))
 
     print ()
     print ('  description         port   ipv4  ipv6  servicename')
