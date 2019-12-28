@@ -7,10 +7,10 @@ $> info.py --ctrlport 29051
 
   description         port   ipv4  ipv6  service
   -----------------  -----   ----  ----  -------------
-  => relay ORPort             396
+  => relay ORport             396
   CtrlPort <= local             1
-  ORPort   <= outer            80     4
-  ORPort   <= relay          3382
+  ORport   <= outer            80     4
+  ORport   <= relay          3382
 
   => exit              443    611   232  HTTPS
   => exit              587      1        SMTP
@@ -75,22 +75,22 @@ def main():
 
     try:
       ControlPort = int(controller.get_conf("ControlPort"))
-      ORPort   = None
-      ORPort6  = None
-      DirPort  = None
-      DirPort6 = None
+      ORport   = None
+      ORport6  = None
+      DIRport  = None
+      DIRport6 = None
 
       for address, port in controller.get_listeners(Listener.OR):
         if is_valid_ipv4_address(address):
-          ORPort = port
+          ORport = port
         else:
-          ORPort6 = port
+          ORport6 = port
 
       for address, port in controller.get_listeners(Listener.DIR):
         if is_valid_ipv4_address(address):
-          DirPort = port
+          DIRport = port
         else:
-          DirPort6 = port
+          DIRport6 = port
 
     except Exception as Exc:
       print ("Woops, control ports aren't configured")
@@ -123,6 +123,9 @@ def main():
       relaysOr.setdefault(s.address, []).append(s.or_port)
       relaysDir.setdefault(s.address, []).append(s.dir_port)
 
+    print (" relays DIR:  %i" % len(list(relaysDir)))
+    print (" relays  OR:  %i" % len(list(relaysOr)))
+
     # classify network connections by port and relationship to the Tor relay
     #
     ports_int = {}
@@ -153,16 +156,16 @@ def main():
       lport, rport = conn.local_port,    conn.remote_port
 
       if raddr in relaysOr:
-        if (lport == ORPort and not conn.is_ipv6) or (lport == ORPort6 and conn.is_ipv6):
-          inc_ports_int('ORPort   <= relay')
-        elif (lport == DirPort and not conn.is_ipv6) or (lport == DirPort6 and conn.is_ipv6):
-          inc_ports_int('DirPort   <= relay')
+        if (lport == ORport and not conn.is_ipv6) or (lport == ORport6 and conn.is_ipv6):
+          inc_ports_int('ORport   <= relay')
+        elif (lport == DIRport and not conn.is_ipv6) or (lport == DIRport6 and conn.is_ipv6):
+          inc_ports_int('DIRport   <= relay')
         elif rport in relaysOr[raddr]:
-          inc_ports_int('=> relay ORPort')
+          inc_ports_int('=> relay ORport')
         elif rport in relaysDir[raddr]:
-          inc_ports_int('=> relay DirPort')
+          inc_ports_int('=> relay DIRport')
         else:
-          # a system hosts beside a Tor relay another service too
+          # a system hosts beside a Tor relay another service too -or- a not (yet) known Tor relay
           #
           inc_ports_ext ('=> relay port')
 
@@ -170,10 +173,10 @@ def main():
         inc_ports_ext ('=> exit')
 
       else:
-        if (lport == ORPort and not conn.is_ipv6)    or (lport == ORPort6 and conn.is_ipv6):
-          inc_ports_int('ORPort   <= outer')
-        elif (lport == DirPort and not conn.is_ipv6) or (lport == DirPort6 and conn.is_ipv6):
-          inc_ports_int('DirPort  <= outer')
+        if (lport == ORport and not conn.is_ipv6)    or (lport == ORport6 and conn.is_ipv6):
+          inc_ports_int('ORport   <= outer')
+        elif (lport == DIRport and not conn.is_ipv6) or (lport == DIRport6 and conn.is_ipv6):
+          inc_ports_int('DIRport  <= outer')
         elif lport == ControlPort:
           inc_ports_int('CtrlPort <= local')
         else:
