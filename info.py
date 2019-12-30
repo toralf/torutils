@@ -123,7 +123,7 @@ def main():
       relaysOr.setdefault(s.address, []).append(s.or_port)
       relaysDir.setdefault(s.address, []).append(s.dir_port)
 
-    # classify network connections by port and relationship to the Tor relay
+    # classify network connections by port and flow direction
     #
     ports_int = {}
     ports_ext = {}
@@ -136,12 +136,10 @@ def main():
         ports[t] = (v4+1, v6)
 
     def inc_ports_int (description):
-      t = (description)
-      inc_ports (ports_int, t)
+      inc_ports (ports_int, (description))
 
     def inc_ports_ext (description):
-      t = (description, rport)
-      inc_ports (ports_ext, t)
+      inc_ports (ports_ext, (description, rport))
 
     # classify each connection
     #
@@ -162,12 +160,16 @@ def main():
         elif rport in relaysOr[raddr]:
           inc_ports_int('=> relay ORport')
           relays[raddr] = relays.get(raddr,0)+1
-        elif rport in relaysDir[raddr]:
-          inc_ports_int('=> relay DIRport')
         else:
           # a system hosts beside a Tor relay another service too -or- a not (yet) known Tor relay
           #
           inc_ports_ext ('=> relay port')
+
+      elif raddr in relaysDir:
+        if rport in relaysDir[raddr]:
+          inc_ports_int('=> relay DIRport')
+        else:
+          inc_ports_int('?? relay DIRport')
 
       elif policy.can_exit_to(raddr, rport):
         inc_ports_ext ('=> exit')
@@ -180,7 +182,8 @@ def main():
         elif lport == ControlPort:
           inc_ports_int('CtrlPort <= local')
         else:
-          inc_ports_ext ('=> non exit port')
+          inc_ports_ext ('?? non relay port')
+          #print ("%s %s  =  %s %s" % (laddr, lport, raddr, rport))
 
     count = {}
     for r in sorted(relays):
