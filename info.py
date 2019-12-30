@@ -205,24 +205,19 @@ def main():
       sum4 += v4
       sum6 += v6
       print ("  %-17s  %5s  %5s %5s" % (description, '', str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else ''))
-
     print ("")
 
     exit4 = 0
     exit6 = 0
-
     for t in sorted(ports_ext):
       description, port = t
       v4, v6 = ports_ext[t]
       sum4 += v4
       sum6 += v6
-
       if description == '=> exit':
         exit4 += v4
         exit6 += v6
-
       print ("  %-17s  %5i  %5s %5s  %s" % (description, port, str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else '', port_usage(port)))
-
     print ("")
 
     print ("  %17s  %5s  %5i %5i" % ('sum', '', sum4, sum6))
