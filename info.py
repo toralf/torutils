@@ -39,6 +39,9 @@ import sys
 from stem.control import Controller, Listener
 from stem.util.connection import get_connections, port_usage, is_valid_ipv4_address
 
+import datetime
+import stem.descriptor.collector
+
 #import os
 #import logging
 #import stem.util.log
@@ -119,7 +122,9 @@ def main():
 
     relaysOr  = {}
     relaysDir = {}
-    for s in controller.get_network_statuses():
+
+    yesterday = datetime.datetime.utcnow() - datetime.timedelta(days = 1)
+    for s in stem.descriptor.collector.get_server_descriptors(start = yesterday):
       relaysOr.setdefault(s.address, []).append(s.or_port)
       relaysDir.setdefault(s.address, []).append(s.dir_port)
 
@@ -182,7 +187,7 @@ def main():
         elif lport == ControlPort:
           inc_ports_int('CtrlPort <= local')
         else:
-          inc_ports_ext ('?? non relay port')
+          inc_ports_ext ('?? non/down relay')
           #print ("%s %s  =  %s %s" % (laddr, lport, raddr, rport))
 
     count = {}
