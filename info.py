@@ -123,8 +123,9 @@ def main():
     relaysOr  = {}
     relaysDir = {}
 
-    back = datetime.datetime.utcnow() - datetime.timedelta(days = 1)
-    for s in stem.descriptor.collector.get_server_descriptors(start = back):
+    for s in controller.get_network_statuses():
+    #back = datetime.datetime.utcnow() - datetime.timedelta(days = 1)
+    #for s in stem.descriptor.collector.get_server_descriptors(start = back):
       relaysOr.setdefault(s.address, []).append(s.or_port)
       relaysDir.setdefault(s.address, []).append(s.dir_port)
 
