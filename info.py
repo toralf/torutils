@@ -123,9 +123,11 @@ def main():
     relaysOr  = {}
     relaysDir = {}
 
-    #for s in controller.get_network_statuses():
-    recent = datetime.datetime.utcnow() - datetime.timedelta(minutes = 1440)
-    for s in stem.descriptor.collector.get_server_descriptors(start = recent):
+    # current data is sufficient
+    #
+    for s in controller.get_network_statuses():
+    #recent = datetime.datetime.utcnow() - datetime.timedelta(minutes = 1440)
+    #for s in stem.descriptor.collector.get_server_descriptors(start = recent):
       relaysOr.setdefault(s.address, []).append(s.or_port)
       relaysDir.setdefault(s.address, []).append(s.dir_port)
 
@@ -195,9 +197,9 @@ def main():
     for r in sorted(relays):
       n = relays[r]
       count[n] = count.get(n,0) + 1
-    print (" relays: %5i" % len(list(relays)))
+    print (" ORPort: %5i relay(s)" % len(list(relays)))
     for i in sorted(count):
-      print ("         %5i with %2i connections" % (count[i], i))
+      print ("         %5i with %2i connection(s)" % (count[i], i))
 
     print ()
     print ('  description         port   ipv4  ipv6  servicename')
