@@ -67,9 +67,11 @@ def main():
     #
     relays = {}
 
-    #for s in controller.get_network_statuses():
-    recent = datetime.datetime.utcnow() - datetime.timedelta(minutes = 1440)
-    for s in stem.descriptor.collector.get_server_descriptors(start = recent):
+    # current data is sufficient
+    #
+    for s in controller.get_network_statuses():
+    #recent = datetime.datetime.utcnow() - datetime.timedelta(minutes = 1440)
+    #for s in stem.descriptor.collector.get_server_descriptors(start = recent):
       relays.setdefault(s.address, []).append(s.or_port)
 
     MaxOpened = {}  # hold the maximum amount of opened  ports
