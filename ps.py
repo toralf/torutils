@@ -18,7 +18,7 @@ import stem.descriptor.collector
     80  1250     54     48     1250     54     48  (HTTP)
     81     1      0      0        1      0      0  (HTTP Alternate)
    110     1      0      0        1      0      0  (POP3)
-"""
+   """
 
 
 def main():
@@ -78,11 +78,11 @@ def main():
     MaxClosed = {}  # hold the maximum amount of closed  ports
     MaxAll    = {}  # hold the maximum amount of overall ports
 
-    Curr = {}   # the current network connections of Tor
+    Curr = {}   # the current  network connections of Tor
 
     # avoid useless calculation of mean immediately after start
     #
-    first = 1
+    first = True
 
     while True:
       # read in all allowed exit ports
@@ -109,24 +109,23 @@ def main():
       try:
         t1 = time.time()
 
-        Prev = Curr.copy()
-        Curr.clear()
-
         pid = controller.get_info("process/pid")
         connections = get_connections(resolver=resolver,process_pid=pid,process_name='tor')
-
         t2 = time.time()
-
         policy = controller.get_exit_policy()
+
+        if not first:
+          Prev = Curr.copy()
+          Curr.clear()
+
         for conn in connections:
           laddr, raddr = conn.local_address, conn.remote_address
           lport, rport = conn.local_port,    conn.remote_port
 
           # ignore incoming connections
           #
-          if (lport == ORPort  and laddr == '5.9.158.75') or (lport == ORPort6  and laddr == '2a01:4f8:190:514a::2'):
-              continue
-          if (lport == DirPort and laddr == '5.9.158.75') or (lport == DirPort6 and laddr == '2a01:4f8:190:514a::2'):
+          if ( (lport == ORPort  or lport == DirPort)  and laddr == '5.9.158.75'
+            or (lport == ORPort6 or lport == DirPort6) and laddr == '2a01:4f8:190:514a::2'):
               continue
 
           if raddr in relays:
@@ -137,28 +136,26 @@ def main():
             continue
 
           # store the connections itself instead just counting them here
-          # b/c we have to calculate the diff of 2 sets later
+          # b/c we have to calculate the diff of 2 sets later too
           #
-          Curr.setdefault(rport, []).append(str(lport)+':'+raddr)
-
-        if first == 1:
-          Prev = Curr.copy()
+          Curr.setdefault(rport, []).append(str(lport) + ':' + raddr)
 
         dt = t2-t1
 
         os.system('clear')
         print ("  port     # opened closed     max                ( %s:%s, %i conns %.2f sec ) " % (resolver, ctrlport, len(connections), dt))
-        lines = 0;
-        ports = set(list(Curr.keys()) + list(Prev.keys()) + list(MaxAll.keys()))
-        for port in sorted(ports):
+
+        if first:
+           Prev = Curr.copy()
+
+        ports = sorted(set(list(Curr.keys()) + list(Prev.keys()) + list(MaxAll.keys())))
+        for port in ports:
+          c = set({})
+          p = set({})
           if port in Prev:
             p = set(Prev[port])
-          else:
-            p = set({})
           if port in Curr:
             c = set(Curr[port])
-          else:
-            c = set({})
 
           n_curr = len(c)
           n_opened = len(c-p)
@@ -168,7 +165,7 @@ def main():
           MaxOpened.setdefault(port, 0)
           MaxClosed.setdefault(port, 0)
 
-          if first == 0:
+          if not first:
             if MaxAll[port] < n_curr:
               MaxAll[port]    = n_curr
             if MaxOpened[port] < n_opened:
@@ -179,11 +176,7 @@ def main():
           stri = " %5i %5i %6i %6i   %6i %6i %6i  (%s)" % (port, n_curr, n_opened, n_closed, MaxAll[port], MaxOpened[port], MaxClosed[port], port_usage(port))
           print (stri.replace(' 0', '  '))
 
-          lines += 1
-          if lines % 5 == 0:
-            print
-
-        first = 0
+        first = False
 
       except KeyboardInterrupt:
         break
