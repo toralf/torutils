@@ -194,11 +194,11 @@ def main():
           #print ("%s %s  =  %s %s" % (laddr, lport, raddr, rport))
 
     count = {}
-    for r in sorted(relays):
+    for r in relays:
       n = relays[r]
       count[n] = count.get(n,0) + 1
     print (" ORPort: %5i relay(s)" % len(list(relays)))
-    for i in sorted(count):
+    for i in count:
       print ("         %5i with %2i connection(s)" % (count[i], i))
 
     print ()
