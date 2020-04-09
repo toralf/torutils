@@ -1,232 +1,138 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-"""
-$> info.py --ctrlport 29051
- 0.3.2.7-rc   21:33:06   Exit  Fast  Guard  Running  Stable  V2Dir  Valid
-
-  description         port   ipv4  ipv6  service
-  -----------------  -----   ----  ----  -------------
-  => relay ORport             396
-  CtrlPort <= local             1
-  ORport   <= outer            80     4
-  ORport   <= relay          3382
-
-  => exit              443    611   232  HTTPS
-  => exit              587      1        SMTP
-  => exit              993     14        IMAPS
-  => exit              995      2        POP3S
-  => exit             5222     35        Jabber
-  => exit             5223     20        Jabber
-  => exit             6667      1        IRC
-  => exit             7777      1        None
-  => exit             8233      1     1  None
-  => exit             8333     14     1  Bitcoin
-  => exit            50002     11        Electrum Bitcoin SSL
-
-     sum                      711   234
-
-  => non exit port    9002      1        None
-  => relay port       5222      5        Jabber
-  => relay port      50002      2        Electrum Bitcoin SSL
-"""
-
-import datetime
-from collections import Counter
 import argparse
-import sys
+import collections
+import time
 
-from stem.control import Controller, Listener
+import stem.connection
+import stem.util.system
+import stem.util.str_tools
+
+from stem.control import Listener
 from stem.util.connection import get_connections, port_usage, is_valid_ipv4_address
 
-import datetime
-import stem.descriptor.collector
+HEADER_LINE = " {version}   uptime: {uptime}   flags: {flags}\n"
 
-#import os
-#import logging
-#import stem.util.log
+DIV = '+%s+%s+%s+' % ('-' * 30, '-' * 6, '-' * 6)
+COLUMN = '| %-28s | %4s | %4s |'
+
+INBOUND_ORPORT = 'Inbound to our ORPort'
+INBOUND_ORPORT_OTHER = 'Inbound to our ORPort other'
+INBOUND_DIRPORT = 'Inbound to our DirPort'
+INBOUND_CONTROLPORT = 'Inbound to our ControlPort'
+
+OUTBOUND_ORPORT = 'Outbound to a relay'
+OUTBOUND_ANOTHER = 'Outbound to relay other port'
+OUTBOUND_EXIT = 'Outbound exit traffic'
+OUTBOUND_UNKNOWN = 'Outbound uncategorized'
+
 
 def main():
-  ctrlport = 9051
-  resolver = 'proc'
-
-  #handler = logging.FileHandler('/tmp/stem_debug')
-  #handler.setFormatter(logging.Formatter(
-    #fmt = '%(asctime)s [%(levelname)s] %(message)s',
-    #datefmt = '%m/%d/%Y %H:%M:%S',
-  #))
-
-  #log = stem.util.log.get_logger()
-  #log.setLevel(logging.DEBUG)
-  #log.addHandler(handler)
-
-  #stem.util.connection.LOG_CONNECTION_RESOLUTION = True
-
   parser = argparse.ArgumentParser()
-  parser.add_argument("--ctrlport", help="default: " + str(ctrlport))
-  parser.add_argument("--resolver", help="default: " + resolver)
+  parser.add_argument("--ctrlport", help="default: 9051 or 9151")
+  parser.add_argument("--resolver", help="default: autodetected")
   args = parser.parse_args()
 
-  if args.ctrlport:
-    ctrlport = int(args.ctrlport)
+  control_port = int(args.ctrlport) if args.ctrlport else 'default'
+  controller = stem.connection.connect(control_port = ('127.0.0.1', control_port))
 
-  if args.resolver:
-    resolver= str(args.resolver)
+  if not controller:
+    return
 
-  with Controller.from_port(port=ctrlport) as controller:
-    controller.authenticate()
+  desc = controller.get_network_status(default = None)
+  pid = controller.get_pid()
 
-    try:
-      ControlPort = int(controller.get_conf("ControlPort"))
-      ORport   = None
-      ORport6  = None
-      DIRport  = None
-      DIRport6 = None
+  print(HEADER_LINE.format(
+    version = str(controller.get_version()).split()[0],
+    uptime = stem.util.str_tools.short_time_label(time.time() - stem.util.system.start_time(pid)),
+    flags = ', '.join(desc.flags if desc else ['none']),
+  ))
 
-      for address, port in controller.get_listeners(Listener.OR):
-        if is_valid_ipv4_address(address):
-          ORport = port
-        else:
-          ORport6 = port
+  policy = controller.get_exit_policy()
+  relays = {}  # address => [orports...]
 
-      for address, port in controller.get_listeners(Listener.DIR):
-        if is_valid_ipv4_address(address):
-          DIRport = port
-        else:
-          DIRport6 = port
+  for desc in controller.get_network_statuses():
+    relays.setdefault(desc.address, []).append(desc.or_port)
 
-    except Exception as Exc:
-      print ("Woops, control ports aren't configured")
-      return
+  # categorize our connections
 
-    # our version, uptime and flags
-    #
-    version = str(controller.get_version()).split()[0]
-    uptime = 0
-    flags = ''
+  categories = collections.OrderedDict((
+    (INBOUND_ORPORT, []),
+    (INBOUND_ORPORT_OTHER, []),
+    (INBOUND_DIRPORT, []),
+    (INBOUND_CONTROLPORT, []),
+    (OUTBOUND_ORPORT, []),
+    (OUTBOUND_ANOTHER, []),
+    (OUTBOUND_EXIT, []),
+    (OUTBOUND_UNKNOWN, []),
+  ))
 
-    try:
-      descriptor = controller.get_server_descriptor()
-      uptime = descriptor.uptime
-      flags = controller.get_network_status(relay=descriptor.fingerprint).flags
-    except Exception as Exc:
-      print (Exc)
+  exit_connections = {}  # port => [connections]
 
-    print (" %s   %s   %s" % (version, datetime.timedelta(seconds=uptime), "  ".join(flags)))
+  for conn in get_connections(resolver = args.resolver, process_pid = pid):
+    if conn.protocol == 'udp':
+        continue
 
-    policy = controller.get_exit_policy()
-
-    pid = controller.get_info("process/pid")
-    connections = get_connections(resolver=resolver,process_pid=pid,process_name='tor')
-    print (" resolver=%s  pid=%s  conns=%i" % (resolver, pid, len(connections)))
-
-    relaysOr  = {}
-    relaysDir = {}
-
-    # current data is sufficient
-    #
-    for s in controller.get_network_statuses():
-    #recent = datetime.datetime.utcnow() - datetime.timedelta(minutes = 1440)
-    #for s in stem.descriptor.collector.get_server_descriptors(start = recent):
-      relaysOr.setdefault(s.address, []).append(s.or_port)
-      relaysDir.setdefault(s.address, []).append(s.dir_port)
-
-    # classify network connections by port and flow direction
-    #
-    ports_int = {}
-    ports_ext = {}
-
-    def inc_ports (ports, t):
-      v4, v6 = ports.get(t,(0,0))
-      if conn.is_ipv6:
-        ports[t] = (v4, v6+1)
+    if conn.local_port in controller.get_ports(Listener.OR, []):
+      if conn.remote_address in relays:
+        categories[INBOUND_ORPORT].append(conn)
       else:
-        ports[t] = (v4+1, v6)
+        categories[INBOUND_ORPORT_OTHER].append(conn)
+    elif conn.local_port in controller.get_ports(Listener.DIR, []):
+      categories[INBOUND_DIRPORT].append(conn)
+    elif conn.local_port in controller.get_ports(Listener.CONTROL, []):
+      categories[INBOUND_CONTROLPORT].append(conn)
+    elif conn.remote_address in relays:
+      if conn.remote_port in relays.get(conn.remote_address, []):
+        categories[OUTBOUND_ORPORT].append(conn)
+      else:
+        categories[OUTBOUND_ANOTHER].append(conn)
+    elif policy.can_exit_to(conn.remote_address, conn.remote_port):
+      categories[OUTBOUND_EXIT].append(conn)
+      exit_connections.setdefault(conn.remote_port, []).append(conn)
+    else:
+      categories[OUTBOUND_UNKNOWN].append(conn)
 
-    def inc_ports_int (description):
-      inc_ports (ports_int, (description))
+  print(DIV)
+  print(COLUMN % ('Type', 'IPv4', 'IPv6'))
+  print(DIV)
 
-    def inc_ports_ext (description):
-      inc_ports (ports_ext, (description, rport))
+  total_ipv4, total_ipv6 = 0, 0
+
+  for label, connections in categories.items():
 
     ipv4_count = len([conn for conn in connections if is_valid_ipv4_address(conn.remote_address)])
     ipv6_count = len(connections) - ipv4_count
 
-    # classify each connection
-    #
-    relays = {}
-    for conn in connections:
-      if conn.protocol == 'udp':
-          continue
+    total_ipv4, total_ipv6 = total_ipv4 + ipv4_count, total_ipv6 + ipv6_count
+    print(COLUMN % (label, ipv4_count, ipv6_count))
 
-      laddr, raddr = conn.local_address, conn.remote_address
-      lport, rport = conn.local_port,    conn.remote_port
+  print(DIV)
+  print(COLUMN % ('Total', total_ipv4, total_ipv6))
+  print(DIV)
+  print('')
 
-      if raddr in relaysOr:
-        if (lport == ORport and not conn.is_ipv6) or (lport == ORport6 and conn.is_ipv6):
-          inc_ports_int('ORport   <= relay')
-          relays[raddr] = relays.get(raddr,0)+1
-        elif (lport == DIRport and not conn.is_ipv6) or (lport == DIRport6 and conn.is_ipv6):
-          inc_ports_int('DIRport   <= relay')
-        elif rport in relaysOr[raddr]:
-          inc_ports_int('=> relay ORport')
-          relays[raddr] = relays.get(raddr,0)+1
-        else:
-          # a system hosts beside a Tor relay another service too -or- a not (yet) known Tor relay
-          #
-          inc_ports_ext ('=> relay port')
+  if exit_connections:
+    print(DIV)
+    print(COLUMN % ('Exit Port', 'IPv4', 'IPv6'))
+    print(DIV)
 
-      elif raddr in relaysDir:
-        if rport in relaysDir[raddr]:
-          inc_ports_int('=> relay DIRport')
-        else:
-          inc_ports_int('?? relay DIRport')
+    total_ipv4, total_ipv6 = 0, 0
 
-      elif policy.can_exit_to(raddr, rport):
-        inc_ports_ext ('=> exit')
+    for port in sorted(exit_connections):
+      connections = exit_connections[port]
+      ipv4_count = len([conn for conn in connections if is_valid_ipv4_address(conn.remote_address)])
+      ipv6_count = len(connections) - ipv4_count
+      total_ipv4, total_ipv6 = total_ipv4 + ipv4_count, total_ipv6 + ipv6_count
 
-      else:
-        if (lport == ORport and not conn.is_ipv6)    or (lport == ORport6 and conn.is_ipv6):
-          inc_ports_int('ORport   <= outer')
-        elif (lport == DIRport and not conn.is_ipv6) or (lport == DIRport6 and conn.is_ipv6):
-          inc_ports_int('DIRport  <= outer')
-        elif lport == ControlPort:
-          inc_ports_int('CtrlPort <= local')
-        else:
-          inc_ports_ext ('?? non/down relay')
-          #print ("%s %s  =  %s %s" % (laddr, lport, raddr, rport))
+      usage = port_usage(port)
+      label = '%s (%s)' % (port, usage) if usage else port
 
-    count = {}
-    for r in relays:
-      n = relays[r]
-      count[n] = count.get(n,0) + 1
-    print (" ORPort: %5i relay(s)" % len(list(relays)))
-    for i in count:
-      print ("         %5i with %2i connection(s)" % (count[i], i))
+      print(COLUMN % (label, ipv4_count, ipv6_count))
 
-    print ()
-    print ('  description         port   ipv4  ipv6  servicename')
-    print ('  -----------------  -----   ----  ----  -------------')
+    print(DIV)
+    print(COLUMN % ('Total', total_ipv4, total_ipv6))
+    print(DIV)
+    print('')
 
-    for t in sorted(ports_int):
-      description = t
-      v4, v6 = ports_int[t]
-      print ("  %-17s  %5s  %5s %5s" % (description, '', str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else ''))
-    print ("")
-
-    exit4 = 0
-    exit6 = 0
-    for t in sorted(ports_ext):
-      description, port = t
-      v4, v6 = ports_ext[t]
-      if description == '=> exit':
-        exit4 += v4
-        exit6 += v6
-      print ("  %-17s  %5i  %5s %5s  %s" % (description, port, str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else '', port_usage(port)))
-    print ("")
-
-    print ("  %17s  %5s  %5i %5i" % ('sum', '', ipv4_count, ipv6_count))
-    print ("  %17s  %5s  %5i %5i" % ('exits among them', '', exit4, exit6))
 
 if __name__ == '__main__':
   main()
