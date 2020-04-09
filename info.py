@@ -149,6 +149,9 @@ def main():
     def inc_ports_ext (description):
       inc_ports (ports_ext, (description, rport))
 
+    ipv4_count = len([conn for conn in connections if is_valid_ipv4_address(conn.remote_address)])
+    ipv6_count = len(connections) - ipv4_count
+
     # classify each connection
     #
     relays = {}
@@ -205,13 +208,9 @@ def main():
     print ('  description         port   ipv4  ipv6  servicename')
     print ('  -----------------  -----   ----  ----  -------------')
 
-    sum4 = 0
-    sum6 = 0
     for t in sorted(ports_int):
       description = t
       v4, v6 = ports_int[t]
-      sum4 += v4
-      sum6 += v6
       print ("  %-17s  %5s  %5s %5s" % (description, '', str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else ''))
     print ("")
 
@@ -220,15 +219,13 @@ def main():
     for t in sorted(ports_ext):
       description, port = t
       v4, v6 = ports_ext[t]
-      sum4 += v4
-      sum6 += v6
       if description == '=> exit':
         exit4 += v4
         exit6 += v6
       print ("  %-17s  %5i  %5s %5s  %s" % (description, port, str(v4) if v4 > 0 else '', str(v6) if v6 > 0 else '', port_usage(port)))
     print ("")
 
-    print ("  %17s  %5s  %5i %5i" % ('sum', '', sum4, sum6))
+    print ("  %17s  %5s  %5i %5i" % ('sum', '', ipv4_count, ipv6_count))
     print ("  %17s  %5s  %5i %5i" % ('exits among them', '', exit4, exit6))
 
 if __name__ == '__main__':
