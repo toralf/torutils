@@ -14,15 +14,22 @@ HEADER_LINE = " {version}   uptime: {uptime}   flags: {flags}\n"
 DIV = '+%s+%s+%s+' % ('-' * 30, '-' * 6, '-' * 6)
 COLUMN = '| %-28s | %4s | %4s |'
 
-INBOUND_ORPORT = 'Inbound to our ORPort'
+INBOUND_ORPORT = 'Inbound to our OR from OR'
 INBOUND_ORPORT_OTHER = 'Inbound to our ORPort other'
 INBOUND_DIRPORT = 'Inbound to our DirPort'
 INBOUND_CONTROLPORT = 'Inbound to our ControlPort'
 
-OUTBOUND_ORPORT = 'Outbound to a relay'
+OUTBOUND_ORPORT = 'Outbound to a relay ORPort'
 OUTBOUND_ANOTHER = 'Outbound to relay other port'
 OUTBOUND_EXIT = 'Outbound exit traffic'
 OUTBOUND_UNKNOWN = 'Outbound uncategorized'
+
+
+def i2str(i):
+  if i > 0:
+    return str(i)
+  else:
+    return " "
 
 
 def main():
@@ -103,10 +110,10 @@ def main():
     ipv6_count = len(connections) - ipv4_count
 
     total_ipv4, total_ipv6 = total_ipv4 + ipv4_count, total_ipv6 + ipv6_count
-    print(COLUMN % (label, ipv4_count, ipv6_count))
+    print(COLUMN % (label, i2str(ipv4_count), i2str(ipv6_count)))
 
   print(DIV)
-  print(COLUMN % ('Total', total_ipv4, total_ipv6))
+  print(COLUMN % ('Total', i2str(total_ipv4), i2str(total_ipv6)))
   print(DIV)
   print('')
 
@@ -126,7 +133,7 @@ def main():
       usage = port_usage(port)
       label = '%s (%s)' % (port, usage) if usage else port
 
-      print(COLUMN % (label, ipv4_count, ipv6_count))
+      print(COLUMN % (label, i2str(ipv4_count), i2str(ipv6_count)))
 
     print(DIV)
     print(COLUMN % ('Total', total_ipv4, total_ipv6))
