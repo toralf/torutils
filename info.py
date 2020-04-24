@@ -15,12 +15,12 @@ DIV = '+%s+%s+%s+' % ('-' * 30, '-' * 6, '-' * 6)
 COLUMN = '| %-28s | %4s | %4s |'
 
 INBOUND_ORPORT = 'Inbound to our OR from OR'
-INBOUND_ORPORT_OTHER = 'Inbound to our ORPort other'
+INBOUND_ORPORT_OTHER = 'Inbound to our OR from other'
 INBOUND_DIRPORT = 'Inbound to our DirPort'
 INBOUND_CONTROLPORT = 'Inbound to our ControlPort'
 
-OUTBOUND_ORPORT = 'Outbound to a relay ORPort'
-OUTBOUND_ANOTHER = 'Outbound to relay other port'
+OUTBOUND_ORPORT = 'Outbound to relay OR'
+OUTBOUND_ANOTHER = 'Outbound to relay non-OR'
 OUTBOUND_EXIT = 'Outbound exit traffic'
 OUTBOUND_UNKNOWN = 'Outbound uncategorized'
 
