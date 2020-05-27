@@ -133,10 +133,7 @@ function startFuzzer()  {
   #
   cid=$(cd $TOR_DIR; git describe | sed 's/.*\-g//g' )
   odir=~/work/$( date +%Y%m%d-%H%M%S )_${cid}_${f}
-  mkdir -p $odir
-  if [[ $? -ne 0 ]]; then
-    return
-  fi
+  mkdir -p $odir || return
 
   # run a copy of the fuzzer b/c git repo is subject of change
   #
