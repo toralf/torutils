@@ -38,7 +38,6 @@ function Help() {
   echo
   echo "  call: $(basename $0) [-h|-?] [-ac] [-f '<fuzzer(s)>'] [-s <number>] [-u]"
   echo
-  exit 0
 }
 
 
@@ -155,7 +154,7 @@ function startFuzzer()  {
 
   # fire it up
   #
-  nohup nice /usr/bin/afl-fuzz -i $idir -o $odir -m 100 $dict -- $exe &>$odir/fuzz.log &
+  nohup nice -n 2 /usr/bin/afl-fuzz -i $idir -o $odir -m 100 $dict -- $exe &>$odir/fuzz.log &
   pid="$!"
   echo "$pid" > $odir/fuzz.pid
   echo
@@ -262,6 +261,8 @@ export AFL_SHUFFLE_QUEUE=1
 
 export CFLAGS="-O2 -pipe -march=native"
 export CC="afl-gcc"
+
+sudo $(dirname $0)/fuzz_helper.sh $$
 
 while getopts acHhlf:s:u\? opt
 do
