@@ -90,6 +90,7 @@ function checkForFindings()  {
 
       (
         echo "verify it with '$(basename $( ls ~/work/$d/fuzz* ) ) < file' before reporting it to tor-security@lists.torproject.org"
+        echo "where file is in $d/$i"
         echo
         cd $d                             &&\
         tar -cjpf $tbz2 ./$i 2>&1         &&\
@@ -149,8 +150,8 @@ function startFuzzer()  {
     dict=""
   fi
 
-  # fire it up
-  #
+  # value of -m must be bigger than suggested by recidivm,
+  # nice value shall differ from the one of the tinderbox
   nohup nice -n 2 /usr/bin/afl-fuzz -i $idir -o $odir -m 100 $dict -- $exe &>$odir/fuzz.log &
   pid="$!"
   echo "$pid" > $odir/fuzz.pid
