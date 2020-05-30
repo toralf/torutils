@@ -5,7 +5,6 @@
 # fuzz testing of Tor software as mentioned in
 # https://gitweb.torproject.org/tor.git/tree/doc/HACKING/Fuzzing.md
 
-mailto="torproject@zwiebeltoralf.de"
 
 # preparation steps at Gentoo Linux:
 #
@@ -88,6 +87,7 @@ function checkForFindings()  {
         continue
       fi
 
+      mailto="torproject@zwiebeltoralf.de"
       (
         echo "verify it with '$(basename $( ls ~/work/$d/fuzz* ) ) < file' before reporting it to tor-security@lists.torproject.org"
         echo "where file is in $d/$i"
@@ -151,9 +151,12 @@ function startFuzzer()  {
   fi
 
   # value of -m must be bigger than suggested by recidivm,
-  # nice value shall differ from the one of the tinderbox
   nohup nice -n 2 /usr/bin/afl-fuzz -i $idir -o $odir -m 100 $dict -- $exe &>$odir/fuzz.log &
   pid="$!"
+
+  # put under cgroup control
+  sudo $(dirname $0)/fuzz_helper.sh $pid
+
   echo "$pid" > $odir/fuzz.pid
   echo
   echo " started $f pid=$pid odir=$odir"
@@ -168,7 +171,7 @@ function update_tor() {
 
   cd $RECIDIVM_DIR
   git pull
-  make
+  make || return 1
 
   cd $CHUTNEY_PATH
   git pull
@@ -179,38 +182,36 @@ function update_tor() {
   cd $TOR_DIR
   git pull
 
-  echo " check broken linker state ..."
+  echo " run recidivm to check broken linker state ..."
 
   # anything much bigger than 50 indicates a broken (linker) state
   #
   m=$(for i in $(ls ./src/test/fuzz/fuzz-* 2>/dev/null); do echo $(../recidivm/recidivm -v -u M $i 2>/dev/null | tail -n 1); done | sort -n | tail -n 1)
   if [[ -n "$m" ]]; then
     if [[ $m -gt 1000 ]]; then
+      echo " distclean (m?$m) ..."
       make distclean 2>&1
     fi
   fi
 
-  echo " build fuzzers ..."
-
   if [[ ! -x ./configure ]]; then
     rm -f Makefile
     echo " autogen ..."
-    ./autogen.sh 2>&1 || return
+    ./autogen.sh 2>&1 || return 1
   fi
 
   if [[ ! -f Makefile ]]; then
     echo " configure ..."
-    #   --enable-expensive-hardening doesn't work
-    #
-    ./configure 2>&1 || return
+    ./configure 2>&1 || return 1
+#     ./configure --enable-expensive-hardening 2>&1 || return 1
   fi
 
   # https://trac.torproject.org/projects/tor/ticket/29520
   #
   echo " make ..."
-  make micro-revision.i 2>&1 || return
+  make micro-revision.i 2>&1 || return 1
 
-  make fuzzers 2>&1 || return
+  make -j 6 fuzzers 2>&1 || return 1
 }
 
 
@@ -226,7 +227,7 @@ fi
 #
 lck=~/.lock
 if [[ -s $lck ]]; then
-  echo " found old lock file"
+  echo " found $lck"
   ls -l $lck
   tail -v $lck
   kill -0 $(cat $lck) 2>/dev/null
@@ -245,22 +246,24 @@ export CHUTNEY_PATH=~/chutney
 export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora
 export TOR_DIR=~/tor
 
-# https://github.com/mirrorer/afl/blob/master/docs/env_variables.txt
-#
+export CFLAGS="-O2 -pipe -march=native"
+
 # afl-gcc
-#
 export AFL_HARDEN=1
-#
+# export CC="/usr/bin/afl-gcc"
+
 # afl-fuzz
-#
-export AFL_SKIP_CPUFREQ=1
+tmpdir=$(mktemp -d "/tmp/fuzzer.$$.XXXXXX")
+export AFL_TMPDIR="$tmpdir"
+export AFL_AUTORESUME=1
 export AFL_EXIT_WHEN_DONE=1
 export AFL_SHUFFLE_QUEUE=1
+export AFL_SKIP_CPUFREQ=1
 
-export CFLAGS="-O2 -pipe -march=native"
-export CC="afl-gcc"
-
-sudo $(dirname $0)/fuzz_helper.sh $$
+# llvm_mode
+export CC="/usr/bin/afl-clang-fast"
+export AFL_LLVM_INSTRUMENT=CFG
+export AFL_LLVM_INSTRIM=1
 
 while getopts acHhlf:s:u\? opt
 do
@@ -293,7 +296,7 @@ do
       echo $fuzzers | xargs -n 1 | shuf -n $OPTARG | while read f; do startFuzzer $f; done
       ;;
     u)
-      update_tor
+      update_tor || exit $?
       ;;
     *)
       Help
