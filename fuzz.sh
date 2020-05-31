@@ -150,13 +150,6 @@ function startFuzzer()  {
     dict=""
   fi
 
-  # afl-fuzz
-  if [[ ! -d "/tmp/fuzzer" ]]; then
-    mkdir "/tmp/fuzzer" || exit 1
-  fi
-  tmpdir=$(mktemp -d "/tmp/fuzzer/$odir.XXXXXX")
-  export AFL_TMPDIR="$tmpdir"
-
   # value of -m must be bigger than suggested by recidivm,
   nohup nice -n 2 /usr/bin/afl-fuzz -i $idir -o ~/work/$odir -m 100 $dict -- $exe &>~/work/$odir/fuzz.log &
   pid="$!"
@@ -258,6 +251,12 @@ export CFLAGS="-O2 -pipe -march=native"
 # afl-gcc
 export AFL_HARDEN=1
 # export CC="/usr/bin/afl-gcc"
+
+# afl-fuzz
+if [[ ! -d "/tmp/fuzzer" ]]; then
+  mkdir "/tmp/fuzzer" || exit 1
+fi
+export AFL_TMPDIR=$(mktemp -d "/tmp/fuzzer/$$.XXXXXX")
 
 export AFL_AUTORESUME=1
 export AFL_EXIT_WHEN_DONE=1
