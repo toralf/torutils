@@ -8,9 +8,9 @@
 
 function Cgroup() {
   odir=${1##*/}
-  pid=${2//[0-9]}
+  pid=$2
 
-  if [[ -z "$odir" || -z "$pid" ]]; then
+  if [[ -z "$odir" || -n "${pid//[0-9]}" ]]; then
     exit 1
   fi
 
@@ -25,8 +25,8 @@ function Cgroup() {
   # global upper limits for all fuzzers
 
   local cgdir="/sys/fs/cgroup/memory/fuzzer"
-  echo "10G"    > "$cgdir/memory.limit_in_bytes"
-  echo "20G"    > "$cgdir/memory.memsw.limit_in_bytes"
+  echo "70G"    > "$cgdir/memory.memsw.limit_in_bytes"
+  echo "50G"    > "$cgdir/memory.limit_in_bytes"
   echo "$pid"   > "$cgdir/tasks"
 
   local cgdir="/sys/fs/cgroup/cpu/fuzzer"
