@@ -127,19 +127,19 @@ function startFuzzer()  {
   idir=$TOR_FUZZ_CORPORA/$f
   if [[ ! -d $idir ]]; then
     echo " idir not found: $idir"
-    return
+    return 1
   fi
 
   # output directory: timestamp + git commit id + fuzzer name
   #
   cid=$(cd $TOR_DIR; git describe | sed 's/.*\-g//g' )
-  odir=~/work/$( date +%Y%m%d-%H%M%S )_${cid}_${f}
-  mkdir -p $odir || return
+  odir=${f}_${cid}_$( date +%Y%m%d-%H%M%S )
+  mkdir -p ~/work/$odir || return 2
 
   # run a copy of the fuzzer b/c git repo is subject of change
   #
-  cp $TOR_DIR/src/test/fuzz/fuzz-$f $odir
-  exe=$odir/fuzz-$f
+  cp $TOR_DIR/src/test/fuzz/fuzz-$f ~/work/$odir
+  exe=~/work/$odir/fuzz-$f
 
   # optional: dictionary for the fuzzer
   #
@@ -150,16 +150,23 @@ function startFuzzer()  {
     dict=""
   fi
 
+  # afl-fuzz
+  if [[ ! -d "/tmp/fuzzer" ]]; then
+    mkdir "/tmp/fuzzer" || exit 1
+  fi
+  tmpdir=$(mktemp -d "/tmp/fuzzer/$odir.XXXXXX")
+  export AFL_TMPDIR="$tmpdir"
+
   # value of -m must be bigger than suggested by recidivm,
-  nohup nice -n 2 /usr/bin/afl-fuzz -i $idir -o $odir -m 100 $dict -- $exe &>$odir/fuzz.log &
+  nohup nice -n 2 /usr/bin/afl-fuzz -i $idir -o ~/work/$odir -m 100 $dict -- $exe &>~/work/$odir/fuzz.log &
   pid="$!"
 
   # put under cgroup control
-  sudo $(dirname $0)/fuzz_helper.sh $pid
+  sudo $(dirname $0)/fuzz_helper.sh $odir $pid
 
-  echo "$pid" > $odir/fuzz.pid
+  echo "$pid" > ~/work/$odir/fuzz.pid
   echo
-  echo " started $f pid=$pid odir=$odir"
+  echo " started $f pid=$pid odir=~/work/$odir"
   echo
 }
 
@@ -197,21 +204,21 @@ function update_tor() {
   if [[ ! -x ./configure ]]; then
     rm -f Makefile
     echo " autogen ..."
-    ./autogen.sh 2>&1 || return 1
+    ./autogen.sh 2>&1 || return 2
   fi
 
   if [[ ! -f Makefile ]]; then
     echo " configure ..."
-    ./configure 2>&1 || return 1
+    ./configure 2>&1 || return 3
 #     ./configure --enable-expensive-hardening 2>&1 || return 1
   fi
 
   # https://trac.torproject.org/projects/tor/ticket/29520
   #
   echo " make ..."
-  make micro-revision.i 2>&1 || return 1
+  make micro-revision.i 2>&1 || return 4
 
-  make -j 6 fuzzers 2>&1 || return 1
+  make -j 6 fuzzers 2>&1 || return 5
 }
 
 
@@ -252,9 +259,6 @@ export CFLAGS="-O2 -pipe -march=native"
 export AFL_HARDEN=1
 # export CC="/usr/bin/afl-gcc"
 
-# afl-fuzz
-tmpdir=$(mktemp -d "/tmp/fuzzer.$$.XXXXXX")
-export AFL_TMPDIR="$tmpdir"
 export AFL_AUTORESUME=1
 export AFL_EXIT_WHEN_DONE=1
 export AFL_SHUFFLE_QUEUE=1
@@ -277,7 +281,7 @@ do
     f)
       for f in $OPTARG
       do
-        startFuzzer $f
+        startFuzzer $f || exit $?
       done
       ;;
     l)
