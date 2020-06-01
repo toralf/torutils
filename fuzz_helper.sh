@@ -14,13 +14,13 @@ function Cgroup() {
     exit 1
   fi
 
-  cgdir="/sys/fs/cgroup/cpu/local/$dir"
+  cgdir="/sys/fs/cgroup/cpu/local/fuzzer_$dir"
   mkdir "$cgdir" || exit 2
   echo "100000" > "$cgdir/cpu.cfs_quota_us"
   echo "100000" > "$cgdir/cpu.cfs_period_us"
   echo "$pid"   > "$cgdir/tasks"
 
-  cgdir="/sys/fs/cgroup/memory/local/$dir"
+  cgdir="/sys/fs/cgroup/memory/local/fuzzer_$dir"
   mkdir "$cgdir" || exit 2
   echo "30G"  > "$cgdir/memory.limit_in_bytes"
   echo "40G"  > "$cgdir/memory.memsw.limit_in_bytes"
