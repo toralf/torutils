@@ -45,7 +45,7 @@ function Help() {
 function archiveFindings()  {
   cd ~/work
 
-  for d in $( ls -1d ./20??????-??????_* 2>/dev/null )
+  for d in $(ls -1d ./*_*_20??????-?????? 2>/dev/null)
   do
     pid=$(cat $d/fuzz.pid 2>/dev/null)
     if [[ -n $pid ]]; then
@@ -71,7 +71,7 @@ function archiveFindings()  {
 function checkForFindings()  {
   cd ~/work
 
-  for d in $( ls -1d ./20??????-??????_* 2>/dev/null )
+  for d in $(ls -1d ./*_*_20??????-?????? 2>/dev/null)
   do
     for i in crashes hangs
     do
@@ -107,7 +107,7 @@ function checkForFindings()  {
 function LogFilesCheck() {
   cd ~/work
 
-  for d in $( ls -1d ./20??????-??????_* 2>/dev/null )
+  for d in $(ls -1d ./*_*_20??????-?????? 2>/dev/null)
   do
     log=$(cat $d/fuzz.log 2>/dev/null)
     if [[ -f $log ]]; then
