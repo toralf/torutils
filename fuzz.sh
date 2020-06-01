@@ -150,12 +150,12 @@ function startFuzzer()  {
     dict=""
   fi
 
+  # put under cgroup control
+  sudo $(dirname $0)/fuzz_helper.sh $odir $$ || exit $?
+
   # value of -m must be bigger than suggested by recidivm,
   nohup nice -n 2 /usr/bin/afl-fuzz -i $idir -o ~/work/$odir -m 100 $dict -- $exe &>~/work/$odir/fuzz.log &
   pid="$!"
-
-  # put under cgroup control
-  sudo $(dirname $0)/fuzz_helper.sh $odir $pid
 
   echo "$pid" > ~/work/$odir/fuzz.pid
   echo
@@ -296,7 +296,7 @@ do
           fuzzers="$fuzzers $f"
         fi
       done
-      echo $fuzzers | xargs -n 1 | shuf -n $OPTARG | while read f; do startFuzzer $f; done
+      echo $fuzzers | xargs -n 1 --no-run-if-empty | shuf -n $OPTARG | while read f; do startFuzzer $f; done
       ;;
     u)
       update_tor || exit $?
