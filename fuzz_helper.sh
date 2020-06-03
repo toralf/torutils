@@ -14,22 +14,29 @@ function Cgroup() {
     exit 1
   fi
 
-  cgdir="/sys/fs/cgroup/cpu/local/fuzzer_$dir"
-  mkdir "$cgdir" || exit 2
-  echo "150000" > "$cgdir/cpu.cfs_quota_us"
-  echo "100000" > "$cgdir/cpu.cfs_period_us"
-  echo "$pid"   > "$cgdir/tasks"
-
   cgdir="/sys/fs/cgroup/memory/local/fuzzer_$dir"
-  mkdir "$cgdir" || exit 2
+  if [[ ! -d "$cgdir" ]]; then
+    mkdir "$cgdir"
+  fi
+  echo "1"    > "$cgdir/memory.use_hierarchy"
   echo "30G"  > "$cgdir/memory.limit_in_bytes"
   echo "40G"  > "$cgdir/memory.memsw.limit_in_bytes"
   echo "$pid" > "$cgdir/tasks"
+
+  cgdir="/sys/fs/cgroup/cpu/local/fuzzer_$dir"
+  if [[ ! -d "$cgdir" ]]; then
+    mkdir "$cgdir"
+  fi
+  echo "150000" > "$cgdir/cpu.cfs_quota_us"
+  echo "100000" > "$cgdir/cpu.cfs_period_us"
+  echo "$pid"   > "$cgdir/tasks"
 }
 
 
 #######################################################################
 #
+set -e
+
 if [[ "$(whoami)" != "root" ]]; then
   echo "you must be root "
   exit 1
