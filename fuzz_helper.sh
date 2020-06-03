@@ -16,7 +16,7 @@ function Cgroup() {
 
   cgdir="/sys/fs/cgroup/cpu/local/fuzzer_$dir"
   mkdir "$cgdir" || exit 2
-  echo "100000" > "$cgdir/cpu.cfs_quota_us"
+  echo "150000" > "$cgdir/cpu.cfs_quota_us"
   echo "100000" > "$cgdir/cpu.cfs_period_us"
   echo "$pid"   > "$cgdir/tasks"
 

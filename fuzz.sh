@@ -89,8 +89,7 @@ function checkForFindings()  {
 
       mailto="torproject@zwiebeltoralf.de"
       (
-        echo "verify it with '$(basename $( ls ~/work/$d/fuzz* ) ) < file' before reporting it to tor-security@lists.torproject.org"
-        echo "where file is in $d/$i"
+        echo "verify it with 'cd ~/work/$d; ./fuzz-* < ./$i/*' before inform tor-security@lists.torproject.org"
         echo
         cd $d                             &&\
         tar -cjpf $tbz2 ./$i 2>&1         &&\
@@ -241,6 +240,8 @@ if [[ -s $lck ]]; then
 fi
 echo $$ > $lck
 
+# tool stack
+
 export RECIDIVM_DIR=~/recidivm
 export CHUTNEY_PATH=~/chutney
 export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora
@@ -248,16 +249,9 @@ export TOR_DIR=~/tor
 
 export CFLAGS="-O2 -pipe -march=native"
 
-# afl-gcc
-export AFL_HARDEN=1
-# export CC="/usr/bin/afl-gcc"
-
 # afl-fuzz
-if [[ ! -d "/tmp/fuzzer" ]]; then
-  mkdir "/tmp/fuzzer" || exit 1
-fi
-export AFL_TMPDIR=$(mktemp -d "/tmp/fuzzer/$$.XXXXXX")
 
+export AFL_HARDEN=1
 export AFL_AUTORESUME=1
 export AFL_EXIT_WHEN_DONE=1
 export AFL_SHUFFLE_QUEUE=1
