@@ -8,9 +8,9 @@
 
 # preparation steps at Gentoo Linux:
 #
-# (I) install AFL
+# (I) install AFL++
 #
-# emerge --update sys-devel/clang app-forensics/afl
+# emerge --update sys-devel/clang app-forensics/AFLplusplus
 #
 # (II) clone repos
 #
@@ -73,6 +73,10 @@ function checkForFindings()  {
 
   for d in $(ls -1d ./*_*_20??????-?????? 2>/dev/null)
   do
+    if [[ -n "$(grep 'PROGRAM ABORT' $d/fuzz.log)" ]]; then
+      tail -v -n 100 $d/fuzz.log | mail -s "$(basename $0) crash in $d" $mailto -a ""
+    fi
+
     for i in crashes hangs
     do
       if [[ -z "$(ls $d/$i 2>/dev/null)" ]]; then
@@ -87,15 +91,13 @@ function checkForFindings()  {
         continue
       fi
 
-      mailto="torproject@zwiebeltoralf.de"
       (
         echo "verify it with 'cd ~/work/$d; ./fuzz-* < ./$i/*' before inform tor-security@lists.torproject.org"
         echo
         cd $d                             &&\
         tar -cjpf $tbz2 ./$i 2>&1         &&\
         uuencode $tbz2 $(basename $tbz2)
-      ) |\
-      mail -s "$(basename $0) $i in $d" $mailto -a ""
+      ) | mail -s "$(basename $0) $i in $d" $mailto -a ""
     done
   done
 }
@@ -188,7 +190,7 @@ function update_tor() {
   m=$(for i in $(ls ./src/test/fuzz/fuzz-* 2>/dev/null); do echo $(../recidivm/recidivm -v -u M $i 2>/dev/null | tail -n 1); done | sort -n | tail -n 1)
   if [[ -n "$m" ]]; then
     if [[ $m -gt 1000 ]]; then
-      echo " distclean (m?$m) ..."
+      echo " distclean (recidivm gives M=$m) ..."
       make distclean 2>&1
     fi
   fi
@@ -200,9 +202,11 @@ function update_tor() {
   fi
 
   if [[ ! -f Makefile ]]; then
+    # no --enable-coverage
     echo " configure ..."
-    ./configure 2>&1 || return 3
-#     ./configure --enable-expensive-hardening 2>&1 || return 1
+    ./configure \
+        --prefix=/usr --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu --mandir=/usr/share/man --infodir=/usr/share/info --datadir=/usr/share --sysconfdir=/etc --localstatedir=/var/lib --disable-dependency-tracking --disable-silent-rules --docdir=/usr/share/doc/tor-0.4.3.5 --htmldir=/usr/share/doc/tor-0.4.3.5/html --libdir=/usr/lib64 --localstatedir=/var --enable-system-torrc --disable-android --disable-html-manual --disable-libfuzzer --enable-missing-doc-warnings --disable-module-dirauth --enable-pic --disable-rust --disable-restart-debugging --disable-zstd-advanced-apis --enable-asciidoc --enable-manpage --enable-lzma --enable-libscrypt --enable-seccomp --enable-module-relay --disable-systemd --enable-gcc-hardening --enable-linker-hardening --disable-zstd \
+    || return 3
   fi
 
   # https://trac.torproject.org/projects/tor/ticket/29520
@@ -210,7 +214,7 @@ function update_tor() {
   echo " make ..."
   make micro-revision.i 2>&1 || return 4
 
-  make -j 6 fuzzers 2>&1 || return 5
+  make -j 9 fuzzers 2>&1 || return 5
 }
 
 
@@ -218,6 +222,8 @@ function update_tor() {
 #
 # main
 #
+mailto="torproject@zwiebeltoralf.de"
+
 if [[ $# -eq 0 ]]; then
   Help
 fi
@@ -239,6 +245,7 @@ if [[ -s $lck ]]; then
   fi
 fi
 echo $$ > $lck
+
 
 # tool stack
 
