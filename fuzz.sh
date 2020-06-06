@@ -202,10 +202,12 @@ function update_tor() {
   fi
 
   if [[ ! -f Makefile ]]; then
-    # no --enable-coverage
+    # use the configre options from the official Gentoo ebuild, but :
+    #   - disable coverage, this has a huge slowdown effect
+    #   - enable zstd-advanced-apis
     echo " configure ..."
     ./configure \
-        --prefix=/usr --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu --mandir=/usr/share/man --infodir=/usr/share/info --datadir=/usr/share --sysconfdir=/etc --localstatedir=/var/lib --disable-dependency-tracking --disable-silent-rules --docdir=/usr/share/doc/tor-0.4.3.5 --htmldir=/usr/share/doc/tor-0.4.3.5/html --libdir=/usr/lib64 --localstatedir=/var --enable-system-torrc --disable-android --disable-html-manual --disable-libfuzzer --enable-missing-doc-warnings --disable-module-dirauth --enable-pic --disable-rust --disable-restart-debugging --disable-zstd-advanced-apis --enable-asciidoc --enable-manpage --enable-lzma --enable-libscrypt --enable-seccomp --enable-module-relay --disable-systemd --enable-gcc-hardening --enable-linker-hardening --disable-zstd \
+        --enable-system-torrc --disable-android --disable-html-manual --disable-libfuzzer --enable-missing-doc-warnings --disable-module-dirauth --enable-pic --disable-rust --disable-restart-debugging --enable-zstd-advanced-apis --enable-asciidoc --enable-manpage --enable-lzma --enable-libscrypt --enable-seccomp --enable-module-relay --disable-systemd --enable-gcc-hardening --enable-linker-hardening --disable-coverage --enable-zstd \
     || return 3
   fi
 
@@ -265,7 +267,7 @@ export AFL_SHUFFLE_QUEUE=1
 export AFL_SKIP_CPUFREQ=1
 
 # llvm_mode
-export CC="/usr/bin/afl-clang-fast"
+export CC="/usr/bin/afl-clang"
 export AFL_LLVM_INSTRUMENT=CFG
 export AFL_LLVM_INSTRIM=1
 
