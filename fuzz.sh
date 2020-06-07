@@ -189,7 +189,7 @@ function update_tor() {
   #
   m=$(for i in $(ls ./src/test/fuzz/fuzz-* 2>/dev/null); do echo $(../recidivm/recidivm -v -u M $i 2>/dev/null | tail -n 1); done | sort -n | tail -n 1)
   if [[ -n "$m" ]]; then
-    if [[ $m -gt 1000 ]]; then
+    if [[ $m -gt 100 ]]; then
       echo " distclean (recidivm gives M=$m) ..."
       make distclean 2>&1
     fi
@@ -206,17 +206,20 @@ function update_tor() {
     #   - disable coverage, this has a huge slowdown effect
     #   - enable zstd-advanced-apis
     echo " configure ..."
-    ./configure \
-        --enable-system-torrc --disable-android --disable-html-manual --disable-libfuzzer --enable-missing-doc-warnings --disable-module-dirauth --enable-pic --disable-rust --disable-restart-debugging --enable-zstd-advanced-apis --enable-asciidoc --enable-manpage --enable-lzma --enable-libscrypt --enable-seccomp --enable-module-relay --disable-systemd --enable-gcc-hardening --enable-linker-hardening --disable-coverage --enable-zstd \
-    || return 3
+    gentoo_options="
+        --prefix=/usr --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu --mandir=/usr/share/man --infodir=/usr/share/info --datadir=/usr/share --sysconfdir=/etc --localstatedir=/var/lib --disable-dependency-tracking --disable-silent-rules --docdir=/usr/share/doc/tor-0.4.3.5 --htmldir=/usr/share/doc/tor-0.4.3.5/html --libdir=/usr/lib64 --localstatedir=/var --enable-system-torrc --disable-android --disable-html-manual --disable-libfuzzer --enable-missing-doc-warnings --disable-module-dirauth --enable-pic --disable-rust --disable-restart-debugging --disable-zstd-advanced-apis --enable-asciidoc --enable-manpage --enable-lzma --enable-libscrypt --enable-seccomp --enable-module-relay --disable-systemd --enable-gcc-hardening --enable-linker-hardening --disable-unittests --disable-coverage --enable-zstd
+    "
+    override="
+        --enable-module-dirauth --enable-zstd-advanced-apis --enable-unittests --disable-coverage
+    "
+    ./configure $gentoo_options $override || return 3
   fi
 
   # https://trac.torproject.org/projects/tor/ticket/29520
   #
   echo " make ..."
-  make micro-revision.i 2>&1 || return 4
-
-  make -j 9 fuzzers 2>&1 || return 5
+  make micro-revision.i 2>&1  || return 4
+  make -j 9 fuzzers 2>&1      || return 5
 }
 
 
@@ -267,7 +270,7 @@ export AFL_SHUFFLE_QUEUE=1
 export AFL_SKIP_CPUFREQ=1
 
 # llvm_mode
-export CC="/usr/bin/afl-clang"
+export CC="/usr/bin/afl-clang-fast"
 export AFL_LLVM_INSTRUMENT=CFG
 export AFL_LLVM_INSTRIM=1
 
