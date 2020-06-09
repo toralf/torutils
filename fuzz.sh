@@ -48,18 +48,16 @@ function archiveFindings()  {
   for d in $(ls -1d ./*_*_20??????-?????? 2>/dev/null)
   do
     pid=$(cat $d/fuzz.pid 2>/dev/null)
-    if [[ -n $pid ]]; then
-      kill -0 $pid 2>/dev/null
-      if [[ $? -ne 0 ]]; then
-        if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
-          echo " $d *has* findings, keep it"
-          if [[ ! -d ~/archive ]]; then
-            mkdir ~/archive
-          fi
-          mv $d ../archive
-        else
-          rm -rf $d
+    if [[ ! -f $d/fuzz.pid ]] || test ! kill -0 $pid 2>/dev/null; then
+      if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
+        echo " $d *has* findings, keep it"
+        if [[ ! -d ~/archive ]]; then
+          mkdir ~/archive
         fi
+        mv $d ../archive
+      else
+        echo " $d has no findings, just remove it"
+        rm -rf $d
       fi
     fi
   done
