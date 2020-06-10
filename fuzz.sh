@@ -42,13 +42,18 @@ function Help() {
 
 # archive findings
 #
-function archiveFindings()  {
+function archiveOrRemove()  {
   cd ~/work
 
   for d in $(ls -1d ./*_*_20??????-?????? 2>/dev/null)
   do
+    is_stopped=1
     pid=$(cat $d/fuzz.pid 2>/dev/null)
-    if [[ ! -f $d/fuzz.pid ]] || test ! kill -0 $pid 2>/dev/null; then
+    if [[ -n "$pid" ]]; then
+      kill -0 $pid 2>/dev/null && is_stopped=0
+    fi
+
+    if [[ -z "$pid" || $is_stopped -eq 1 ]]; then
       if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
         echo " $d *has* findings, keep it"
         if [[ ! -d ~/archive ]]; then
@@ -154,7 +159,7 @@ function startFuzzer()  {
   pid="$!"
 
   # put under cgroup control
-  sudo $(dirname $0)/fuzz_helper.sh $odir $pid || exit $?
+  sudo $mypath/fuzz_helper.sh $odir $pid || exit $?
 
   echo "$pid" > ~/work/$odir/fuzz.pid
   echo
@@ -249,6 +254,9 @@ if [[ -s $lck ]]; then
 fi
 echo $$ > $lck
 
+cd $(dirname $0)
+mypath=$(pwd)
+
 
 # tool stack
 
@@ -276,7 +284,7 @@ while getopts acHhlf:s:u\? opt
 do
   case $opt in
     a)
-      archiveFindings
+      archiveOrRemove
       ;;
     c)
       checkForFindings

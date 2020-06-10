@@ -16,7 +16,7 @@ desired=$1
 
 ./fuzz.sh -c -a
 
-pids=$(pgrep -f '/usr/bin/afl-fuzz -i /home/torproject/tor-fuzz-corpora/')
+pids=$(pgrep -f '/usr/bin/afl-fuzz -i /home/torproject/tor-fuzz-corpora/') || true
 
 let "diff = $desired - $(echo $pids | wc -w)"
 

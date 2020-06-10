@@ -35,7 +35,9 @@ function Cgroup() {
 
 #######################################################################
 #
-set -e
+set -euf
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
+export LANG=C.utf8
 
 if [[ "$(whoami)" != "root" ]]; then
   echo "you must be root "
