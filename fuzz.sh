@@ -121,14 +121,50 @@ function LogFilesCheck() {
 }
 
 
+# spin up the given fuzzer
+#
+function startIt()  {
+  fuzzer=${1?:fuzzer ?!}
+  idir=${2?:idir ?!}
+  odir=${3?:odir ?!}
+
+  # optional: dictionary for the fuzzer
+  #
+  dict="$TOR_DIR/src/test/fuzz/dict/$fuzzer"
+  if [[ -e $dict ]]; then
+    dict="-x $dict"
+  else
+    dict=""
+  fi
+
+  exe=~/work/$odir/fuzz-$fuzzer
+  if [[ ! -x $exe ]]; then
+    echo "no exe found for $fuzzer"
+    return 1
+  fi
+
+  # value of -m must be bigger than suggested by recidivm,
+  nohup nice -n 2 /usr/bin/afl-fuzz -i $idir -o ~/work/$odir -m 100 $dict -- $exe &>>~/work/$odir/fuzz.log &
+  pid="$!"
+
+  # put under cgroup control
+  sudo $mypath/fuzz_helper.sh $odir $pid || exit $?
+
+  echo "$pid" > ~/work/$odir/fuzz.pid
+  echo
+  echo " started $fuzzer pid=$pid odir=~/work/$odir"
+  echo
+}
+
+
 # spin up new fuzzer(s)
 #
-function startFuzzer()  {
-  f=$1
+function startANewFuzzer()  {
+  fuzzer=$1
 
   # input data file for the fuzzer
   #
-  idir=$TOR_FUZZ_CORPORA/$f
+  idir=$TOR_FUZZ_CORPORA/$fuzzer
   if [[ ! -d $idir ]]; then
     echo " idir not found: $idir"
     return 1
@@ -137,34 +173,14 @@ function startFuzzer()  {
   # output directory: timestamp + git commit id + fuzzer name
   #
   cid=$(cd $TOR_DIR; git describe | sed 's/.*\-g//g' )
-  odir=${f}_${cid}_$( date +%Y%m%d-%H%M%S )
+  odir=${fuzzer}_${cid}_$( date +%Y%m%d-%H%M%S )
   mkdir -p ~/work/$odir || return 2
 
   # run a copy of the fuzzer b/c git repo is subject of change
   #
-  cp $TOR_DIR/src/test/fuzz/fuzz-$f ~/work/$odir
-  exe=~/work/$odir/fuzz-$f
+  cp $TOR_DIR/src/test/fuzz/fuzz-$fuzzer ~/work/$odir
 
-  # optional: dictionary for the fuzzer
-  #
-  dict="$TOR_DIR/src/test/fuzz/dict/$f"
-  if [[ -e $dict ]]; then
-    dict="-x $dict"
-  else
-    dict=""
-  fi
-
-  # value of -m must be bigger than suggested by recidivm,
-  nohup nice -n 2 /usr/bin/afl-fuzz -i $idir -o ~/work/$odir -m 100 $dict -- $exe &>~/work/$odir/fuzz.log &
-  pid="$!"
-
-  # put under cgroup control
-  sudo $mypath/fuzz_helper.sh $odir $pid || exit $?
-
-  echo "$pid" > ~/work/$odir/fuzz.pid
-  echo
-  echo " started $f pid=$pid odir=~/work/$odir"
-  echo
+  startIt $fuzzer $idir $odir
 }
 
 
@@ -290,9 +306,9 @@ do
       checkForFindings
       ;;
     f)
-      for f in $OPTARG
+      for fuzzer in $OPTARG
       do
-        startFuzzer $f || exit $?
+        startANewFuzzer $fuzzer || exit $?
       done
       ;;
     l)
@@ -302,13 +318,13 @@ do
       # spin up $OPTARG arbitrarily choosen fuzzers
       #
       fuzzers=""
-      for f in $(ls $TOR_FUZZ_CORPORA 2>/dev/null)
+      for fuzzer in $(ls $TOR_FUZZ_CORPORA 2>/dev/null)
       do
-        if [[ -x $TOR_DIR/src/test/fuzz/fuzz-$f ]]; then
-          fuzzers="$fuzzers $f"
+        if [[ -x $TOR_DIR/src/test/fuzz/fuzz-$fuzzer ]]; then
+          fuzzers="$fuzzers $fuzzer"
         fi
       done
-      echo $fuzzers | xargs -n 1 --no-run-if-empty | shuf -n $OPTARG | while read f; do startFuzzer $f; done
+      echo $fuzzers | xargs -n 1 --no-run-if-empty | shuf -n $OPTARG | while read fuzzer; do startANewFuzzer $fuzzer; done
       ;;
     u)
       update_tor || exit $?
