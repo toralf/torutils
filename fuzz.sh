@@ -40,6 +40,18 @@ function Help() {
 }
 
 
+# 0 = yes, it is stopped
+function __isRunning()  {
+  pid=$(cat $1/fuzz.pid 2>/dev/null)
+  if [[ -n "$pid" ]]; then
+    kill -0 $pid 2>/dev/null
+    return $?
+  fi
+
+  return 1
+}
+
+
 # archive findings
 #
 function archiveOrRemove()  {
@@ -47,23 +59,16 @@ function archiveOrRemove()  {
 
   for d in $(ls -1d ./*_*_20??????-?????? 2>/dev/null)
   do
-    is_stopped=1
-    pid=$(cat $d/fuzz.pid 2>/dev/null)
-    if [[ -n "$pid" ]]; then
-      kill -0 $pid 2>/dev/null && is_stopped=0
-    fi
-
-    if [[ -z "$pid" || $is_stopped -eq 1 ]]; then
-      if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
-        echo " $d *has* findings, keep it"
-        if [[ ! -d ~/archive ]]; then
-          mkdir ~/archive
-        fi
-        mv $d ../archive
-      else
-        echo " $d has no findings, just remove it"
-        rm -rf $d
+    __isRunning $d && continue
+    if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
+      echo " $d *has* findings, keep it"
+      if [[ ! -d ~/archive ]]; then
+        mkdir ~/archive
       fi
+      mv $d ../archive
+    else
+      echo " $d has no findings, just remove it"
+      rm -rf $d
     fi
   done
 }
