@@ -299,39 +299,32 @@ export AFL_LLVM_INSTRIM=1
 while getopts acHhlf:s:u\? opt
 do
   case $opt in
-    a)
-      archiveOrRemove
-      ;;
-    c)
-      checkForFindings
-      ;;
-    f)
-      for fuzzer in $OPTARG
-      do
-        startANewFuzzer $fuzzer || exit $?
-      done
-      ;;
-    l)
-      LogFilesCheck
-      ;;
-    s)
-      # spin up $OPTARG arbitrarily choosen fuzzers
-      #
-      fuzzers=""
-      for fuzzer in $(ls $TOR_FUZZ_CORPORA 2>/dev/null)
-      do
-        if [[ -x $TOR_DIR/src/test/fuzz/fuzz-$fuzzer ]]; then
-          fuzzers="$fuzzers $fuzzer"
-        fi
-      done
-      echo $fuzzers | xargs -n 1 --no-run-if-empty | shuf -n $OPTARG | while read fuzzer; do startANewFuzzer $fuzzer; done
-      ;;
-    u)
-      update_tor || exit $?
-      ;;
-    *)
-      Help
-      ;;
+    a)  archiveOrRemove
+        ;;
+    c)  checkForFindings
+        ;;
+    f)  for fuzzer in $OPTARG
+          do
+            startANewFuzzer $fuzzer || exit $?
+          done
+        ;;
+    l)  LogFilesCheck
+        ;;
+    s)  # spin up $OPTARG arbitrarily choosen fuzzers
+        #
+        fuzzers=""
+        for fuzzer in $(ls $TOR_FUZZ_CORPORA 2>/dev/null)
+        do
+          if [[ -x $TOR_DIR/src/test/fuzz/fuzz-$fuzzer ]]; then
+            fuzzers="$fuzzers $fuzzer"
+          fi
+        done
+        echo $fuzzers | xargs -n 1 --no-run-if-empty | shuf -n $OPTARG | while read fuzzer; do startANewFuzzer $fuzzer; done
+        ;;
+    u)  update_tor || exit $?
+        ;;
+    *)  Help
+        ;;
   esac
 done
 
