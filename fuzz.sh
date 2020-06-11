@@ -82,7 +82,7 @@ function checkForFindings()  {
   for d in $(ls -1d ./*_*_20??????-?????? 2>/dev/null)
   do
     if [[ -n "$(grep 'PROGRAM ABORT' $d/fuzz.log)" ]]; then
-      tail -v -n 100 $d/fuzz.log | mail -s "$(basename $0) crash in $d" $mailto -a ""
+      tail -v -n 40 $d/fuzz.log | mail -s "$(basename $0) crash in $d" $mailto -a ""
     fi
 
     for i in crashes hangs
@@ -93,14 +93,14 @@ function checkForFindings()  {
 
       tbz2=$(basename $d)-$i.tbz2
 
-      # already anything reported ?
+      # already reported ?
       #
       if [[ -f $d/$tbz2 && $tbz2 -ot $d/$i ]]; then
         continue
       fi
 
       (
-        echo "verify it with 'cd ~/work/$d; ./fuzz-* < ./$i/*' before inform tor-security@lists.torproject.org"
+        echo "verify $i it with 'cd ~/work/$d; ./fuzz-* < ./$i/*' then inform tor-security@lists.torproject.org"
         echo
         cd $d                             &&\
         tar -cjpf $tbz2 ./$i 2>&1         &&\
@@ -148,14 +148,14 @@ function startIt()  {
     return 1
   fi
 
-  # value of -m must be bigger than suggested by recidivm,
+  # value of -m must be fair bigger than suggested by recidivm,
   nohup nice -n 2 /usr/bin/afl-fuzz -i $idir -o ~/work/$odir -m 100 $dict -- $exe &>>~/work/$odir/fuzz.log &
   pid="$!"
+  echo "$pid" >> ~/work/$odir/fuzz.pid
 
-  # put under cgroup control
+  # put fuzzer under cgroup control
   sudo $mypath/fuzz_helper.sh $odir $pid || exit $?
 
-  echo "$pid" > ~/work/$odir/fuzz.pid
   echo
   echo " started $fuzzer pid=$pid odir=~/work/$odir"
   echo
