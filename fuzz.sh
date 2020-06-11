@@ -162,6 +162,21 @@ function startIt()  {
 }
 
 
+# resume fuzzer(s)
+function ResumeFuzzers()  {
+  cd ~/work
+
+  for d in $(ls -1d *_*_20??????-?????? 2>/dev/null)
+  do
+    __isRunning $d && continue
+    fuzzer=$(echo $d | cut -f1 -d'_')
+    idir="-"
+    odir=~/work/$d
+    startIt $fuzzer $idir $odir || break
+  done
+}
+
+
 # spin up new fuzzer(s)
 #
 function startANewFuzzer()  {
@@ -301,7 +316,7 @@ export CC="/usr/bin/afl-clang-fast"
 export AFL_LLVM_INSTRUMENT=CFG
 export AFL_LLVM_INSTRIM=1
 
-while getopts acHhlf:s:u\? opt
+while getopts acHhlf:rs:u\? opt
 do
   case $opt in
     a)  archiveOrRemove
@@ -314,6 +329,8 @@ do
           done
         ;;
     l)  LogFilesCheck
+        ;;
+    r)  ResumeFuzzers
         ;;
     s)  # spin up $OPTARG arbitrarily choosen fuzzers
         #
