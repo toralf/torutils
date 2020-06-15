@@ -39,3 +39,8 @@ and
 ### more info
 You need the Python lib Stem (https://stem.torproject.org/index.html) for the python scripts.
 
+<a href="https://scan.coverity.com/projects/toralf-torutils">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/21316/badge.svg"/>
+</a>
+
