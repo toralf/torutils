@@ -12,12 +12,12 @@ cd $(dirname $0)
 if [[ $# -ne 1 ]]; then
   exit 1
 fi
-desired=$1
 
 ./fuzz.sh -l -c -a
 
 pids=$(pgrep --parent 1 -f '/usr/bin/afl-fuzz -i') || true
 
+desired=$1
 let "diff = $desired - $(echo $pids | wc -w)"
 
 if   [[ $diff -gt 0 ]]; then
