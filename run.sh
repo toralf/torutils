@@ -14,7 +14,7 @@ if [[ $# -ne 1 ]]; then
 fi
 desired=$1
 
-./fuzz.sh -c -a
+./fuzz.sh -l -c -a
 
 pids=$(pgrep -f '/usr/bin/afl-fuzz -i ') || true
 
@@ -30,6 +30,6 @@ elif [[ $diff -lt 0 ]]; then
     sleep 5
     kill -15 $victims || true
     sleep 2
-    ./fuzz.sh -c -a
+    ./fuzz.sh -l -c -a
   fi
 fi

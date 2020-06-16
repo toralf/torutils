@@ -81,10 +81,6 @@ function checkForFindings()  {
 
   for d in $(ls -1d ./*_*_20??????-?????? 2>/dev/null)
   do
-    if [[ -n "$(grep 'PROGRAM ABORT' $d/fuzz.log)" ]]; then
-      tail -v -n 40 $d/fuzz.log | mail -s "$(basename $0) crash in $d" $mailto -a ""
-    fi
-
     for i in crashes hangs
     do
       if [[ -z "$(ls $d/$i 2>/dev/null)" ]]; then
@@ -113,14 +109,23 @@ function checkForFindings()  {
 
 #
 #
-function LogFilesCheck() {
+function LogCheck() {
   cd ~/work
 
-  for d in $(ls -1d ./*_*_20??????-?????? 2>/dev/null)
+  for log in $(ls -1d ./*_*_20??????-??????/fuzz.log 2>/dev/null)
   do
-    log=$(cat $d/fuzz.log 2>/dev/null)
-    if [[ -f $log ]]; then
-      grep -H 'PROGRAM ABORT :' $log
+    echo
+    ls -l $log
+    echo
+
+    grep -h -B 20 -A 10 'PROGRAM ABORT :' $log
+
+    diff=$(( $(date +%s) - $(stat -c%Y $log) ))
+    if [[ $diff -gt 360 ]]; then
+      echo
+      echo " last logfile access at:"
+      echo
+      stat $log
     fi
   done
 }
@@ -149,7 +154,7 @@ function startIt()  {
   fi
 
   # value of -m must be fair bigger than suggested by recidivm,
-  nohup nice -n 2 /usr/bin/afl-fuzz -i $idir -o ~/work/$odir -m 100 $dict -- $exe &>>~/work/$odir/fuzz.log &
+  nohup nice -n 2 /usr/bin/afl-fuzz -i $idir -o ~/work/$odir -m 1000 $dict -- $exe &>>~/work/$odir/fuzz.log &
   pid="$!"
   echo "$pid" >> ~/work/$odir/fuzz.pid
 
@@ -179,7 +184,7 @@ function ResumeFuzzers()  {
 
 # spin up new fuzzer(s)
 #
-function startANewFuzzer()  {
+function startFuzzer()  {
   fuzzer=$1
 
   # input data file for the fuzzer
@@ -206,7 +211,7 @@ function startANewFuzzer()  {
 
 # update Tor fuzzer software stack
 #
-function update_tor() {
+function updateSources() {
   echo " update deps ..."
 
   cd $RECIDIVM_DIR
@@ -228,8 +233,8 @@ function update_tor() {
   #
   m=$(for i in $(ls ./src/test/fuzz/fuzz-* 2>/dev/null); do echo $(../recidivm/recidivm -v -u M $i 2>/dev/null | tail -n 1); done | sort -n | tail -n 1)
   if [[ -n "$m" ]]; then
-    if [[ $m -gt 100 ]]; then
-      echo " distclean (recidivm gives M=$m) ..."
+    if [[ $m -gt 200 ]]; then
+      echo " force distclean (recidivm gives M=$m) ..."
       make distclean 2>&1
     fi
   fi
@@ -325,10 +330,10 @@ do
         ;;
     f)  for fuzzer in $OPTARG
           do
-            startANewFuzzer $fuzzer || exit $?
+            startFuzzer $fuzzer || exit $?
           done
         ;;
-    l)  LogFilesCheck
+    l)  LogCheck
         ;;
     r)  ResumeFuzzers
         ;;
@@ -341,9 +346,9 @@ do
             fuzzers="$fuzzers $fuzzer"
           fi
         done
-        echo $fuzzers | xargs -n 1 --no-run-if-empty | shuf -n $OPTARG | while read fuzzer; do startANewFuzzer $fuzzer; done
+        echo $fuzzers | xargs -n 1 --no-run-if-empty | shuf -n $OPTARG | while read fuzzer; do startFuzzer $fuzzer || exit $?; done
         ;;
-    u)  update_tor || exit $?
+    u)  updateSources || exit $?
         ;;
     *)  Help
         ;;
