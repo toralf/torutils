@@ -35,7 +35,7 @@
 
 function Help() {
   echo
-  echo "  call: $(basename $0) [-h|-?] [-ac] [-f '<fuzzer(s)>'] [-s <number>] [-u]"
+  echo "  call: $(basename $0) [-h|-?] [-aclru] [-f '<fuzzer name(s)>'] [-s <fuzzer amount>]"
   echo
 }
 
@@ -55,7 +55,7 @@ function __isRunning()  {
 # archive findings
 #
 function archiveOrRemove()  {
-  cd ~/work
+  cd $workdir
 
   for d in $(ls -1d ./*_*_20??????-?????? 2>/dev/null)
   do
@@ -67,7 +67,7 @@ function archiveOrRemove()  {
       fi
       mv $d ../archive
     else
-      echo " $d has no findings, just remove it"
+      echo " $d has no findings, removed"
       rm -rf $d
     fi
   done
@@ -77,7 +77,7 @@ function archiveOrRemove()  {
 # check for findings
 #
 function checkForFindings()  {
-  cd ~/work
+  cd $workdir
 
   for d in $(ls -1d ./*_*_20??????-?????? 2>/dev/null)
   do
@@ -96,7 +96,7 @@ function checkForFindings()  {
       fi
 
       (
-        echo "verify $i it with 'cd ~/work/$d; ./fuzz-* < ./$i/*' then inform tor-security@lists.torproject.org"
+        echo "verify $i it with 'cd $workdir/$d; ./fuzz-* < ./$i/*' then inform tor-security@lists.torproject.org"
         echo
         cd $d                             &&\
         tar -cjpf $tbz2 ./$i 2>&1         &&\
@@ -110,7 +110,7 @@ function checkForFindings()  {
 #
 #
 function LogCheck() {
-  cd ~/work
+  cd $workdir
 
   for log in $(ls -1d ./*_*_20??????-??????/fuzz.log 2>/dev/null)
   do
@@ -145,35 +145,35 @@ function startIt()  {
     dict=""
   fi
 
-  exe=~/work/$odir/fuzz-$fuzzer
+  exe=$workdir/$odir/fuzz-$fuzzer
   if [[ ! -x $exe ]]; then
     echo "no exe found for $fuzzer"
     return 1
   fi
 
-  nohup nice -n 1 /usr/bin/afl-fuzz -i $idir -o ~/work/$odir -m 1000 $dict -- $exe &>>~/work/$odir/fuzz.log &
+  nohup nice -n 1 /usr/bin/afl-fuzz -i $idir -o $workdir/$odir -m 1000 $dict -- $exe &>>$workdir/$odir/fuzz.log &
   pid="$!"
-  echo "$pid" >> ~/work/$odir/fuzz.pid
+  echo "$pid" >> $workdir/$odir/fuzz.pid
 
   # put fuzzer under cgroup control
-  sudo $mypath/fuzz_helper.sh $odir $pid || exit $?
+  sudo $installdir/fuzz_helper.sh $odir $pid || exit $?
 
   echo
-  echo " started $fuzzer pid=$pid odir=~/work/$odir"
+  echo " started $fuzzer pid=$pid odir=$workdir/$odir"
   echo
 }
 
 
 # resume fuzzer(s)
 function ResumeFuzzers()  {
-  cd ~/work
+  cd $workdir
 
   for d in $(ls -1d *_*_20??????-?????? 2>/dev/null)
   do
     __isRunning $d && continue
     fuzzer=$(echo $d | cut -f1 -d'_')
     idir="-"
-    odir=~/work/$d
+    odir=$workdir/$d
     startIt $fuzzer $idir $odir || break
   done
 }
@@ -194,13 +194,13 @@ function startFuzzer()  {
 
   # output directory: timestamp + git commit id + fuzzer name
   #
-  cid=$(cd $TOR_DIR; git describe | sed 's/.*\-g//g' )
-  odir=${fuzzer}_${cid}_$( date +%Y%m%d-%H%M%S )
-  mkdir -p ~/work/$odir || return 2
+  cid=$(cd $TOR_DIR; git describe 2>/dev/null | sed 's/.*\-g//g')
+  odir=${fuzzer}_${cid}_$(date +%Y%m%d-%H%M%S)
+  mkdir -p $workdir/$odir || return 2
 
   # run a copy of the fuzzer b/c git repo is subject of change
   #
-  cp $TOR_DIR/src/test/fuzz/fuzz-$fuzzer ~/work/$odir
+  cp $TOR_DIR/src/test/fuzz/fuzz-$fuzzer $workdir/$odir
 
   startIt $fuzzer $idir $odir
 }
@@ -293,8 +293,7 @@ fi
 echo $$ > $lck
 
 cd $(dirname $0)
-mypath=$(pwd)
-
+installdir=$(pwd)
 
 # tool stack
 
@@ -312,13 +311,20 @@ export AFL_AUTORESUME=1
 export AFL_EXIT_WHEN_DONE=1
 export AFL_SHUFFLE_QUEUE=1
 export AFL_SKIP_CPUFREQ=1
+export AFL_NO_FORKSRV=1
 
 # llvm_mode
 export CC="/usr/bin/afl-clang-fast"
 export AFL_LLVM_INSTRUMENT=CFG
 export AFL_LLVM_INSTRIM=1
 
-while getopts acHhlf:rs:u\? opt
+# avoid heavy I/O at disc
+workdir=/tmp/AFLplusplus/
+if [[ ! -d $workdir ]]; then
+  mkdir -p $workdir || exit 1
+fi
+
+while getopts acf:hlrs:u\? opt
 do
   case $opt in
     a)  archiveOrRemove
@@ -326,28 +332,38 @@ do
     c)  checkForFindings
         ;;
     f)  for fuzzer in $OPTARG
-          do
-            startFuzzer $fuzzer || exit $?
-          done
+        do
+          startFuzzer $fuzzer || break 2
+        done
         ;;
     l)  LogCheck
         ;;
     r)  ResumeFuzzers
         ;;
     s)  # spin up $OPTARG arbitrarily choosen fuzzers
-        #
+        test -z "${OPTARG//[0-9]}"
+        if [[ $? -ne 0 ]]; then
+          echo
+          echo ">>$OPTARG<< contains non-digits!"
+          echo
+          break
+        fi
+
         fuzzers=""
         for fuzzer in $(ls $TOR_FUZZ_CORPORA 2>/dev/null)
         do
-          if [[ -x $TOR_DIR/src/test/fuzz/fuzz-$fuzzer ]]; then
-            fuzzers="$fuzzers $fuzzer"
-          fi
+          [[ -x $TOR_DIR/src/test/fuzz/fuzz-$fuzzer ]] && fuzzers="$fuzzers $fuzzer"
         done
-        echo $fuzzers | xargs -n 1 --no-run-if-empty | shuf -n $OPTARG | while read fuzzer; do startFuzzer $fuzzer || exit $?; done
+
+        echo $fuzzers | xargs -n 1 | shuf -n $OPTARG |\
+        while read fuzzer
+        do
+          startFuzzer $fuzzer || break 2
+        done
         ;;
-    u)  updateSources || exit $?
+    u)  updateSources || break
         ;;
-    *)  Help
+    h|?)Help
         ;;
   esac
 done
