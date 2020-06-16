@@ -12,7 +12,7 @@
 #
 # emerge --update sys-devel/clang app-forensics/AFLplusplus
 #
-# (II) clone repos
+# (II) clone Git repositories
 #
 # cd ~
 # git clone https://github.com/jwilk/recidivm
@@ -28,7 +28,7 @@
 #
 # cd ~/tor; for i in $(ls ./src/test/fuzz/fuzz-* 2>/dev/null); do echo $(../recidivm/recidivm -v -u M $i 2>&1 | tail -n 1) $i ; done | sort -n
 #
-# (V) start one fuzzer:
+# (V) start an arbitrary fuzzer:
 #
 # fuzz.sh -s 1
 
