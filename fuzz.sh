@@ -121,7 +121,7 @@ function LogCheck() {
     grep -h -B 20 -A 10 'PROGRAM ABORT :' $log
 
     diff=$(( $(date +%s) - $(stat -c%Y $log) ))
-    if [[ $diff -gt 360 ]]; then
+    if [[ $diff -gt 720 ]]; then
       echo
       echo " last logfile access at:"
       echo
