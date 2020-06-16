@@ -114,16 +114,14 @@ function LogCheck() {
 
   for log in $(ls -1d ./*_*_20??????-??????/fuzz.log 2>/dev/null)
   do
-    echo
-    ls -l $log
-    echo
+    diff=$(( $(date +%s) - $(stat -c%Y $log) ))
 
     grep -h -B 20 -A 10 'PROGRAM ABORT :' $log
+    rc=$?
 
-    diff=$(( $(date +%s) - $(stat -c%Y $log) ))
-    if [[ $diff -gt 720 ]]; then
+    if [[ $diff -gt 3600 || $rc -eq 0 ]]; then
       echo
-      echo " last logfile access at:"
+      echo " last logfile access $diff sec ago:"
       echo
       stat $log
     fi
@@ -153,8 +151,7 @@ function startIt()  {
     return 1
   fi
 
-  # value of -m must be fair bigger than suggested by recidivm,
-  nohup nice -n 2 /usr/bin/afl-fuzz -i $idir -o ~/work/$odir -m 1000 $dict -- $exe &>>~/work/$odir/fuzz.log &
+  nohup nice -n 1 /usr/bin/afl-fuzz -i $idir -o ~/work/$odir -m 1000 $dict -- $exe &>>~/work/$odir/fuzz.log &
   pid="$!"
   echo "$pid" >> ~/work/$odir/fuzz.pid
 
