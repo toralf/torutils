@@ -16,7 +16,6 @@
 #
 # cd ~
 # git clone https://github.com/jwilk/recidivm
-# git clone https://git.torproject.org/chutney.git
 # git clone https://git.torproject.org/fuzzing-corpora.git
 # git clone https://git.torproject.org/tor.git
 #
@@ -40,7 +39,8 @@ function Help() {
 }
 
 
-# 0 = yes, it is stopped
+# 0 = it is runnning
+# 1 = it is stopped
 function __isRunning()  {
   pid=$(cat $1/fuzz.pid 2>/dev/null)
   if [[ -n "$pid" ]]; then
@@ -60,16 +60,18 @@ function archiveOrRemove()  {
   for d in $(ls -1d ./*_*_20??????-?????? 2>/dev/null)
   do
     __isRunning $d && continue
+    echo
     if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
-      echo " $d *has* findings, keep it"
+      echo " $d HAS findings, KEPT IT in ~/archive/$d"
       if [[ ! -d ~/archive ]]; then
         mkdir ~/archive
       fi
       mv $d ../archive
     else
-      echo " $d has no findings, removed"
+      echo " $d has no findings, removed it"
       rm -rf $d
     fi
+    echo
   done
 }
 
@@ -138,7 +140,7 @@ function startIt()  {
 
   # optional: dictionary for the fuzzer
   #
-  dict="$TOR_DIR/src/test/fuzz/dict/$fuzzer"
+  dict="$TOR/src/test/fuzz/dict/$fuzzer"
   if [[ -e $dict ]]; then
     dict="-x $dict"
   else
@@ -151,7 +153,7 @@ function startIt()  {
     return 1
   fi
 
-  nohup nice -n 1 /usr/bin/afl-fuzz -i $idir -o $workdir/$odir -m 1000 $dict -- $exe &>>$workdir/$odir/fuzz.log &
+  nohup nice -n 1 /usr/bin/afl-fuzz -i $idir -o $workdir/$odir -m 9000 $dict -- $exe &>>$workdir/$odir/fuzz.log &
   pid="$!"
   echo "$pid" >> $workdir/$odir/fuzz.pid
 
@@ -194,13 +196,13 @@ function startFuzzer()  {
 
   # output directory: timestamp + git commit id + fuzzer name
   #
-  cid=$(cd $TOR_DIR; git describe 2>/dev/null | sed 's/.*\-g//g')
+  cid=$(cd $TOR; git describe 2>/dev/null | sed 's/.*\-g//g')
   odir=${fuzzer}_${cid}_$(date +%Y%m%d-%H%M%S)
   mkdir -p $workdir/$odir || return 2
 
   # run a copy of the fuzzer b/c git repo is subject of change
   #
-  cp $TOR_DIR/src/test/fuzz/fuzz-$fuzzer $workdir/$odir
+  cp $TOR/src/test/fuzz/fuzz-$fuzzer $workdir/$odir
 
   startIt $fuzzer $idir $odir
 }
@@ -211,27 +213,21 @@ function startFuzzer()  {
 function updateSources() {
   echo " update deps ..."
 
-  cd $RECIDIVM_DIR
+  cd $RECIDIVM
   git pull
   make || return 1
-
-  cd $CHUTNEY_PATH
-  git pull
 
   cd $TOR_FUZZ_CORPORA
   git pull
 
-  cd $TOR_DIR
+  cd $TOR
   git pull
 
-  echo " run recidivm to check broken linker state ..."
-
-  # anything much bigger than 50 indicates a broken (linker) state
-  #
+  echo " run recidivm to check anything much bigger than 50 which indicates a broken (linker) state"
   m=$(for i in $(ls ./src/test/fuzz/fuzz-* 2>/dev/null); do echo $(../recidivm/recidivm -v -u M $i 2>/dev/null | tail -n 1); done | sort -n | tail -n 1)
   if [[ -n "$m" ]]; then
     if [[ $m -gt 200 ]]; then
-      echo " force distclean (recidivm gives M=$m) ..."
+      echo " force distclean (recidivm gave M=$m) ..."
       make distclean 2>&1
     fi
   fi
@@ -274,11 +270,11 @@ if [[ $# -eq 0 ]]; then
   Help
 fi
 
-# do not run this script in parallel
+# simple lock to avoid being run in parallel
 #
 lck=~/.lock
 if [[ -s $lck ]]; then
-  echo " found $lck"
+  echo -n " found $lck,"
   ls -l $lck
   tail -v $lck
   kill -0 $(cat $lck) 2>/dev/null
@@ -287,7 +283,6 @@ if [[ -s $lck ]]; then
     exit 1
   else
     echo " stalled, continuing ..."
-    echo
   fi
 fi
 echo $$ > $lck
@@ -295,30 +290,27 @@ echo $$ > $lck
 cd $(dirname $0)
 installdir=$(pwd)
 
-# tool stack
-
-export RECIDIVM_DIR=~/recidivm
-export CHUTNEY_PATH=~/chutney
+# sources
+export RECIDIVM=~/recidivm
 export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora
-export TOR_DIR=~/tor
+export TOR=~/tor
 
+# common
 export CFLAGS="-O2 -pipe -march=native"
 
 # afl-fuzz
-
 export AFL_HARDEN=1
-export AFL_AUTORESUME=1
-export AFL_EXIT_WHEN_DONE=1
+
 export AFL_SHUFFLE_QUEUE=1
+export AFL_EXIT_WHEN_DONE=1
+
 export AFL_SKIP_CPUFREQ=1
-export AFL_NO_FORKSRV=1
 
 # llvm_mode
 export CC="/usr/bin/afl-clang-fast"
 export AFL_LLVM_INSTRUMENT=CFG
-export AFL_LLVM_INSTRIM=1
 
-# avoid heavy I/O at disc
+# /tmp is a tmpfs, this avoids any I/O at disc
 workdir=/tmp/AFLplusplus/
 if [[ ! -d $workdir ]]; then
   mkdir -p $workdir || exit 1
@@ -352,7 +344,7 @@ do
         fuzzers=""
         for fuzzer in $(ls $TOR_FUZZ_CORPORA 2>/dev/null)
         do
-          [[ -x $TOR_DIR/src/test/fuzz/fuzz-$fuzzer ]] && fuzzers="$fuzzers $fuzzer"
+          [[ -x $TOR/src/test/fuzz/fuzz-$fuzzer ]] && fuzzers="$fuzzers $fuzzer"
         done
 
         echo $fuzzers | xargs -n 1 | shuf -n $OPTARG |\

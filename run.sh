@@ -26,8 +26,6 @@ if   [[ $diff -gt 0 ]]; then
 elif [[ $diff -lt 0 ]]; then
   victims=$(echo $pids | xargs -n 1 | shuf -n ${diff##*-})
   if [[ -n "$victims" ]]; then
-    kill -3 $victims
-    sleep 5
     kill -15 $victims || true
     sleep 2
     ./fuzz.sh -l -c -a
