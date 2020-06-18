@@ -13,7 +13,7 @@ if [[ $# -ne 1 ]]; then
   exit 1
 fi
 
-./fuzz.sh -l -c -a
+./fuzz.sh -l -f -a
 
 pids=$(pgrep --parent 1 -f '/usr/bin/afl-fuzz -i') || true
 
@@ -28,6 +28,6 @@ elif [[ $diff -lt 0 ]]; then
   if [[ -n "$victims" ]]; then
     kill -15 $victims || true
     sleep 2
-    ./fuzz.sh -l -c -a
+    ./fuzz.sh -l -f -a
   fi
 fi
