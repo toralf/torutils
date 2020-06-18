@@ -62,14 +62,22 @@ function archiveOrRemove()  {
     __isRunning $d && continue
     echo
     if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
-      echo " $d HAS findings, KEPT IT in ~/archive/$d"
+      echo " $d HAS findings, keep it in ~/archive/$d"
       if [[ ! -d ~/archive ]]; then
-        mkdir ~/archive
+        mkdir ~/archive || return 1
       fi
-      mv $d ../archive
+      mv $d $homedir/archive
     else
-      echo " $d has no findings, removed it"
-      rm -rf $d
+      echo
+      logfile=$d/fuzz.log
+      grep -B 100 "We're done here. Have a nice day" $logfile
+      if [[ $? -eq 0 ]]; then
+        echo " $d has no findings, remove it"
+        rm -rf $d
+      else
+        echo " $d abnormal breakage ?!"
+        tail -v -n 10 $logfile
+      fi
     fi
     echo
   done
@@ -158,7 +166,7 @@ function startIt()  {
   echo "$pid" >> $workdir/$odir/fuzz.pid
 
   # put fuzzer under cgroup control
-  sudo $installdir/fuzz_helper.sh $odir $pid || exit $?
+  sudo $homedir/fuzz_helper.sh $odir $pid || exit $?
 
   echo
   echo " started $fuzzer pid=$pid odir=$workdir/$odir"
@@ -288,7 +296,7 @@ fi
 echo $$ > $lck
 
 cd $(dirname $0)
-installdir=$(pwd)
+homedir=$(pwd)
 
 # sources
 export RECIDIVM=~/recidivm
@@ -319,7 +327,7 @@ fi
 while getopts acf:hlrs:u\? opt
 do
   case $opt in
-    a)  archiveOrRemove
+    a)  archiveOrRemove || break
         ;;
     c)  checkForFindings
         ;;
@@ -328,9 +336,9 @@ do
           startFuzzer $fuzzer || break 2
         done
         ;;
-    l)  LogCheck
+    l)  LogCheck || break
         ;;
-    r)  ResumeFuzzers
+    r)  ResumeFuzzers || break
         ;;
     s)  # spin up $OPTARG arbitrarily choosen fuzzers
         test -z "${OPTARG//[0-9]}"
