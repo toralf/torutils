@@ -39,6 +39,11 @@ function Help() {
 }
 
 
+
+function __listWorkDirs() {
+  ls -1d $workdir/*_*_20??????-?????? 2>/dev/null
+}
+
 # 0 = it is runnning
 # 1 = it is stopped
 function __isRunning()  {
@@ -55,9 +60,7 @@ function __isRunning()  {
 # archive findings
 #
 function archiveOrRemove()  {
-  cd $workdir
-
-  for d in $(ls -1d ./*_*_20??????-?????? 2>/dev/null)
+  for d in $(__listWorkDirs)
   do
     __isRunning $d && continue
     echo
@@ -72,11 +75,11 @@ function archiveOrRemove()  {
       logfile=$d/fuzz.log
       grep -B 100 "We're done here. Have a nice day" $logfile
       if [[ $? -eq 0 ]]; then
-        echo " $d has no findings, remove it"
+        echo " $d has no findings, will remove it"
         rm -rf $d
       else
         echo " $d abnormal breakage ?!"
-        tail -v -n 10 $logfile
+        tail -v -n 20 $logfile
       fi
     fi
     echo
@@ -87,9 +90,7 @@ function archiveOrRemove()  {
 # check for findings
 #
 function checkForFindings()  {
-  cd $workdir
-
-  for d in $(ls -1d ./*_*_20??????-?????? 2>/dev/null)
+  for d in $(__listWorkDirs)
   do
     for i in crashes hangs
     do
@@ -106,7 +107,7 @@ function checkForFindings()  {
       fi
 
       (
-        echo "verify $i it with 'cd $workdir/$d; ./fuzz-* < ./$i/*' then inform tor-security@lists.torproject.org"
+        echo "verify $i it with 'cd $d; ./fuzz-* < ./$i/*' then inform tor-security@lists.torproject.org"
         echo
         cd $d                             &&\
         tar -cjpf $tbz2 ./$i 2>&1         &&\
@@ -117,13 +118,12 @@ function checkForFindings()  {
 }
 
 
-#
+# check log files for anomalies
 #
 function LogCheck() {
-  cd $workdir
-
-  for log in $(ls -1d ./*_*_20??????-??????/fuzz.log 2>/dev/null)
+  for d in $(__listWorkDirs)
   do
+    log=$d/fuzz.log
     diff=$(( $(date +%s) - $(stat -c%Y $log) ))
 
     grep -h -B 20 -A 10 'PROGRAM ABORT :' $log
@@ -177,14 +177,12 @@ function startIt()  {
 
 # resume fuzzer(s)
 function ResumeFuzzers()  {
-  cd $workdir
-
-  for d in $(ls -1d *_*_20??????-?????? 2>/dev/null)
+  for d in $(ls -1d $workdir/*_*_20??????-?????? 2>/dev/null)
   do
     __isRunning $d && continue
-    fuzzer=$(echo $d | cut -f1 -d'_')
+    fuzzer=$(basename $d | cut -f1 -d'_')
     idir="-"
-    odir=$workdir/$d
+    odir=$d
     startIt $fuzzer $idir $odir || break
   done
 }
@@ -313,6 +311,7 @@ export AFL_HARDEN=1
 export AFL_SHUFFLE_QUEUE=1
 export AFL_EXIT_WHEN_DONE=1
 
+export AFL_NO_FORKSRV=1
 export AFL_SKIP_CPUFREQ=1
 
 # llvm_mode
@@ -343,22 +342,21 @@ do
     r)  ResumeFuzzers || break
         ;;
     s)
-        fuzzers=""
-
         test -z "${OPTARG//[0-9]}"
         if [[ $? -eq 0 ]]; then
-          # number given
+          # integer given
+          all=""
           for fuzzer in $(ls $TOR_FUZZ_CORPORA 2>/dev/null)
           do
-            [[ -x $TOR/src/test/fuzz/fuzz-$fuzzer ]] && fuzzers="$fuzzers $fuzzer"
+            [[ -x $TOR/src/test/fuzz/fuzz-$fuzzer ]] && all="$all $fuzzer"
           done
+          fuzzers=$(echo $all | xargs -n 1 | shuf -n $OPTARG)
         else
           # fuzzer name(s) given
           fuzzers="$OPTARG"
         fi
 
-        echo $fuzzers | xargs -n 1 | shuf -n $OPTARG |\
-        while read fuzzer
+        for fuzzer in $fuzzers
         do
           startFuzzer $fuzzer || break 2
         done
