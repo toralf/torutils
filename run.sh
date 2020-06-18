@@ -21,7 +21,7 @@ desired=$1
 let "diff = $desired - $(echo $pids | wc -w)"
 
 if   [[ $diff -gt 0 ]]; then
-  ./fuzz.sh -u -s $diff
+  ./fuzz.sh -u -c -s $diff
 
 elif [[ $diff -lt 0 ]]; then
   victims=$(echo $pids | xargs -n 1 | shuf -n ${diff##*-})
