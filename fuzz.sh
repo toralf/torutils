@@ -326,6 +326,7 @@ if [[ ! -d $workdir ]]; then
 fi
 
 cgroup="no"
+
 while getopts acfhlrs:u\? opt
 do
   case $opt in
@@ -333,9 +334,9 @@ do
         ;;
     c)  cgroup="yes"
         ;;
-    f)  checkForFindings
+    f)  checkForFindings || break
         ;;
-    h|?)Help
+    h|\?)Help
         ;;
     l)  LogCheck || break
         ;;
