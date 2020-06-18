@@ -324,17 +324,12 @@ if [[ ! -d $workdir ]]; then
   mkdir -p $workdir || exit 1
 fi
 
-while getopts acf:hlrs:u\? opt
+while getopts ac:hlrs:u\? opt
 do
   case $opt in
     a)  archiveOrRemove || break
         ;;
     c)  checkForFindings
-        ;;
-    f)  for fuzzer in $OPTARG
-        do
-          startFuzzer $fuzzer || break 2
-        done
         ;;
     h|?)Help
         ;;
@@ -342,20 +337,21 @@ do
         ;;
     r)  ResumeFuzzers || break
         ;;
-    s)  # spin up $OPTARG arbitrarily choosen fuzzers
-        test -z "${OPTARG//[0-9]}"
-        if [[ $? -ne 0 ]]; then
-          echo
-          echo ">>$OPTARG<< contains non-digits!"
-          echo
-          break
-        fi
-
+    s)
         fuzzers=""
-        for fuzzer in $(ls $TOR_FUZZ_CORPORA 2>/dev/null)
-        do
-          [[ -x $TOR/src/test/fuzz/fuzz-$fuzzer ]] && fuzzers="$fuzzers $fuzzer"
-        done
+
+        test -z "${OPTARG//[0-9]}"
+        if [[ $? -eq 0 ]]; then
+          for fuzzer in $(ls $TOR_FUZZ_CORPORA 2>/dev/null)
+          do
+            [[ -x $TOR/src/test/fuzz/fuzz-$fuzzer ]] && fuzzers="$fuzzers $fuzzer"
+          done
+        else
+          for fuzzer in $OPTARG
+          do
+            startFuzzer $fuzzer || break 2
+          done
+        fi
 
         echo $fuzzers | xargs -n 1 | shuf -n $OPTARG |\
         while read fuzzer
