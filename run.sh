@@ -7,16 +7,16 @@
 
 
 set -euf
-cd $(dirname $0)
 
 if [[ $# -ne 1 ]]; then
   exit 1
 fi
 
+cd $(dirname $0)
+
 ./fuzz.sh -l -f -a
 
 pids=$(pgrep --parent 1 -f '/usr/bin/afl-fuzz -i') || true
-
 let "diff = $1 - $(echo $pids | wc -w)" || true
 
 if   [[ $diff -gt 0 ]]; then
@@ -26,7 +26,7 @@ elif [[ $diff -lt 0 ]]; then
   victims=$(echo $pids | xargs -n 1 | shuf -n ${diff##*-})
   if [[ -n "$victims" ]]; then
     kill -15 $victims || true
-    sleep 2
+    sleep 5
     ./fuzz.sh -l -f -a
   fi
 fi
