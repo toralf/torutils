@@ -346,15 +346,14 @@ do
 
         test -z "${OPTARG//[0-9]}"
         if [[ $? -eq 0 ]]; then
+          # number given
           for fuzzer in $(ls $TOR_FUZZ_CORPORA 2>/dev/null)
           do
             [[ -x $TOR/src/test/fuzz/fuzz-$fuzzer ]] && fuzzers="$fuzzers $fuzzer"
           done
         else
-          for fuzzer in $OPTARG
-          do
-            startFuzzer $fuzzer || break 2
-          done
+          # fuzzer name(s) given
+          fuzzers="$OPTARG"
         fi
 
         echo $fuzzers | xargs -n 1 | shuf -n $OPTARG |\
