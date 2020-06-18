@@ -34,7 +34,7 @@
 
 function Help() {
   echo
-  echo "  call: $(basename $0) [-h|-?] [-aclru] [-f '<fuzzer name(s)>'] [-s <fuzzer amount>]"
+  echo "  call: $(basename $0) [-h|-?] [-acflru] [-s '<fuzzer name(s)>'|<fuzzer amount>]"
   echo
 }
 
@@ -326,7 +326,7 @@ if [[ ! -d $workdir ]]; then
 fi
 
 cgroup="no"
-while getopts acf:hlrs:u\? opt
+while getopts acfhlrs:u\? opt
 do
   case $opt in
     a)  archiveOrRemove || break
