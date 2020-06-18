@@ -336,6 +336,8 @@ do
           startFuzzer $fuzzer || break 2
         done
         ;;
+    h|?)Help
+        ;;
     l)  LogCheck || break
         ;;
     r)  ResumeFuzzers || break
@@ -362,8 +364,6 @@ do
         done
         ;;
     u)  updateSources || break
-        ;;
-    h|?)Help
         ;;
   esac
 done
