@@ -324,12 +324,12 @@ if [[ ! -d $workdir ]]; then
   mkdir -p $workdir || exit 1
 fi
 
-while getopts ac:hlrs:u\? opt
+while getopts af:hlrs:u\? opt
 do
   case $opt in
     a)  archiveOrRemove || break
         ;;
-    c)  checkForFindings
+    f)  checkForFindings
         ;;
     h|?)Help
         ;;
