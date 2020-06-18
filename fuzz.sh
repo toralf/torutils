@@ -165,8 +165,9 @@ function startIt()  {
   pid="$!"
   echo "$pid" >> $workdir/$odir/fuzz.pid
 
-  # put fuzzer under cgroup control
-  sudo $homedir/fuzz_helper.sh $odir $pid || exit $?
+  if [[ $cgroup = "yes" ]]; then
+    sudo $homedir/fuzz_helper.sh $odir $pid || return $?
+  fi
 
   echo
   echo " started $fuzzer pid=$pid odir=$workdir/$odir"
@@ -324,10 +325,13 @@ if [[ ! -d $workdir ]]; then
   mkdir -p $workdir || exit 1
 fi
 
-while getopts af:hlrs:u\? opt
+cgroup="no"
+while getopts acf:hlrs:u\? opt
 do
   case $opt in
     a)  archiveOrRemove || break
+        ;;
+    c)  cgroup="yes"
         ;;
     f)  checkForFindings
         ;;
