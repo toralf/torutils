@@ -17,8 +17,7 @@ fi
 
 pids=$(pgrep --parent 1 -f '/usr/bin/afl-fuzz -i') || true
 
-desired=$1
-let "diff = $desired - $(echo $pids | wc -w)"
+let "diff = $1 - $(echo $pids | wc -w)" || true
 
 if   [[ $diff -gt 0 ]]; then
   ./fuzz.sh -u -c -s $diff
