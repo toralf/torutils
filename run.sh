@@ -14,7 +14,7 @@ fi
 
 cd $(dirname $0)
 
-./fuzz.sh -l -f -a
+./fuzz.sh -f -a -g
 
 pids=$(pgrep --parent 1 -f '/usr/bin/afl-fuzz -i') || true
 let "diff = $1 - $(echo $pids | wc -w)" || true

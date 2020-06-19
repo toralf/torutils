@@ -44,10 +44,16 @@ function __listWorkDirs() {
   ls -1d $workdir/*_*_20??????-?????? 2>/dev/null
 }
 
+
+function __getPid() {
+  grep "fuzzer_pid" $1/fuzzer_stats 2>/dev/null | awk ' { print $3 } '
+}
+
+
 # 0 = it is runnning
 # 1 = it is stopped
 function __isRunning()  {
-  pid=$(cat $1/fuzz.pid 2>/dev/null)
+  pid=$(__getPid $1)
   if [[ -n "$pid" ]]; then
     kill -0 $pid 2>/dev/null
     return $?
@@ -118,6 +124,14 @@ function checkForFindings()  {
 }
 
 
+function gnuplot()  {
+  for d in $(__listWorkDirs)
+  do
+    (cd $d && afl-plot . .)
+  done
+}
+
+
 # check log files for anomalies
 #
 function LogCheck() {
@@ -162,8 +176,7 @@ function startIt()  {
   fi
 
   nohup nice -n 1 /usr/bin/afl-fuzz -i $idir -o $workdir/$odir -m 9000 $dict -- $exe &>>$workdir/$odir/fuzz.log &
-  pid="$!"
-  echo "$pid" >> $workdir/$odir/fuzz.pid
+  pid=$(__getPid $odir)
 
   if [[ $cgroup = "yes" ]]; then
     sudo $homedir/fuzz_helper.sh $odir $pid || return $?
@@ -311,7 +324,7 @@ export AFL_HARDEN=1
 export AFL_SHUFFLE_QUEUE=1
 export AFL_EXIT_WHEN_DONE=1
 
-export AFL_NO_FORKSRV=1
+# export AFL_NO_FORKSRV=1
 export AFL_SKIP_CPUFREQ=1
 
 # llvm_mode
@@ -326,7 +339,7 @@ fi
 
 cgroup="no"
 
-while getopts acfhlrs:u\? opt
+while getopts acfghlrs:u\? opt
 do
   case $opt in
     a)  archiveOrRemove || break
@@ -334,6 +347,8 @@ do
     c)  cgroup="yes"
         ;;
     f)  checkForFindings || break
+        ;;
+    g)  gnuplot
         ;;
     h|\?)Help
         ;;
