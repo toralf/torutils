@@ -20,7 +20,7 @@ pids=$(pgrep --parent 1 -f '/usr/bin/afl-fuzz -i') || true
 let "diff = $1 - $(echo $pids | wc -w)" || true
 
 if   [[ $diff -gt 0 ]]; then
-  ./fuzz.sh -u -c -s $diff
+  ./fuzz.sh -u -c -s $diff -g
 
 elif [[ $diff -lt 0 ]]; then
   victims=$(echo $pids | xargs -n 1 | shuf -n ${diff##*-})
