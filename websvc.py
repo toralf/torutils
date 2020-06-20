@@ -1,34 +1,30 @@
 #!/usr/bin/env python
 #
 
-import socket
 import argparse
-import re
-import sys
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 import logging
-
-if sys.version_info[0] == 3:
-  from http.server import HTTPServer, SimpleHTTPRequestHandler
-else:
-  from BaseHTTPServer   import HTTPServer
-  from SimpleHTTPServer import SimpleHTTPRequestHandler
+import re
+import socket
+import sys
 
 
 class HTTPServerV6(HTTPServer):
   address_family = socket.AF_INET6
+
 
 class MyHandler(SimpleHTTPRequestHandler):
   def do_GET(self):
     logging.debug(self.requestline)
     return SimpleHTTPRequestHandler.do_GET(self)
 
+
 def main():
   address = 'localhost'
   port = 1234
   ipv6 = "n"
 
-  # set this to logging.DEBUG to see each request
-  #
+  # logging.DEBUG to see each request
   logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s + %(message)s', level=logging.INFO)
 
   logging.debug('Parsing args...')
@@ -57,6 +53,7 @@ def main():
 
   logging.info('Starting ...')
   server.serve_forever()
+
 
 if __name__ == '__main__':
   main()
