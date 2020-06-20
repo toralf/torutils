@@ -63,9 +63,7 @@ function __isRunning()  {
 }
 
 
-# archive findings
-#
-function archiveOrRemove()  {
+function archiveFindings()  {
   for d in $(__listWorkDirs)
   do
     __isRunning $d && continue
@@ -75,16 +73,12 @@ function archiveOrRemove()  {
       if [[ ! -d ~/archive ]]; then
         mkdir ~/archive || return 1
       fi
-      mv $d $homedir/archive
+      cp -ar $d ~/archive
     else
       echo
       logfile=$d/fuzz.log
       grep -B 100 "We're done here. Have a nice day" $logfile
-      if [[ $? -eq 0 ]]; then
-        echo " $d has no findings, will remove it"
-        rm -rf $d
-      else
-        echo " $d abnormal breakage ?!"
+      if [[ $? -ne 0 ]]; then
         tail -v -n 20 $logfile
       fi
     fi
@@ -93,9 +87,7 @@ function archiveOrRemove()  {
 }
 
 
-# check for findings
-#
-function checkForFindings()  {
+function checkFindings()  {
   for d in $(__listWorkDirs)
   do
     for i in crashes hangs
@@ -127,12 +119,12 @@ function checkForFindings()  {
 function gnuplot()  {
   for d in $(__listWorkDirs)
   do
-    (cd $d && afl-plot . .)
+    (cd $d && afl-plot . . &>/dev/null)
   done
 }
 
 
-# check log files for anomalies
+# check for anomalies
 #
 function LogCheck() {
   for d in $(__listWorkDirs)
@@ -160,6 +152,12 @@ function startIt()  {
   idir=${2?:idir ?!}
   odir=${3?:odir ?!}
 
+  exe=$workdir/$odir/fuzz-$fuzzer
+  if [[ ! -x $exe ]]; then
+    echo "no exe found for $fuzzer"
+    return 1
+  fi
+
   # optional: dictionary for the fuzzer
   #
   dict="$TOR/src/test/fuzz/dict/$fuzzer"
@@ -169,26 +167,18 @@ function startIt()  {
     dict=""
   fi
 
-  exe=$workdir/$odir/fuzz-$fuzzer
-  if [[ ! -x $exe ]]; then
-    echo "no exe found for $fuzzer"
-    return 1
-  fi
-
   nohup nice -n 1 /usr/bin/afl-fuzz -i $idir -o $workdir/$odir -m 9000 $dict -- $exe &>>$workdir/$odir/fuzz.log &
-  pid=$(__getPid $odir)
+  pid=$!
 
   if [[ $cgroup = "yes" ]]; then
-    sudo $homedir/fuzz_helper.sh $odir $pid || return $?
+    sudo $installdir/fuzz_helper.sh $odir $pid || echo "something failed with CGroups"
   fi
 
   echo
-  echo " started $fuzzer pid=$pid odir=$workdir/$odir"
-  echo
+  echo " started $fuzzer pid=$pid in $workdir/$odir"
 }
 
 
-# resume fuzzer(s)
 function ResumeFuzzers()  {
   for d in $(ls -1d $workdir/*_*_20??????-?????? 2>/dev/null)
   do
@@ -228,7 +218,7 @@ function startFuzzer()  {
 }
 
 
-# update Tor fuzzer software stack
+# update software stack
 #
 function updateSources() {
   echo " update deps ..."
@@ -308,7 +298,7 @@ fi
 echo $$ > $lck
 
 cd $(dirname $0)
-homedir=$(pwd)
+installdir=$(pwd)
 
 # sources
 export RECIDIVM=~/recidivm
@@ -342,11 +332,11 @@ cgroup="no"
 while getopts acfghlrs:u\? opt
 do
   case $opt in
-    a)  archiveOrRemove || break
+    a)  archiveFindings || break
         ;;
     c)  cgroup="yes"
         ;;
-    f)  checkForFindings || break
+    f)  checkFindings || break
         ;;
     g)  gnuplot
         ;;
