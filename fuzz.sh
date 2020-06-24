@@ -63,26 +63,28 @@ function __isRunning()  {
 }
 
 
-function archiveFindings()  {
+function archiveOrDone()  {
   for d in $(__listWorkDirs)
   do
     __isRunning $d && continue
     echo
-    if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
-      echo " $d HAS findings, keep it in ~/archive/$d"
-      if [[ ! -d ~/archive ]]; then
-        mkdir ~/archive || return 1
-      fi
-      cp -ar $d ~/archive
-    else
-      echo
-      logfile=$d/fuzz.log
-      grep -B 100 "We're done here. Have a nice day" $logfile
-      if [[ $? -ne 0 ]]; then
-        tail -v -n 20 $logfile
-      fi
-    fi
+    echo "========     $d     ========"
     echo
+    if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
+      echo " $d HAS findings, keep it in $archdir"
+      mv $d $archdir
+    else
+      logfile=$d/fuzz.log
+      grep "^+++ Testing aborted programmatically +++" $logfile
+      if [[ $? -ne 0 ]]; then
+        grep -B 20 -A 10 "^+++ Testing aborted" $logfile
+        echo
+        echo " $d was NOT finished regularly"
+      fi
+      echo
+      echo " $d moved to $donedir"
+      mv $d $donedir
+    fi
   done
 }
 
@@ -129,18 +131,7 @@ function gnuplot()  {
 function LogCheck() {
   for d in $(__listWorkDirs)
   do
-    log=$d/fuzz.log
-    diff=$(( $(date +%s) - $(stat -c%Y $log) ))
-
-    grep -h -B 20 -A 10 'PROGRAM ABORT :' $log
-    rc=$?
-
-    if [[ $diff -gt 3600 || $rc -eq 0 ]]; then
-      echo
-      echo " last logfile access $diff sec ago:"
-      echo
-      stat $log
-    fi
+    grep -B 20 'PROGRAM ABORT :' $d/fuzz.log
   done
 }
 
@@ -183,9 +174,9 @@ function ResumeFuzzers()  {
   for d in $(ls -1d $workdir/*_*_20??????-?????? 2>/dev/null)
   do
     __isRunning $d && continue
-    fuzzer=$(basename $d | cut -f1 -d'_')
+    odir=$(basename $d)
+    fuzzer=$(echo $odir | cut -f1 -d'_')
     idir="-"
-    odir=$d
     startIt $fuzzer $idir $odir || break
   done
 }
@@ -321,18 +312,23 @@ export AFL_SKIP_CPUFREQ=1
 export CC="/usr/bin/afl-clang-fast"
 export AFL_LLVM_INSTRUMENT=CFG
 
-# /tmp is a tmpfs, this avoids any I/O at disc
-workdir=/tmp/AFLplusplus/
-if [[ ! -d $workdir ]]; then
-  mkdir -p $workdir || exit 1
-fi
+# /tmp is a tmpfs, it avoids any I/O at disc
+archdir=~/archive
+donedir=/tmp/AFLplusplus/done
+workdir=/tmp/AFLplusplus/work
+
+for d in $archdir $donedir $workdir
+do
+  if [[ ! -d $d ]]; then
+    mkdir -p $d || exit 1
+  fi
+done
 
 cgroup="no"
-
 while getopts acfghlrs:u\? opt
 do
   case $opt in
-    a)  archiveFindings || break
+    a)  archiveOrDone || break
         ;;
     c)  cgroup="yes"
         ;;
@@ -353,7 +349,9 @@ do
           all=""
           for fuzzer in $(ls $TOR_FUZZ_CORPORA 2>/dev/null)
           do
-            [[ -x $TOR/src/test/fuzz/fuzz-$fuzzer ]] && all="$all $fuzzer"
+            if [[ -x $TOR/src/test/fuzz/fuzz-$fuzzer && -z "$(ls $workdir/${fuzzer}_* 2>/dev/null)" ]]; then
+              all="$all $fuzzer"
+            fi
           done
           fuzzers=$(echo $all | xargs -n 1 | shuf -n $OPTARG)
         else
