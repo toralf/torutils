@@ -85,6 +85,7 @@ function archiveOrDone()  {
       echo " $d moved to $donedir"
       mv $d $donedir
     fi
+    echo
   done
 }
 
