@@ -163,9 +163,7 @@ function startIt()  {
   nohup nice -n 1 /usr/bin/afl-fuzz -i $idir -o $workdir/$odir -m 9000 $dict -- $exe &>>$workdir/$odir/fuzz.log &
   pid=$!
 
-  if [[ $cgroup = "yes" ]]; then
-    sudo $installdir/fuzz_helper.sh $odir $pid || echo "something failed with CGroups"
-  fi
+  sudo $installdir/fuzz_helper.sh $odir $pid || echo "something failed with CGroups"
 
   echo
   echo " started $fuzzer pid=$pid in $workdir/$odir"
@@ -327,12 +325,10 @@ do
 done
 
 cgroup="no"
-while getopts acfghlrs:u\? opt
+while getopts afghlrs:u\? opt
 do
   case $opt in
     a)  archiveOrDone || break
-        ;;
-    c)  cgroup="yes"
         ;;
     f)  checkFindings || break
         ;;
