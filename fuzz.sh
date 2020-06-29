@@ -91,7 +91,7 @@ function archiveOrDone()  {
 }
 
 
-function checkFindings()  {
+function lookForFindings()  {
   for d in $(__listWorkDirs)
   do
     for i in crashes hangs
@@ -330,7 +330,7 @@ do
   case $opt in
     a)  archiveOrDone || break
         ;;
-    f)  checkFindings || break
+    f)  lookForFindings || break
         ;;
     g)  gnuplot
         ;;
