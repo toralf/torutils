@@ -6,30 +6,36 @@
 # put a fuzzer under CGroup control
 
 
-function Cgroup() {
-  dir=${1##*/}
+function CgroupCreate() {
+  name=${1##*/}
   pid=$2
 
-  if [[ -z "$dir" || -n "${pid//[0-9]}" ]]; then
+  if [[ -z "$name" || -n "${pid//[0-9]}" ]]; then
     exit 1
   fi
 
-  cgdir="/sys/fs/cgroup/memory/local/fuzzer_$dir"
-  if [[ ! -d "$cgdir" ]]; then
-    mkdir "$cgdir"
-  fi
-  echo "1"    > "$cgdir/memory.use_hierarchy"
-  echo "30G"  > "$cgdir/memory.limit_in_bytes"
-  echo "40G"  > "$cgdir/memory.memsw.limit_in_bytes"
-  echo "$pid" > "$cgdir/tasks"
+  cgname="/sys/fs/cgroup/memory/local/fuzzer_${name}"
+  cgcreate -g memory:/local/fuzzer_${name}
 
-  cgdir="/sys/fs/cgroup/cpu/local/fuzzer_$dir"
-  if [[ ! -d "$cgdir" ]]; then
-    mkdir "$cgdir"
-  fi
-  echo "150000" > "$cgdir/cpu.cfs_quota_us"
-  echo "100000" > "$cgdir/cpu.cfs_period_us"
-  echo "$pid"   > "$cgdir/tasks"
+  echo "1"    > "$cgname/memory.use_hierarchy"
+  echo "30G"  > "$cgname/memory.limit_in_bytes"
+  echo "40G"  > "$cgname/memory.memsw.limit_in_bytes"
+  echo "$pid" > "$cgname/tasks"
+
+  cgname="/sys/fs/cgroup/cpu/local/fuzzer_${name}"
+  cgcreate -g cpu:/local/fuzzer_${name}
+
+  echo "150000" > "$cgname/cpu.cfs_quota_us"
+  echo "100000" > "$cgname/cpu.cfs_period_us"
+  echo "$pid"   > "$cgname/tasks"
+}
+
+
+function CgroupDelete()  {
+  name=${1##*/}
+
+  cgdelete -g cpu:/local/fuzzer_${name}
+  cgdelete -g memory:/local/fuzzer_${name}
 }
 
 
@@ -44,4 +50,8 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-Cgroup $1 $2
+if [[ $# -eq 2 ]]; then
+  CgroupCreate $1 $2
+else
+  CgroupDelete $1
+fi

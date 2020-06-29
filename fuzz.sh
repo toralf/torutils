@@ -79,12 +79,13 @@ function archiveOrDone()  {
       if [[ $? -ne 0 ]]; then
         grep -B 20 -A 10 "^+++ Testing aborted" $logfile
         echo
-        echo " $d was NOT finished regularly"
+        echo " $d was NOT finished programmatically"
       fi
       echo
       echo " $d moved to $donedir"
       mv $d $donedir
     fi
+    sudo $installdir/fuzz_helper.sh $d
     echo
   done
 }
