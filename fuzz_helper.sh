@@ -14,20 +14,11 @@ function CgroupCreate() {
     exit 1
   fi
 
-  cgname="/sys/fs/cgroup/memory/local/fuzzer_${name}"
   cgcreate -g memory:/local/fuzzer_${name}
+  cgset -r memory.use_hierarchy=1 -r memory.limit_in_bytes=30G -r memory.memsw.limit_in_bytes=40G -r memory.tasks=$$ fuzzer_${name}
 
-  echo "1"    > "$cgname/memory.use_hierarchy"
-  echo "30G"  > "$cgname/memory.limit_in_bytes"
-  echo "40G"  > "$cgname/memory.memsw.limit_in_bytes"
-  echo "$pid" > "$cgname/tasks"
-
-  cgname="/sys/fs/cgroup/cpu/local/fuzzer_${name}"
   cgcreate -g cpu:/local/fuzzer_${name}
-
-  echo "150000" > "$cgname/cpu.cfs_quota_us"
-  echo "100000" > "$cgname/cpu.cfs_period_us"
-  echo "$pid"   > "$cgname/tasks"
+  cgset -r cpu.cfs_quota_us=150000 -r cpu.cfs_period_us=100000 -r cpu.tasks=$$ fuzzer_${name}
 }
 
 
