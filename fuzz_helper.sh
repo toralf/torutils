@@ -10,22 +10,20 @@ function CgroupCreate() {
   local name=/local/fuzzer_${1##*/}
   local pid=$2
 
-  cgcreate -g memory:$name -g cpu:$name
-  cgset -r memory.use_hierarchy=1           $name
-  cgset -r memory.limit_in_bytes=30G        $name
-  cgset -r memory.memsw.limit_in_bytes=40G  $name
-  echo "$pid" > /sys/fs/cgroup/memory/$name/tasks
+  cgcreate -g cpu,memory:$name
 
   cgset -r cpu.cfs_quota_us=150000  $name
   cgset -r cpu.cfs_period_us=100000 $name
+
+  cgset -r memory.use_hierarchy=1           $name
+  cgset -r memory.limit_in_bytes=30G        $name
+  cgset -r memory.memsw.limit_in_bytes=40G  $name
+
+  echo 1 > /sys/fs/cgroup/cpu/$name/notify_on_release
+  echo 1 > /sys/fs/cgroup/memory/$name/notify_on_release
+
   echo "$pid" > /sys/fs/cgroup/cpu/$name/tasks
-}
-
-
-function CgroupDelete()  {
-  local name=/local/fuzzer_${1##*/}
-
-  cgdelete -g memory:$name -g cpu:$name
+  echo "$pid" > /sys/fs/cgroup/memory/$name/tasks
 }
 
 
@@ -44,11 +42,14 @@ if [[ -z "$1" ]]; then
   exit 1
 fi
 
-if [[ $# -eq 2 ]]; then
-  if [[ "${2//[0-9]}" ]]; then
-    exit 1
-  fi
-  CgroupCreate $1 $2
-else
-  CgroupDelete $1
+if [[ $# -ne 2 ]]; then
+  echo "wrong # of args"
+  exit 1
 fi
+
+if [[ "${2//[0-9]}" ]]; then
+  echo "arg 2 not an integer"
+  exit 1
+fi
+
+CgroupCreate $1 $2

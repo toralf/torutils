@@ -85,7 +85,6 @@ function archiveOrDone()  {
       echo " $d moved to $donedir"
       mv $d $donedir
     fi
-    sudo $installdir/fuzz_helper.sh $d
     echo
   done
 }
