@@ -305,12 +305,10 @@ export AFL_HARDEN=1
 export AFL_SHUFFLE_QUEUE=1
 export AFL_EXIT_WHEN_DONE=1
 
-# export AFL_NO_FORKSRV=1
 export AFL_SKIP_CPUFREQ=1
 
 # llvm_mode
 export CC="/usr/bin/afl-clang-fast"
-export AFL_LLVM_INSTRUMENT=CFG
 
 # /tmp is a tmpfs, it avoids any I/O at disc
 archdir=~/archive
