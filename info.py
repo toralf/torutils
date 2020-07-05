@@ -138,7 +138,6 @@ def main():
     print(DIV)
     print(COLUMN % ('Total', total_ipv4, total_ipv6))
     print(DIV)
-    print('')
 
 
 if __name__ == '__main__':
