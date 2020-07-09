@@ -26,6 +26,8 @@ chown -R tor:tor  $dir
 cat << EOF > $dir/torrc
 User tor
 
+SandBox 1
+
 RunAsDaemon 1
 
 DataDirectory $dir/data
@@ -34,6 +36,7 @@ PIDFile       $dir/tor.pid
 SocksPort 0
 
 Log notice file $dir/notice.log
+AvoidDiskWrites 1
 
 BandwidthRate   512 KBytes
 BandwidthBurst 1024 KBytes
