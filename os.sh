@@ -39,10 +39,18 @@ BandwidthRate   512 KBytes
 BandwidthBurst 1024 KBytes
 
 HiddenServiceDir $dir/data/osdir
-HiddenServiceVersion 3
 HiddenServicePort 80 ${2:-127.0.0.1}:${1:-1234}
 
 EOF
+
+if [[ "$3" = "non" ]]; then
+  cat << EOF >> $dir/torrc
+
+HiddenServiceNonAnonymousMode 1
+HiddenServiceSingleHopMode 1
+
+EOF
+fi
 
 chmod 600     $dir/torrc
 chown tor:tor $dir/torrc
@@ -51,7 +59,7 @@ chown tor:tor $dir/torrc
 rc=$?
 
 echo
-echo "onion address:  $(cat $dir/data/osdir/hostname)"
+echo "onion address:  $(tail -v $dir/data/osdir/hostname)"
 echo
 
 exit $rc
