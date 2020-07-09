@@ -122,7 +122,12 @@ function lookForFindings()  {
 function gnuplot()  {
   for d in $(__listWorkDirs)
   do
-    (cd $d && afl-plot . . &>/dev/null)
+    local b=$(basename $d)
+    local destdir=$plotdir/$b
+    if [[ ! -d $destdir ]]; then
+      mkdir $destdir
+    fi
+    afl-plot $d $destdir &>/dev/null
   done
 }
 
@@ -309,12 +314,14 @@ export AFL_SKIP_CPUFREQ=1
 # llvm_mode
 export CC="/usr/bin/afl-clang-fast"
 
-# /tmp is a tmpfs, it avoids any I/O at disc
-archdir=~/archive
-donedir=/tmp/AFLplusplus/done
-workdir=/tmp/AFLplusplus/work
+results=~/results/          # persistant due to reboots
+plotdir=/tmp/AFLplusplus/   # for the plots only
 
-for d in $archdir $donedir $workdir
+archdir=$results/archive
+donedir=$results/done
+workdir=$results/work
+
+for d in $archdir $donedir $workdir $plotdir
 do
   if [[ ! -d $d ]]; then
     mkdir -p $d || exit 1
