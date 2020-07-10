@@ -67,23 +67,25 @@ function archiveOrDone()  {
   for d in $(__listWorkDirs)
   do
     __isRunning $d && continue
+
     echo
     echo "========     $d     ========"
     echo
-    if [[ -n "$(ls $d/*.tbz2 2>/dev/null)" ]]; then
+
+    logfile=$d/fuzz.log
+    grep -B 1 -A 1 "^+++ Testing aborted programmatically +++" $logfile
+    rc=$?
+    echo
+    if [[ $rc -eq 0 ]]; then
+      echo " $d moved to $donedir"
+      mv $d $donedir
+    elif [[ -n "$(ls $d/{crashes,hangs}/* 2>/dev/null)" ]]; then
       echo " $d HAS findings, keep it in $archdir"
       mv $d $archdir
     else
-      logfile=$d/fuzz.log
-      grep "^+++ Testing aborted programmatically +++" $logfile
-      if [[ $? -ne 0 ]]; then
-        grep -B 20 -A 10 "^+++ Testing aborted" $logfile
-        echo
-        echo " $d was NOT finished programmatically"
-      fi
+      grep -B 1 -A 1 "^+++ Testing aborted" $logfile
       echo
-      echo " $d moved to $donedir"
-      mv $d $donedir
+      echo " $d kept in $workdir"
     fi
     echo
   done
