@@ -86,11 +86,11 @@ function archiveOrDone()  {
       echo " done: $d"
       mv $d $donedir
     elif [[ -n "$(ls $d/{crashes,hangs}/* 2>/dev/null)" ]]; then
-      echo " HAS findings, keep it: $d"
+      echo " archived: $d"
       mv $d $archdir
     else
       tac $logfile | grep -m 1 -B 1 -A 1 "^+++ Testing aborted" $logfile
-      echo " kept: $d"
+      echo " stopped: $d"
     fi
     echo
   done
