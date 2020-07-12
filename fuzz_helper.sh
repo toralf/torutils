@@ -7,20 +7,19 @@
 
 
 function CgroupCreate() {
-  local name=/local/fuzzer_${1##*/}
+  local name=$1
   local pid=$2
 
   cgcreate -g cpu,memory:$name
 
   cgset -r cpu.cfs_quota_us=150000  $name
   cgset -r cpu.cfs_period_us=100000 $name
+  cgset -r cpu.notify_on_release=1  $name
 
   cgset -r memory.use_hierarchy=1           $name
   cgset -r memory.limit_in_bytes=30G        $name
   cgset -r memory.memsw.limit_in_bytes=40G  $name
-
-  echo 1 > /sys/fs/cgroup/cpu/$name/notify_on_release
-  echo 1 > /sys/fs/cgroup/memory/$name/notify_on_release
+  cgset -r memory.notify_on_release=1       $name
 
   echo "$pid" > /sys/fs/cgroup/cpu/$name/tasks
   echo "$pid" > /sys/fs/cgroup/memory/$name/tasks
@@ -52,4 +51,4 @@ if [[ "${2//[0-9]}" ]]; then
   exit 1
 fi
 
-CgroupCreate $1 $2
+CgroupCreate local/fuzzer_${1##*/} $2
