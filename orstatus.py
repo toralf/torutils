@@ -4,11 +4,11 @@
 # collect data wrt to https://trac.torproject.org/projects/tor/ticket/13603
 #
 
-import time
-import functools
 import argparse
+import functools
+import time
 
-from stem import ORStatus, ORClosureReason
+from stem import ORStatus
 from stem.control import EventType, Controller
 from stem.util.connection import is_valid_ipv4_address
 
