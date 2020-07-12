@@ -1,9 +1,11 @@
 #!/bin/sh
-#
 # set -x
 
 # setup an onion service
-# $1: <port number>, $2: <ip address>
+
+# $1: <ip address>, $2: <port number>,  $3: [unset or "non"]
+
+set -ef
 
 if [[ "$(whoami)" != "root" ]]; then
   echo "you must be root "
@@ -11,15 +13,6 @@ if [[ "$(whoami)" != "root" ]]; then
 fi
 
 dir=/tmp/onionsvc.d
-
-if [[ -e $dir ]]; then
-  echo
-  echo " $dir does already exist"
-  echo " exiting ..."
-  echo
-  exit 1
-fi
-
 mkdir -m 0700     $dir
 chown -R tor:tor  $dir
 
@@ -36,7 +29,10 @@ PIDFile       $dir/tor.pid
 SocksPort 0
 
 ControlPort 9099      # https://github.com/mikeperry-tor/vanguards
+CookieAuthentication 1
 
+Log debug file $dir/debug.log
+Log info file $dir/info.log
 Log notice file $dir/notice.log
 AvoidDiskWrites 1
 
@@ -44,7 +40,7 @@ BandwidthRate   512 KBytes
 BandwidthBurst 1024 KBytes
 
 HiddenServiceDir $dir/data/osdir
-HiddenServicePort 80 ${2:-127.0.0.1}:${1:-1234}
+HiddenServicePort 80 ${1:-127.0.0.1}:${2:-1234}
 
 EOF
 
@@ -61,10 +57,7 @@ chmod 600     $dir/torrc
 chown tor:tor $dir/torrc
 
 /usr/bin/tor -f $dir/torrc
-rc=$?
 
 echo
 echo "onion address:  $(tail -v $dir/data/osdir/hostname)"
 echo
-
-exit $rc
