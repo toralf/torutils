@@ -35,6 +35,8 @@ PIDFile       $dir/tor.pid
 
 SocksPort 0
 
+ControlPort 9099      # https://github.com/mikeperry-tor/vanguards
+
 Log notice file $dir/notice.log
 AvoidDiskWrites 1
 
