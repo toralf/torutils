@@ -12,6 +12,7 @@ function CgroupCreate() {
 
   cgcreate -g cpu,memory:$name
 
+  cgset -r cpu.use_hierarchy=1      $name
   cgset -r cpu.cfs_quota_us=150000  $name
   cgset -r cpu.cfs_period_us=100000 $name
   cgset -r cpu.notify_on_release=1  $name
