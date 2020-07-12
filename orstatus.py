@@ -12,6 +12,7 @@ from stem import ORStatus, ORClosureReason
 from stem.control import EventType, Controller
 from stem.util.connection import is_valid_ipv4_address
 
+
 def main():
   ctrlport = 9051
 
@@ -23,12 +24,9 @@ def main():
   if args.ctrlport:
     ctrlport = int(args.ctrlport)
 
-  relays = {}
-
   with Controller.from_port(port=ctrlport) as controller:
     controller.authenticate()
-
-    orconn_listener = functools.partial(orconn_event, controller, relays)
+    orconn_listener = functools.partial(orconn_event, controller)
     controller.add_event_listener(orconn_listener, EventType.ORCONN)
 
     while True:
@@ -37,7 +35,8 @@ def main():
       except KeyboardInterrupt:
         break
 
-def orconn_event(controller, relays, event):
+
+def orconn_event(controller, event):
   if event.status == ORStatus.CLOSED:
 
     fingerprint = event.endpoint_fingerprint
@@ -62,6 +61,7 @@ def orconn_event(controller, relays, event):
       print (" %15s %5i %s %s" % (relay.address, relay.or_port, ip, version))
     else:
       print ('', flush=True)
+
 
 if __name__ == '__main__':
   main()
