@@ -34,7 +34,7 @@
 
 function Help() {
   echo
-  echo "  call: $(basename $0) [-h|-?] [-acflru] [-s '<fuzzer name(s)>'|<fuzzer amount>]"
+  echo "  call: $(basename $0) [-h|-?] [-afglr] [-s '<fuzzer name(s)>'|<fuzzer amount>]"
   echo
 }
 
@@ -73,19 +73,24 @@ function archiveOrDone()  {
     echo
 
     logfile=$d/fuzz.log
-    grep -B 1 -A 1 "^+++ Testing aborted programmatically +++" $logfile
+    if [[ ! -f $logfile ]]; then
+      echo " skipped due to missing logfile: $d"
+      continue
+    fi
+
+    # get the last
+    tac $logfile | grep -m 1 -B 1 -A 1 "^+++ Testing aborted .* +++" | grep -B 1 -A 1 "^+++ Testing aborted programmatically +++"
     rc=$?
     echo
     if [[ $rc -eq 0 ]]; then
-      echo " $d moved to $donedir"
+      echo " done: $d"
       mv $d $donedir
     elif [[ -n "$(ls $d/{crashes,hangs}/* 2>/dev/null)" ]]; then
-      echo " $d HAS findings, keep it in $archdir"
+      echo " HAS findings, keep it: $d"
       mv $d $archdir
     else
-      grep -B 1 -A 1 "^+++ Testing aborted" $logfile
-      echo
-      echo " $d kept in $workdir"
+      tac $logfile | grep -m 1 -B 1 -A 1 "^+++ Testing aborted" $logfile
+      echo " kept: $d"
     fi
     echo
   done
@@ -316,8 +321,8 @@ export AFL_SKIP_CPUFREQ=1
 # llvm_mode
 export CC="/usr/bin/afl-clang-fast"
 
-results=~/results/          # persistant due to reboots
-plotdir=/tmp/AFLplusplus/   # for the plots only
+results=~/results          # persistant due to reboots
+plotdir=/tmp/AFLplusplus   # for the plots only
 
 archdir=$results/archive
 donedir=$results/done
