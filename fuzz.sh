@@ -320,22 +320,22 @@ export AFL_SKIP_CPUFREQ=1
 
 # llvm_mode
 export CC="/usr/bin/afl-clang-fast"
+export CXX="${CC}++"
 
-results=~/results          # persistant due to reboots
-plotdir=/tmp/AFLplusplus   # for the plots only
+results=~/results          # persistent
+plotdir=/tmp/AFLplusplus   # plots only
 
 archdir=$results/archive
 donedir=$results/done
 workdir=$results/work
 
-for d in $archdir $donedir $workdir $plotdir
+for d in $plotdir $archdir $donedir $workdir
 do
   if [[ ! -d $d ]]; then
     mkdir -p $d || exit 1
   fi
 done
 
-cgroup="no"
 while getopts afghlrs:u\? opt
 do
   case $opt in
@@ -343,7 +343,7 @@ do
         ;;
     f)  lookForFindings || break
         ;;
-    g)  gnuplot
+    g)  gnuplot || break
         ;;
     h|\?)Help
         ;;
@@ -364,7 +364,7 @@ do
           done
           fuzzers=$(echo $all | xargs -n 1 | shuf -n $OPTARG)
         else
-          # fuzzer name(s) given
+          # fuzzer name(s) directly given
           fuzzers="$OPTARG"
         fi
 
