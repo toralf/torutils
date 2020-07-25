@@ -79,6 +79,9 @@ function archiveOrDone()  {
       continue
     fi
 
+    # keep the graphs but indicate that the fuzzer isn't running
+    rm $plotdir/${d##/*}/index.html
+
     tail -n 10 $logfile | grep -m 1 -B 1 -A 1 "^\[-\] PROGRAM ABORT :"
     if [[ $? -eq 0 ]]; then
       echo " aborted: $d"
@@ -87,7 +90,7 @@ function archiveOrDone()  {
       continue
     fi
 
-    # get the last
+    # check the last abort message
     tac $logfile | grep -m 1 -B 1 -A 1 "^+++ Testing aborted .* +++" | grep -B 1 -A 1 "^+++ Testing aborted programmatically +++"
     rc=$?
     echo
