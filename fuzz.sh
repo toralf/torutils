@@ -245,15 +245,9 @@ function updateSources() {
   git pull
 
   cd $TOR
-  git pull
-
-  echo " run recidivm to check anything much bigger than 50 which indicates a broken (linker) state"
-  m=$(for i in $(ls ./src/test/fuzz/fuzz-* 2>/dev/null); do echo $(../recidivm/recidivm -v -u M $i 2>/dev/null | tail -n 1); done | sort -n | tail -n 1)
-  if [[ -n "$m" ]]; then
-    if [[ $m -gt 200 ]]; then
-      echo " force distclean (recidivm gave M=$m) ..."
-      make distclean 2>&1
-    fi
+  git pull | grep -q "Already up to date."
+  if [[ $? -ne 0 ]]; then
+    make distclean
   fi
 
   if [[ ! -x ./configure ]]; then
