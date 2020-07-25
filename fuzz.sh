@@ -75,6 +75,15 @@ function archiveOrDone()  {
     logfile=$d/fuzz.log
     if [[ ! -f $logfile ]]; then
       echo " skipped due to missing logfile: $d"
+      echo
+      continue
+    fi
+
+    tail -n 10 $logfile | grep -m 1 -B 1 -A 1 "^\[-\] PROGRAM ABORT :"
+    if [[ $? -eq 0 ]]; then
+      echo " aborted: $d"
+      echo
+      mv $d $abortdir
       continue
     fi
 
@@ -188,7 +197,7 @@ function ResumeFuzzers()  {
     odir=$(basename $d)
     fuzzer=$(echo $odir | cut -f1 -d'_')
     idir="-"
-    startIt $fuzzer $idir $odir || break
+    startIt $fuzzer $idir $odir
   done
 }
 
@@ -325,11 +334,12 @@ export CXX="${CC}++"
 results=~/results          # persistent
 plotdir=/tmp/AFLplusplus   # plots only
 
+abortdir=$results/abort
 archdir=$results/archive
 donedir=$results/done
 workdir=$results/work
 
-for d in $plotdir $archdir $donedir $workdir
+for d in $plotdir $abortdir $archdir $donedir $workdir
 do
   if [[ ! -d $d ]]; then
     mkdir -p $d || exit 1
