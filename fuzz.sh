@@ -34,7 +34,7 @@
 
 function Help() {
   echo
-  echo "  call: $(basename $0) [-h|-?] [-afglr] [-s '<fuzzer name(s)>'|<fuzzer amount>]"
+  echo "  call: $(basename $0) [-h|-?] [-afglu] [-r <amount of fuzzers to be resumed> ] [-s '<fuzzer name(s)>'|<fuzzer amount>]"
   echo
 }
 
@@ -68,43 +68,37 @@ function archiveOrDone()  {
   do
     __isRunning $d && continue
 
-    echo
-    echo "========     $d     ========"
-    echo
-
     logfile=$d/fuzz.log
     if [[ ! -f $logfile ]]; then
-      echo " skipped due to missing logfile: $d"
-      echo
       continue
     fi
 
-    # keep the graphs but indicate that the fuzzer isn't running
-    rm $plotdir/${d##*/}/index.html
+    # indicate that the fuzzer isn't running but keep the graphs
+    rm -f $plotdir/${d##*/}/index.html
 
-    tail -n 10 $logfile | grep -m 1 -B 1 -A 1 "^\[-\] PROGRAM ABORT :"
+    tail -n 10 $logfile | grep -m 1 "^\[-\] PROGRAM ABORT :"
     if [[ $? -eq 0 ]]; then
-      echo " aborted: $d"
       echo
+      echo " aborted: $d"
       mv $d $abortdir
+      echo
       continue
     fi
 
-    # check the last abort message
-    tac $logfile | grep -m 1 -B 1 -A 1 "^+++ Testing aborted .* +++" | grep -B 1 -A 1 "^+++ Testing aborted programmatically +++"
+    # act only at the last abort reason
+    tac $logfile | grep -m 1 "^+++ Testing aborted .* +++" | grep "^+++ Testing aborted programmatically +++"
     rc=$?
-    echo
     if [[ $rc -eq 0 ]]; then
+      echo
       echo " done: $d"
       mv $d $donedir
+      echo
     elif [[ -n "$(ls $d/{crashes,hangs}/* 2>/dev/null)" ]]; then
-      echo " archived: $d"
+      echo
+      echo " archive: $d"
       mv $d $archdir
-    else
-      tac $logfile | grep -m 1 -B 1 -A 1 "^+++ Testing aborted" $logfile
-      echo " stopped: $d"
+      echo
     fi
-    echo
   done
 }
 
@@ -141,6 +135,7 @@ function lookForFindings()  {
 function gnuplot()  {
   for d in $(__listWorkDirs)
   do
+    __isRunning $d || continue
     local b=$(basename $d)
     local destdir=$plotdir/$b
     if [[ ! -d $destdir ]]; then
@@ -156,6 +151,7 @@ function gnuplot()  {
 function LogCheck() {
   for d in $(__listWorkDirs)
   do
+    __isRunning $d && continue
     grep -B 20 'PROGRAM ABORT :' $d/fuzz.log
   done
 }
@@ -194,6 +190,11 @@ function startIt()  {
 
 
 function ResumeFuzzers()  {
+  local count=${1:-0}
+
+  test -z "${count//[0-9]}" || return 1
+
+  local i=0
   for d in $(ls -1d $workdir/*_*_20??????-?????? 2>/dev/null)
   do
     __isRunning $d && continue
@@ -201,6 +202,9 @@ function ResumeFuzzers()  {
     fuzzer=$(echo $odir | cut -f1 -d'_')
     idir="-"
     startIt $fuzzer $idir $odir
+
+    ((i=i+1))
+    [[ $count -gt 0 && $i -ge $count ]] && break
   done
 }
 
@@ -208,27 +212,46 @@ function ResumeFuzzers()  {
 # spin up new fuzzer(s)
 #
 function startFuzzer()  {
-  fuzzer=$1
 
-  # input data file for the fuzzer
-  #
-  idir=$TOR_FUZZ_CORPORA/$fuzzer
-  if [[ ! -d $idir ]]; then
-    echo " idir not found: $idir"
-    return 1
+  test -z "${1//[0-9]}"
+  if [[ $? -eq 0 ]]; then
+    # integer given
+    local count="$1"
+    all=""
+    for fuzzer in $(ls $TOR_FUZZ_CORPORA 2>/dev/null)
+    do
+      if [[ -x $TOR/src/test/fuzz/fuzz-$fuzzer && -z "$(ls $workdir/${fuzzer}_* 2>/dev/null)" ]]; then
+        all="$all $fuzzer"
+      fi
+    done
+    fuzzers=$(echo $all | xargs -n 1 | shuf -n $count)
+  else
+    # fuzzer name(s) given
+    fuzzers="$1"
   fi
 
-  # output directory: timestamp + git commit id + fuzzer name
-  #
-  cid=$(cd $TOR; git describe 2>/dev/null | sed 's/.*\-g//g')
-  odir=${fuzzer}_${cid}_$(date +%Y%m%d-%H%M%S)
-  mkdir -p $workdir/$odir || return 2
+  for fuzzer in $fuzzers
+  do
+    # input data file for the fuzzer
+    #
+    idir=$TOR_FUZZ_CORPORA/$fuzzer
+    if [[ ! -d $idir ]]; then
+      echo " idir not found: $idir"
+      return 1
+    fi
 
-  # run a copy of the fuzzer b/c git repo is subject of change
-  #
-  cp $TOR/src/test/fuzz/fuzz-$fuzzer $workdir/$odir
+    # output directory: timestamp + git commit id + fuzzer name
+    #
+    cid=$(cd $TOR; git describe 2>/dev/null | sed 's/.*\-g//g')
+    odir=${fuzzer}_${cid}_$(date +%Y%m%d-%H%M%S)
+    mkdir -p $workdir/$odir || return 2
 
-  startIt $fuzzer $idir $odir
+    # run a copy of the fuzzer b/c git repo is subject of change
+    #
+    cp $TOR/src/test/fuzz/fuzz-$fuzzer $workdir/$odir
+
+    startIt $fuzzer $idir $odir
+  done
 }
 
 
@@ -343,7 +366,7 @@ do
   fi
 done
 
-while getopts afghlrs:u\? opt
+while getopts afghlr:s:u\? opt
 do
   case $opt in
     a)  archiveOrDone || break
@@ -356,29 +379,9 @@ do
         ;;
     l)  LogCheck || break
         ;;
-    r)  ResumeFuzzers || break
+    r)  ResumeFuzzers "$OPTARG" || break
         ;;
-    s)
-        test -z "${OPTARG//[0-9]}"
-        if [[ $? -eq 0 ]]; then
-          # integer given
-          all=""
-          for fuzzer in $(ls $TOR_FUZZ_CORPORA 2>/dev/null)
-          do
-            if [[ -x $TOR/src/test/fuzz/fuzz-$fuzzer && -z "$(ls $workdir/${fuzzer}_* 2>/dev/null)" ]]; then
-              all="$all $fuzzer"
-            fi
-          done
-          fuzzers=$(echo $all | xargs -n 1 | shuf -n $OPTARG)
-        else
-          # fuzzer name(s) directly given
-          fuzzers="$OPTARG"
-        fi
-
-        for fuzzer in $fuzzers
-        do
-          startFuzzer $fuzzer || break 2
-        done
+    s)  startFuzzer "$OPTARG" || break
         ;;
     u)  updateSources || break
         ;;
