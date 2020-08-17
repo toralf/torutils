@@ -73,12 +73,19 @@ def main():
   ))
 
   exit_connections = {}  # port => [connections]
+  or_ports = controller.get_ports(Listener.OR, [])
+  if not or_ports:
+    print("have to guess OR port")
+    if control_port == 9051:
+      or_ports = [ 443 ]
+    else:
+      or_port = [ 9001 ]
 
   for conn in get_connections(resolver = args.resolver, process_pid = pid):
     if conn.protocol == 'udp':
         continue
 
-    if conn.local_port in controller.get_ports(Listener.OR, []):
+    if conn.local_port in or_ports:
       if conn.remote_address in relays:
         categories[INBOUND_ORPORT].append(conn)
       else:
