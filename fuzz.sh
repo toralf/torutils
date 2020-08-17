@@ -201,6 +201,7 @@ function ResumeFuzzers()  {
     odir=$(basename $d)
     fuzzer=$(echo $odir | cut -f1 -d'_')
     idir="-"
+    echo " resuming $odir ..."
     startIt $fuzzer $idir $odir
 
     ((i=i+1))
