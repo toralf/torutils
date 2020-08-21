@@ -1,5 +1,4 @@
 #!/bin/bash
-#
 # set -x
 
 # fuzz testing of Tor software as mentioned in
@@ -34,19 +33,19 @@
 
 function Help() {
   echo
-  echo "  call: $(basename $0) [-h|-?] [-afglu] [-r <amount of fuzzers to be resumed> ] [-s '<fuzzer name(s)>'|<fuzzer amount>]"
+  echo "  call: $(basename $0) [-h|-?] [-afgu] [-r <# of fuzzers to be resumed> ] [-s '<fuzzer name(s)>'|<# of new fuzzers>]"
   echo
 }
 
 
 
 function __listWorkDirs() {
-  ls -1d $workdir/*_*_20??????-?????? 2>/dev/null
+  ls -1d $workdir/*_20??????-??????_* 2>/dev/null
 }
 
 
 function __getPid() {
-  grep "fuzzer_pid" $1/fuzzer_stats 2>/dev/null | awk ' { print $3 } '
+  awk '/fuzzer_pid/ { print $3 }' $1/fuzzer_stats 2>/dev/null
 }
 
 
@@ -146,19 +145,7 @@ function gnuplot()  {
 }
 
 
-# check for anomalies
-#
-function LogCheck() {
-  for d in $(__listWorkDirs)
-  do
-    __isRunning $d && continue
-    grep -B 20 'PROGRAM ABORT :' $d/fuzz.log
-  done
-}
-
-
 # spin up the given fuzzer
-#
 function startIt()  {
   fuzzer=${1?:fuzzer ?!}
   idir=${2?:idir ?!}
@@ -171,31 +158,25 @@ function startIt()  {
   fi
 
   # optional: dictionary for the fuzzer
-  #
   dict="$TOR/src/test/fuzz/dict/$fuzzer"
-  if [[ -e $dict ]]; then
-    dict="-x $dict"
-  else
-    dict=""
-  fi
+  [[ -e $dict ]] && dict="-x $dict" || dict=""
 
   nohup nice -n 1 /usr/bin/afl-fuzz -i $idir -o $workdir/$odir -m 9000 $dict -- $exe &>>$workdir/$odir/fuzz.log &
   pid=$!
 
   sudo $installdir/fuzz_helper.sh $odir $pid || echo "something failed with CGroups"
-
-  echo
   echo " started $fuzzer pid=$pid in $workdir/$odir"
 }
 
 
+# resume stopped fuzzer(s)
 function ResumeFuzzers()  {
   local count=${1:-0}
 
   test -z "${count//[0-9]}" || return 1
 
   local i=0
-  for d in $(ls -1d $workdir/*_*_20??????-?????? 2>/dev/null)
+  for d in $(__listWorkDirs)
   do
     __isRunning $d && continue
     odir=$(basename $d)
@@ -203,6 +184,7 @@ function ResumeFuzzers()  {
     idir="-"
     echo " resuming $odir ..."
     startIt $fuzzer $idir $odir
+    echo
 
     ((i=i+1))
     [[ $count -gt 0 && $i -ge $count ]] && break
@@ -211,7 +193,6 @@ function ResumeFuzzers()  {
 
 
 # spin up new fuzzer(s)
-#
 function startFuzzer()  {
 
   test -z "${1//[0-9]}"
@@ -221,9 +202,9 @@ function startFuzzer()  {
     all=""
     for fuzzer in $(ls $TOR_FUZZ_CORPORA 2>/dev/null)
     do
-      if [[ -x $TOR/src/test/fuzz/fuzz-$fuzzer && -z "$(ls $workdir/${fuzzer}_* 2>/dev/null)" ]]; then
-        all="$all $fuzzer"
-      fi
+      [[ -x $TOR/src/test/fuzz/fuzz-$fuzzer           ]] || continue
+      [[ -z "$(ls $workdir/${fuzzer}_* 2>/dev/null)"  ]] || continue
+      all="$all $fuzzer"
     done
     fuzzers=$(echo $all | xargs -n 1 | shuf -n $count)
   else
@@ -233,25 +214,18 @@ function startFuzzer()  {
 
   for fuzzer in $fuzzers
   do
-    # input data file for the fuzzer
-    #
     idir=$TOR_FUZZ_CORPORA/$fuzzer
     if [[ ! -d $idir ]]; then
       echo " idir not found: $idir"
       return 1
     fi
 
-    # output directory: timestamp + git commit id + fuzzer name
-    #
     cid=$(cd $TOR; git describe 2>/dev/null | sed 's/.*\-g//g')
-    odir=${fuzzer}_${cid}_$(date +%Y%m%d-%H%M%S)
+    odir=${fuzzer}_$(date +%Y%m%d-%H%M%S)_${cid}
     mkdir -p $workdir/$odir || return 2
-
-    # run a copy of the fuzzer b/c git repo is subject of change
-    #
-    cp $TOR/src/test/fuzz/fuzz-$fuzzer $workdir/$odir
-
+    cp $TOR/src/test/fuzz/fuzz-${fuzzer} $workdir/$odir
     startIt $fuzzer $idir $odir
+    echo
   done
 }
 
@@ -342,11 +316,10 @@ export CFLAGS="-O2 -pipe -march=native"
 
 # afl-fuzz
 export AFL_HARDEN=1
-
 export AFL_SHUFFLE_QUEUE=1
 export AFL_EXIT_WHEN_DONE=1
-
 export AFL_SKIP_CPUFREQ=1
+export AFL_NO_FORKSRV=1
 
 # llvm_mode
 export CC="/usr/bin/afl-clang-fast"
@@ -367,7 +340,7 @@ do
   fi
 done
 
-while getopts afghlr:s:u\? opt
+while getopts afghr:s:u\? opt
 do
   case $opt in
     a)  archiveOrDone || break
@@ -377,8 +350,6 @@ do
     g)  gnuplot || break
         ;;
     h|\?)Help
-        ;;
-    l)  LogCheck || break
         ;;
     r)  ResumeFuzzers "$OPTARG" || break
         ;;
