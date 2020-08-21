@@ -1,5 +1,4 @@
 #!/bin/sh
-#
 # set -x
 
 
@@ -21,7 +20,7 @@ fi
 
 cd $(dirname $0)
 
-./fuzz.sh -f -a -g
+./fuzz.sh -g -f -a
 
 CountPids $1
 if [[ $diff -gt 0 ]]; then
@@ -37,6 +36,6 @@ elif [[ $diff -lt 0 ]]; then
     echo "$0 $(date) will kill: $victims"
     kill -15 $victims || true
     sleep 15
-    ./fuzz.sh -a
+    ./fuzz.sh -f -a
   fi
 fi
