@@ -315,11 +315,12 @@ export TOR=~/tor
 export CFLAGS="-O2 -pipe -march=native"
 
 # afl-fuzz
-export AFL_HARDEN=1
-export AFL_SHUFFLE_QUEUE=1
 export AFL_EXIT_WHEN_DONE=1
+export AFL_HARDEN=1
+export AFL_NO_FORKSRV=0
+export AFL_NO_AFFINITY=1
 export AFL_SKIP_CPUFREQ=1
-export AFL_NO_FORKSRV=1
+export AFL_SHUFFLE_QUEUE=1
 
 # llvm_mode
 export CC="/usr/bin/afl-clang-fast"
