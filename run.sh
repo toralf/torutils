@@ -6,7 +6,7 @@
 
 
 function CountPids()  {
-  pids=$(pgrep --parent 1 -f '/usr/bin/afl-fuzz -i') || true
+  pids=$(pgrep --parent 1 -f '/usr/bin/afl-fuzz -i' | xargs) || true
   let "diff = $1 - $(wc -w <<< $pids)" || true
 }
 
@@ -31,11 +31,11 @@ if [[ $diff -gt 0 ]]; then
   fi
 
 elif [[ $diff -lt 0 ]]; then
-  victims=$(echo $pids | xargs -n 1 | shuf -n ${diff##*-})
+  victims=$(ps -h -o etimes,pid --pid $(tr ' ' ',' <<< $pids) | sort -n | head -n ${diff##*-} | awk ' { print $2 } ' | xargs)
   if [[ -n "$victims" ]]; then
-    echo "$0 $(date) will kill: $victims"
+    echo "$0 $(date) will kill pid/s: $victims"
     kill -15 $victims || true
-    sleep 15
+    sleep 10
     ./fuzz.sh -f -a
   fi
 fi
