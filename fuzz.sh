@@ -49,8 +49,8 @@ function __getPid() {
 }
 
 
-# 0 = it is runnning
-# 1 = it is stopped
+# 0 = runnning
+# 1 = stopped
 function __isRunning()  {
   pid=$(__getPid $1)
   if [[ -n "$pid" ]]; then
@@ -273,6 +273,7 @@ function updateSources() {
   echo " make ..."
   make micro-revision.i 2>&1  || return 4
   make -j 9 fuzzers 2>&1      || return 5
+  echo
 }
 
 
