@@ -75,11 +75,8 @@ def main():
   exit_connections = {}  # port => [connections]
   or_ports = controller.get_ports(Listener.OR, [])
   if not or_ports:
-    print("have to guess OR port")
-    if control_port == 9051:
-      or_ports = [ 443 ]
-    else:
-      or_port = [ 9001 ]
+    print("warn: have to guess OR port")
+    or_ports = [ 443 ] if control_port == 9051 else [ 9001 ]
 
   for conn in get_connections(resolver = args.resolver, process_pid = pid):
     if conn.protocol == 'udp':
@@ -112,10 +109,8 @@ def main():
   total_ipv4, total_ipv6 = 0, 0
 
   for label, connections in categories.items():
-
-    ipv4_count = len([conn for conn in connections if is_valid_ipv4_address(conn.remote_address)])
+    ipv4_count = len([conn for conn in connections if not conn.is_ipv6])
     ipv6_count = len(connections) - ipv4_count
-
     total_ipv4, total_ipv6 = total_ipv4 + ipv4_count, total_ipv6 + ipv6_count
     print(COLUMN % (label, i2str(ipv4_count), i2str(ipv6_count)))
 
