@@ -40,7 +40,7 @@ function Help() {
 
 
 function __listWorkDirs() {
-  ls -1dt $workdir/*_20??????-??????_*/fuzz-* 2>/dev/null | tac
+  ls -t $workdir/*_20??????-??????_*/fuzz-* 2>/dev/null | xargs --no-run-if-empty -n 1 dirname | tac
 }
 
 
@@ -318,7 +318,7 @@ export CFLAGS="-O2 -pipe -march=native"
 # afl-fuzz
 export AFL_EXIT_WHEN_DONE=1
 export AFL_HARDEN=1
-export AFL_NO_FORKSRV=0
+export AFL_NO_FORKSRV=1
 export AFL_NO_AFFINITY=1
 export AFL_SKIP_CPUFREQ=1
 export AFL_SHUFFLE_QUEUE=1
