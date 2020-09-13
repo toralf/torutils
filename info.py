@@ -7,7 +7,7 @@ import stem.util.system
 import stem.util.str_tools
 
 from stem.control import Listener
-from stem.util.connection import get_connections, port_usage, is_valid_ipv4_address
+from stem.util.connection import get_connections, port_usage
 
 HEADER_LINE = " {version}   uptime: {uptime}   flags: {flags}\n"
 
@@ -74,10 +74,9 @@ def main():
 
   exit_connections = {}               # port => [connections]
   or_ports = controller.get_ports(Listener.OR)
-  print(or_ports)
   if not or_ports:
-    print("warn: have to guess OR port")
     or_ports = [ 443 ] if control_port == 9051 else [ 9001 ]
+    print("warn: have to guess OR port(s):" + str(or_ports))
 
   for conn in get_connections(resolver = args.resolver, process_pid = pid):
     if conn.protocol == 'udp':
