@@ -25,6 +25,7 @@ cd $(dirname $0)
 CountPids $1
 if [[ $diff -gt 0 ]]; then
   ./fuzz.sh -r $diff
+  sleep 15
   CountPids $1
   if [[ $diff -gt 0 ]]; then
     ./fuzz.sh -u -s $diff
@@ -35,7 +36,7 @@ elif [[ $diff -lt 0 ]]; then
   if [[ -n "$victims" ]]; then
     echo "$0 $(date) will kill pid/s: $victims"
     kill -15 $victims || true
-    sleep 10
+    sleep 15
     ./fuzz.sh -f -a
   fi
 fi
