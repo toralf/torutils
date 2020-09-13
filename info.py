@@ -72,8 +72,9 @@ def main():
     (OUTBOUND_UNKNOWN, []),
   ))
 
-  exit_connections = {}  # port => [connections]
-  or_ports = controller.get_ports(Listener.OR, [])
+  exit_connections = {}               # port => [connections]
+  or_ports = controller.get_ports(Listener.OR)
+  print(or_ports)
   if not or_ports:
     print("warn: have to guess OR port")
     or_ports = [ 443 ] if control_port == 9051 else [ 9001 ]
