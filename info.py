@@ -129,7 +129,7 @@ def main():
 
     for port in sorted(exit_connections):
       connections = exit_connections[port]
-      ipv4_count = len([conn for conn in connections if is_valid_ipv4_address(conn.remote_address)])
+      ipv4_count = len([conn for conn in connections if not conn.is_ipv6])
       ipv6_count = len(connections) - ipv4_count
       total_ipv4, total_ipv6 = total_ipv4 + ipv4_count, total_ipv6 + ipv6_count
 
