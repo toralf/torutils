@@ -1,11 +1,12 @@
 import argparse
 import collections
 import time
+import ipaddress
 
-import stem.connection
-import stem.util.system
-import stem.util.str_tools
+from stem.util.str_tools import short_time_label
+from stem.util.system import start_time
 
+from stem.connection import connect
 from stem.control import Listener
 from stem.util.connection import get_connections, port_usage
 
@@ -22,14 +23,11 @@ INBOUND_CONTROLPORT = 'Inbound to our ControlPort'
 OUTBOUND_ORPORT = 'Outbound to relay OR'
 OUTBOUND_ANOTHER = 'Outbound to relay non-OR'
 OUTBOUND_EXIT = 'Outbound exit traffic'
-OUTBOUND_UNKNOWN = 'Outbound uncategorized'
+OUTBOUND_UNKNOWN = 'Outbound unknown'
 
 
 def i2str(i):
-  if i > 0:
-    return str(i)
-  else:
-    return " "
+  return str(i) if i > 0 else " "
 
 
 def main():
@@ -39,8 +37,8 @@ def main():
   args = parser.parse_args()
 
   control_port = int(args.ctrlport) if args.ctrlport else 'default'
-  controller = stem.connection.connect(control_port = ('127.0.0.1', control_port))
 
+  controller = connect(control_port = ('127.0.0.1', control_port))
   if not controller:
     return
 
@@ -49,7 +47,7 @@ def main():
 
   print(HEADER_LINE.format(
     version = str(controller.get_version()).split()[0],
-    uptime = stem.util.str_tools.short_time_label(time.time() - stem.util.system.start_time(pid)),
+    uptime = short_time_label(time.time() - start_time(pid)),
     flags = ', '.join(desc.flags if desc else ['none']),
   ))
 
@@ -58,6 +56,10 @@ def main():
 
   for desc in controller.get_network_statuses():
     relays.setdefault(desc.address, []).append(desc.or_port)
+    for address, port, is_ipv6 in desc.or_addresses:
+      if is_ipv6:
+        address = ipaddress.IPv6Address(address).exploded
+      relays.setdefault(address, []).append(port)
 
   # categorize our connections
 
@@ -130,7 +132,8 @@ def main():
       connections = exit_connections[port]
       ipv4_count = len([conn for conn in connections if not conn.is_ipv6])
       ipv6_count = len(connections) - ipv4_count
-      total_ipv4, total_ipv6 = total_ipv4 + ipv4_count, total_ipv6 + ipv6_count
+      total_ipv4 = total_ipv4 + ipv4_count
+      total_ipv6 = total_ipv6 + ipv6_count
 
       usage = port_usage(port)
       label = '%s (%s)' % (port, usage) if usage else port

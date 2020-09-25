@@ -3,12 +3,14 @@
 
 
 import argparse, os, sys, time, glob
+import ipaddress
+import datetime
 from math import ceil
+
+import stem.descriptor.collector
 from stem.control import Controller, Listener
 from stem.util.connection import get_connections, port_usage, system_resolvers, is_valid_ipv4_address
 
-import datetime
-import stem.descriptor.collector
 
 """
   print out exit port statistics of a running Tor exit relay:
@@ -69,10 +71,14 @@ def main():
 
     # current data is sufficient
     #
-    for s in controller.get_network_statuses():
+    for desc in controller.get_network_statuses():
     #recent = datetime.datetime.utcnow() - datetime.timedelta(minutes = 1440)
     #for s in stem.descriptor.collector.get_server_descriptors(start = recent):
-      relays.setdefault(s.address, []).append(s.or_port)
+      relays.setdefault(desc.address, []).append(desc.or_port)
+      for address, port, is_ipv6 in desc.or_addresses:
+        if is_ipv6:
+          address = ipaddress.IPv6Address(address).exploded
+        relays.setdefault(address, []).append(port)
 
     MaxOpened = {}  # hold the maximum amount of opened  ports
     MaxClosed = {}  # hold the maximum amount of closed  ports
