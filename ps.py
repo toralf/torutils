@@ -124,15 +124,22 @@ def main():
           Prev = Curr.copy()
           Curr.clear()
 
+        my_ipv4 = '5.9.158.75'
+        my_ipv6 = ipaddress.IPv6Address('2a01:4f8:190:514a::2').exploded
         for conn in connections:
           laddr, raddr = conn.local_address, conn.remote_address
           lport, rport = conn.local_port,    conn.remote_port
 
           # ignore incoming connections
           #
-          if ( (lport == ORPort  or lport == DirPort)  and laddr == '5.9.158.75'
-            or (lport == ORPort6 or lport == DirPort6) and laddr == '2a01:4f8:190:514a::2'):
-              continue
+          if conn.is_ipv6:
+            if lport == ORPort6 or lport == DirPort6:
+              if laddr == my_ipv6:
+                continue
+          else:
+            if lport == ORPort or lport == DirPort:
+              if laddr == my_ipv4:
+                continue
 
           if raddr in relays:
             if rport in relays[raddr]:
