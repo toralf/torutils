@@ -32,13 +32,13 @@ def i2str(i):
 
 def main(args = None):
   parser = argparse.ArgumentParser()
-  parser.add_argument('--ctrlport', help='default: 9051 or 9151')
+  parser.add_argument('--ctrlport', help='default: 9051')
   parser.add_argument('--resolver', help='default: autodetected')
   args = parser.parse_args()
 
-  control_port = int(args.ctrlport) if args.ctrlport else 'default'
+  port_ctrl = int(args.ctrlport) if args.ctrlport else '9051'
 
-  controller = connect(control_port = ('127.0.0.1', control_port))
+  controller = connect(control_port = ('127.0.0.1', port_ctrl))
   if not controller:
     return
 
@@ -75,23 +75,21 @@ def main(args = None):
   ))
 
   exit_connections = {}               # port => [connections]
-  or_ports = controller.get_ports(Listener.OR)
-  if not or_ports:
-    or_ports = { 443 } if control_port == 9051 else { 9001 }
-    print('warn: have to guess OR port(s): ' + str(or_ports))
+  port_or  = controller.get_listeners(Listener.OR )[0][1]
+  port_dir = controller.get_listeners(Listener.DIR)[0][1]
 
   for conn in get_connections(resolver = args.resolver, process_pid = pid):
     if conn.protocol == 'udp':
         continue
 
-    if conn.local_port in or_ports:
+    if conn.local_port == port_or:
       if conn.remote_address in relays:
         categories[INBOUND_ORPORT].append(conn)
       else:
         categories[INBOUND_ORPORT_OTHER].append(conn)
-    elif conn.local_port in controller.get_ports(Listener.DIR, []):
+    elif conn.local_port == port_dir:
       categories[INBOUND_DIRPORT].append(conn)
-    elif conn.local_port in controller.get_ports(Listener.CONTROL, []):
+    elif conn.local_port == port_ctrl:
       categories[INBOUND_CONTROLPORT].append(conn)
     elif conn.remote_address in relays:
       if conn.remote_port in relays.get(conn.remote_address, []):
