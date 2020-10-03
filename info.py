@@ -10,7 +10,7 @@ from stem.connection import connect
 from stem.control import Listener
 from stem.util.connection import get_connections, port_usage
 
-HEADER_LINE = " {version}   uptime: {uptime}   flags: {flags}\n"
+HEADER_LINE = ' {version}   uptime: {uptime}   flags: {flags}\n'
 
 DIV = '+%s+%s+%s+' % ('-' * 30, '-' * 6, '-' * 6)
 COLUMN = '| %-28s | %4s | %4s |'
@@ -27,13 +27,13 @@ OUTBOUND_UNKNOWN = 'Outbound unknown'
 
 
 def i2str(i):
-  return str(i) if i > 0 else " "
+  return str(i) if i > 0 else ' '
 
 
-def main():
+def main(args = None):
   parser = argparse.ArgumentParser()
-  parser.add_argument("--ctrlport", help="default: 9051 or 9151")
-  parser.add_argument("--resolver", help="default: autodetected")
+  parser.add_argument('--ctrlport', help='default: 9051 or 9151')
+  parser.add_argument('--resolver', help='default: autodetected')
   args = parser.parse_args()
 
   control_port = int(args.ctrlport) if args.ctrlport else 'default'
@@ -77,8 +77,8 @@ def main():
   exit_connections = {}               # port => [connections]
   or_ports = controller.get_ports(Listener.OR)
   if not or_ports:
-    or_ports = [ 443 ] if control_port == 9051 else [ 9001 ]
-    print("warn: have to guess OR port(s):" + str(or_ports))
+    or_ports = { 443 } if control_port == 9051 else { 9001 }
+    print('warn: have to guess OR port(s): ' + str(or_ports))
 
   for conn in get_connections(resolver = args.resolver, process_pid = pid):
     if conn.protocol == 'udp':

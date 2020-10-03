@@ -17,7 +17,7 @@ def main():
   ctrlport = 9051
 
   parser = argparse.ArgumentParser()
-  parser.add_argument("--ctrlport", help="default: " + str(ctrlport))
+  parser.add_argument('--ctrlport', help='default: ' + str(ctrlport))
 
   args = parser.parse_args()
 
@@ -41,24 +41,20 @@ def orconn_event(controller, event):
 
     fingerprint = event.endpoint_fingerprint
 
-    print ("%-12s %s" % (event.reason, fingerprint), end='')
+    print ('%-12s %s' % (event.reason, fingerprint), end='')
 
-    relay = controller.get_network_status(fingerprint, None)
-    if (relay):
-      if is_valid_ipv4_address(relay.address):
-        ip = 'v4'
-      else:
-        ip = 'v6'
-
-      version = relay.version
+    desc = controller.get_network_status(fingerprint, None)
+    if (desc):
+      ip = 'v4' if is_valid_ipv4_address(desc.address) else 'v6'
+      version = desc.version
       if version == None:
         try:
           desc = controller.get_server_descriptor(fingerprint)
           version = desc.tor_version
         except Exception as Exc:
-          version = 'error'
+          version = 'n/a'
 
-      print (" %15s %5i %s %s" % (relay.address, relay.or_port, ip, version))
+      print (' %15s %5i %s %s' % (desc.address, desc.or_port, ip, version))
     else:
       print ('', flush=True)
 

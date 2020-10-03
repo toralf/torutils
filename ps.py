@@ -12,7 +12,7 @@ from stem.control import Controller, Listener
 from stem.util.connection import get_connections, port_usage, system_resolvers, is_valid_ipv4_address
 
 
-"""
+'''
   print out exit port statistics of a running Tor exit relay:
 
   port     # opened closed      max                (3.6 sec, lsof: 6068 conns in 0.9 sec)
@@ -20,7 +20,7 @@ from stem.util.connection import get_connections, port_usage, system_resolvers, 
     80  1250     54     48     1250     54     48  (HTTP)
     81     1      0      0        1      0      0  (HTTP Alternate)
    110     1      0      0        1      0      0  (POP3)
-   """
+   '''
 
 
 def main():
@@ -28,8 +28,8 @@ def main():
   resolver = 'proc'
 
   parser = argparse.ArgumentParser()
-  parser.add_argument("--ctrlport", help="default: " + str(ctrlport))
-  parser.add_argument("--resolver", help="default: " + resolver)
+  parser.add_argument('--ctrlport', help='default: ' + str(ctrlport))
+  parser.add_argument('--resolver', help='default: ' + resolver)
   args = parser.parse_args()
 
   if args.ctrlport:
@@ -42,7 +42,7 @@ def main():
     controller.authenticate()
 
     try:
-      ControlPort = int(controller.get_conf("ControlPort"))
+      ControlPort = int(controller.get_conf('ControlPort'))
       ORPort   = None
       ORPort6  = None
       DirPort  = None
@@ -61,7 +61,7 @@ def main():
           DirPort6 = port
 
     except Exception as Exc:
-      print ("Woops, control ports aren't configured")
+      print ('Woops, control ports aren\'t configured')
       print (Exc)
       return
 
@@ -94,13 +94,13 @@ def main():
       # read in all allowed exit ports
       #
       exit_ports = []
-      for filename in glob.glob("/etc/tor/torrc.d/*") + (glob.glob("/etc/tor/*")):
+      for filename in glob.glob('/etc/tor/torrc.d/*') + (glob.glob('/etc/tor/*')):
         if os.path.isfile(filename):
           inputfile = open(filename)
           lines = inputfile.readlines()
           inputfile.close()
           for line in lines:
-            if line.startswith("ExitPolicy  *accept "):
+            if line.startswith('ExitPolicy  *accept '):
               accept = line.split()[2]
               if ':' in accept:
                 port = accept.split(':')[1]
@@ -115,7 +115,7 @@ def main():
       try:
         t1 = time.time()
 
-        pid = controller.get_info("process/pid")
+        pid = controller.get_info('process/pid')
         connections = get_connections(resolver=resolver,process_pid=pid,process_name='tor')
         t2 = time.time()
         policy = controller.get_exit_policy()
@@ -156,7 +156,7 @@ def main():
         dt = t2-t1
 
         os.system('clear')
-        print ("  port     # opened closed     max                ( %s:%s, %i conns %.2f sec ) " % (resolver, ctrlport, len(connections), dt))
+        print ('  port     # opened closed     max                ( %s:%s, %i conns %.2f sec ) ' % (resolver, ctrlport, len(connections), dt))
 
         if first:
            Prev = Curr.copy()
@@ -186,7 +186,7 @@ def main():
             if MaxClosed[port] < n_closed:
               MaxClosed[port] = n_closed
 
-          stri = " %5i %5i %6i %6i   %6i %6i %6i  (%s)" % (port, n_curr, n_opened, n_closed, MaxAll[port], MaxOpened[port], MaxClosed[port], port_usage(port))
+          stri = ' %5i %5i %6i %6i   %6i %6i %6i  (%s)' % (port, n_curr, n_opened, n_closed, MaxAll[port], MaxOpened[port], MaxClosed[port], port_usage(port))
           print (stri.replace(' 0', '  '))
 
         first = False
