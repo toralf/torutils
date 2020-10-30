@@ -32,17 +32,15 @@ def i2str(i):
 
 def main(args = None):
   parser = argparse.ArgumentParser()
-  parser.add_argument('--ctrlport', help='default: 9051')
-  parser.add_argument('--resolver', help='default: autodetected')
+  parser.add_argument('--ctrlport', type=int, help='default: 9051', default=9051)
+  parser.add_argument('--resolver', help='default: autodetected', default='')
   args = parser.parse_args()
 
-  port_ctrl = int(args.ctrlport) if args.ctrlport else '9051'
-
-  controller = connect(control_port = ('127.0.0.1', port_ctrl))
+  controller = connect(control_port = ('127.0.0.1', args.ctrlport))
   if not controller:
     return
 
-  desc = controller.get_network_status(default = None)
+  desc = controller.get_network_status(default=None)
   pid = controller.get_pid()
 
   print(HEADER_LINE.format(
@@ -89,7 +87,7 @@ def main(args = None):
         categories[INBOUND_ORPORT_OTHER].append(conn)
     elif conn.local_port == port_dir:
       categories[INBOUND_DIRPORT].append(conn)
-    elif conn.local_port == port_ctrl:
+    elif conn.local_port == args.ctrlport:
       categories[INBOUND_CONTROLPORT].append(conn)
     elif conn.remote_address in relays:
       if conn.remote_port in relays.get(conn.remote_address, []):

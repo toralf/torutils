@@ -24,21 +24,12 @@ from stem.util.connection import get_connections, port_usage, system_resolvers, 
 
 
 def main():
-  ctrlport = 9051
-  resolver = 'proc'
-
   parser = argparse.ArgumentParser()
-  parser.add_argument('--ctrlport', help='default: ' + str(ctrlport))
-  parser.add_argument('--resolver', help='default: ' + resolver)
+  parser.add_argument('--ctrlport', type=int, help='default: 9051', default=9051)
+  parser.add_argument('--resolver', help='default: autodetect', default='')
   args = parser.parse_args()
 
-  if args.ctrlport:
-    ctrlport = int(args.ctrlport)
-
-  if args.resolver:
-    resolver= str(args.resolver)
-
-  with Controller.from_port(port=ctrlport) as controller:
+  with Controller.from_port(port=args.ctrlport) as controller:
     controller.authenticate()
 
     try:
@@ -116,7 +107,7 @@ def main():
         t1 = time.time()
 
         pid = controller.get_info('process/pid')
-        connections = get_connections(resolver=resolver,process_pid=pid,process_name='tor')
+        connections = get_connections(resolver=args.resolver,process_pid=pid,process_name='tor')
         t2 = time.time()
         policy = controller.get_exit_policy()
 
@@ -156,7 +147,7 @@ def main():
         dt = t2-t1
 
         os.system('clear')
-        print ('  port     # opened closed     max                ( %s:%s, %i conns %.2f sec ) ' % (resolver, ctrlport, len(connections), dt))
+        print ('  port     # opened closed     max                ( %s:%s, %i conns %.2f sec ) ' % (args.resolver, args.ctrlport, len(connections), dt))
 
         if first:
            Prev = Curr.copy()

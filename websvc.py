@@ -20,38 +20,27 @@ class MyHandler(SimpleHTTPRequestHandler):
 
 
 def main():
-  address = 'localhost'
-  port = 1234
-  ipv6 = "n"
-
   logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s + %(message)s', level=logging.INFO)
 
   logging.debug('Parsing args...')
   parser = argparse.ArgumentParser()
-  parser.add_argument("--address", help="default: " + address)
-  parser.add_argument("--port", help="default: " + str(port))
-  parser.add_argument("--is_ipv6", help="mandatory if parameter for --address is an IPv6 hostname, default: " + ipv6)
+  parser.add_argument("--address", help="default: localhost", default='localhost')
+  parser.add_argument("--port", type=int, help="default: 1234", default=1234)
+  parser.add_argument("--is_ipv6", type=bool, help="set it if ADDRESS is an IPv6, default: False", default=False)
   args = parser.parse_args()
 
-  if args.address:
+
+  if args.is_ipv6 or re.match (":", args.address):
     address = str(args.address).replace('[','').replace(']','')
-
-  if args.port:
-    port = int(args.port)
-
-  if args.is_ipv6:
-      ipv6 = str(args.is_ipv6)
+    server = HTTPServerV6((address, args.port), MyHandler)
   else:
-    if re.match (":", address):
-      ipv6 = "y"
+    server = HTTPServer((args.address, args.port), MyHandler)
 
-  if ipv6 == "y":
-    server = HTTPServerV6((address, port), MyHandler)
-  else:
-    server = HTTPServer((address, port), MyHandler)
-
-  logging.info('Starting ...')
-  server.serve_forever()
+  logging.info('running at ' + args.address + ' at ' + str(args.port))
+  try:
+    server.serve_forever()
+  except KeyboardInterrupt as e:
+    print()
 
 
 if __name__ == '__main__':

@@ -14,17 +14,11 @@ from stem.util.connection import is_valid_ipv4_address
 
 
 def main():
-  ctrlport = 9051
-
   parser = argparse.ArgumentParser()
-  parser.add_argument('--ctrlport', help='default: ' + str(ctrlport))
-
+  parser.add_argument('--ctrlport', help='default: 9051', default=9051)
   args = parser.parse_args()
 
-  if args.ctrlport:
-    ctrlport = int(args.ctrlport)
-
-  with Controller.from_port(port=ctrlport) as controller:
+  with Controller.from_port(port=int(args.ctrlport)) as controller:
     controller.authenticate()
     orconn_listener = functools.partial(orconn_event, controller)
     controller.add_event_listener(orconn_listener, EventType.ORCONN)
@@ -36,27 +30,17 @@ def main():
         break
 
 
-def orconn_event(controller, event):
+async def orconn_event(controller, event):
   if event.status == ORStatus.CLOSED:
-
     fingerprint = event.endpoint_fingerprint
+    desc = await controller.get_network_status(fingerprint, None)
 
     print ('%-12s %s' % (event.reason, fingerprint), end='')
-
-    desc = controller.get_network_status(fingerprint, None)
     if (desc):
       ip = 'v4' if is_valid_ipv4_address(desc.address) else 'v6'
-      version = desc.version
-      if version == None:
-        try:
-          desc = controller.get_server_descriptor(fingerprint)
-          version = desc.tor_version
-        except Exception as Exc:
-          version = 'n/a'
-
-      print (' %15s %5i %s %s' % (desc.address, desc.or_port, ip, version))
+      print(' %15s %5i %s %s' % (desc.address, desc.or_port, ip, desc.version))
     else:
-      print ('', flush=True)
+      print('')
 
 
 if __name__ == '__main__':
