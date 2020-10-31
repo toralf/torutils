@@ -9,6 +9,7 @@ from math import ceil
 
 import stem.descriptor.collector
 from stem.control import Controller, Listener
+from stem.descriptor import parse_file
 from stem.util.connection import get_connections, port_usage, system_resolvers, is_valid_ipv4_address
 
 
@@ -62,9 +63,7 @@ def main():
 
     # current data is sufficient
     #
-    for desc in controller.get_network_statuses():
-    #recent = datetime.datetime.utcnow() - datetime.timedelta(minutes = 1440)
-    #for s in stem.descriptor.collector.get_server_descriptors(start = recent):
+    for desc in parse_file('/var/lib/tor/data/cached-consensus'):
       relays.setdefault(desc.address, []).append(desc.or_port)
       for address, port, is_ipv6 in desc.or_addresses:
         if is_ipv6:

@@ -8,6 +8,7 @@ from stem.util.system import start_time
 
 from stem.connection import connect
 from stem.control import Listener
+from stem.descriptor import parse_file
 from stem.util.connection import get_connections, port_usage
 
 HEADER_LINE = ' {version}   uptime: {uptime}   flags: {flags}\n'
@@ -52,7 +53,7 @@ def main(args = None):
   policy = controller.get_exit_policy()
   relays = {}  # address => [orports...]
 
-  for desc in controller.get_network_statuses():
+  for desc in parse_file('/var/lib/tor/data/cached-consensus'):
     relays.setdefault(desc.address, []).append(desc.or_port)
     for address, port, is_ipv6 in desc.or_addresses:
       if is_ipv6:
