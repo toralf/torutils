@@ -120,7 +120,7 @@ function lookForFindings()  {
       fi
 
       (
-        echo "verify $i it with 'cd $d; ./fuzz-* < ./$i/*' then inform tor-security@lists.torproject.org"
+        echo "verify $i it with 'cd $d; cat ./$i/README; ./fuzz-* < ./$i/id*' before informing tor-security@lists.torproject.org"
         echo
         cd $d                             &&\
         tar -cjpf $tbz2 ./$i 2>&1         &&\
