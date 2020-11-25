@@ -22,7 +22,7 @@
 #
 # fuzz.sh -u
 #
-# (IV) get/check memory limit (add 50M at the highest value as suggested by recidivm upstream)
+# (IV) get/check memory limit, add +50M to the highest value as suggested by recidivm upstream in startIt()
 #
 # cd ~/tor; for i in $(ls ./src/test/fuzz/fuzz-* 2>/dev/null); do echo $(../recidivm/recidivm -v -u M $i 2>&1 | tail -n 1) $i ; done | sort -n
 #
@@ -161,7 +161,7 @@ function startIt()  {
   dict="$TOR/src/test/fuzz/dict/$fuzzer"
   [[ -e $dict ]] && dict="-x $dict" || dict=""
 
-  nohup nice -n 1 /usr/bin/afl-fuzz -i $idir -o $workdir/$odir -m 9000 $dict -- $exe &>>$workdir/$odir/fuzz.log &
+  nohup nice -n 1 /usr/bin/afl-fuzz -i $idir -o $workdir/$odir -m 100 $dict -- $exe &>>$workdir/$odir/fuzz.log &
   pid=$!
 
   sudo $installdir/fuzz_helper.sh $odir $pid || echo "something failed with CGroups"
@@ -169,37 +169,34 @@ function startIt()  {
 }
 
 
-# resume stopped fuzzer(s)
+# resume fuzzer(s)
 function ResumeFuzzers()  {
-  local count=${1:-0}
-
-  test -z "${count//[0-9]}" || return 1
+  local count=${1?:count ?!}
 
   local i=0
   for d in $(__listWorkDirs)
   do
+    ((i=i+1))
+    [[ $i -gt $count ]] && break
+
     __isRunning $d && continue
+    idir="-"
     odir=$(basename $d)
     fuzzer=$(echo $odir | cut -f1 -d'_')
-    idir="-"
     echo " resuming $odir ..."
     startIt $fuzzer $idir $odir
     echo
-
-    ((i=i+1))
-    [[ $count -gt 0 && $i -ge $count ]] && break
   done
 }
 
 
 # spin up new fuzzer(s)
 function startFuzzer()  {
-
   test -z "${1//[0-9]}"
   if [[ $? -eq 0 ]]; then
     # integer given
     local count="$1"
-    all=""
+    local all=""
     for fuzzer in $(ls $TOR_FUZZ_CORPORA 2>/dev/null)
     do
       [[ -x $TOR/src/test/fuzz/fuzz-$fuzzer           ]] || continue
@@ -272,7 +269,7 @@ function updateSources() {
   #
   echo " make ..."
   make micro-revision.i 2>&1  || return 4
-  make -j 9 fuzzers 2>&1      || return 5
+  make -j 1 fuzzers 2>&1      || return 5
   echo
 }
 
