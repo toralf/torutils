@@ -34,6 +34,16 @@ def i2str(i):
     return str(i) if i > 0 else ' '
 
 
+def parse_consensus(relays, filename):
+    for desc in parse_file(filename):
+        relays.setdefault(desc.address, []).append(desc.or_port)
+        for address, port, is_ipv6 in desc.or_addresses:
+            if is_ipv6:
+                address = ipaddress.IPv6Address(address).exploded
+            relays.setdefault(address, []).append(port)
+    return relays
+
+
 def main(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('--ctrlport', type=int, help='default: 9051', default=9051)
@@ -55,13 +65,8 @@ def main(args=None):
 
     policy = controller.get_exit_policy()
     relays = {}    # address => [orports...]
-
-    for desc in parse_file('/var/lib/tor/data/cached-consensus'):
-        relays.setdefault(desc.address, []).append(desc.or_port)
-        for address, port, is_ipv6 in desc.or_addresses:
-            if is_ipv6:
-                address = ipaddress.IPv6Address(address).exploded
-            relays.setdefault(address, []).append(port)
+    relays = parse_consensus(relays, '/var/lib/tor/data/cached-consensus')
+    relays = parse_consensus(relays, '/var/lib/tor/data2/cached-consensus')
 
     # categorize our connections
 
