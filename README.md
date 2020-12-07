@@ -48,7 +48,7 @@ Few tools around a Tor relay.
     6667     4                      4                (IRC)
     7777     3                      3                (None)
 
-*orstatus.py* collects closed cicuits event data:
+*orstatus.py* monitors closing events:
 
     orstatus.py --ctrlport 9051
 
