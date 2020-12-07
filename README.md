@@ -3,20 +3,60 @@ Few tools around a Tor relay.
 
 ### gather data from a Tor process:
 
-*info.py* gives an overview about the connections of a relay, have a look of stem's tool too:
+*info.py* gives an overview about the connections of a relay:
 
-    _static/example/relay_connections.py --ctrlport 9051
+    python /opt/torutils/info.py --ctrlport 9051
+    0.4.6.0-alpha-dev   uptime: 5-07:14:15   flags: Fast, Guard, HSDir, Running, Stable, V2Dir, Valid
 
-*ps.py* continuously shows exit port usage.
+    +------------------------------+------+------+
+    | Type                         | IPv4 | IPv6 |
+    +------------------------------+------+------+
+    | Inbound to our OR from OR    | 1884 |   17 |
+    | Inbound to our OR from other | 2649 |    3 |
+    | Inbound to our DirPort       |      |      |
+    | Inbound to our ControlPort   |    1 |      |
+    | Outbound to relay OR         | 3797 |  563 |
+    | Outbound to relay non-OR     |    3 |    1 |
+    | Outbound exit traffic        |   45 |    8 |
+    | Outbound unknown             |   13 |    2 |
+    +------------------------------+------+------+
+    | Total                        | 8392 |  594 |
+    +------------------------------+------+------+
 
-*orstatus.py* collects data for https://trac.torproject.org/projects/tor/ticket/13603 .
+    +------------------------------+------+------+
+    | Exit Port                    | IPv4 | IPv6 |
+    +------------------------------+------+------+
+    | 853                          |    1 |      |
+    | 5222 (Jabber)                |   33 |    8 |
+    | 5223 (Jabber)                |    4 |      |
+    | 5269 (Jabber)                |    2 |      |
+    | 6667 (IRC)                   |    2 |      |
+    | 7777                         |    3 |      |
+    +------------------------------+------+------+
+    | Total                        |   45 |    8 |
+    +------------------------------+------+------+
+
+*ps.py* continuously monitors exit ports usage:
+
+    ps.py --ctrlport 9051
+
+    port     # opened closed      max                ( :9051, 8998 conns 0.28 sec )
+     853     3                      3      1      1  (None)
+    5222    42                     42                (Jabber)
+    5223     4                      4                (Jabber)
+    5269     2                      2                (Jabber)
+    6667     4                      4                (IRC)
+    7777     3                      3                (None)
+
+*orstatus.py* collects closed cicuits event data:
+
+    orstatus.py --ctrlport 9051
+
+    DONE         6E642BD08A5D687B2C55E35936E3272636A90362  <snip>  9001 v4 0.3.5.11
+    IOERROR      C89F338C54C21EDA9041DC8F070A13850358ED0B  <snip>   443 v4 0.4.3.5
 
 ### simple setup of an onion service
-**Update:** look at https://github.com/micahflee/onionshare for a matured solution.
-
-*websvc.sh*, *websvc.py*, *os.sh*, *mock_irc.py*
-
-Running
+*websvc.sh*, *websvc.py*, *os.sh*
 
     ./os.sh; ./websvc.sh
 
@@ -32,9 +72,10 @@ and
     ...
     GET / HTTP/1.1
 
-### fuzz testing of the Tor sources
+**Update:** look at https://github.com/micahflee/onionshare for a matured solution.
 
-*fuzz.sh*
+### fuzz testing of the Tor sources
+Use the *american fuzzy lop* (https://github.com/google/AFL) in *fuzz.sh*
 
 ### more info
 You need the Python lib Stem (https://stem.torproject.org/index.html) for the python scripts.
