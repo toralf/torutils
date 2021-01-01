@@ -5,7 +5,7 @@
 
 # $1: <ip address>, $2: <port number>,  $3: [unset or "non"]
 
-set -ef
+set -euf
 
 if [[ "$(whoami)" != "root" ]]; then
   echo "you must be root "

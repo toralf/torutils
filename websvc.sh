@@ -5,7 +5,7 @@
 # start a python web server
 # $1: <ip address>, $2: <port number>, $3 (optional): "--is_ipv6"
 
-set -ef
+set -euf
 
 if [[ "$(whoami)" != "root" ]]; then
   echo "you must be root "

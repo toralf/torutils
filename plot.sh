@@ -2,6 +2,8 @@
 #
 # set -x
 
+set -eu
+
 # work on the output of orstatus.py
 #   format:
 #   reason        fingerprint                                 address       port ip version

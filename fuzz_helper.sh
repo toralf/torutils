@@ -10,10 +10,15 @@ function CgroupCreate() {
   local name=$1
   local pid=$2
 
+  # use cgroup v1 if available
+  if ! hash -r cgcreate || ! hash -r cgset; then
+    return 0
+  fi
+
   cgcreate -g cpu,memory:$name
 
   cgset -r cpu.use_hierarchy=1      $name
-  cgset -r cpu.cfs_quota_us=150000  $name
+  cgset -r cpu.cfs_quota_us=100000  $name
   cgset -r cpu.cfs_period_us=100000 $name
   cgset -r cpu.notify_on_release=1  $name
 

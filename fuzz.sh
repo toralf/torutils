@@ -14,7 +14,6 @@
 # (II) clone Git repositories
 #
 # cd ~
-# git clone https://github.com/jwilk/recidivm
 # git clone https://git.torproject.org/fuzzing-corpora.git
 # git clone https://git.torproject.org/tor.git
 #
@@ -22,11 +21,7 @@
 #
 # fuzz.sh -u
 #
-# (IV) get/check memory limit, add +50M to the highest value as suggested by recidivm upstream in startIt()
-#
-# cd ~/tor; for i in $(ls ./src/test/fuzz/fuzz-* 2>/dev/null); do echo $(../recidivm/recidivm -v -u M $i 2>&1 | tail -n 1) $i ; done | sort -n
-#
-# (V) start an arbitrary fuzzer:
+# (IV) start an arbitrary fuzzer:
 #
 # fuzz.sh -s 1
 
@@ -45,7 +40,7 @@ function __listWorkDirs() {
 
 
 function __getPid() {
-  awk '/fuzzer_pid/ { print $3 }' $1/fuzzer_stats 2>/dev/null
+  awk '/fuzzer_pid/ { print $3 }' $1/default/fuzzer_stats 2>/dev/null
 }
 
 
@@ -54,8 +49,10 @@ function __getPid() {
 function __isRunning()  {
   pid=$(__getPid $1)
   if [[ -n "$pid" ]]; then
-    kill -0 $pid 2>/dev/null
-    return $?
+    if ! kill -0 $pid 2>/dev/null; then
+      return 2
+    fi
+    return 0
   fi
 
   return 1
@@ -65,39 +62,30 @@ function __isRunning()  {
 function archiveOrDone()  {
   for d in $(__listWorkDirs)
   do
-    __isRunning $d && continue
+    if __isRunning $d; then
+      continue
+    fi
 
     logfile=$d/fuzz.log
-    if [[ ! -f $logfile ]]; then
-      continue
-    fi
-
-    # indicate that the fuzzer isn't running but keep the graphs
-    rm -f $plotdir/${d##*/}/index.html
-
-    tail -n 10 $logfile | grep -m 1 "^\[-\] PROGRAM ABORT :"
-    if [[ $? -eq 0 ]]; then
-      echo
-      echo " aborted: $d"
-      mv $d $abortdir
-      echo
-      continue
-    fi
-
-    # act only at the last abort reason
-    tac $logfile | grep -m 1 "^+++ Testing aborted .* +++" | grep "^+++ Testing aborted programmatically +++"
-    rc=$?
-    if [[ $rc -eq 0 ]]; then
-      echo
-      echo " done: $d"
-      mv $d $donedir
-      echo
-    elif [[ -n "$(ls $d/{crashes,hangs}/* 2>/dev/null)" ]]; then
+    if ls $d/default/{crashes,hangs}/* 2>/dev/null; then
       echo
       echo " archive: $d"
       mv $d $archdir
+
+    elif tail -n 10 $logfile | grep -m 1 "^\[-\] PROGRAM ABORT :"; then
       echo
+      echo " aborted: $d"
+      mv $d $abortdir
+
+      # check the latest abort reason only
+    elif tac $logfile | grep -m 1 "^+++ Testing aborted .* +++" | grep -q "programmatically"; then
+      echo
+      echo " done: $d"
+      mv $d $donedir
     fi
+
+    rm -rf $plotdir/${d##*/}
+    echo
   done
 }
 
@@ -107,25 +95,23 @@ function lookForFindings()  {
   do
     for i in crashes hangs
     do
-      if [[ -z "$(ls $d/$i 2>/dev/null)" ]]; then
+      if ! ls $d/default/$i/* 2>/dev/null; then
         continue
       fi
 
       tbz2=$(basename $d)-$i.tbz2
-
       # already reported ?
-      #
-      if [[ -f $d/$tbz2 && $tbz2 -ot $d/$i ]]; then
+      if [[ -f $d/$tbz2 && $d/$tbz2 -ot $d/$i ]]; then
         continue
       fi
 
       (
-        echo "verify $i it with 'cd $d; cat ./$i/README; ./fuzz-* < ./$i/id*' before informing tor-security@lists.torproject.org"
+        echo "verify $i it with 'cd $d; ./fuzz-* < ./default/$i/id*' before informing tor-security@lists.torproject.org"
         echo
-        cd $d                             &&\
-        tar -cjpf $tbz2 ./$i 2>&1         &&\
+        cd $d
+        tar -cjpf $tbz2 ./default/$i 2>&1
         uuencode $tbz2 $(basename $tbz2)
-      ) | mail -s "$(basename $0) $i in $d" $mailto -a ""
+      ) | mail -s "$(basename $0): found $i in $d/default" $mailto -a "" || true
     done
   done
 }
@@ -140,7 +126,7 @@ function gnuplot()  {
     if [[ ! -d $destdir ]]; then
       mkdir $destdir
     fi
-    afl-plot $d $destdir &>/dev/null
+    afl-plot $d/default $destdir &>/dev/null
   done
 }
 
@@ -161,7 +147,7 @@ function startIt()  {
   dict="$TOR/src/test/fuzz/dict/$fuzzer"
   [[ -e $dict ]] && dict="-x $dict" || dict=""
 
-  nohup nice -n 1 /usr/bin/afl-fuzz -i $idir -o $workdir/$odir -m 100 $dict -- $exe &>>$workdir/$odir/fuzz.log &
+  nohup nice -n 1 /usr/bin/afl-fuzz -i $idir -o $workdir/$odir $dict -- $exe &>>$workdir/$odir/fuzz.log &
   pid=$!
 
   sudo $installdir/fuzz_helper.sh $odir $pid || echo "something failed with CGroups"
@@ -177,9 +163,12 @@ function ResumeFuzzers()  {
   for d in $(__listWorkDirs)
   do
     ((i=i+1))
-    [[ $i -gt $count ]] && break
-
-    __isRunning $d && continue
+    if [[ $i -gt $count ]]; then
+      break
+    fi
+    if __isRunning $d; then
+      continue
+    fi
     idir="-"
     odir=$(basename $d)
     fuzzer=$(echo $odir | cut -f1 -d'_')
@@ -192,15 +181,18 @@ function ResumeFuzzers()  {
 
 # spin up new fuzzer(s)
 function startFuzzer()  {
-  test -z "${1//[0-9]}"
-  if [[ $? -eq 0 ]]; then
+  if test -z "${1//[0-9]}"; then
     # integer given
     local count="$1"
     local all=""
     for fuzzer in $(ls $TOR_FUZZ_CORPORA 2>/dev/null)
     do
-      [[ -x $TOR/src/test/fuzz/fuzz-$fuzzer           ]] || continue
-      [[ -z "$(ls $workdir/${fuzzer}_* 2>/dev/null)"  ]] || continue
+      if [[ ! -x $TOR/src/test/fuzz/fuzz-$fuzzer ]]; then
+        continue
+      fi
+      if [[ -n "$(ls $workdir/${fuzzer}_* 2>/dev/null)" ]]; then
+        continue
+      fi
       all="$all $fuzzer"
     done
     fuzzers=$(echo $all | xargs -n 1 | shuf -n $count)
@@ -219,7 +211,7 @@ function startFuzzer()  {
 
     cid=$(cd $TOR; git describe 2>/dev/null | sed 's/.*\-g//g')
     odir=${fuzzer}_$(date +%Y%m%d-%H%M%S)_${cid}
-    mkdir -p $workdir/$odir || return 2
+    mkdir -p $workdir/$odir
     cp $TOR/src/test/fuzz/fuzz-${fuzzer} $workdir/$odir
     startIt $fuzzer $idir $odir
     echo
@@ -232,23 +224,20 @@ function startFuzzer()  {
 function updateSources() {
   echo " update deps ..."
 
-  cd $RECIDIVM
-  git pull
-  make || return 1
-
   cd $TOR_FUZZ_CORPORA
   git pull
 
   cd $TOR
-  git pull | grep -q "Already up to date."
-  if [[ $? -ne 0 ]]; then
+  if ! git pull | grep -q "Already up to date."; then
     make distclean
   fi
 
   if [[ ! -x ./configure ]]; then
     rm -f Makefile
     echo " autogen ..."
-    ./autogen.sh 2>&1 || return 2
+    if ! ./autogen.sh 2>&1; then
+      return 2
+    fi
   fi
 
   if [[ ! -f Makefile ]]; then
@@ -262,14 +251,21 @@ function updateSources() {
     override="
         --enable-module-dirauth --enable-zstd-advanced-apis --enable-unittests --disable-coverage
     "
-    ./configure $gentoo_options $override || return 3
+    if ! ./configure $gentoo_options $override; then
+      return 3
+    fi
   fi
 
   # https://trac.torproject.org/projects/tor/ticket/29520
-  #
   echo " make ..."
-  make micro-revision.i 2>&1  || return 4
-  make -j 1 fuzzers 2>&1      || return 5
+  if ! make micro-revision.i 2>&1; then
+    return 4
+  fi
+
+  # -j1 takes too long for cron to wait for an output (and send an email out)
+  if ! make -j 8 fuzzers 2>&1; then
+    return 5
+  fi
   echo
 }
 
@@ -278,6 +274,9 @@ function updateSources() {
 #
 # main
 #
+set -eu
+export LANG=C.utf8
+
 mailto="torproject@zwiebeltoralf.de"
 
 if [[ $# -eq 0 ]]; then
@@ -291,8 +290,7 @@ if [[ -s $lck ]]; then
   echo -n " found $lck,"
   ls -l $lck
   tail -v $lck
-  kill -0 $(cat $lck) 2>/dev/null
-  if [[ $? -eq 0 ]]; then
+  if kill -0 $(cat $lck) 2>/dev/null; then
     echo " valid, exiting ..."
     exit 1
   else
@@ -305,7 +303,6 @@ cd $(dirname $0)
 installdir=$(pwd)
 
 # sources
-export RECIDIVM=~/recidivm
 export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora
 export TOR=~/tor
 
@@ -315,14 +312,13 @@ export CFLAGS="-O2 -pipe -march=native"
 # afl-fuzz
 export AFL_EXIT_WHEN_DONE=1
 export AFL_HARDEN=1
-export AFL_NO_FORKSRV=1
+# export AFL_NO_FORKSRV=1
 export AFL_NO_AFFINITY=1
 export AFL_SKIP_CPUFREQ=1
 export AFL_SHUFFLE_QUEUE=1
 
-# llvm_mode
-export CC="/usr/bin/afl-clang-fast"
-export CXX="${CC}++"
+export CC="/usr/bin/afl-cc"
+export CXX="/usr/bin/afl-c++"
 
 results=~/results          # persistent
 plotdir=/tmp/AFLplusplus   # plots only
@@ -335,27 +331,20 @@ workdir=$results/work
 for d in $plotdir $abortdir $archdir $donedir $workdir
 do
   if [[ ! -d $d ]]; then
-    mkdir -p $d || exit 1
+    mkdir -p $d
   fi
 done
 
 while getopts afghr:s:u\? opt
 do
   case $opt in
-    a)  archiveOrDone || break
-        ;;
-    f)  lookForFindings || break
-        ;;
-    g)  gnuplot || break
-        ;;
-    h|\?)Help
-        ;;
-    r)  ResumeFuzzers "$OPTARG" || break
-        ;;
-    s)  startFuzzer "$OPTARG" || break
-        ;;
-    u)  updateSources || break
-        ;;
+    a)    archiveOrDone || break            ;;
+    f)    lookForFindings || break          ;;
+    g)    gnuplot || break                  ;;
+    h|\?) Help                              ;;
+    r)    ResumeFuzzers "$OPTARG" || break  ;;
+    s)    startFuzzer "$OPTARG" || break    ;;
+    u)    updateSources || break            ;;
   esac
 done
 
