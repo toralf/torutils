@@ -21,8 +21,6 @@ def main():
 
     with Controller.from_port(port=args.ctrlport) as controller:
         controller.authenticate()
-        orconn_listener = functools.partial(orconn_event, controller)
-        controller.add_event_listener(orconn_listener, EventType.ORCONN)
 
         for desc in parse_file('/var/lib/tor/data/cached-consensus'):
             ip = 'v4' if is_valid_ipv4_address(desc.address) else 'v6'
@@ -31,6 +29,8 @@ def main():
             ip = 'v4' if is_valid_ipv4_address(desc.address) else 'v6'
             desc_versions[desc.fingerprint] = [desc.address, desc.or_port, ip, desc.version]
 
+        orconn_listener = functools.partial(orconn_event, controller)
+        controller.add_event_listener(orconn_listener, EventType.ORCONN)
         while True:
             try:
                 time.sleep(1)
