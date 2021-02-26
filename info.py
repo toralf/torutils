@@ -19,9 +19,8 @@ HEADER_LINE = ' {version}   uptime: {uptime}   flags: {flags}\n'
 DIV = '+%s+%s+%s+' % ('-' * 30, '-' * 6, '-' * 6)
 COLUMN = '| %-28s | %4s | %4s |'
 
-INBOUND_ORPORT = 'Inbound to our OR from OR'
+INBOUND_ORPORT = 'Inbound to our OR from relay'
 INBOUND_ORPORT_OTHER = 'Inbound to our OR from other'
-INBOUND_DIRPORT = 'Inbound to our DirPort'
 INBOUND_CONTROLPORT = 'Inbound to our ControlPort'
 
 OUTBOUND_ORPORT = 'Outbound to relay OR'
@@ -73,7 +72,6 @@ def main(args=None):
     categories = collections.OrderedDict((
         (INBOUND_ORPORT, []),
         (INBOUND_ORPORT_OTHER, []),
-        (INBOUND_DIRPORT, []),
         (INBOUND_CONTROLPORT, []),
         (OUTBOUND_ORPORT, []),
         (OUTBOUND_ANOTHER, []),
@@ -83,7 +81,6 @@ def main(args=None):
 
     exit_connections = {}                             # port => [connections]
     port_or = controller.get_listeners(Listener.OR)[0][1]
-    port_dir = controller.get_listeners(Listener.DIR)[0][1]
 
     for conn in get_connections(resolver=args.resolver, process_pid=pid):
         if conn.protocol == 'udp':
@@ -94,8 +91,6 @@ def main(args=None):
                 categories[INBOUND_ORPORT].append(conn)
             else:
                 categories[INBOUND_ORPORT_OTHER].append(conn)
-        elif conn.local_port == port_dir:
-            categories[INBOUND_DIRPORT].append(conn)
         elif conn.local_port == args.ctrlport:
             categories[INBOUND_CONTROLPORT].append(conn)
         elif conn.remote_address in relays:

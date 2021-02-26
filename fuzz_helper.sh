@@ -11,7 +11,7 @@ function CgroupCreate() {
   local pid=$2
 
   # use cgroup v1 if available
-  if ! hash -r cgcreate || ! hash -r cgset; then
+  if ! hash -r cgcreate || ! hash -r cgset || ! test -d /sys/fs/cgroup; then
     return 0
   fi
 

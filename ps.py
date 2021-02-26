@@ -46,20 +46,12 @@ def main():
         try:
             ORPort = None
             ORPort6 = None
-            DirPort = None
-            DirPort6 = None
 
             for address, port in controller.get_listeners(Listener.OR):
                 if is_valid_ipv4_address(address):
                     ORPort = port
                 else:
                     ORPort6 = port
-
-            for address, port in controller.get_listeners(Listener.DIR):
-                if is_valid_ipv4_address(address):
-                    DirPort = port
-                else:
-                    DirPort6 = port
 
         except Exception as Exc:
             print('Woops, control ports aren\'t configured')
@@ -124,11 +116,11 @@ def main():
                     # ignore incoming connections
                     #
                     if conn.is_ipv6:
-                        if lport in (ORPort6, DirPort6):
+                        if lport == ORPort6:
                             if laddr == my_ipv6:
                                 continue
                     else:
-                        if lport in (ORPort, DirPort):
+                        if lport == ORPort:
                             if laddr == my_ipv4:
                                 continue
 
