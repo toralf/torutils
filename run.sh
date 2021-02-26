@@ -25,13 +25,12 @@ cd $(dirname $0)
 CountPids $1
 if [[ $diff -gt 0 ]]; then
   ./fuzz.sh -r $diff
-  sleep 10
   CountPids $1
   if [[ $diff -gt 0 ]]; then
     ./fuzz.sh -u -s $diff
-    sleep 10
-    ./fuzz.sh -g
   fi
+  sleep 123
+  ./fuzz.sh -g
 
 elif [[ $diff -lt 0 ]]; then
   victims=$(ps -h -o etimes,pid --pid $(tr ' ' ',' <<< $pids) | sort -n | head -n ${diff##*-} | awk ' { print $2 } ' | xargs)
