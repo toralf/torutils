@@ -25,11 +25,12 @@ cd $(dirname $0)
 CountPids $1
 if [[ $diff -gt 0 ]]; then
   ./fuzz.sh -r $diff
+  sleep 10
   CountPids $1
   if [[ $diff -gt 0 ]]; then
     ./fuzz.sh -u -s $diff
   fi
-  sleep 123
+  sleep 120
   ./fuzz.sh -g
 
 elif [[ $diff -lt 0 ]]; then
