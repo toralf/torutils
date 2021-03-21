@@ -179,6 +179,9 @@ def main():
 
             except KeyboardInterrupt:
                 break
+            except Exception:
+                continue
+
 
 if __name__ == '__main__':
     main()
