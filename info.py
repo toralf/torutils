@@ -64,8 +64,15 @@ def main(args=None):
 
     policy = controller.get_exit_policy()
     relays = {}    # address => [orports...]
-    relays = parse_consensus(relays, '/var/lib/tor/data/cached-consensus')
-    relays = parse_consensus(relays, '/var/lib/tor/data2/cached-consensus')
+    try:
+      relays = parse_consensus(relays, '/var/lib/tor/data/cached-consensus')
+    except Exception as Exc:
+      pass
+
+    try:
+      relays = parse_consensus(relays, '/var/lib/tor/data2/cached-consensus')
+    except Exception as Exc:
+      pass
 
     # categorize our connections
 

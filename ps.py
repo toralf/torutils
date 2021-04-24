@@ -62,11 +62,11 @@ def main():
         relays = parse_consensus(relays, '/var/lib/tor/data/cached-consensus')
         relays = parse_consensus(relays, '/var/lib/tor/data2/cached-consensus')
 
-        MaxOpened = {}    # hold the maximum amount of opened    ports
-        MaxClosed = {}    # hold the maximum amount of closed    ports
-        MaxAll = {}    # hold the maximum amount of overall ports
+        MaxOpened = {}    # hold the maximum amount of opened  ports
+        MaxClosed = {}    # hold the maximum amount of closed  ports
+        MaxAll = {}       # hold the maximum amount of overall ports
 
-        Curr = {}     # the current    network connections of Tor
+        Curr = {}         # the current network connections of Tor
 
         # avoid useless calculation of mean immediately after start
         #
