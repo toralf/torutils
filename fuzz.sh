@@ -21,7 +21,7 @@
 #
 # fuzz.sh -u
 #
-# (IV) start an arbitrary fuzzer:
+# (IV) start one arbitrarily choosen fuzzer:
 #
 # fuzz.sh -s 1
 
@@ -185,7 +185,7 @@ function startFuzzer()  {
     # integer given
     local count="$1"
     local all=""
-    for fuzzer in $(ls $TOR_FUZZ_CORPORA 2>/dev/null)
+    for fuzzer in $(ls $FUZZING_CORPORA 2>/dev/null)
     do
       if [[ ! -x $TOR/src/test/fuzz/fuzz-$fuzzer ]]; then
         continue
@@ -203,7 +203,7 @@ function startFuzzer()  {
 
   for fuzzer in $fuzzers
   do
-    idir=$TOR_FUZZ_CORPORA/$fuzzer
+    idir=$FUZZING_CORPORA/$fuzzer
     if [[ ! -d $idir ]]; then
       echo " idir not found: $idir"
       return 1
@@ -224,7 +224,9 @@ function startFuzzer()  {
 function updateSources() {
   echo " update deps ..."
 
-  cd $TOR_FUZZ_CORPORA
+  set -e
+
+  cd $FUZZING_CORPORA
   git pull
 
   cd $TOR
@@ -303,7 +305,7 @@ cd $(dirname $0)
 installdir=$(pwd)
 
 # sources
-export TOR_FUZZ_CORPORA=~/tor-fuzz-corpora
+export FUZZING_CORPORA=~/fuzzing-corpora
 export TOR=~/tor
 
 # common

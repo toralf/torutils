@@ -13,8 +13,10 @@ max=${2:-300}
 
 #######################################################################
 
-accept=/etc/tor/torrc.d/80_accept
-reject=/etc/tor/torrc.d/40_reject_auto
+accept=/etc/tor/conf.d/80_accept
+reject=/etc/tor/conf.d/40_reject_auto
+
+
 ts=$(LC_TIME=de date +%c)
 
 /sbin/ss --no-header --tcp --numeric state ${state} |\
