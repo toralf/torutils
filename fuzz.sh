@@ -85,7 +85,6 @@ function archiveOrDone()  {
     fi
 
     rm -rf $plotdir/${d##*/}
-    echo
   done
 }
 
@@ -162,19 +161,18 @@ function ResumeFuzzers()  {
   local i=0
   for d in $(__listWorkDirs)
   do
-    ((i=i+1))
-    if [[ $i -gt $count ]]; then
-      break
-    fi
     if __isRunning $d; then
       continue
     fi
     idir="-"
     odir=$(basename $d)
     fuzzer=$(echo $odir | cut -f1 -d'_')
-    echo " resuming $odir ..."
+    echo -n " resuming:"
     startIt $fuzzer $idir $odir
-    echo
+    ((i=i+1))
+    if [[ $i -ge $count ]]; then
+      break
+    fi
   done
 }
 
