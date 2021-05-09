@@ -7,7 +7,7 @@
 
 function CountPids()  {
   pids=$(pgrep --parent 1 -f '/usr/bin/afl-fuzz -i' | xargs) || true
-  let "diff = $1 - $(wc -w <<< $pids)" || true
+
 }
 
 
@@ -21,12 +21,13 @@ fi
 cd $(dirname $0)
 
 ./fuzz.sh -g -f -a
-
 CountPids $1
+((diff = $1 - $(wc -w <<< $pids)))
 if [[ $diff -gt 0 ]]; then
   ./fuzz.sh -r $diff
   sleep 10
   CountPids $1
+  ((diff = $1 - $(wc -w <<< $pids)))
   if [[ $diff -gt 0 ]]; then
     ./fuzz.sh -u -s $diff
   fi
