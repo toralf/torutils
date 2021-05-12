@@ -17,7 +17,7 @@ function CgroupCreate() {
 
   cgcreate -g cpu,memory:$name
 
-  cgset -r cpu.cfs_quota_us=150000          $name
+  cgset -r cpu.cfs_quota_us=105000          $name
   cgset -r memory.limit_in_bytes=20G        $name
   cgset -r memory.memsw.limit_in_bytes=30G  $name
 
@@ -40,17 +40,17 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-if [[ -z "$1" ]]; then
-  exit 1
-fi
-
 if [[ $# -ne 2 ]]; then
   echo "wrong # of args"
   exit 1
 fi
 
+if [[ -z "$1" ]]; then
+  exit 1
+fi
+
 if [[ "${2//[0-9]}" ]]; then
-  echo "arg 2 not an integer"
+  echo "arg 2 is not an integer"
   exit 1
 fi
 

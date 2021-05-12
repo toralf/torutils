@@ -47,7 +47,7 @@ function __getPid() {
 # 0 = runnning
 # 1 = stopped
 function __isRunning()  {
-  pid=$(__getPid $1)
+  local pid=$(__getPid $1)
   if [[ -n "$pid" ]]; then
     if ! kill -0 $pid 2>/dev/null; then
       return 2
@@ -66,7 +66,7 @@ function archiveOrDone()  {
       continue
     fi
 
-    logfile=$d/fuzz.log
+    local logfile=$d/fuzz.log
     if ls $d/default/{crashes,hangs}/* 2>/dev/null; then
       echo
       echo " archive: $d"
@@ -98,7 +98,7 @@ function lookForFindings()  {
         continue
       fi
 
-      tbz2=$(basename $d)-$i.tbz2
+      local tbz2=$(basename $d)-$i.tbz2
       # already reported ?
       if [[ -f $d/$tbz2 && $d/$tbz2 -ot $d/$i ]]; then
         continue
@@ -132,18 +132,18 @@ function gnuplot()  {
 
 # spin up the given fuzzer
 function startIt()  {
-  fuzzer=${1?:fuzzer ?!}
-  idir=${2?:idir ?!}
-  odir=${3?:odir ?!}
+  local fuzzer=${1?:fuzzer ?!}
+  local idir=${2?:idir ?!}
+  local odir=${3?:odir ?!}
 
-  exe=$workdir/$odir/fuzz-$fuzzer
+  local exe=$workdir/$odir/fuzz-$fuzzer
   if [[ ! -x $exe ]]; then
     echo "no exe found for $fuzzer"
     return 1
   fi
 
   # optional: dictionary for the fuzzer
-  dict="$TOR/src/test/fuzz/dict/$fuzzer"
+  local dict="$TOR/src/test/fuzz/dict/$fuzzer"
   [[ -e $dict ]] && dict="-x $dict" || dict=""
 
   local tmpdir=/tmp/fuzz/fuzz-${fuzzer}
@@ -151,7 +151,7 @@ function startIt()  {
   export AFL_TMPDIR=$tmpdir
 
   nohup nice -n 1 /usr/bin/afl-fuzz -i $idir -o $workdir/$odir $dict -- $exe &>>$workdir/$odir/fuzz.log &
-  pid=$!
+  local pid=$!
 
   sudo $installdir/fuzz_helper.sh $odir $pid || echo "something failed with CGroups"
   echo " started $fuzzer pid=$pid in $workdir/$odir"
@@ -187,6 +187,7 @@ function startFuzzer()  {
     # integer given
     local count="$1"
     local all=""
+    local fuzzers=""
     for fuzzer in $(ls $FUZZING_CORPORA 2>/dev/null)
     do
       if [[ ! -x $TOR/src/test/fuzz/fuzz-$fuzzer ]]; then
@@ -205,14 +206,14 @@ function startFuzzer()  {
 
   for fuzzer in $fuzzers
   do
-    idir=$FUZZING_CORPORA/$fuzzer
+    local idir=$FUZZING_CORPORA/$fuzzer
     if [[ ! -d $idir ]]; then
       echo " idir not found: $idir"
       return 1
     fi
 
-    cid=$(cd $TOR; git describe 2>/dev/null | sed 's/.*\-g//g')
-    odir=${fuzzer}_$(date +%Y%m%d-%H%M%S)_${cid}
+    local cid=$(cd $TOR; git describe 2>/dev/null | sed 's/.*\-g//g')
+    local odir=${fuzzer}_$(date +%Y%m%d-%H%M%S)_${cid}
     mkdir -p $workdir/$odir
     cp $TOR/src/test/fuzz/fuzz-${fuzzer} $workdir/$odir
     startIt $fuzzer $idir $odir
@@ -249,10 +250,10 @@ function updateSources() {
     #   - disable coverage, this has a huge slowdown effect
     #   - enable zstd-advanced-apis
     echo " configure ..."
-    gentoo_options="
+    local gentoo_options="
         --prefix=/usr --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu --mandir=/usr/share/man --infodir=/usr/share/info --datadir=/usr/share --sysconfdir=/etc --localstatedir=/var/lib --disable-dependency-tracking --disable-silent-rules --docdir=/usr/share/doc/tor-0.4.3.5 --htmldir=/usr/share/doc/tor-0.4.3.5/html --libdir=/usr/lib64 --localstatedir=/var --enable-system-torrc --disable-android --disable-html-manual --disable-libfuzzer --enable-missing-doc-warnings --disable-module-dirauth --enable-pic --disable-rust --disable-restart-debugging --disable-zstd-advanced-apis --enable-asciidoc --enable-manpage --enable-lzma --enable-libscrypt --enable-seccomp --enable-module-relay --disable-systemd --enable-gcc-hardening --enable-linker-hardening --disable-unittests --disable-coverage --enable-zstd
     "
-    override="
+    local override="
         --enable-module-dirauth --enable-zstd-advanced-apis --enable-unittests --disable-coverage
     "
     if ! ./configure $gentoo_options $override; then
@@ -266,8 +267,7 @@ function updateSources() {
     return 4
   fi
 
-  # -j1 takes too long for cron to wait for an output (and send an email out)
-  if ! make -j 8 fuzzers 2>&1; then
+  if ! make -j8 fuzzers 2>&1; then
     return 5
   fi
   echo
@@ -306,26 +306,24 @@ echo $$ > $lck
 cd $(dirname $0)
 installdir=$(pwd)
 
-# sources
+# Tor sources
 export FUZZING_CORPORA=~/fuzzing-corpora
 export TOR=~/tor
 
-# common
 export CFLAGS="-O2 -pipe -march=native"
 
-# afl-fuzz
 export AFL_EXIT_WHEN_DONE=1
 export AFL_HARDEN=1
+# export AFL_NO_AFFINITY=1
 # export AFL_NO_FORKSRV=1
-export AFL_NO_AFFINITY=1
 export AFL_SKIP_CPUFREQ=1
-export AFL_SHUFFLE_QUEUE=1
+# export AFL_SHUFFLE_QUEUE=1
 
 export CC="/usr/bin/afl-cc"
 export CXX="/usr/bin/afl-c++"
 
 results=~/results          # persistent
-plotdir=/tmp/AFLplusplus   # plots only
+plotdir=/tmp/AFLplusplus   # plotted graphs
 
 abortdir=$results/abort
 archdir=$results/archive
@@ -334,9 +332,7 @@ workdir=$results/work
 
 for d in $plotdir $abortdir $archdir $donedir $workdir
 do
-  if [[ ! -d $d ]]; then
-    mkdir -p $d
-  fi
+  [[ -d $d ]] || mkdir -p $d
 done
 
 while getopts afghr:s:u\? opt

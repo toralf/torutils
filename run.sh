@@ -23,15 +23,15 @@ cd $(dirname $0)
 ./fuzz.sh -g -f -a
 CountPids $1
 ((diff = $1 - $(wc -w <<< $pids)))
+
 if [[ $diff -gt 0 ]]; then
   ./fuzz.sh -r $diff
   sleep 10
   CountPids $1
-  ((diff = $1 - $(wc -w <<< $pids)))
-  if [[ $diff -gt 0 ]]; then
+  if ((diff = $1 - $(wc -w <<< $pids))); then
     ./fuzz.sh -u -s $diff
   fi
-  sleep 120
+  sleep 90
   ./fuzz.sh -g
 
 elif [[ $diff -lt 0 ]]; then
