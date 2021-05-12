@@ -146,6 +146,10 @@ function startIt()  {
   dict="$TOR/src/test/fuzz/dict/$fuzzer"
   [[ -e $dict ]] && dict="-x $dict" || dict=""
 
+  local tmpdir=/tmp/fuzz/fuzz-${fuzzer}
+  [[ -d $tmpdir ]] || mkdir -p $tmpdir
+  export AFL_TMPDIR=$tmpdir
+
   nohup nice -n 1 /usr/bin/afl-fuzz -i $idir -o $workdir/$odir $dict -- $exe &>>$workdir/$odir/fuzz.log &
   pid=$!
 
