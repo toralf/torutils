@@ -6,8 +6,7 @@
 
 
 function CountPids()  {
-  pids=$(pgrep --parent 1 -f '/usr/bin/afl-fuzz -i' | xargs) || true
-
+  pgrep --parent 1 -f '/usr/bin/afl-fuzz -i' | xargs
 }
 
 
@@ -21,17 +20,19 @@ fi
 cd $(dirname $0)
 
 ./fuzz.sh -g -f -a
-CountPids $1
+pids=$(CountPids $1)
 ((diff = $1 - $(wc -w <<< $pids)))
 
 if [[ $diff -gt 0 ]]; then
+  # first restart, then maybe update and eventually start more
   ./fuzz.sh -r $diff
   sleep 10
-  CountPids $1
+  pids=$(CountPids $1)
   if ((diff = $1 - $(wc -w <<< $pids))); then
     ./fuzz.sh -u -s $diff
   fi
-  sleep 90
+  # plots are available after 60 sec
+  sleep 70
   ./fuzz.sh -g
 
 elif [[ $diff -lt 0 ]]; then
