@@ -55,33 +55,15 @@ Few tools around a Tor relay.
     DONE         6E642BD08A5D687B2C55E35936E3272636A90362  <snip>  9001 v4 0.3.5.11
     IOERROR      C89F338C54C21EDA9041DC8F070A13850358ED0B  <snip>   443 v4 0.4.3.5
 
-### simple setup of an onion service
-*websvc.sh*, *websvc.py*, *os.sh*
+*key-expires.py* warns if an offline key has to renew its mid-term signing keys, ie.:
 
-    ./os.sh; ./websvc.sh
-
-should give you an onion service pointing to a local running simple HTTP server.
-All files are created under */tmp*.
-Verify it with
-
-    tail -f /tmp/websvc.d/websvc.log /tmp/onionsvc.d/notice.log
-
-and
-
-    telnet 127.0.0.1 1234
-    ...
-    GET / HTTP/1.1
-
-**Update:** look at https://github.com/micahflee/onionshare for a matured solution.
-
-### fuzz testing of the Tor sources
-Use the *american fuzzy lop* (https://github.com/google/AFL) in *fuzz.sh*
-
+```
+# check for expiring Tor keys
+@daily    n="$(($(/opt/torutils/key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert) / 86400))"; [[ $n -lt 23 ]] && echo "Tor signing key expires in <$n day(s)"
+```
 ### more info
-You need the Python lib Stem (https://stem.torproject.org/index.html) for the python scripts.
-
-<a href="https://scan.coverity.com/projects/toralf-torutils">
-  <img alt="Coverity Scan Build Status"
-       src="https://scan.coverity.com/projects/21316/badge.svg"/>
-</a>
+You need the Python lib Stem (https://stem.torproject.org/index.html) for the python scripts:
+```bash
+export PYTHONPATH=<path to stem>
+```
 
