@@ -4,14 +4,14 @@
 
 # catch tcp4 connections of $state having >= $max connections to the same destination
 
-set -euf
-export LANG=C.utf8
-
 
 state=${1:-syn-sent}
 max=${2:-300}
 
+
 #######################################################################
+set -euf
+export LANG=C.utf8
 
 accept=/etc/tor/conf.d/80_accept
 reject=/etc/tor/conf.d/40_reject_auto
@@ -19,6 +19,7 @@ reject=/etc/tor/conf.d/40_reject_auto
 ts=$(LC_TIME=de date +%c)
 
 /sbin/ss --no-header --tcp --numeric state ${state} -4 |\
+# create a hash with "address:port" for key and count for value
 perl -wane '
   BEGIN {
     my $Hist=();
@@ -34,6 +35,7 @@ perl -wane '
       }
     }
   } ' |\
+# reformat accordingly to the torrc syntax
 while read -r line
 do
   read -r addr_port count <<< $line
