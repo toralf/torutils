@@ -19,7 +19,7 @@ reject=/etc/tor/conf.d/40_reject_auto
 ts=$(LC_TIME=de date +%c)
 
 /sbin/ss --no-header --tcp --numeric state ${state} -4 |\
-# create a hash with "address:port" for key and count for value
+# create a hash with "address:port" as the key and "count" as a value
 perl -wane '
   BEGIN {
     my $Hist=();
