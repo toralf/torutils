@@ -2,7 +2,7 @@
 # set -x
 
 
-# catch tcp connections of $state having >= $max connections to the same destination
+# catch tcp4 connections of $state having >= $max connections to the same destination
 
 set -euf
 export LANG=C.utf8
@@ -16,10 +16,9 @@ max=${2:-300}
 accept=/etc/tor/conf.d/80_accept
 reject=/etc/tor/conf.d/40_reject_auto
 
-
 ts=$(LC_TIME=de date +%c)
 
-/sbin/ss --no-header --tcp --numeric state ${state} |\
+/sbin/ss --no-header --tcp --numeric state ${state} -4 |\
 perl -wane '
   BEGIN {
     my $Hist=();
@@ -28,25 +27,21 @@ perl -wane '
     $Hist{$F[3]}++;
   }
   END {
-    my $tm = scalar localtime(time());
-
-    foreach my $tupel (sort { $Hist{$b} <=> $Hist{$a} || $a cmp $b } keys %Hist) {
-      my $count = $Hist{$tupel};
+    foreach my $addr_port (sort { $Hist{$b} <=> $Hist{$a} || $a cmp $b } keys %Hist) {
+      my $count = $Hist{$addr_port};
       if ($count >= '"$max"') {
-        print $tupel, " ", $count, "\n";
+        print $addr_port, " ", $count, "\n";
       }
     }
   } ' |\
 while read -r line
 do
-  read -r tupel count <<< $line
-  if grep -q -F -e " $tupel " $accept; then
+  read -r addr_port count <<< $line
+  if grep -q -F -e " $ " $accept; then
     continue
   fi
-  addr=$(cut -f1 -d':' -s <<< $tupel)
-  port=$(cut -f2 -d':' -s <<< $tupel)
+  read -r addr port < <(tr ':' ' '<<< $addr_port)
   if grep -q -F -e " *:$port " -e " $addr:$port " $accept; then
-    [[ $tupel =~ '[' ]] && rej="reject6" || rej="reject"
-    printf "%-s %-7s %-48s # %5i %-10s at %s\n" "ExitPolicy" "$rej" "$tupel" "$count" "$state" "$ts"
+    printf "%-s %-7s %-48s # %5i %-10s at %s\n" "ExitPolicy" "reject" "$addr_port" "$count" "$state" "$ts"
   fi
 done
