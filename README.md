@@ -62,11 +62,8 @@ Few tools around a Tor relay.
 @daily    n="$(($(/opt/torutils/key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert) / 86400))"; [[ $n -lt 23 ]] && echo "Tor signing key expires in <$n day(s)"
 ```
 ### more info
-You need the Python lib Stem (https://stem.torproject.org/index.html) to run the python scripts:
-
+You need the Python lib Stem (https://stem.torproject.org/index.html) for the python scripts:
 ```bash
-cd  <somewhere>
-git clone https://github.com/torproject/stem.git
-export PYTHONPATH=<somewhere>/stem
+export PYTHONPATH=<path to stem>
 ```
 
