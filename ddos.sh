@@ -39,11 +39,13 @@ perl -wane '
 while read -r line
 do
   read -r addr_port count <<< $line
-  if grep -q -F -e " $ " $accept; then
+  read -r addr port < <(tr ':' ' '<<< $addr_port)
+  
+  if grep -q -F -e " $addr_port " -e " $addr:* " $accept; then
     continue
   fi
-  read -r addr port < <(tr ':' ' '<<< $addr_port)
-  if grep -q -F -e " *:$port " -e " $addr:$port " $accept; then
+  
+  if ! grep -q -F -e " $addr_port " -e " *:$port " $reject; then
     printf "%-s %-7s %-48s # %5i %-10s at %s\n" "ExitPolicy" "reject" "$addr_port" "$count" "$state" "$ts"
   fi
 done
