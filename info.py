@@ -16,8 +16,8 @@ from stem.util.connection import get_connections, port_usage
 
 HEADER_LINE = ' {version}   uptime: {uptime}   flags: {flags}\n'
 
-DIV = '+%s+%s+%s+' % ('-' * 30, '-' * 6, '-' * 6)
-COLUMN = '| %-28s | %4s | %4s |'
+DIV = '+%s+%s+%s+' % ('-' * 30, '-' * 7, '-' * 7)
+COLUMN = '| %-28s | %5s | %5s |'
 
 INBOUND_ORPORT = 'Inbound to our OR from relay'
 INBOUND_ORPORT_OTHER = 'Inbound to our OR from other'
