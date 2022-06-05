@@ -126,9 +126,9 @@ def main(args=None):
     print(DIV)
     print(COLUMN % ('Total', i2str(total_ipv4), i2str(total_ipv6)))
     print(DIV)
-    print('')
 
     if exit_connections:
+        print('')
         print(DIV)
         print(COLUMN % ('Exit Port', 'IPv4', 'IPv6'))
         print(DIV)
