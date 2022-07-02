@@ -2,7 +2,7 @@
 # set -x
 
 
-# catch tcp4 connections of $state having >= $max connections to the same destination
+# catch tcp4 exit connections of $state having >= $max connections to the same destination
 
 
 state=${1:-syn-sent}
@@ -40,11 +40,11 @@ while read -r line
 do
   read -r addr_port count <<< $line
   read -r addr port < <(tr ':' ' '<<< $addr_port)
-  
+
   if grep -q -F -e " $addr_port " -e " $addr:* " $accept; then
     continue
   fi
-  
+
   if ! grep -q -F -e " $addr_port " -e " *:$port " $reject; then
     printf "%-s %-7s %-48s # %5i %-10s at %s\n" "ExitPolicy" "reject" "$addr_port" "$count" "$state" "$ts"
   fi
