@@ -16,7 +16,7 @@ do
   echo -e "\nORPort $orport"
   ss --tcp -n |\
   grep "^ESTAB" |\
-  grep $address:$orport |\
+  grep "$address:$orport " |\
   perl -wane '{
     BEGIN {
       my %h = ();
