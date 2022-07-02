@@ -7,19 +7,20 @@ set -euf
 export LANG=C.utf8
 
 limit=${1:-50}
+orports=${2:-"443 9001"}
 address="65.21.94.13"
 
 echo -e "limit=$limit"
 
-for orport in 443 9001
+for orport in $orports
 do
   echo -e "\nORPort $orport"
   ss --tcp -n |\
   grep "^ESTAB" |\
-  grep "$address:$orport " |\
+  grep " $address:$orport " |\
   perl -wane '{
     BEGIN {
-      my %h = ();
+      my %h = (); # port count per ip address
     }
 
     my ($ip, $port) = split(/:/, $F[4]);
@@ -32,9 +33,10 @@ do
         if ($h{$ip} > '"'$limit'"') {
           $ips++;
           $conns += $h{$ip};
+          print "$ip $h{$ip}\n";
         }
       }
-      print "ips\t$ips\nconns\t$conns\n";
+      print "ips $ips\nconns $conns\n";
     }
   }' |\
   column -t
