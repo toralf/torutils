@@ -2,7 +2,11 @@
 # set -x
 
 
-# catch tcp4 exit connections of $state having >= $max connections to the same destination
+# catch tcp v4 exit connections of $state having >= $max connections to the same destination
+
+# could be used to feed:
+#
+# f=/tmp/ddos-outbound.out; while :; do (/opt/torutils/ddos-outbound.sh syn-sent; /opt/torutils/ddos-outbound.sh time-wait) > $f; if [[ -s $f ]]; then cat $f >> /etc/tor/conf.d/40_reject_auto; /sbin/rc-service tor2 reload; /sbin/rc-service tor reload; fi; rm $f; sleep 30; done
 
 
 state=${1:-syn-sent}
