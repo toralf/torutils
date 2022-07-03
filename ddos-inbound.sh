@@ -1,23 +1,24 @@
 #!/bin/bash
 # set -x
 
-# catch # of ip address with unusual high number of inbound connections to the OR port
+# catch addresses DDoS'ing the OR port
+# https://gitlab.torproject.org/tpo/core/tor/-/issues/40636
 
 set -euf
 export LANG=C.utf8
 
 limit=${1:-50}
-orports=${2:-"443 9001"}
-address="65.21.94.13"
+relays=${2:-"65.21.94.13:443 65.21.94.13:9001"}
 
-echo -e "limit=$limit"
+echo -e "limit $limit"
 
-for orport in $orports
+for relay in $relays
 do
-  echo -e "\nORPort $orport"
+  read -r ip orport < <(tr ':' ' ' <<< $relay)
+  echo -e "\nrelay $relay"
   ss --tcp -n |\
   grep "^ESTAB" |\
-  grep " $address:$orport " |\
+  grep " $relay " |\
   perl -wane '{
     BEGIN {
       my %h = (); # port count per ip address
@@ -30,13 +31,13 @@ do
       $ips = 0;
       $conns = 0;
       foreach my $ip (sort { $h{$a} <=> $h{$b} || $a cmp $b } keys %h) {
-        if ($h{$ip} > '"'$limit'"') {
+        if ($h{$ip} > '$limit') {
           $ips++;
           $conns += $h{$ip};
-          print "$ip $h{$ip}\n";
+          print "address $ip $h{$ip}\n";
         }
       }
-      print "ips $ips\nconns $conns\n";
+      print "or:'$orport' $ips $conns\n";
     }
   }' |\
   column -t
