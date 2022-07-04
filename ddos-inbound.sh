@@ -12,8 +12,13 @@ function feedFirewall() {
 
   while read -r s
   do
-    # insert it before all other rules
-    iptables -I INPUT -p tcp --source $s -j DROP
+    if [[ $s =~ ']' ]]; then
+      v=6
+    else
+      v=''
+    fi
+    echo "block $s"
+    ip${v}tables -I INPUT -p tcp --source $s -j DROP
     (( ++i ))
   done < <(
     showConnections |\
@@ -21,24 +26,30 @@ function feedFirewall() {
     awk '{ print $2 }' |\
     sort -u
   )
-
-  if [[ $i -gt 0 ]]; then
-    echo " $(basename $0): added $i rules"
-  fi
 }
 
 
 function showConnections() {
   for relay in $relays
   do
-    ss --no-header --tcp -4 --numeric |\
-    grep "^ESTAB .* $relay " |\
+    if [[ $relay =~ ']' ]]; then
+      v=6
+    else
+      v=4
+    fi
+    ss --no-header --tcp -$v --numeric |\
+    grep "^ESTAB .* $(sed -e 's,\[,\\[,g' -e 's,\],\\],g' <<< $relay) " |\
     perl -wane '{
       BEGIN {
         my %h = (); # amount of open ports per address
       }
 
-      my ($ip, $port) = split(/:/, $F[4]);
+      if ('"$v"' == 4)  {
+        ($ip, $port) = split(/:/, $F[4]);
+      } else {
+        ($ip, $port) = split(/\]/, $F[4]);
+        $ip =~ tr/[//d;
+      }
       $h{$ip}++;
 
       END {
@@ -63,7 +74,7 @@ export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 limit=20
-relays=$(grep "^ORPort" /etc/tor/torrc{,2} | awk '{ print $2 }' | grep -v -F ']')
+relays=$(grep "^ORPort" /etc/tor/torrc{,2} | awk '{ print $2 }')
 
 if [[ $# -eq 0 ]]; then
   showConnections | grep "^r" | column -t
