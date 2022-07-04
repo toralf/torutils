@@ -2,55 +2,81 @@
 # set -x
 
 # catch addresses DDoS'ing the OR port
+
 # https://gitlab.torproject.org/tpo/core/tor/-/issues/40636
 # https://gitlab.torproject.org/tpo/core/tor/-/issues/40637
 
 
-# quick check:
-#
-# ddos-inbound.sh | grep "^r"
-#
-# feed the firewall:
-#
-# ddos-inbound.sh | grep ^address | awk '{ print $2 }' | sort -u | while read s; do iptables -I INPUT -p tcp --source $s -j DROP; done
+function feedFirewall() {
+  local i=0
+
+  while read -r s
+  do
+    # insert it before all other rules
+    iptables -I INPUT -p tcp --source $s -j DROP
+    (( ++i ))
+  done < <(
+    showConnections |\
+    grep "^address" |\
+    awk '{ print $2 }' |\
+    sort -u
+  )
+
+  if [[ $i -gt 0 ]]; then
+    echo " $(basename $0): added $i rules"
+  fi
+}
 
 
+function showConnections() {
+  for relay in $relays
+  do
+    ss --no-header --tcp -4 --numeric |\
+    grep "^ESTAB .* $relay " |\
+    perl -wane '{
+      BEGIN {
+        my %h = (); # amount of open ports per address
+      }
+
+      my ($ip, $port) = split(/:/, $F[4]);
+      $h{$ip}++;
+
+      END {
+        my $ips = 0;
+        my $sum = 0;
+        foreach my $ip (sort { $h{$a} <=> $h{$b} || $a cmp $b } grep { $h{$_} > '"$limit"' } keys %h) {
+          $ips++;
+          my $conn = $h{$ip};
+          $sum += $conn;
+          print "address $ip $conn\n";
+        }
+        print "relay:'"$relay"' $ips $sum\n";
+      }
+    }'
+  done
+}
+
+
+#######################################################################
 set -euf
 export LANG=C.utf8
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-limit=${1:-50}
-relays=${2:-$(grep "^ORPort" /etc/tor/torrc{,2} | awk '{ print $2 }' | grep -v -F ']')}
+limit=20
+relays=$(grep "^ORPort" /etc/tor/torrc{,2} | awk '{ print $2 }' | grep -v -F ']')
 
-echo -e "limit $limit"
+if [[ $# -eq 0 ]]; then
+  showConnections | grep "^r" | column -t
+  exit 0
+fi
 
-for relay in $relays
+while getopts fl:r:s opt
 do
-  echo
-  read -r ip orport < <(tr ':' ' ' <<< $relay)
-  ss --tcp -n |\
-  grep "^ESTAB" |\
-  grep " $relay " |\
-  perl -wane '{
-    BEGIN {
-      my %h = (); # port count per ip address
-    }
-
-    my ($ip, $port) = split(/:/, $F[4]);
-    $h{$ip}++;
-
-    END {
-      $ips = 0;
-      $conns = 0;
-      foreach my $ip (sort { $h{$a} <=> $h{$b} || $a cmp $b } keys %h) {
-        if ($h{$ip} > '$limit') {
-          $ips++;
-          $conns += $h{$ip};
-          print "address $ip $h{$ip}\n";
-        }
-      }
-      print "relay:'$relay' $ips $conns\n";
-    }
-  }' |\
-  column -t
-  echo
+  case $opt in
+    f)  feedFirewall ;;
+    l)  limit=$OPTARG ;;
+    r)  relays=$OPTARG ;;
+    s)  showConnections ;;
+    *)  echo "unknown parameter '${opt}'"; exit 1;;
+  esac
 done
