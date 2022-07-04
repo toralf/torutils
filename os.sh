@@ -5,7 +5,11 @@
 
 # $1: <ip address>, $2: <port number>,  $3: [unset or "non"]
 
+#######################################################################
 set -euf
+export LANG=C.utf8
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
+
 
 if [[ "$(whoami)" != "root" ]]; then
   echo "you must be root "

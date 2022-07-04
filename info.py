@@ -151,8 +151,8 @@ def main(args=None):
         print(COLUMN % ('Total', total_ipv4, total_ipv6))
         print(DIV)
 
-    connections = categories[INBOUND_ORPORT_OTHER]
-    if len(connections) > 0:
+    # check for DDoS
+    for label, connections in categories.items():
         inbound4 = {}
         inbound6 = {}
         limit = 50
@@ -166,10 +166,12 @@ def main(args=None):
                 inbound4.setdefault(address, []).append(conn.remote_port)
 
         ddos4 = [address for address in inbound4 if len(inbound4[address]) > limit]
-        print('%5i v4 %s with > %2i conns' % (len(ddos4), INBOUND_ORPORT_OTHER, limit))
+        if ddos4:
+            print('%5i v4 %s with > %2i conns' % (len(ddos4), label, limit))
 
         ddos6 = [address for address in inbound6 if len(inbound6[address]) > limit]
-        print('%5i v6 %s with > %2i conns' % (len(ddos6), INBOUND_ORPORT_OTHER, limit))
+        if ddos6:
+            print('%5i v6 %s with > %2i conns' % (len(ddos6), label, limit))
 
 
 if __name__ == '__main__':

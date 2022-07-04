@@ -2,8 +2,12 @@
 # set -x
 
 
+# update tor to latest -git
+
+#######################################################################
 set -euf
 export LANG=C.utf8
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 
 v=$(tor --version | head -n 1 | cut -f2 -d'(' | tr -d '(git\-).')

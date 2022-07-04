@@ -2,7 +2,11 @@
 #
 # set -x
 
+#######################################################################
 set -eu
+export LANG=C.utf8
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
+
 
 # work on the output of orstatus.py
 #   format:
