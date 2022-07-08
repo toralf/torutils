@@ -7,9 +7,7 @@
 # https://gitlab.torproject.org/tpo/core/tor/-/issues/40637
 
 
-function feedFirewall() {
-  local i=0
-
+function block() {
   while read -r s
   do
     if [[ $s =~ ']' ]]; then
@@ -17,19 +15,20 @@ function feedFirewall() {
     else
       v=''
     fi
-    echo "block $s"
-    ip${v}tables -I INPUT -p tcp --source $s -j DROP
-    (( ++i ))
-  done < <(
-    showConnections |\
-    grep "^address" |\
-    awk '{ print $2 }' |\
-    sort -u
-  )
+
+    if ! ip${v}tables --numeric --list | grep -q "^DROP .* $s "; then
+      echo "block $s"
+      ip${v}tables -I INPUT -p tcp --source $s -j DROP -m comment --comment "Tor-DDoS"
+    fi
+  done < <( show |\
+            grep "^address" |\
+            awk '{ print $2 }' |\
+            sort -u -r
+          )
 }
 
 
-function showConnections() {
+function show() {
   for relay in $relays
   do
     if [[ $relay =~ ']' ]]; then
@@ -42,12 +41,13 @@ function showConnections() {
     perl -wane '{
       BEGIN {
         my %h = (); # amount of open ports per address
+        my $ip;
       }
 
       if ('"$v"' == 4)  {
-        ($ip, $port) = split(/:/, $F[4]);
+        $ip = (split(/:/, $F[4]))[0];
       } else {
-        ($ip, $port) = split(/\]/, $F[4]);
+        $ip = (split(/\]/, $F[4]))[0];
         $ip =~ tr/[//d;
       }
       $h{$ip}++;
@@ -65,6 +65,9 @@ function showConnections() {
       }
     }'
   done
+
+  echo "fw4 $(iptables -nL  | grep -c '^DROP .* Tor-DDoS')"
+  echo "fw6 $(ip6tables -nL  | grep -c '^DROP .* Tor-DDoS')"
 }
 
 
@@ -73,21 +76,19 @@ set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
+action="show"
 limit=20
-relays=$(grep "^ORPort" /etc/tor/torrc{,2} | awk '{ print $2 }')
+relays=$(grep "^ORPort" /etc/tor/torrc{,2} | awk '{ print $2 }' | sort)
 
-if [[ $# -eq 0 ]]; then
-  showConnections | grep "^r" | column -t
-  exit 0
-fi
-
-while getopts fl:r:s opt
+while getopts bl:r:s opt
 do
   case $opt in
-    f)  feedFirewall ;;
+    b)  action="block" ;;
     l)  limit=$OPTARG ;;
     r)  relays=$OPTARG ;;
-    s)  showConnections ;;
+    s)  action="show" ;;
     *)  echo "unknown parameter '${opt}'"; exit 1;;
   esac
 done
+
+$action
