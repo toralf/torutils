@@ -28,6 +28,25 @@ function block() {
 }
 
 
+function unblock()  {
+  local max=$(( 3 * limit ))
+
+  for v in '' 6
+  do
+    /sbin/ip${v}tables -nvL --line-numbers |\
+    grep 'Tor-DDoS' |\
+    grep -v '[KMG]' |\
+    awk '{ print $1, $2} ' |\
+    while read -r rule packets
+    do
+      if [[ $packets -lt $max ]]; then
+        /sbin/ip${v}tables -D $rule
+      fi
+    done
+  done
+}
+
+
 function show() {
   for relay in $relays
   do
@@ -77,16 +96,17 @@ export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 action="show"
-limit=20
+limit=20    # authorities have a limit of 50
 relays=$(grep "^ORPort" /etc/tor/torrc{,2} | awk '{ print $2 }' | sort)
 
-while getopts bl:r:s opt
+while getopts bl:r:su opt
 do
   case $opt in
     b)  action="block" ;;
     l)  limit=$OPTARG ;;
     r)  relays=$OPTARG ;;
     s)  action="show" ;;
+    u)  action="unblock" ;;
     *)  echo "unknown parameter '${opt}'"; exit 1;;
   esac
 done
