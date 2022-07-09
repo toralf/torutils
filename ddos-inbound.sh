@@ -37,6 +37,7 @@ function unblock()  {
     grep 'Tor-DDoS' |\
     grep -v '[KMG]' |\
     awk '{ print $1, $2} ' |\
+    sort -r -n |\
     while read -r rule packets
     do
       if [[ $packets -lt $max ]]; then
