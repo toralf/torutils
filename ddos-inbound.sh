@@ -6,8 +6,17 @@
 # https://gitlab.torproject.org/tpo/core/tor/-/issues/40636
 # https://gitlab.torproject.org/tpo/core/tor/-/issues/40637
 
+# crontab example:
+#
+#*/3 * * * * /opt/torutils/ddos-inbound.sh -b
+#59  * * * * /opt/torutils/ddos-inbound.sh -u
+
 
 function block() {
+  show |\
+  grep "^address" |\
+  awk '{ print $2 }' |\
+  sort -u -r -n |\
   while read -r s
   do
     if [[ $s =~ ']' ]]; then
@@ -20,11 +29,7 @@ function block() {
       echo "block $s"
       ip${v}tables -I INPUT -p tcp --source $s -j DROP -m comment --comment "Tor-DDoS"
     fi
-  done < <( show |\
-            grep "^address" |\
-            awk '{ print $2 }' |\
-            sort -u -r
-          )
+  done
 }
 
 
@@ -35,12 +40,13 @@ function unblock()  {
   do
     /sbin/ip${v}tables -nvL --line-numbers |\
     grep 'Tor-DDoS' |\
-    grep -v '[KMG]' |\
-    awk '{ print $1, $2} ' |\
+    grep -v '[KMG] ' |\
+    awk '{ print $1, $2, $9} ' |\
     sort -r -n |\
-    while read -r num pkts
+    while read -r num pkts s
     do
       if [[ $pkts -lt $max ]]; then
+        echo "unblock $s"
         /sbin/ip${v}tables -D $num
       fi
     done
