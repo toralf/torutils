@@ -66,8 +66,8 @@ function show() {
     }'
   done
 
-  echo "fw4 $(iptables -nL  | grep -c '^DROP .* Tor-DDoS')"
-  echo "fw6 $(ip6tables -nL  | grep -c '^DROP .* Tor-DDoS')"
+  echo "block4 $(iptables -nL  | grep -c '^DROP .* Tor-DDoS')"
+  echo "block6 $(ip6tables -nL  | grep -c '^DROP .* Tor-DDoS')"
 }
 
 
