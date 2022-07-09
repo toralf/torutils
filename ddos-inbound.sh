@@ -38,10 +38,10 @@ function unblock()  {
     grep -v '[KMG]' |\
     awk '{ print $1, $2} ' |\
     sort -r -n |\
-    while read -r rule packets
+    while read -r num pkts
     do
-      if [[ $packets -lt $max ]]; then
-        /sbin/ip${v}tables -D $rule
+      if [[ $pkts -lt $max ]]; then
+        /sbin/ip${v}tables -D $num
       fi
     done
   done
