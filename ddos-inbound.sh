@@ -9,6 +9,7 @@
 # crontab example:
 #
 #*/3 * * * * /opt/torutils/ddos-inbound.sh -b
+#58  * * * * /opt/torutils/ddos-inbound.sh -v
 #59  * * * * /opt/torutils/ddos-inbound.sh -u
 
 
@@ -27,19 +28,19 @@ function block() {
 
     if ! ip${v}tables --numeric --list | grep -q "^DROP .* $s "; then
       echo "block $s"
-      ip${v}tables -I INPUT -p tcp --source $s -j DROP -m comment --comment "Tor-DDoS"
+      ip${v}tables -I INPUT -p tcp --source $s -j DROP -m comment --comment "$fwcomment"
     fi
   done
 }
 
 
 function unblock()  {
-  local max=$(( 3 * limit ))
+  local max=50      # current consensus limit
 
   for v in '' 6
   do
     /sbin/ip${v}tables -nvL --line-numbers |\
-    grep 'Tor-DDoS' |\
+    grep -F "$fwcomment" |\
     grep -v '[KMG] ' |\
     awk '{ print $1, $2, $9} ' |\
     sort -r -n |\
@@ -92,8 +93,28 @@ function show() {
     }'
   done
 
-  echo "block4 $(iptables -nL  | grep -c '^DROP .* Tor-DDoS')"
-  echo "block6 $(ip6tables -nL  | grep -c '^DROP .* Tor-DDoS')"
+  echo "block4 "$(iptables  -nL | grep -c "^DROP .* $fwcomment")
+  echo "block6 "$(ip6tables -nL | grep -c "^DROP .* $fwcomment")
+}
+
+
+# check that no Tor relay was blocked (they assumed to be right)
+function verify() {
+  local torlist=/tmp/torlist
+
+  # download is restricted to 1x within 30 min
+  if [[ ! -s $torlist || $(( EPOCHSECONDS-$(stat -c %Y $torlist) )) -gt 86400 ]]; then
+    curl -0 https://www.dan.me.uk/torlist/ -o $torlist
+    # 1.2.3.4 != 1.2.3.45
+    sed -i -e 's,^, ,' -e 's,$, ,' $torlist
+  fi
+
+  for v in '' 6
+  do
+    /sbin/ip${v}tables -nvL --line-numbers |\
+    grep -F "$fwcomment" |\
+    grep -F -f $torlist
+  done
 }
 
 
@@ -103,10 +124,11 @@ export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 action="show"
-limit=20    # authorities have a limit of 50
+limit=20
 relays=$(grep "^ORPort" /etc/tor/torrc{,2} | awk '{ print $2 }' | sort)
+fwcomment="Tor-DDoS"
 
-while getopts bl:r:su opt
+while getopts bl:r:suv opt
 do
   case $opt in
     b)  action="block" ;;
@@ -114,6 +136,7 @@ do
     r)  relays=$OPTARG ;;
     s)  action="show" ;;
     u)  action="unblock" ;;
+    v)  action="verify" ;;
     *)  echo "unknown parameter '${opt}'"; exit 1;;
   esac
 done
