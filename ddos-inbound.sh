@@ -133,16 +133,17 @@ limit=20
 relays=$(grep "^ORPort" /etc/tor/torrc{,2} 2>/dev/null | awk '{ print $2 }' | sort)
 tag="Tor-DDoS"
 
-while getopts bl:r:suv opt
+while getopts bl:r:st:uv opt
 do
   case $opt in
     b)  action="block" ;;
     l)  limit=$OPTARG ;;
     r)  relays=$OPTARG ;;
     s)  action="show" ;;
+    t)  tag=$OPTARG ;;
     u)  action="unblock" ;;
     v)  action="verify" ;;
-    *)  echo "unknown parameter '${opt}'"; exit 1;;
+    *)  echo "unknown parameter '$opt'"; exit 1;;
   esac
 done
 
