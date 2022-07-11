@@ -130,7 +130,7 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 action="show"
 limit=20
-relays=$(grep "^ORPort" /etc/tor/torrc{,2} | awk '{ print $2 }' | sort)
+relays=$(grep "^ORPort" /etc/tor/torrc{,2} 2>/dev/null | awk '{ print $2 }' | sort)
 tag="Tor-DDoS"
 
 while getopts bl:r:suv opt
