@@ -15,20 +15,15 @@
 
 function block() {
   show |\
-  grep "^address" |\
+  grep "^address " |\
   awk '{ print $2 }' |\
   sort -u -r -n |\
   while read -r s
   do
-    if [[ $s =~ ']' ]]; then
-      v=6
-    else
-      v=''
-    fi
-
-    if ! ip${v}tables --numeric --list | grep -q "^DROP .* $s "; then
+    [[ $s =~ ']' ]] && v=6 || v=''
+    if ! ip${v}tables -n -L INPUT | grep -q "^DROP .* $s .* $tag "; then
       echo "block $s"
-      ip${v}tables -I INPUT -p tcp --source $s -j DROP -m comment --comment "$fwcomment"
+      ip${v}tables -I INPUT -p tcp --source $s -j DROP -m comment --comment "$tag"
     fi
   done
 }
@@ -39,16 +34,19 @@ function unblock()  {
 
   for v in '' 6
   do
-    /sbin/ip${v}tables -nvL --line-numbers |\
-    grep -F "$fwcomment" |\
-    grep -v '[KMG] ' |\
+    ip${v}tables -nv -L INPUT --line-numbers |\
+    grep -F " $tag " |\
     awk '{ print $1, $2, $9} ' |\
     sort -r -n |\
     while read -r num pkts s
     do
+      if [[ $pkts =~ "K" || $pkts =~ "M" || $pkts =~ "G" ]]; then
+        continue
+      fi
+
       if [[ $pkts -lt $max ]]; then
-        echo "unblock $s"
-        /sbin/ip${v}tables -D $num
+        echo -e "unblock $\t($pkts hits)"
+        ip${v}tables -D INPUT $num
       fi
     done
   done
@@ -58,31 +56,32 @@ function unblock()  {
 function show() {
   for relay in $relays
   do
-    if [[ $relay =~ ']' ]]; then
-      v=6
+    [[ $relay =~ ']' ]] && v=6 || v=''
+
+    if [[ $v = "6" ]]; then
+      ss --no-header --tcp -6 --numeric
     else
-      v=4
-    fi
-    ss --no-header --tcp -$v --numeric |\
+      ss --no-header --tcp -4 --numeric
+    fi |\
     grep "^ESTAB .* $(sed -e 's,\[,\\[,g' -e 's,\],\\],g' <<< $relay) " |\
-    perl -wane '{
+    perl -wane '
       BEGIN {
-        my %h = (); # amount of open ports per address
         my $ip;
+        my %h;
       }
 
-      if ('"$v"' == 4)  {
-        $ip = (split(/:/, $F[4]))[0];
-      } else {
+      if ("'$v'" eq "6")  {
         $ip = (split(/\]/, $F[4]))[0];
         $ip =~ tr/[//d;
+      } else {
+        $ip = (split(/:/, $F[4]))[0];
       }
       $h{$ip}++;
 
       END {
         my $ips = 0;
         my $sum = 0;
-        foreach my $ip (sort { $h{$a} <=> $h{$b} || $a cmp $b } grep { $h{$_} > '"$limit"' } keys %h) {
+        foreach my $ip (sort { $h{$a} <=> $h{$b} || $a cmp $b } grep { $h{$_} > '$limit' } keys %h) {
           $ips++;
           my $conn = $h{$ip};
           $sum += $conn;
@@ -90,29 +89,35 @@ function show() {
         }
         print "relay:'"$relay"' $ips $sum\n";
       }
-    }'
+    '
   done
 
-  echo "block4 "$(iptables  -nL | grep -c "^DROP .* $fwcomment")
-  echo "block6 "$(ip6tables -nL | grep -c "^DROP .* $fwcomment")
+  for v in '' 6
+  do
+    echo "blocked${v} "$(ip${v}tables -n -L INPUT | grep -c "^DROP .* $tag ")
+  done
 }
 
 
-# check that no Tor relay was blocked (they assumed to be right)
+# list probably wrongly blocked ips
 function verify() {
   local torlist=/tmp/torlist
 
   # download is restricted to 1x within 30 min
   if [[ ! -s $torlist || $(( EPOCHSECONDS-$(stat -c %Y $torlist) )) -gt 86400 ]]; then
-    curl -0 https://www.dan.me.uk/torlist/ -o $torlist
+    (
+      curl -s -0 https://www.dan.me.uk/torlist/
+      dig +short snowflake-01.torproject.net.
+      dig +short snowflake-01.torproject.net. -t aaaa
+    ) |\
     # 1.2.3.4 != 1.2.3.45
-    sed -i -e 's,^, ,' -e 's,$, ,' $torlist
+    sed -e 's,^, ,' -e 's,$, ,' > $torlist
   fi
 
   for v in '' 6
   do
-    /sbin/ip${v}tables -nvL --line-numbers |\
-    grep -F "$fwcomment" |\
+    ip${v}tables -nv -L INPUT --line-numbers |\
+    grep -F "$tag" |\
     grep -F -f $torlist
   done
 }
@@ -126,7 +131,7 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 action="show"
 limit=20
 relays=$(grep "^ORPort" /etc/tor/torrc{,2} | awk '{ print $2 }' | sort)
-fwcomment="Tor-DDoS"
+tag="Tor-DDoS"
 
 while getopts bl:r:suv opt
 do
