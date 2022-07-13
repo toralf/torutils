@@ -30,7 +30,7 @@ function block() {
 
 
 function unblock()  {
-  local max=50      # current consensus limit
+  local max=$(( 3 * limit ))
 
   for v in '' 6
   do
