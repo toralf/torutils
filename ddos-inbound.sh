@@ -45,7 +45,7 @@ function unblock()  {
       fi
 
       if [[ $pkts -lt $max ]]; then
-        echo -e "unblock $\t($pkts hits)"
+        echo -e "unblock $s\t($pkts hits)"
         ip${v}tables -D INPUT $num
       fi
     done
