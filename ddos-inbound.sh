@@ -23,7 +23,7 @@ function block() {
     [[ $s =~ ']' || $s =~ ':' ]] && v=6 || v=''
     if ! ip${v}tables -n -L INPUT | grep -q "^DROP .* $s .* $tag "; then
       echo "block $s"
-      ip${v}tables -I INPUT -p tcp --source $s -j DROP -m comment --comment "$tag"
+      ip${v}tables -I INPUT -p tcp --source $s -j DROP -m comment --comment "$tag limit=$limit"
     fi
   done
 }
@@ -45,7 +45,7 @@ function unblock()  {
       fi
 
       if [[ $pkts -le $max ]]; then
-        echo -e "unblock $s\t($pkts hits)"
+        echo -e "unblock $s\t($pkts pkts)"
         ip${v}tables -D INPUT $num
       fi
     done
