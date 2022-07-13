@@ -20,7 +20,7 @@ function block() {
   sort -u -r -n |\
   while read -r s
   do
-    [[ $s =~ ']' ]] && v=6 || v=''
+    [[ $s =~ ']' || $s =~ ':' ]] && v=6 || v=''
     if ! ip${v}tables -n -L INPUT | grep -q "^DROP .* $s .* $tag "; then
       echo "block $s"
       ip${v}tables -I INPUT -p tcp --source $s -j DROP -m comment --comment "$tag"
