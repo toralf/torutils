@@ -8,24 +8,33 @@
 
 # crontab example:
 #
-#*/3 * * * * /opt/torutils/ddos-inbound.sh -b
-#58  * * * * /opt/torutils/ddos-inbound.sh -v
-#59  * * * * /opt/torutils/ddos-inbound.sh -u
+# Tor DDoS
+# 0-58 * * * * /opt/torutils/ddos-inbound.sh -b 1>/dev/null
+# 59   * * * * /opt/torutils/ddos-inbound.sh -u; /opt/torutils/ddos-inbound.sh -b 1>/dev/null; /opt/torutils/ddos-inbound.sh -v
 
 
 function block() {
-  show |\
-  grep "^address " |\
-  awk '{ print $2 }' |\
-  sort -u -r -n |\
-  while read -r s
+  local curr=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
+
+  for v in '' 6
   do
-    [[ $s =~ ']' || $s =~ ':' ]] && v=6 || v=''
-    if ! ip${v}tables -n -L INPUT | grep -q "^DROP .* $s .* $tag "; then
-      echo "block $s"
-      ip${v}tables -I INPUT -p tcp --source $s -j DROP -m comment --comment "$tag limit=$limit"
-    fi
+    ip${v}tables -n -L INPUT > $curr
+
+    _show_v $v |\
+    grep "^address${v} " |\
+    awk '{ print $2 }' |\
+    sort -r -n |\
+    while read -r s
+    do
+      [[ $s =~ '.' ]] && v='' || v='6'
+      if ! grep -q "^DROP .* $s .* $tag " $curr; then
+        echo "block $s"
+        ip${v}tables -I INPUT -p tcp --source $s -j DROP -m comment --comment "$tag limit=$limit"
+      fi
+    done
   done
+
+  rm $curr
 }
 
 
@@ -53,21 +62,25 @@ function unblock()  {
 }
 
 
-function show() {
+function _show_v() {
   for relay in $relays
   do
-    [[ $relay =~ ']' ]] && v=6 || v=''
-
-    if [[ $v = "6" ]]; then
-      ss --no-header --tcp -6 --numeric
+    if [[ $relay =~ '.' ]]; then
+      if [[ "$v" = "6" ]]; then
+        continue
+      fi
     else
-      ss --no-header --tcp -4 --numeric
-    fi |\
+      if [[ "$v" = "" ]]; then
+        continue
+      fi
+    fi
+
+    ss --no-header --tcp -${v:-4} --numeric |\
     grep "^ESTAB .* $(sed -e 's,\[,\\[,g' -e 's,\],\\],g' <<< $relay) " |\
     perl -wane '
       BEGIN {
-        my $ip;
-        my %h;
+        my $ip = undef;
+        my %h = ();
       }
 
       if ("'$v'" eq "6")  {
@@ -85,16 +98,21 @@ function show() {
           $ips++;
           my $conn = $h{$ip};
           $sum += $conn;
-          print "address $ip $conn\n";
+          print "address'$v' $ip $conn\n";
         }
         print "relay:'"$relay"' $ips $sum\n";
       }
     '
   done
 
+  echo "blocked${v} "$(ip${v}tables -n -L INPUT | grep -c "^DROP .* $tag ")
+}
+
+
+function show() {
   for v in '' 6
   do
-    echo "blocked${v} "$(ip${v}tables -n -L INPUT | grep -c "^DROP .* $tag ")
+    _show_v $v
   done
 }
 
@@ -118,7 +136,13 @@ function verify() {
   do
     ip${v}tables -nv -L INPUT --line-numbers |\
     grep -F "$tag" |\
-    grep -F -f $torlist
+    grep -F -f $torlist |\
+    awk '{ print $1, $2, $9 }' |\
+    sort -u -r -n |\
+    while read -r num pkts s
+    do
+      echo -e "is a relay $s\t($pkts pkts)"
+    done
   done
 }
 
