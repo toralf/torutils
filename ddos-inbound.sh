@@ -119,29 +119,31 @@ function show() {
 
 # list probably wrongly blocked ips
 function verify() {
-  local torlist=/tmp/torlist
+  local relays=/tmp/relays
 
-  # download is restricted to 1x within 30 min
-  if [[ ! -s $torlist || $(( EPOCHSECONDS-$(stat -c %Y $torlist) )) -gt 86400 ]]; then
+  if [[ ! -s $relays || $(( EPOCHSECONDS-$(stat -c %Y $relays) )) -gt 3600 ]]; then
     (
-      curl -s -0 https://www.dan.me.uk/torlist/
+      curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |\
+      jq -cr '.relays[].a' |\
+      tr '\[\]" ,' ' '|\
+      xargs -r -n 1
+
       dig +short snowflake-01.torproject.net.
       dig +short snowflake-01.torproject.net. -t aaaa
     ) |\
-    # 1.2.3.4 != 1.2.3.45
-    sed -e 's,^, ,' -e 's,$, ,' > $torlist
+    sort > $relays
   fi
 
   for v in '' 6
   do
     ip${v}tables -nv -L INPUT --line-numbers |\
     grep -F "$tag" |\
-    grep -F -f $torlist |\
+    grep -F -w -f $relays |\
     awk '{ print $1, $2, $9 }' |\
     sort -u -r -n |\
     while read -r num pkts s
     do
-      echo -e "is a relay $s\t($pkts pkts)"
+      echo -e "is listed as a relay $s\t($pkts pkts)"
     done
   done
 }
