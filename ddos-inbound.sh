@@ -96,11 +96,11 @@ function _show_v() {
         my $sum = 0;
         foreach my $ip (sort { $h{$a} <=> $h{$b} || $a cmp $b } grep { $h{$_} > '$limit' } keys %h) {
           $ips++;
-          my $conn = $h{$ip};
-          $sum += $conn;
-          print "address'$v' $ip $conn\n";
+          my $conns = $h{$ip};
+          $sum += $conns;
+          printf "%-35s %15s %4i\n", "address'$v'", $ip, $conns;
         }
-        print "relay:'"$relay"' $ips $sum\n";
+        printf "%-35s %15i %4i\n", "relay:'$relay'", $ips, $sum;
       }
     '
   done
@@ -122,16 +122,11 @@ function verify() {
   local relays=/tmp/relays
 
   if [[ ! -s $relays || $(( EPOCHSECONDS-$(stat -c %Y $relays) )) -gt 3600 ]]; then
-    (
-      curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |\
-      jq -cr '.relays[].a' |\
-      tr '\[\]" ,' ' '|\
-      xargs -r -n 1
-
-      dig +short snowflake-01.torproject.net.
-      dig +short snowflake-01.torproject.net. -t aaaa
-    ) |\
-    sort > $relays
+    curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |\
+    jq -cr '.relays[].a' |\
+    tr '\[\]" ,' ' ' |\
+    xargs -r -n 1 |\
+    sort > /tmp/relays
   fi
 
   for v in '' 6
