@@ -126,7 +126,7 @@ function verify() {
     jq -cr '.relays[].a' |\
     tr '\[\]" ,' ' ' |\
     xargs -r -n 1 |\
-    sort > /tmp/relays
+    sort -u > /tmp/relays
   fi
 
   for v in '' 6
