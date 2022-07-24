@@ -23,7 +23,7 @@ function block() {
     _show_v $v |\
     grep "^address${v} " |\
     awk '{ print $2 }' |\
-    sort -r -n |\
+    sort -r |\
     while read -r s
     do
       [[ $s =~ '.' ]] && v='' || v='6'
@@ -46,7 +46,7 @@ function unblock()  {
     ip${v}tables -nv -L INPUT --line-numbers |\
     grep -F " $tag " |\
     awk '{ print $1, $2, $9} ' |\
-    sort -r -n |\
+    sort -r |\
     while read -r num pkts s
     do
       if [[ $pkts =~ "K" || $pkts =~ "M" || $pkts =~ "G" ]]; then
@@ -135,7 +135,7 @@ function verify() {
     grep -F "$tag" |\
     grep -F -w -f $relays |\
     awk '{ print $1, $2, $9 }' |\
-    sort -u -r -n |\
+    sort -u -r |\
     while read -r num pkts s
     do
       echo -e "is listed as a relay $s\t($pkts pkts)"
