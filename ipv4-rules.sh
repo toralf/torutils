@@ -19,12 +19,11 @@ startFirewall() {
   iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
 
   # Tor
-  if ! ipset list $blacklist &>/dev/null; then
-    if [[ -s /var/tmp/ipset.$blacklist ]]; then
-      ipset restore -f /var/tmp/ipset.$blacklist
-    else
-      ipset create $blacklist hash:ip timeout 86400
-    fi
+  ipset destroy $blacklist 2>/dev/null
+  if [[ -s /var/tmp/ipset.$blacklist ]]; then
+    ipset restore -f /var/tmp/ipset.$blacklist
+  else
+    ipset create $blacklist hash:ip timeout 86400
   fi
 
   for orport in 443 9001
