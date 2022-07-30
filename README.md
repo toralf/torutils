@@ -7,7 +7,7 @@ Few tools around a Tor relay.
 
 *info.py* gives an overview about the connections of a relay:
 
-    python /opt/torutils/info.py --ctrlport 9051
+    python info.py --ctrlport 9051
     0.4.6.0-alpha-dev   uptime: 5-07:14:15   flags: Fast, Guard, HSDir, Running, Stable, V2Dir, Valid
 
     +------------------------------+------+------+
@@ -61,7 +61,7 @@ Few tools around a Tor relay.
 
 ```
 # check for expiring Tor keys
-@daily    n="$(($(/opt/torutils/key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert) / 86400))"; [[ $n -lt 23 ]] && echo "Tor signing key expires in <$n day(s)"
+@daily    n="$(($(key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert) / 86400))"; [[ $n -lt 23 ]] && echo "Tor signing key expires in <$n day(s)"
 ```
 ### more info
 You need the Python lib Stem (https://stem.torproject.org/index.html) for the python scripts:
