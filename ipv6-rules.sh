@@ -26,7 +26,7 @@ startFirewall() {
     if [[ -s /var/tmp/ipset.$blacklist ]]; then
       ipset restore -f /var/tmp/ipset.$blacklist
     else
-      ipset create $blacklist hash:ip timeout $timeout family inet6
+      ipset create $blacklist hash:ip timeout $timeout family inet6 netmask 64
     fi
   fi
 
@@ -35,7 +35,7 @@ startFirewall() {
     name=$blacklist-$orport
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m recent --name $name --set
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds $seconds --hitcount $hitcount --rttl -j SET --add-set $blacklist src
-    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above $connlimit -j SET --add-set $blacklist src
+    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 64 --connlimit-above $connlimit -j SET --add-set $blacklist src
   done
   ip6tables -A INPUT -m set --match-set $blacklist src -j DROP
   for orport in 443 9001
