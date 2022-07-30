@@ -10,8 +10,6 @@ startFirewall() {
   ip6tables -P OUTPUT  ACCEPT
   ip6tables -P FORWARD DROP
   
-  oraddr="2a01:4f9:3b:468e::13"
-
   # trust already established connections
   ip6tables -A INPUT --match conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT -m comment --comment "$(date)"
   ip6tables -A INPUT --match conntrack --ctstate INVALID             -j DROP
@@ -59,11 +57,9 @@ startFirewall() {
   ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -j DROP
   ip6tables -A INPUT -p ipv6-icmp                            -j ACCEPT
 
-  primary=$(ifconfig $link | grep -m 1 ' inet6 ' | awk '{ print $2 }')
-  
   # ssh
   sshport=$(grep -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
-  ip6tables -A INPUT -p tcp --destination $primary --destination-port ${sshport:-22} -j ACCEPT
+  ip6tables -A INPUT -p tcp --destination $sshaddr --destination-port ${sshport:-22} -j ACCEPT
 }
 
 
@@ -83,14 +79,20 @@ stopFirewall() {
 #######################################################################
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-link=enp8s0   # maybe "eth0" is needed here
-
 # Tor
+oraddr="2a01:4f9:3b:468e::13"
 blacklist=tor-ddos6
 timeout=86400
 seconds=300
 hitcount=12   # both tries 1x per minute
 connlimit=4   # 2 Tor relays at 1 ip address allowed
+
+# if there're 2 ip addresses then do assume that the 2nd is used for ssh etc.
+dev=$(ip -6 route | grep "^default" | awk '{ print $5 }')
+sshaddr=$(ip -6 address show dev $dev | grep -w "inet6 .* global" | grep -v -w "$oraddr" | awk '{ print $2 }' | cut -f1 -d'/')
+if [[ -z $sshaddr ]]; then
+  sshaddr=$oraddr
+fi
 
 case $1 in
   start)  startFirewall ;;

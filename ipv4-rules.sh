@@ -7,8 +7,6 @@ startFirewall() {
   iptables -P OUTPUT  ACCEPT
   iptables -P FORWARD DROP
 
-  oraddr="65.21.94.13"
-
   # trust already established connections
   #
   iptables -A INPUT --match conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT -m comment --comment "$(date)"
@@ -55,17 +53,15 @@ startFirewall() {
   iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 6/s -j ACCEPT
   iptables -A INPUT -p icmp --icmp-type echo-request                      -j DROP
 
-  primary=$(ifconfig $link | grep ' inet ' | awk '{ print $2 }')
-  
   # ssh
   sshport=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
-  iptables -A INPUT -p tcp --destination $primary --destination-port ${sshport:-22} -j ACCEPT
+  iptables -A INPUT -p tcp --destination $sshaddr --destination-port ${sshport:-22} -j ACCEPT
 
   # non-Tor related stats
   port=$(crontab -l -u torproject | grep -m 1 -F " --port" | sed -e 's,.* --port ,,g' | cut -f1 -d ' ')
-  [[ -z "$port" ]] || iptables -A INPUT -p tcp --destination $primary --destination-port $port -j ACCEPT
+  [[ -z "$port" ]] || iptables -A INPUT -p tcp --destination $sshaddr --destination-port $port -j ACCEPT
   port=$(crontab -l -u tinderbox  | grep -m 1 -F " --port" | sed -e 's,.* --port ,,g' | cut -f1 -d ' ')
-  [[ -z "$port" ]] || iptables -A INPUT -p tcp --destination $primary --destination-port $port -j ACCEPT
+  [[ -z "$port" ]] || iptables -A INPUT -p tcp --destination $sshaddr --destination-port $port -j ACCEPT
 }
 
 
@@ -85,14 +81,20 @@ stopFirewall() {
 #######################################################################
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-link=enp8s0   # maybe "eth0" is needed here
-
 # Tor
+oraddr="65.21.94.13"
 blacklist=tor-ddos
 timeout=86400
 seconds=300
 hitcount=12   # both tries 1x per minute
 connlimit=4   # 2 Tor relays at 1 ip address allowed
+
+# if there're 2 ip addresses then do assume that the 2nd is used for ssh etc.
+dev=$(ip -4 route | grep "^default" | awk '{ print $5 }')
+sshaddr=$(ip -4 address show dev $dev | grep -w "inet .* global" | grep -v -w "$oraddr" | awk '{ print $2 }' | cut -f1 -d'/')
+if [[ -z $sshaddr ]]; then
+  sshaddr=$oraddr
+fi
 
 case $1 in
   start)  startFirewall ;;
