@@ -22,8 +22,8 @@ startFirewall() {
   ip6tables -A INPUT -m set --match-set $blacklist src -j DROP
 
   # trust already established connections
-  ip6tables -A INPUT --match conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT -m comment --comment "$(date)"
-  ip6tables -A INPUT --match conntrack --ctstate INVALID             -j DROP
+  ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT -m comment --comment "$(date)"
+  ip6tables -A INPUT -m conntrack --ctstate INVALID             -j DROP
 
   # local traffic
   ip6tables -A INPUT --in-interface lo --source ::1 --destination ::1 -j ACCEPT

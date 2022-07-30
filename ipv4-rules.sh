@@ -20,8 +20,8 @@ startFirewall() {
 
   # trust already established connections
   #
-  iptables -A INPUT --match conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT -m comment --comment "$(date)"
-  iptables -A INPUT --match conntrack --ctstate INVALID             -j DROP
+  iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT -m comment --comment "$(date)"
+  iptables -A INPUT -m conntrack --ctstate INVALID             -j DROP
 
   # local traffic
   iptables -A INPUT --in-interface lo --source 127.0.0.1/8 --destination 127.0.0.1/8 -j ACCEPT
