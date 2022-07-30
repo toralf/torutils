@@ -17,6 +17,7 @@ startFirewall() {
   # local traffic
   ip6tables -A INPUT --in-interface lo --source ::1 --destination ::1 -j ACCEPT
   ip6tables -A INPUT -p udp --source fe80::/10 --destination ff02::1  -j ACCEPT
+  # maybe handle fd00::/8 here too
 
   # Make sure NEW incoming tcp connections are SYN packets
   ip6tables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
