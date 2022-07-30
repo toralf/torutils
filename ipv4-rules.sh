@@ -20,7 +20,7 @@ startFirewall() {
 
   # Tor
   if ! ipset list $blacklist &>/dev/null; then
-    if [[ -s /var/tmp/ipset.$blacklist ]] && head -n 1 /var/tmp/ipset.$blacklist | grep -q "timeout $timeout"; then
+    if [[ -s /var/tmp/ipset.$blacklist ]]; then
       ipset restore -f /var/tmp/ipset.$blacklist
     else
       ipset create $blacklist hash:ip timeout 86400
