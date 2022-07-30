@@ -31,9 +31,9 @@ function show() {
         $ips++;
         my $conns = $h{$ip};
         $sum += $conns;
-        printf "%-35s %15s %4i\n", "address'$v'", $ip, $conns;
+        printf "%-15s %35s %4i\n", "address'$v'", $ip, $conns;
       }
-      printf "%-35s %15i %4i\n\n", "relay:'$relay'", $ips, $sum;
+      printf "%-51s %4i %4i\n\n", "relay:'$relay'", $ips, $sum;
     }
   '
 }
