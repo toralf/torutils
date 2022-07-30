@@ -8,6 +8,7 @@ import time
 import glob
 import ipaddress
 
+# https://github.com/torproject/stem.git
 from stem.control import Controller, Listener
 from stem.descriptor import parse_file
 from stem.util.connection import get_connections, port_usage, is_valid_ipv4_address

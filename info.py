@@ -6,6 +6,7 @@ import collections
 import time
 import ipaddress
 
+# https://github.com/torproject/stem.git
 from stem.util.str_tools import short_time_label
 from stem.util.system import start_time
 

@@ -8,6 +8,7 @@ import argparse
 import functools
 import time
 
+# https://github.com/torproject/stem.git
 from stem import ORStatus
 from stem.control import EventType, Controller
 from stem.descriptor import parse_file
