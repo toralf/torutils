@@ -9,7 +9,18 @@ startFirewall() {
   ip6tables -P INPUT   DROP
   ip6tables -P OUTPUT  ACCEPT
   ip6tables -P FORWARD DROP
-  
+ 
+  # Tor
+  ipset destroy $blacklist 2>/dev/null
+  if [[ -s /var/tmp/ipset.$blacklist ]]; then
+    ipset restore -f /var/tmp/ipset.$blacklist
+  else
+    ipset create $blacklist hash:ip timeout $timeout family inet6 netmask 64
+  fi
+
+  # Tor
+  ip6tables -A INPUT -m set --match-set $blacklist src -j DROP
+
   # trust already established connections
   ip6tables -A INPUT --match conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT -m comment --comment "$(date)"
   ip6tables -A INPUT --match conntrack --ctstate INVALID             -j DROP
@@ -22,14 +33,7 @@ startFirewall() {
   # Make sure NEW incoming tcp connections are SYN packets
   ip6tables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
 
-  # Tor
-  ipset destroy $blacklist 2>/dev/null
-  if [[ -s /var/tmp/ipset.$blacklist ]]; then
-    ipset restore -f /var/tmp/ipset.$blacklist
-  else
-    ipset create $blacklist hash:ip timeout $timeout family inet6 netmask 64
-  fi
-
+  # To
   for orport in 443 9001
   do
     name=$blacklist-$orport

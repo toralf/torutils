@@ -6,6 +6,17 @@ startFirewall() {
   iptables -P INPUT   DROP
   iptables -P OUTPUT  ACCEPT
   iptables -P FORWARD DROP
+  
+  # Tor
+  ipset destroy $blacklist 2>/dev/null
+  if [[ -s /var/tmp/ipset.$blacklist ]]; then
+    ipset restore -f /var/tmp/ipset.$blacklist
+  else
+    ipset create $blacklist hash:ip timeout 86400
+  fi
+
+  # Tor
+  iptables -A INPUT -m set --match-set $blacklist src -j DROP
 
   # trust already established connections
   #
@@ -19,13 +30,6 @@ startFirewall() {
   iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
 
   # Tor
-  ipset destroy $blacklist 2>/dev/null
-  if [[ -s /var/tmp/ipset.$blacklist ]]; then
-    ipset restore -f /var/tmp/ipset.$blacklist
-  else
-    ipset create $blacklist hash:ip timeout 86400
-  fi
-
   for orport in 443 9001
   do
     name=$blacklist-$orport
