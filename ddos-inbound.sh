@@ -62,7 +62,7 @@ do
   do
     if [[ $relay =~ '.' && "$v" = "" ]]; then
       show
-    elif [[ $relay =~ ':' && "$v" = "6" ]]; then
+    elif [[ ! $relay =~ '.' && "$v" = "6" ]]; then
       show
     fi
   done
