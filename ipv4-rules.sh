@@ -12,10 +12,10 @@ startFirewall() {
   iptables -A INPUT --match conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT -m comment --comment "$(date)"
   iptables -A INPUT --match conntrack --ctstate INVALID             -j DROP
 
-  # Allow localhost traffic
-  iptables -A INPUT --in-interface lo -j ACCEPT
+  # local traffic
+  iptables -A INPUT --in-interface lo --source 127.0.0.1/8 --destination 127.0.0.1/8 -j ACCEPT
 
-  # Make sure NEW incoming tcp connections are SYN packets; otherwise we need to drop them.
+  # Make sure NEW incoming tcp connections are SYN packets
   iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
 
   # Tor

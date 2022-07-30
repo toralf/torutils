@@ -14,11 +14,11 @@ startFirewall() {
   ip6tables -A INPUT --match conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT -m comment --comment "$(date)"
   ip6tables -A INPUT --match conntrack --ctstate INVALID             -j DROP
 
-  # Allow localhost traffic
-  ip6tables -A INPUT --source ::1       --destination ::1            -j ACCEPT
-  ip6tables -A INPUT --source fe80::/10 --destination ff02::1 -p udp -j ACCEPT
+  # local traffic
+  ip6tables -A INPUT --in-interface lo --source ::1 --destination ::1 -j ACCEPT
+  ip6tables -A INPUT -p udp --source fe80::/10 --destination ff02::1  -j ACCEPT
 
-  # Make sure NEW incoming tcp connections are SYN packets; otherwise we need to drop them.
+  # Make sure NEW incoming tcp connections are SYN packets
   ip6tables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
 
   # Tor
