@@ -89,7 +89,7 @@ connlimit=4   # 2 Tor relays at 1 ip address allowed
 
 # if there're 2 ip addresses then do assume that the 2nd is used for ssh etc.
 dev=$(ip -6 route | grep "^default" | awk '{ print $5 }')
-sshaddr=$(ip -6 address show dev $dev | grep -w "inet6 .* global" | grep -v -w "$oraddr" | awk '{ print $2 }' | cut -f1 -d'/')
+sshaddr=$(ip -6 address show dev $dev | grep -w "inet6 .* scope global" | grep -v -w "$oraddr" | awk '{ print $2 }' | cut -f1 -d'/')
 if [[ -z $sshaddr ]]; then
   sshaddr=$oraddr
 fi

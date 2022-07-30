@@ -91,7 +91,7 @@ connlimit=4   # 2 Tor relays at 1 ip address allowed
 
 # if there're 2 ip addresses then do assume that the 2nd is used for ssh etc.
 dev=$(ip -4 route | grep "^default" | awk '{ print $5 }')
-sshaddr=$(ip -4 address show dev $dev | grep -w "inet .* global" | grep -v -w "$oraddr" | awk '{ print $2 }' | cut -f1 -d'/')
+sshaddr=$(ip -4 address show dev $dev | grep -w "inet .* scope global" | grep -v -w "$oraddr" | awk '{ print $2 }' | cut -f1 -d'/')
 if [[ -z $sshaddr ]]; then
   sshaddr=$oraddr
 fi
