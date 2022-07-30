@@ -7,41 +7,36 @@ startFirewall() {
   iptables -P OUTPUT  ACCEPT
   iptables -P FORWARD DROP
   
+  # make sure NEW incoming tcp connections are SYN packets
+  iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP -m comment --comment "$(date)"
+  
+  # local traffic
+  iptables -A INPUT --in-interface lo --source 127.0.0.1/8 --destination 127.0.0.1/8 -j ACCEPT
+  
   # Tor
   ipset destroy $blacklist 2>/dev/null
   if [[ -s /var/tmp/ipset.$blacklist ]]; then
     ipset restore -f /var/tmp/ipset.$blacklist
   else
-    ipset create $blacklist hash:ip timeout 86400
+    ipset create $blacklist hash:ip timeout $timeout
   fi
-
-  # Tor
-  iptables -A INPUT -m set --match-set $blacklist src -j DROP
-
-  # trust already established connections
-  #
-  iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT -m comment --comment "$(date)"
-  iptables -A INPUT -m conntrack --ctstate INVALID             -j DROP
-
-  # local traffic
-  iptables -A INPUT --in-interface lo --source 127.0.0.1/8 --destination 127.0.0.1/8 -j ACCEPT
-
-  # Make sure NEW incoming tcp connections are SYN packets
-  iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
-
-  # Tor
+  
   for orport in 443 9001
   do
     name=$blacklist-$orport
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m recent --name $name --set
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds $seconds --hitcount $hitcount --rttl -j SET --add-set $blacklist src
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above $connlimit -j SET --add-set $blacklist src
+    iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --set
+    iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds $seconds --hitcount $hitcount --rttl -j SET --add-set $blacklist src
+    iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above $connlimit -j SET --add-set $blacklist src
   done
   iptables -A INPUT -m set --match-set $blacklist src -j DROP
   for orport in 443 9001
   do
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
   done
+  
+  # trust already established connections
+  iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+  iptables -A INPUT -m conntrack --ctstate INVALID             -j DROP
 
   # only needed for Hetzner customer
   # https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
