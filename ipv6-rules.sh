@@ -16,32 +16,32 @@ startFirewall() {
   # maybe handle fd00::/8 here too
  
   # Tor
-  ipset destroy $blacklist 2>/dev/null
-  if [[ -s /var/tmp/ipset.$blacklist ]]; then
-    ipset restore -f /var/tmp/ipset.$blacklist
+  ipset destroy $denylist 2>/dev/null
+  if [[ -s /var/tmp/ipset.$denylist ]]; then
+    ipset restore -f /var/tmp/ipset.$denylist
   else
-    ipset create $blacklist hash:ip timeout $timeout family inet6 netmask 64
+    ipset create $denylist hash:ip timeout $timeout family inet6 netmask 64
   fi
 
   # Tor authorities are trusted
-  whitelist=tor-authorities6
-  ipset destroy $whitelist 2>/dev/null
-  ipset create $whitelist hash:ip family inet6
-  # https://metrics.torproject.org/rs.html#search/flag:authority%20
-  for i in 2001:678:558:1000::244 2610:1c0:0:5::131 2001:858:2:2:aabb:0:563b:1526 2620:13:4000:6000::1000:118 2001:67c:289c::9 2607:8500:154::3 2001:638:a000:4140::ffff:189
+  allowlist=tor-authorities6
+  ipset destroy $allowlist 2>/dev/null
+  ipset create $allowlist hash:ip family inet6
+  #  get-authority-ips.sh | grep -F ':' | sort | xargs
+  for i in 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2001:858:2:2:aabb:0:563b:1526 2607:8500:154::3 2610:1c0:0:5::131 2620:13:4000:6000::1000:118 2a03:4000:43:216:5443:2bff:fe16:c6b5
   do
-    ipset add $whitelist $i
+    ipset add $allowlist $i
   done
 
-  ip6tables -A INPUT -p tcp --destination $oraddr -m set --match-set $whitelist src -j ACCEPT
+  ip6tables -A INPUT -p tcp --destination $oraddr -m set --match-set $allowlist src -j ACCEPT
   for orport in 443 9001
   do
-    name=$blacklist-$orport
+    name=$denylist-$orport
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --set
-    ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds $seconds --hitcount $hitcount --rttl -j SET --add-set $blacklist src
-    ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 64 --connlimit-above $connlimit -j SET --add-set $blacklist src
+    ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds $seconds --hitcount $hitcount --rttl -j SET --add-set $denylist src
+    ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 64 --connlimit-above $connlimit -j SET --add-set $denylist src
   done
-  ip6tables -A INPUT -p tcp --destination $oraddr -m set --match-set $blacklist src -j DROP
+  ip6tables -A INPUT -p tcp --destination $oraddr -m set --match-set $denylist src -j DROP
   for orport in 443 9001
   do
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
@@ -80,7 +80,7 @@ stopFirewall() {
   ip6tables -P OUTPUT  ACCEPT
   ip6tables -P FORWARD ACCEPT
 
-  ipset save $blacklist -f /var/tmp/ipset.$blacklist.tmp && mv /var/tmp/ipset.$blacklist.tmp /var/tmp/ipset.$blacklist
+  ipset save $denylist -f /var/tmp/ipset.$denylist.tmp && mv /var/tmp/ipset.$denylist.tmp /var/tmp/ipset.$denylist
 }
 
 
@@ -89,11 +89,11 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 # Tor
 oraddr="2a01:4f9:3b:468e::13"
-blacklist=tor-ddos6
+denylist=tor-ddos6
 timeout=86400
 seconds=300
-hitcount=12   # both tries 1x per minute
-connlimit=4   # 2 Tor relays at 1 ip address allowed
+hitcount=12   # both tries 1x per minute and maybe a tor client is running there too
+connlimit=4   # 2 Tor relays at 1 ip address
 
 # if there're 2 ip addresses then do assume that the 2nd is used for ssh etc.
 dev=$(ip -6 route | grep "^default" | awk '{ print $5 }')

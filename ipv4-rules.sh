@@ -14,32 +14,32 @@ startFirewall() {
   iptables -A INPUT --in-interface lo --source 127.0.0.1/8 --destination 127.0.0.1/8 -j ACCEPT
   
   # Tor
-  ipset destroy $blacklist 2>/dev/null
-  if [[ -s /var/tmp/ipset.$blacklist ]]; then
-    ipset restore -f /var/tmp/ipset.$blacklist
+  ipset destroy $denylist 2>/dev/null
+  if [[ -s /var/tmp/ipset.$denylist ]]; then
+    ipset restore -f /var/tmp/ipset.$denylist
   else
-    ipset create $blacklist hash:ip timeout $timeout
+    ipset create $denylist hash:ip timeout $timeout
   fi
 
   # Tor authorities are trusted
-  whitelist=tor-authorities
-  ipset destroy $whitelist 2>/dev/null
-  ipset create $whitelist hash:ip
-  # https://metrics.torproject.org/rs.html#search/flag:authority%20
-  for i in 45.66.33.45 193.23.244.244 66.111.2.131 86.59.21.38 204.13.164.118 171.25.193.9 128.31.0.34 154.35.175.225 131.188.40.189 199.58.81.140
+  allowlist=tor-authorities
+  ipset destroy $allowlist 2>/dev/null
+  ipset create $allowlist hash:ip
+  # get-authority-ips.sh | grep -F '.' | sort | xargs
+  for i in 128.31.0.34 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 194.13.81.26 199.58.81.140 204.13.164.118 45.66.33.45 66.111.2.131 86.59.21.38
   do
-    ipset add $whitelist $i
+    ipset add $allowlist $i
   done
   
-  iptables -A INPUT -p tcp --destination $oraddr -m set --match-set $whitelist src -j ACCEPT
+  iptables -A INPUT -p tcp --destination $oraddr -m set --match-set $allowlist src -j ACCEPT
   for orport in 443 9001
   do
-    name=$blacklist-$orport
+    name=$denylist-$orport
     iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --set
-    iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds $seconds --hitcount $hitcount --rttl -j SET --add-set $blacklist src
-    iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above $connlimit -j SET --add-set $blacklist src
+    iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds $seconds --hitcount $hitcount --rttl -j SET --add-set $denylist src
+    iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above $connlimit -j SET --add-set $denylist src
   done
-  iptables -A INPUT -p tcp --destination $oraddr -m set --match-set $blacklist src -j DROP
+  iptables -A INPUT -p tcp --destination $oraddr -m set --match-set $denylist src -j DROP
   for orport in 443 9001
   do
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
@@ -58,7 +58,7 @@ startFirewall() {
     iptables -A INPUT --source $s -j ACCEPT
   done
 
-  ## ratelimit ICMP echo, allow all others
+  ## ratelimit ICMP echo, deny all others
   iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 6/s -j ACCEPT
   iptables -A INPUT -p icmp --icmp-type echo-request                      -j DROP
 
@@ -83,7 +83,7 @@ stopFirewall() {
   iptables -P OUTPUT  ACCEPT
   iptables -P FORWARD ACCEPT
 
-  ipset save $blacklist -f /var/tmp/ipset.$blacklist.tmp && mv /var/tmp/ipset.$blacklist.tmp /var/tmp/ipset.$blacklist
+  ipset save $denylist -f /var/tmp/ipset.$denylist.tmp && mv /var/tmp/ipset.$denylist.tmp /var/tmp/ipset.$denylist
 }
 
 
@@ -92,11 +92,11 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 # Tor
 oraddr="65.21.94.13"
-blacklist=tor-ddos
+denylist=tor-ddos
 timeout=86400
 seconds=300
-hitcount=12   # both tries 1x per minute
-connlimit=4   # 2 Tor relays at 1 ip address allowed
+hitcount=12   # both tries 1x per minute and maybe a tor client is running there too
+connlimit=4   # 2 Tor relays at 1 ip address
 
 # if there're 2 ip addresses then do assume that the 2nd is used for ssh etc.
 dev=$(ip -4 route | grep "^default" | awk '{ print $5 }')
