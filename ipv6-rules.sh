@@ -47,7 +47,7 @@ startFirewall() {
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
   done
   
-  # trust already established connections
+  # trust already established connections - this is almost Tor traffic initiated by us
   ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   ip6tables -A INPUT -m conntrack --ctstate INVALID             -j DROP
   

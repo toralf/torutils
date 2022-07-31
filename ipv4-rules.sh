@@ -45,7 +45,7 @@ startFirewall() {
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
   done
   
-  # trust already established connections
+  # trust already established connections - this is almost Tor traffic initiated by us
   iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   iptables -A INPUT -m conntrack --ctstate INVALID             -j DROP
 
