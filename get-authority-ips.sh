@@ -12,13 +12,12 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
-curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' |\
-tee $tmpfile |\
-jq -cr '.relays[].a[0]' |\
+curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o $tmpfile
+
+jq -cr '.relays[].a[0]' $tmpfile |\
 sort
 
-jq -cr '.relays[].a[1]' $tmpfile |\
-grep -v null |\
+jq -cr '.relays[].a[1] | select (length > 0)' $tmpfile |\
 tr -d '][' |\
 sort
 
