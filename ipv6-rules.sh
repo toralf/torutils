@@ -23,6 +23,17 @@ startFirewall() {
     ipset create $blacklist hash:ip timeout $timeout family inet6 netmask 64
   fi
 
+  # Tor authorities are trusted
+  whitelist=tor-authorities6
+  ipset destroy $whitelist 2>/dev/null
+  ipset create $whitelist hash:ip family inet6
+  # https://metrics.torproject.org/rs.html#search/flag:authority%20
+  for i in 2001:678:558:1000::244 2610:1c0:0:5::131 2001:858:2:2:aabb:0:563b:1526 2620:13:4000:6000::1000:118 2001:67c:289c::9 2607:8500:154::3 2001:638:a000:4140::ffff:189
+  do
+    ipset add $whitelist $i
+  done
+
+  ip6tables -A INPUT -p tcp --destination $oraddr -m set --match-set $whitelist src -j ACCEPT
   for orport in 443 9001
   do
     name=$blacklist-$orport
@@ -30,7 +41,7 @@ startFirewall() {
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds $seconds --hitcount $hitcount --rttl -j SET --add-set $blacklist src
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 64 --connlimit-above $connlimit -j SET --add-set $blacklist src
   done
-  ip6tables -A INPUT -m set --match-set $blacklist src -j DROP
+  ip6tables -A INPUT -p tcp --destination $oraddr -m set --match-set $blacklist src -j DROP
   for orport in 443 9001
   do
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT

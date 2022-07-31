@@ -20,7 +20,18 @@ startFirewall() {
   else
     ipset create $blacklist hash:ip timeout $timeout
   fi
+
+  # Tor authorities are trusted
+  whitelist=tor-authorities
+  ipset destroy $whitelist 2>/dev/null
+  ipset create $whitelist hash:ip
+  # https://metrics.torproject.org/rs.html#search/flag:authority%20
+  for i in 45.66.33.45 193.23.244.244 66.111.2.131 86.59.21.38 204.13.164.118 171.25.193.9 128.31.0.34 154.35.175.225 131.188.40.189 199.58.81.140
+  do
+    ipset add $whitelist $i
+  done
   
+  iptables -A INPUT -p tcp --destination $oraddr -m set --match-set $whitelist src -j ACCEPT
   for orport in 443 9001
   do
     name=$blacklist-$orport
@@ -28,7 +39,7 @@ startFirewall() {
     iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds $seconds --hitcount $hitcount --rttl -j SET --add-set $blacklist src
     iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above $connlimit -j SET --add-set $blacklist src
   done
-  iptables -A INPUT -m set --match-set $blacklist src -j DROP
+  iptables -A INPUT -p tcp --destination $oraddr -m set --match-set $blacklist src -j DROP
   for orport in 443 9001
   do
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
