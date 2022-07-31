@@ -21,7 +21,7 @@ startFirewall() {
     ipset create $denylist hash:ip timeout $timeout
   fi
 
-  # Tor authorities are trusted
+  # fill allowlist with Tor authorities
   allowlist=tor-authorities
   ipset destroy $allowlist 2>/dev/null
   ipset create $allowlist hash:ip
@@ -30,7 +30,6 @@ startFirewall() {
   do
     ipset add $allowlist $i
   done
-  iptables -A INPUT -p tcp --destination $oraddr -m set --match-set $allowlist src -j ACCEPT
 
   # fill denylist by ratelimit and connlimit conditions for incoming NEW Tor connections
   for orport in 443 9001
@@ -40,13 +39,16 @@ startFirewall() {
     iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds $seconds --hitcount $hitcount --rttl -j SET --add-set $denylist src
     iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above $connlimit -j SET --add-set $denylist src
   done
+ 
+  # accept Tor authorities traffic to relay address, drop traffic of denylist members entirely
+  iptables -A INPUT -p tcp --destination $oraddr -m set --match-set $allowlist src -j ACCEPT
   iptables -A INPUT -p tcp -m set --match-set $denylist src -j DROP
   for orport in 443 9001
   do
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
   done
   
-  # trust already established connections - this is almost Tor traffic initiated by us
+  # trust already established connections - this is almost Tor traffic initiated by us (but ssh etc too)
   iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   iptables -A INPUT -m conntrack --ctstate INVALID             -j DROP
 
