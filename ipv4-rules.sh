@@ -55,11 +55,15 @@ startFirewall() {
   # only needed for Hetzner customer
   # https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
   #
+  monlist=hetzner-monlist
+  ipset destroy $monlist 2>/dev/null
+  ipset create $monlist hash:ip
   getent ahostsv4 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u |\
-  while read s
+  while read i
   do
-    iptables -A INPUT --source $s -j ACCEPT
+    ipset add $monlist $i
   done
+  iptables -A INPUT -m set --match-set $monlist src -j ACCEPT
 
   ## ratelimit ICMP echo, deny all others
   iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 6/s -j ACCEPT

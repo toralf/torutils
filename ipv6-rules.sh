@@ -57,11 +57,15 @@ startFirewall() {
   # only needed for Hetzner customer
   # https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
   #
+  monlist=hetzner-monlist6
+  ipset destroy $monlist 2>/dev/null
+  ipset create $monlist hash:ip family inet6
   getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u |\
-  while read s
+  while read i
   do
-    ip6tables -A INPUT --source $s -j ACCEPT
+    ipset add $monlist $i
   done
+  ip6tables -A INPUT -m set --match-set $monlist src -j ACCEPT
 
   # https://github.com/boldsuck/tor-relay-bootstrap/blob/master/etc/iptables/rules.v6
   ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -m limit --limit 6/s -j ACCEPT
