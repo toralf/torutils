@@ -57,10 +57,9 @@ Few tools around a Tor relay.
     DONE         6E642BD08A5D687B2C55E35936E3272636A90362  <snip>  9001 v4 0.3.5.11
     IOERROR      C89F338C54C21EDA9041DC8F070A13850358ED0B  <snip>   443 v4 0.4.3.5
 
-*key-expires.py* warns if an offline key has to renew its mid-term signing keys, ie.:
+*key-expires.py* warns if an offline key has to renew its mid-term signing keys, an cronjob example:
 
-```
-# check for expiring Tor keys
+```crontab
 @daily    n="$(($(key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert) / 86400))"; [[ $n -lt 23 ]] && echo "Tor signing key expires in <$n day(s)"
 ```
 ### more info
