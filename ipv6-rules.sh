@@ -2,7 +2,7 @@
 # set -x
 
 
-startFirewall() {
+function addTor() {
   ip6tables -P INPUT   DROP
   ip6tables -P OUTPUT  ACCEPT
   ip6tables -P FORWARD DROP
@@ -50,10 +50,22 @@ startFirewall() {
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
   done
   
-  # trust already established connections - this is almost Tor traffic initiated by us (but ssh etc too)
+  # trust already established connections - this is almost Tor traffic initiated by us
   ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   ip6tables -A INPUT -m conntrack --ctstate INVALID             -j DROP
   
+  # ssh
+  sshport=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
+  ip6tables -A INPUT -p tcp --destination $sshaddr --destination-port ${sshport:-22} -j ACCEPT
+ 
+  ## ratelimit ICMP echo, allow others
+  ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -m limit --limit 6/s -j ACCEPT
+  ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -j DROP
+  ip6tables -A INPUT -p ipv6-icmp                            -j ACCEPT
+}
+
+
+function addMisc() {
   # only needed for Hetzner customer
   # https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
   #
@@ -66,19 +78,10 @@ startFirewall() {
     ipset add $monlist $i
   done
   ip6tables -A INPUT -m set --match-set $monlist src -j ACCEPT
-
-  # https://github.com/boldsuck/tor-relay-bootstrap/blob/master/etc/iptables/rules.v6
-  ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -m limit --limit 6/s -j ACCEPT
-  ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -j DROP
-  ip6tables -A INPUT -p ipv6-icmp                            -j ACCEPT
-
-  # ssh
-  sshport=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
-  ip6tables -A INPUT -p tcp --destination $sshaddr --destination-port ${sshport:-22} -j ACCEPT
 }
 
 
-stopFirewall() {
+function stop() {
   ip6tables -F
   ip6tables -X
   ip6tables -Z
@@ -110,6 +113,9 @@ if [[ -z $sshaddr ]]; then
 fi
 
 case $1 in
-  start)  startFirewall ;;
-  stop)   stopFirewall  ;;
+  start)  addTor
+          addMisc
+          ;;
+  stop)   stop
+          ;;
 esac

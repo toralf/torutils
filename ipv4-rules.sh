@@ -2,7 +2,7 @@
 # set -x
 
 
-startFirewall() {
+function addTor() {
   iptables -P INPUT   DROP
   iptables -P OUTPUT  ACCEPT
   iptables -P FORWARD DROP
@@ -32,6 +32,9 @@ startFirewall() {
   done
 
   # fill denylist by ratelimit and connlimit conditions for incoming NEW Tor connections
+  if [[ ! $(cat /sys/module/*/parameters/ip_list_tot) = "10000" ]]; then
+    echo " consider to increase the ip_list_tot parameter"
+  fi
   for orport in 443 9001
   do
     name=$denylist-$orport
@@ -48,10 +51,21 @@ startFirewall() {
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
   done
   
-  # trust already established connections - this is almost Tor traffic initiated by us (but ssh etc too)
+  # trust already established connections - this is almost Tor traffic initiated by us
   iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   iptables -A INPUT -m conntrack --ctstate INVALID             -j DROP
 
+  # ssh
+  sshport=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
+  iptables -A INPUT -p tcp --destination $sshaddr --destination-port ${sshport:-22} -j ACCEPT
+  
+  ## ratelimit ICMP echo
+  iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 6/s -j ACCEPT
+  iptables -A INPUT -p icmp --icmp-type echo-request                      -j DROP
+}
+
+
+function addMisc() {
   # only needed for Hetzner customer
   # https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
   #
@@ -65,14 +79,6 @@ startFirewall() {
   done
   iptables -A INPUT -m set --match-set $monlist src -j ACCEPT
 
-  ## ratelimit ICMP echo, deny all others
-  iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 6/s -j ACCEPT
-  iptables -A INPUT -p icmp --icmp-type echo-request                      -j DROP
-
-  # ssh
-  sshport=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
-  iptables -A INPUT -p tcp --destination $sshaddr --destination-port ${sshport:-22} -j ACCEPT
-
   # local stuff, not Tor related
   port=$(crontab -l -u torproject | grep -m 1 -F " --port" | sed -e 's,.* --port ,,g' | cut -f1 -d ' ')
   [[ -z "$port" ]] || iptables -A INPUT -p tcp --destination $sshaddr --destination-port $port -j ACCEPT
@@ -81,7 +87,7 @@ startFirewall() {
 }
 
 
-stopFirewall() {
+function stop() {
   iptables -F
   iptables -X
   iptables -Z
@@ -113,6 +119,9 @@ if [[ -z $sshaddr ]]; then
 fi
 
 case $1 in
-  start)  startFirewall ;;
-  stop)   stopFirewall  ;;
+  start)  addTor
+          addMisc
+          ;;
+  stop)   stop
+          ;;
 esac
