@@ -13,14 +13,6 @@ function addTor() {
   # local traffic
   iptables -A INPUT --in-interface lo --source 127.0.0.1/8 --destination 127.0.0.1/8 -j ACCEPT
   
-  # Tor
-  ipset destroy $denylist 2>/dev/null
-  if [[ -s /var/tmp/ipset.$denylist ]]; then
-    ipset restore -f /var/tmp/ipset.$denylist
-  else
-    ipset create $denylist hash:ip timeout $timeout
-  fi
-
   # fill allowlist with Tor authorities
   allowlist=tor-authorities
   ipset destroy $allowlist 2>/dev/null
@@ -31,7 +23,13 @@ function addTor() {
     ipset add $allowlist $i
   done
 
-  # fill denylist by ratelimit and connlimit conditions for incoming NEW Tor connections
+  # fill denylist with ip addresses violating ratelimit/connlimit rules for incoming NEW Tor connections
+  ipset destroy $denylist 2>/dev/null
+  if [[ -s /var/tmp/ipset.$denylist ]]; then
+    ipset restore -f /var/tmp/ipset.$denylist
+  else
+    ipset create $denylist hash:ip timeout $timeout
+  fi
   if [[ ! $(cat /sys/module/*/parameters/ip_list_tot) = "10000" ]]; then
     echo " consider to increase the ip_list_tot parameter"
   fi
@@ -43,7 +41,7 @@ function addTor() {
     iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above $connlimit -j SET --add-set $denylist src
   done
  
-  # accept Tor authorities traffic to relay address, drop traffic of denylist members entirely
+  # accept Tor authorities traffic to relay address, drop traffic of denylist members entirely, allow remaining to ORport
   iptables -A INPUT -p tcp --destination $oraddr -m set --match-set $allowlist src -j ACCEPT
   iptables -A INPUT -p tcp -m set --match-set $denylist src -j DROP
   for orport in 443 9001
@@ -68,7 +66,6 @@ function addTor() {
 function addMisc() {
   # only needed for Hetzner customer
   # https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
-  #
   monlist=hetzner-monlist
   ipset destroy $monlist 2>/dev/null
   ipset create $monlist hash:ip

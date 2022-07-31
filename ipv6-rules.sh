@@ -15,14 +15,6 @@ function addTor() {
   ip6tables -A INPUT -p udp --source fe80::/10 --destination ff02::1  -j ACCEPT
   # maybe handle fd00::/8 here too
  
-  # Tor
-  ipset destroy $denylist 2>/dev/null
-  if [[ -s /var/tmp/ipset.$denylist ]]; then
-    ipset restore -f /var/tmp/ipset.$denylist
-  else
-    ipset create $denylist hash:ip timeout $timeout family inet6 netmask 64
-  fi
-
   # fill allowlist with Tor authorities
   allowlist=tor-authorities6
   ipset destroy $allowlist 2>/dev/null
@@ -33,7 +25,13 @@ function addTor() {
     ipset add $allowlist $i
   done
 
-  # fill denylist by ratelimit and connlimit conditions for incoming NEW Tor connections
+  # fill denylist with ip addresses violating ratelimit/connlimit rules for incoming NEW Tor connections
+  ipset destroy $denylist 2>/dev/null
+  if [[ -s /var/tmp/ipset.$denylist ]]; then
+    ipset restore -f /var/tmp/ipset.$denylist
+  else
+    ipset create $denylist hash:ip timeout $timeout family inet6 netmask 64
+  fi
   for orport in 443 9001
   do
     name=$denylist-$orport
@@ -42,7 +40,7 @@ function addTor() {
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 64 --connlimit-above $connlimit -j SET --add-set $denylist src
   done
   
-  # accept Tor authorities traffic to relay address, drop traffic of denylist members entirely
+  # accept Tor authorities traffic to relay address, drop traffic of denylist members entirely, allow remaining to ORport
   ip6tables -A INPUT -p tcp --destination $oraddr -m set --match-set $allowlist src -j ACCEPT
   ip6tables -A INPUT -p tcp -m set --match-set $denylist src -j DROP
   for orport in 443 9001
@@ -68,7 +66,6 @@ function addTor() {
 function addMisc() {
   # only needed for Hetzner customer
   # https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
-  #
   monlist=hetzner-monlist6
   ipset destroy $monlist 2>/dev/null
   ipset create $monlist hash:ip family inet6
