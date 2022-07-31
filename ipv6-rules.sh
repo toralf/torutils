@@ -32,8 +32,9 @@ startFirewall() {
   do
     ipset add $allowlist $i
   done
-
   ip6tables -A INPUT -p tcp --destination $oraddr -m set --match-set $allowlist src -j ACCEPT
+
+  # ratelimit and connlimit incoming NEW Tor connections
   for orport in 443 9001
   do
     name=$denylist-$orport

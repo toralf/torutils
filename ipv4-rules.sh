@@ -30,8 +30,9 @@ startFirewall() {
   do
     ipset add $allowlist $i
   done
-  
   iptables -A INPUT -p tcp --destination $oraddr -m set --match-set $allowlist src -j ACCEPT
+
+  # ratelimit and connlimit incoming NEW Tor connections
   for orport in 443 9001
   do
     name=$denylist-$orport
@@ -66,7 +67,7 @@ startFirewall() {
   sshport=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
   iptables -A INPUT -p tcp --destination $sshaddr --destination-port ${sshport:-22} -j ACCEPT
 
-  # non-Tor related stats
+  # local stuff, not Tor related
   port=$(crontab -l -u torproject | grep -m 1 -F " --port" | sed -e 's,.* --port ,,g' | cut -f1 -d ' ')
   [[ -z "$port" ]] || iptables -A INPUT -p tcp --destination $sshaddr --destination-port $port -j ACCEPT
   port=$(crontab -l -u tinderbox  | grep -m 1 -F " --port" | sed -e 's,.* --port ,,g' | cut -f1 -d ' ')
