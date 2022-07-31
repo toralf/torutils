@@ -64,7 +64,6 @@ function addTor() {
 
 
 function addMisc() {
-  # only needed for Hetzner customer
   # https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
   monlist=hetzner-monlist
   ipset destroy $monlist 2>/dev/null
@@ -76,7 +75,7 @@ function addMisc() {
   done
   iptables -A INPUT -m set --match-set $monlist src -j ACCEPT
 
-  # local stuff, not Tor related
+  # local stuff
   port=$(crontab -l -u torproject | grep -m 1 -F " --port" | sed -e 's,.* --port ,,g' | cut -f1 -d ' ')
   [[ -z "$port" ]] || iptables -A INPUT -p tcp --destination $sshaddr --destination-port $port -j ACCEPT
   port=$(crontab -l -u tinderbox  | grep -m 1 -F " --port" | sed -e 's,.* --port ,,g' | cut -f1 -d ' ')
@@ -117,7 +116,7 @@ fi
 
 case $1 in
   start)  addTor
-          addMisc
+          addMisc   # local stuff
           ;;
   stop)   stop
           ;;

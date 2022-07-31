@@ -64,7 +64,6 @@ function addTor() {
 
 
 function addMisc() {
-  # only needed for Hetzner customer
   # https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
   monlist=hetzner-monlist6
   ipset destroy $monlist 2>/dev/null
@@ -111,7 +110,7 @@ fi
 
 case $1 in
   start)  addTor
-          addMisc
+          addMisc # local stuff
           ;;
   stop)   stop
           ;;
