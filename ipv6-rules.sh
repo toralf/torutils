@@ -34,7 +34,7 @@ startFirewall() {
   done
   ip6tables -A INPUT -p tcp --destination $oraddr -m set --match-set $allowlist src -j ACCEPT
 
-  # ratelimit and connlimit incoming NEW Tor connections
+  # fill denylist by ratelimit and connlimit conditions for incoming NEW Tor connections
   for orport in 443 9001
   do
     name=$denylist-$orport
@@ -42,7 +42,7 @@ startFirewall() {
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds $seconds --hitcount $hitcount --rttl -j SET --add-set $denylist src
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 64 --connlimit-above $connlimit -j SET --add-set $denylist src
   done
-  ip6tables -A INPUT -p tcp --destination $oraddr -m set --match-set $denylist src -j DROP
+  ip6tables -A INPUT -p tcp -m set --match-set $denylist src -j DROP
   for orport in 443 9001
   do
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
