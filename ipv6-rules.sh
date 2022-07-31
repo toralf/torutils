@@ -27,8 +27,8 @@ startFirewall() {
   allowlist=tor-authorities6
   ipset destroy $allowlist 2>/dev/null
   ipset create $allowlist hash:ip family inet6
-  #  get-authority-ips.sh | grep -F ':' | sort | xargs
-  for i in 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2001:858:2:2:aabb:0:563b:1526 2607:8500:154::3 2610:1c0:0:5::131 2620:13:4000:6000::1000:118 2a03:4000:43:216:5443:2bff:fe16:c6b5
+  #  get-authority-ips.sh | grep -F ':' | xargs
+  for i in 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2001:858:2:2:aabb:0:563b:1526 2607:8500:154::3 2610:1c0:0:5::131 2620:13:4000:6000::1000:118
   do
     ipset add $allowlist $i
   done
