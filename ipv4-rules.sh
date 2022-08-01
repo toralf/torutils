@@ -10,7 +10,7 @@ function addTor() {
   # make sure NEW incoming tcp connections are SYN packets
   iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP -m comment --comment "$(date)"
   
-  # local traffic
+  # allow local traffic
   iptables -A INPUT --in-interface lo --source 127.0.0.1/8 --destination 127.0.0.1/8 -j ACCEPT
   
   # create allowlist for Tor authorities
@@ -59,7 +59,7 @@ function addTor() {
 }
 
 
-function addMisc() {
+function addHetzner() {
   # https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
   monlist=hetzner-monlist
   ipset create -exist $monlist hash:ip
@@ -69,8 +69,10 @@ function addMisc() {
     ipset add -exist $monlist $i
   done
   iptables -A INPUT -m set --match-set $monlist src -j ACCEPT
+}
 
-  # pure local stuff
+
+function addLocal() {
   port=$(crontab -l -u torproject | grep -m 1 -F " --port" | sed -e 's,.* --port ,,g' | cut -f1 -d ' ')
   [[ -n "$port" ]] && iptables -A INPUT -p tcp --destination $sshaddr --destination-port $port -j ACCEPT
   port=$(crontab -l -u tinderbox  | grep -m 1 -F " --port" | sed -e 's,.* --port ,,g' | cut -f1 -d ' ')
@@ -115,8 +117,10 @@ fi
 
 case $1 in
   start)  addTor
-          addMisc   # local stuff
+          addHetzner
+          addLocal
           ;;
   stop)   clearAll
           ;;
 esac
+

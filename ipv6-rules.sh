@@ -10,7 +10,7 @@ function addTor() {
   # make sure NEW incoming tcp connections are SYN packets
   ip6tables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP -m comment --comment "$(date)"
   
-  # local traffic
+  # allow local traffic
   ip6tables -A INPUT --in-interface lo --source ::1 --destination ::1 -j ACCEPT
   ip6tables -A INPUT -p udp --source fe80::/10 --destination ff02::1  -j ACCEPT
   # maybe handle fd00::/8 here too
@@ -62,7 +62,7 @@ function addTor() {
 }
 
 
-function addMisc() {
+function addHetzner() {
   # https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
   monlist=hetzner-monlist6
   ipset create -exist $monlist hash:ip family inet6
@@ -109,8 +109,9 @@ fi
 
 case $1 in
   start)  addTor
-          addMisc # local stuff
+          addHetzner
           ;;
   stop)   clearAll 
           ;;
 esac
+
