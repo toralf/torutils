@@ -21,7 +21,7 @@ function addTor() {
   #  get-authority-ips.sh | grep -F ':' | xargs
   for i in 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2001:858:2:2:aabb:0:563b:1526 2607:8500:154::3 2610:1c0:0:5::131 2620:13:4000:6000::1000:118
   do
-    ipset add $allowlist $i
+    ipset add -exist $allowlist $i
   done
 
   # fill denylist with ip addresses violating ratelimit/connlimit rules for incoming NEW Tor connections
@@ -68,7 +68,7 @@ function addMisc() {
   getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u |\
   while read i
   do
-    ipset add $monlist $i
+    ipset add -exist $monlist $i
   done
   ip6tables -A INPUT -m set --match-set $monlist src -j ACCEPT
 }
