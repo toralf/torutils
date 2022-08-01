@@ -26,7 +26,7 @@ function addTor() {
 
   # fill denylist with ip addresses violating ratelimit/connlimit rules for incoming NEW Tor connections
   if [[ -s /var/tmp/ipset.$denylist ]]; then
-    ipset restore -f /var/tmp/ipset.$denylist
+    ipset restore -exist -f /var/tmp/ipset.$denylist
   else
     ipset create -exist $denylist hash:ip timeout $timeout family inet6 netmask $netmask
   fi
