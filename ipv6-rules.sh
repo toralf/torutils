@@ -30,14 +30,14 @@ function addTor() {
   if [[ -s /var/tmp/ipset.$denylist ]]; then
     ipset restore -f /var/tmp/ipset.$denylist
   else
-    ipset create $denylist hash:ip timeout $timeout family inet6 netmask 64
+    ipset create $denylist hash:ip timeout $timeout family inet6 netmask $netmask
   fi
   for orport in 443 9001
   do
     name=$denylist-$orport
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --set
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds $seconds --hitcount $hitcount --rttl -j SET --add-set $denylist src
-    ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 64 --connlimit-above $connlimit -j SET --add-set $denylist src
+    ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask $netmask --connlimit-above $connlimit -j SET --add-set $denylist src
   done
   
   # accept Tor authorities traffic to relay address, drop traffic of denylist members entirely, allow remaining to ORport
@@ -100,6 +100,7 @@ timeout=86400
 seconds=300
 hitcount=12   # both tries 1x per minute and maybe a tor client is running there too
 connlimit=4   # 2 Tor relays at 1 ip address
+netmask=64    # wild guess, at least Hetzner delivers /64 addresses
 
 # if there're 2 ip addresses then do assume that the 2nd is used for ssh etc.
 dev=$(ip -6 route | grep "^default" | awk '{ print $5 }')
