@@ -74,9 +74,9 @@ function addMisc() {
 
   # local stuff
   port=$(crontab -l -u torproject | grep -m 1 -F " --port" | sed -e 's,.* --port ,,g' | cut -f1 -d ' ')
-  [[ -z "$port" ]] || iptables -A INPUT -p tcp --destination $sshaddr --destination-port $port -j ACCEPT
+  [[ -n "$port" ]] && iptables -A INPUT -p tcp --destination $sshaddr --destination-port $port -j ACCEPT
   port=$(crontab -l -u tinderbox  | grep -m 1 -F " --port" | sed -e 's,.* --port ,,g' | cut -f1 -d ' ')
-  [[ -z "$port" ]] || iptables -A INPUT -p tcp --destination $sshaddr --destination-port $port -j ACCEPT
+  [[ -n "$port" ]] && iptables -A INPUT -p tcp --destination $sshaddr --destination-port $port -j ACCEPT
 }
 
 
