@@ -80,7 +80,7 @@ function addMisc() {
 }
 
 
-function stop() {
+function clearAll() {
   iptables -F
   iptables -X
   iptables -Z
@@ -115,6 +115,6 @@ case $1 in
   start)  addTor
           addMisc   # local stuff
           ;;
-  stop)   stop
+  stop)   clearAll
           ;;
 esac

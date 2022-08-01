@@ -74,7 +74,7 @@ function addMisc() {
 }
 
 
-function stop() {
+function clearAll() {
   ip6tables -F
   ip6tables -X
   ip6tables -Z
@@ -110,6 +110,6 @@ case $1 in
   start)  addTor
           addMisc # local stuff
           ;;
-  stop)   stop
+  stop)   clearAll 
           ;;
 esac
