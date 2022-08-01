@@ -39,7 +39,7 @@ function addTor() {
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask $netmask --connlimit-above $connlimit -j SET --add-set $denylist src
   done
   
-  # accept Tor authorities traffic to relay address, drop traffic of denylist members entirely, allow remaining to ORport
+  # trust Tor authorities (but have their traffic too in recent lists), drop any traffic of denylist, allow passing packets to connect to ORport
   ip6tables -A INPUT -p tcp --destination $oraddr -m set --match-set $allowlist src -j ACCEPT
   ip6tables -A INPUT -p tcp -m set --match-set $denylist src -j DROP
   for orport in 443 9001
