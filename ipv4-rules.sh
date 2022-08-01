@@ -28,7 +28,7 @@ function addTor() {
   else
     ipset create -exist $denylist hash:ip timeout $timeout
   fi
-  if [[ ! $(cat /sys/module/*/parameters/ip_list_tot) = "10000" ]]; then
+  if [[ ! "$(cat /sys/module/*/parameters/ip_list_tot)" = "10000" ]]; then
     echo " consider to increase the ip_list_tot parameter"
   fi
   for orport in 443 9001
