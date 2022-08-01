@@ -109,7 +109,7 @@ if [[ -z $sshaddr ]]; then
   sshaddr=$oraddr
 fi
 
-if grep -q "10000" /sys/module/xt_recent/parameters/ip_list_tot; then
+if ! grep -q "10000" /sys/module/xt_recent/parameters/ip_list_tot; then
   echo "ip_list_tot of kernel module 'recent' is not set to max"
 fi
 
