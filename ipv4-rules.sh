@@ -28,9 +28,6 @@ function addTor() {
   else
     ipset create -exist $denylist hash:ip timeout $timeout
   fi
-  if [[ ! "$(cat /sys/module/*/parameters/ip_list_tot)" = "10000" ]]; then
-    echo " consider to increase the ip_list_tot parameter"
-  fi
   for orport in 443 9001
   do
     name=$denylist-$orport
@@ -109,6 +106,10 @@ dev=$(ip -4 route | grep "^default" | awk '{ print $5 }')
 sshaddr=$(ip -4 address show dev $dev | grep -w "inet .* scope global" | grep -v -w "$oraddr" | awk '{ print $2 }' | cut -f1 -d'/')
 if [[ -z $sshaddr ]]; then
   sshaddr=$oraddr
+fi
+
+if grep -q "10000" /sys/module/xt_recent/parameters/ip_list_tot; then
+  echo "ip_list_tot of kernel module 'recent' is not set to max"
 fi
 
 case $1 in
