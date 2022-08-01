@@ -15,7 +15,7 @@ function addTor() {
   ip6tables -A INPUT -p udp --source fe80::/10 --destination ff02::1  -j ACCEPT
   # maybe handle fd00::/8 here too
  
-  # fill allowlist with Tor authorities
+  # create allowlist for Tor authorities
   allowlist=tor-authorities6
   ipset create -exist $allowlist hash:ip family inet6
   #  get-authority-ips.sh | grep -F ':' | xargs
@@ -24,7 +24,7 @@ function addTor() {
     ipset add -exist $allowlist $i
   done
 
-  # fill denylist with ip addresses violating ratelimit/connlimit rules for incoming NEW Tor connections
+  # create denylist for ip addresses violating ratelimit/connlimit rules for incoming NEW Tor connections
   if [[ -s /var/tmp/ipset.$denylist ]]; then
     ipset restore -exist -f /var/tmp/ipset.$denylist
   else

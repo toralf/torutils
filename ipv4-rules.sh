@@ -13,7 +13,7 @@ function addTor() {
   # local traffic
   iptables -A INPUT --in-interface lo --source 127.0.0.1/8 --destination 127.0.0.1/8 -j ACCEPT
   
-  # fill allowlist with Tor authorities
+  # create allowlist for Tor authorities
   allowlist=tor-authorities
   ipset create -exist $allowlist hash:ip
   # get-authority-ips.sh | grep -F '.' | xargs
@@ -22,7 +22,7 @@ function addTor() {
     ipset add -exist $allowlist $i
   done
 
-  # fill denylist with ip addresses violating ratelimit/connlimit rules for incoming NEW Tor connections
+  # create denylist for ip addresses violating ratelimit/connlimit rules for incoming NEW Tor connections
   if [[ -s /var/tmp/ipset.$denylist ]]; then
     ipset restore -exist -f /var/tmp/ipset.$denylist
   else
