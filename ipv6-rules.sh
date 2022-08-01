@@ -18,7 +18,8 @@ function addTor() {
   # create allowlist for Tor authorities
   allowlist=tor-authorities6
   ipset create -exist $allowlist hash:ip family inet6
-  #  get-authority-ips.sh | grep -F ':' | xargs
+  # https://metrics.torproject.org/rs.html#search/flag:authority%20
+  # or: get-authority-ips.sh | grep -F ':' | xargs
   for i in 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2001:858:2:2:aabb:0:563b:1526 2607:8500:154::3 2610:1c0:0:5::131 2620:13:4000:6000::1000:118
   do
     ipset add -exist $allowlist $i

@@ -16,7 +16,8 @@ function addTor() {
   # create allowlist for Tor authorities
   allowlist=tor-authorities
   ipset create -exist $allowlist hash:ip
-  # get-authority-ips.sh | grep -F '.' | xargs
+  # https://metrics.torproject.org/rs.html#search/flag:authority%20
+  # or: get-authority-ips.sh | grep -F '.' | xargs
   for i in 128.31.0.34 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 194.13.81.26 199.58.81.140 204.13.164.118 45.66.33.45 66.111.2.131 86.59.21.38
   do
     ipset add -exist $allowlist $i
@@ -69,7 +70,7 @@ function addMisc() {
   done
   iptables -A INPUT -m set --match-set $monlist src -j ACCEPT
 
-  # local stuff
+  # pure local stuff
   port=$(crontab -l -u torproject | grep -m 1 -F " --port" | sed -e 's,.* --port ,,g' | cut -f1 -d ' ')
   [[ -n "$port" ]] && iptables -A INPUT -p tcp --destination $sshaddr --destination-port $port -j ACCEPT
   port=$(crontab -l -u tinderbox  | grep -m 1 -F " --port" | sed -e 's,.* --port ,,g' | cut -f1 -d ' ')
