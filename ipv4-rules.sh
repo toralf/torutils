@@ -15,8 +15,7 @@ function addTor() {
   
   # fill allowlist with Tor authorities
   allowlist=tor-authorities
-  ipset destroy $allowlist 2>/dev/null
-  ipset create $allowlist hash:ip
+  ipset create -exist $allowlist hash:ip
   # get-authority-ips.sh | grep -F '.' | xargs
   for i in 128.31.0.34 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 194.13.81.26 199.58.81.140 204.13.164.118 45.66.33.45 66.111.2.131 86.59.21.38
   do
@@ -24,11 +23,10 @@ function addTor() {
   done
 
   # fill denylist with ip addresses violating ratelimit/connlimit rules for incoming NEW Tor connections
-  ipset destroy $denylist 2>/dev/null
   if [[ -s /var/tmp/ipset.$denylist ]]; then
     ipset restore -f /var/tmp/ipset.$denylist
   else
-    ipset create $denylist hash:ip timeout $timeout
+    ipset create -exist $denylist hash:ip timeout $timeout
   fi
   if [[ ! $(cat /sys/module/*/parameters/ip_list_tot) = "10000" ]]; then
     echo " consider to increase the ip_list_tot parameter"
@@ -66,8 +64,7 @@ function addTor() {
 function addMisc() {
   # https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
   monlist=hetzner-monlist
-  ipset destroy $monlist 2>/dev/null
-  ipset create $monlist hash:ip
+  ipset create -exist $monlist hash:ip
   getent ahostsv4 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u |\
   while read i
   do

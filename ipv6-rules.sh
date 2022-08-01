@@ -17,8 +17,7 @@ function addTor() {
  
   # fill allowlist with Tor authorities
   allowlist=tor-authorities6
-  ipset destroy $allowlist 2>/dev/null
-  ipset create $allowlist hash:ip family inet6
+  ipset create -exist $allowlist hash:ip family inet6
   #  get-authority-ips.sh | grep -F ':' | xargs
   for i in 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2001:858:2:2:aabb:0:563b:1526 2607:8500:154::3 2610:1c0:0:5::131 2620:13:4000:6000::1000:118
   do
@@ -26,11 +25,10 @@ function addTor() {
   done
 
   # fill denylist with ip addresses violating ratelimit/connlimit rules for incoming NEW Tor connections
-  ipset destroy $denylist 2>/dev/null
   if [[ -s /var/tmp/ipset.$denylist ]]; then
     ipset restore -f /var/tmp/ipset.$denylist
   else
-    ipset create $denylist hash:ip timeout $timeout family inet6 netmask $netmask
+    ipset create -exist $denylist hash:ip timeout $timeout family inet6 netmask $netmask
   fi
   for orport in 443 9001
   do
@@ -66,8 +64,7 @@ function addTor() {
 function addMisc() {
   # https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
   monlist=hetzner-monlist6
-  ipset destroy $monlist 2>/dev/null
-  ipset create $monlist hash:ip family inet6
+  ipset create -exist $monlist hash:ip family inet6
   getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u |\
   while read i
   do
