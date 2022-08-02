@@ -95,10 +95,10 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 # Tor
 oraddr="2a01:4f9:3b:468e::13"
 denylist=tor-ddos6
-timeout=1800
-seconds=300
-hitcount=12   # both tries 1x per minute and maybe a tor client is running there too
-connlimit=4   # 2 Tor relays at 1 ip address
+timeout=1800  # release ip address if no rule was fired within this timeframe
+seconds=300   # ratelimit time
+hitcount=12   # ratelimit for NEW conns to ORPort
+connlimit=4   # max connections to ORPort
 netmask=64    # wild guess, at least Hetzner delivers /64 addresses
 
 # if there're 2 ip addresses then do assume that the 2nd is used for ssh etc.
