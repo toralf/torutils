@@ -11,7 +11,7 @@ function addTor() {
   iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP -m comment --comment "$(date)"
   
   # allow local traffic
-  iptables -A INPUT --in-interface lo --source 127.0.0.1/8 --destination 127.0.0.1/8 -j ACCEPT
+  iptables -A INPUT --in-interface lo -j ACCEPT
   
   # create allowlist for Tor authorities
   allowlist=tor-authorities
