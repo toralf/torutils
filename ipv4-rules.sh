@@ -89,7 +89,9 @@ function clearAll() {
   iptables -P OUTPUT  ACCEPT
   iptables -P FORWARD ACCEPT
 
-  ipset save $denylist -f /var/tmp/ipset.$denylist.tmp && mv /var/tmp/ipset.$denylist.tmp /var/tmp/ipset.$denylist
+  ipset save $denylist -f /var/tmp/ipset.$denylist.tmp &&\
+  mv /var/tmp/ipset.$denylist.tmp /var/tmp/ipset.$denylist &&\
+  ipset destroy $denylist
 }
 
 

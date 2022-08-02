@@ -83,7 +83,9 @@ function clearAll() {
   ip6tables -P OUTPUT  ACCEPT
   ip6tables -P FORWARD ACCEPT
 
-  ipset save $denylist -f /var/tmp/ipset.$denylist.tmp && mv /var/tmp/ipset.$denylist.tmp /var/tmp/ipset.$denylist
+  ipset save $denylist -f /var/tmp/ipset.$denylist.tmp &&\
+  mv /var/tmp/ipset.$denylist.tmp /var/tmp/ipset.$denylist &&\
+  ipset destroy $denylist
 }
 
 
