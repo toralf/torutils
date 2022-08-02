@@ -37,10 +37,11 @@ function addTor() {
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --set
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds $seconds --hitcount $hitcount --rttl -j SET --add-set $denylist src --exist
     ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask $netmask --connlimit-above $connlimit -j SET --add-set $denylist src --exist
+    # trust Tor authorities but keep their data in recent
+    ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set --match-set $allowlist src -j ACCEPT
   done
   
-  # trust Tor authorities (but have their traffic too in recent lists), drop any traffic of denylist, allow passing packets to connect to ORport
-  ip6tables -A INPUT -p tcp --destination $oraddr -m set --match-set $allowlist src -j ACCEPT
+  # drop any traffic of denylist, allow passing packets to connect to ORport
   ip6tables -A INPUT -p tcp -m set --match-set $denylist src -j DROP
   for orport in 443 9001
   do
