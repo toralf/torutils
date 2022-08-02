@@ -100,7 +100,7 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 # Tor
 oraddr="65.21.94.13"
 denylist=tor-ddos
-timeout=3600
+timeout=1800
 seconds=300
 hitcount=12   # both tries 1x per minute and maybe a tor client is running there too
 connlimit=4   # 2 Tor relays at 1 ip address
