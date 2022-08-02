@@ -25,7 +25,7 @@ function addTor() {
     ipset add -exist $allowlist $i
   done
 
-  # create denylist for ip addresses violating ratelimit/connlimit rules for incoming NEW Tor connections
+  # create denylist for ip addresses violating ratelimit/connlimit rules of incoming Tor connections
   if [[ -s /var/tmp/ipset.$denylist ]]; then
     ipset restore -exist -f /var/tmp/ipset.$denylist
   else
@@ -36,7 +36,7 @@ function addTor() {
     name=$denylist-$orport
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --set
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds $seconds --hitcount $hitcount --rttl -j SET --add-set $denylist src --exist
-    ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask $netmask --connlimit-above $connlimit -j SET --add-set $denylist src --exist
+    ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask $netmask --connlimit-above $connlimit -j SET --add-set $denylist src --exist
   done
   
   # trust Tor authorities (but have their traffic too in recent lists), drop any traffic of denylist, allow passing packets to connect to ORport
