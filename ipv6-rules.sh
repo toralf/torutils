@@ -27,14 +27,14 @@ function addTor() {
   if [[ -s /var/tmp/ipset.$denylist ]]; then
     ipset restore -exist -f /var/tmp/ipset.$denylist
   else
-    ipset create -exist $denylist hash:ip timeout $timeout family inet6 netmask $netmask
+    ipset create -exist $denylist hash:ip timeout $timeout family inet6
   fi
   for orport in 443 9001
   do
     name=$denylist-$orport
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --set
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds $seconds --hitcount $hitcount --rttl -j SET --add-set $denylist src --exist
-    ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask $netmask --connlimit-above $connlimit -j SET --add-set $denylist src --exist
+    ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above $connlimit -j SET --add-set $denylist src --exist
     # trust Tor authorities but keep their data in recent
     ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set --match-set $allowlist src -j ACCEPT
   done
@@ -97,7 +97,6 @@ timeout=1800  # release ip address if no rule was fired within this timeframe
 seconds=300   # ratelimit time
 hitcount=12   # ratelimit for NEW conns to ORPort
 connlimit=4   # max connections to ORPort
-netmask=64    # wild guess, at least Hetzner delivers /64 addresses
 
 # if there're 2 ip addresses then do assume that the 2nd is used for ssh etc.
 dev=$(ip -6 route | grep "^default" | awk '{ print $5 }')
