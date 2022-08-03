@@ -114,7 +114,13 @@ if [[ -z $sshaddr ]]; then
 fi
 
 if ! grep -q "10000" /sys/module/xt_recent/parameters/ip_list_tot; then
-  echo "ip_list_tot of kernel module 'recent' is not set to max"
+  cat << EOF -
+  The parameter 'ip_list_tot' of kernel module 'xt_recent' is not set to its max value."
+  Put either a line into /etc/modprobe.d/xt_recent.conf like:
+      options xt_recent ip_list_tot=10000
+  or add to the kernel command line (into the grub config file) the string
+      xt_recent.ip_list_tot=10000
+EOF
 fi
 
 case $1 in
