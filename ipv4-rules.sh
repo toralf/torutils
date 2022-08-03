@@ -113,6 +113,16 @@ if [[ -z $sshaddr ]]; then
   sshaddr=$oraddr
 fi
 
+case $1 in
+  start)  addTor
+          addHetzner
+          addLocal
+          ;;
+  stop)   clearAll
+          ;;
+esac
+
+# the module is loaded/intialized by its first usage
 if ! grep -q "10000" /sys/module/xt_recent/parameters/ip_list_tot; then
   cat << EOF -
   The parameter 'ip_list_tot' of kernel module 'xt_recent' is not set to its max value."
@@ -122,13 +132,4 @@ if ! grep -q "10000" /sys/module/xt_recent/parameters/ip_list_tot; then
       xt_recent.ip_list_tot=10000
 EOF
 fi
-
-case $1 in
-  start)  addTor
-          addHetzner
-          addLocal
-          ;;
-  stop)   clearAll
-          ;;
-esac
 
