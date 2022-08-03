@@ -59,8 +59,9 @@ function addTor() {
 }
 
 
+# only needed for Hetzner customers
+# https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
 function addHetzner() {
-  # https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
   monlist=hetzner-monlist
   ipset create -exist $monlist hash:ip
   getent ahostsv4 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u |\
@@ -72,6 +73,7 @@ function addHetzner() {
 }
 
 
+# replace this content with your own stuff -or- kick it off
 function addLocal() {
   port=$(crontab -l -u torproject | grep -m 1 -F " --port" | sed -e 's,.* --port ,,g' | cut -f1 -d ' ')
   [[ -n "$port" ]] && iptables -A INPUT -p tcp --destination $sshaddr --destination-port $port -j ACCEPT
