@@ -3,7 +3,44 @@
 # torutils
 Few tools around a Tor relay.
 
-### gather data from a Tor process:
+### Firewall scripts
+*ipv4-rules.sh* and *ipv6-rules.sh* blocks ip addresses DDoS'ing the local Tor relays.
+
+Gather data form via a cronjob, eg.:
+
+```crontab
+*/30 * * * * /opt/torutils/ipset-stats.sh -d | tee -a /tmp/ipset4.txt; /opt/torutils/ipset-stats.sh -D | tee -a /tmp/ipset6.txt
+```
+and plot them:
+
+```bash
+ipset-stats.sh -p /tmp/ipsets4.txt
+
+                                1229 ip addresses, 14978 entries
+     350 +----------------------------------------------------------------------------+
+         |  *  +  + +  +  +  +  +  +  + +  +  +  +  +  + +  +  +  +  +  +  + +  +  +  |
+         |  *                                                                      *  |
+     300 |-+*                                                                      *+-|
+         |  *                                                                      *  |
+     250 |-+*                                                                      *+-|
+         |  *                                                                      *  |
+         |  *                                                                      *  |
+     200 |-+*                                                                      *+-|
+         |  *                                                                      *  |
+     150 |-+*                                                                      *+-|
+         |  *                                                                      *  |
+         |  *                                                                      *  |
+     100 |-+*                      *                                               *+-|
+         |  *  *                   *                                               *  |
+      50 |-+*  *                   *                                               *+-|
+         |  *  *  *                *                                         *  *  *  |
+         |  *  *  * *  *  *  +  *  *  * *  *  *  *  *  + *  *  *  +  +  +  * *  *  *  |
+       0 +----------------------------------------------------------------------------+
+         0  1  2  3 4  5  6  7  8  9  1 11 12 13 14 15 1 17 18 19 20 21 22 2 24 25 26 27
+                                  occurrence of an ip address
+```
+
+### info about Tor relay
 
 *info.py* gives an overview about the connections of a relay:
 
