@@ -24,28 +24,28 @@ Plot a histogram:
 
 ```console
 $> # ipset-stats.sh -p /tmp/ipset4.txt
-                                                                                          
-                                 948 ip addresses, 9871 entries                           
+
+                                960 ip addresses, 10260 entries                           
      250 +----------------------------------------------------------------------------+   
-         |    +   +    +   +    +   +    +   +    +   +    +   +    +   +    +   *    |   
-         |                                                                   *   *    |   
-         |                                                                   *   *    |   
-     200 |-+                                                                 *   *  +-|   
-         |                                                                   *   *    |   
-         |    *                                                              *   *    |   
-     150 |-+  *                                                              *   *  +-|   
-         |    *                                                              *   *    |   
-         |    *                                                              *   *    |   
-         |    *                                                              *   *    |   
-     100 |-+  *                                                              *   *  +-|   
-         |    *                                                              *   *    |   
-         |    *                                                              *   *    |   
-      50 |-+  *                                                              *   *  +-|   
-         |    *   *                                        *   *             *   *    |   
-         |    *   *    *   *    *                     *    *   *    *        *   *    |   
-         |    *   *    *   *    *   *    *   *    *   *    *   *    *   *    *   *    |   
+         |   +    +   +   +   +    +   +   +    +   +   +   +    +   +   +   +    *   |   
+         |                                                               *        *   |   
+         |                                                               *        *   |   
+     200 |-+                                                             *        * +-|   
+         |                                                               *        *   |   
+         |   *                                                           *        *   |   
+     150 |-+ *                                                           *        * +-|   
+         |   *                                                           *        *   |   
+         |   *                                                           *        *   |   
+         |   *                                                           *        *   |   
+     100 |-+ *                                                           *        * +-|   
+         |   *                                                           *        *   |   
+         |   *                                                           *        *   |   
+      50 |-+ *                                                           *        * +-|   
+         |   *    *   *                                     *            *        *   |   
+         |   *    *   *   *   *                     *   *   *    *   *   *   *    *   |   
+         |   *    *   *   *   *    *   +   *    *   *   *   *    *   *   *   *    *   |   
        0 +----------------------------------------------------------------------------+   
-         0    1   2    3   4    5   6    7   8    9   10   11  12   13  14   15  16   17  
+         0   1    2   3   4   5    6   7   8    9   10  11  12   13  14  15  16   17  18  
                                   occurrence of an ip address                             
 ```
 Check whether Tor relays are catched:
@@ -130,4 +130,5 @@ git clone https://github.com/torproject/stem.git
 export PYTHONPATH=$PWD/stem
 ```
 and [gnuplot](http://www.gnuplot.info/) for the *-stats.sh* scripts.
+[jq](https://stedolan.github.io/jq/) is a good JSON parser.
 
