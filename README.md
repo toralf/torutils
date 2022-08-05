@@ -7,6 +7,7 @@ Few tools around a Tor relay.
 
 *info.py* gives an overview about the connections of a relay:
 
+```bash
     python info.py --ctrlport 9051
     0.4.6.0-alpha-dev   uptime: 5-07:14:15   flags: Fast, Guard, HSDir, Running, Stable, V2Dir, Valid
 
@@ -37,9 +38,10 @@ Few tools around a Tor relay.
     +------------------------------+------+------+
     | Total                        |   45 |    8 |
     +------------------------------+------+------+
-
+```
 *ps.py* continuously monitors exit ports usage:
 
+```bash
     ps.py --ctrlport 9051
 
     port     # opened closed      max                ( :9051, 8998 conns 0.28 sec )
@@ -49,22 +51,24 @@ Few tools around a Tor relay.
     5269     2                      2                (Jabber)
     6667     4                      4                (IRC)
     7777     3                      3                (None)
+```
 
-*orstatus.py* monitors closing events:
+*orstatus.py* monitors closing Tor events and *orstatus-stats.sh* plots them:
 
-    orstatus.py --ctrlport 9051
+```bash
+    orstatus.py --ctrlport 9051 | tee x
 
     DONE         6E642BD08A5D687B2C55E35936E3272636A90362  <snip>  9001 v4 0.3.5.11
     IOERROR      C89F338C54C21EDA9041DC8F070A13850358ED0B  <snip>   443 v4 0.4.3.5
-
-*key-expires.py* returns the seconds till a mid-term signing key expires.
-A cronjob example:
+```
+*key-expires.py* returns the seconds till a mid-term signing key expires. A cronjob example:
 
 ```crontab
 @daily    n="$(($(key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert) / 86400))"; [[ $n -lt 23 ]] && echo "Tor signing key expires in <$n day(s)"
 ```
 ### more info
 You need the Python lib Stem (https://stem.torproject.org/index.html) for the python scripts:
+
 ```bash
 export PYTHONPATH=<path to stem>
 ```
