@@ -8,18 +8,14 @@ export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 
 
-# work on the output file of an orstatus.py call
-#   format:
-#   reason        fingerprint                                 address       port ip version
-#
-#   IOERROR       069E732EC96774ED5609D4803D7B1130E338B0EB    94.19.14.183  9001 v4 0.3.2.7-rc
+[[ -s $1 ]]
+tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
-cat $* |\
-
-perl -we '
-  my %h_reason = ();
-
-  while (<>) {
+perl -wane '
+  BEGIN {
+    my %h_reason = ();
+  }
+  {
     chomp();
     s/^\s+//g;
 
@@ -34,42 +30,40 @@ perl -we '
     }
     $h_reason{$fingerprint}->{$reason}++;
   }
-
-  # sorted output
-  #
-  foreach my $key (sort {     $h_reason{$b}->{"IOERROR"}       <=> $h_reason{$a}->{"IOERROR"}
-                          or  $h_reason{$b}->{"TIMEOUT"}       <=> $h_reason{$a}->{"TIMEOUT"}
-                          or  $h_reason{$b}->{"CONNECTRESET"}  <=> $h_reason{$a}->{"CONNECTRESET"}
-                          or  $h_reason{$b}->{"DONE"}          <=> $h_reason{$a}->{"DONE"}
-                        } keys %h_reason) {
-    printf ("%s", $key);
-    foreach my $reason ( qw/IOERROR TIMEOUT CONNECTRESET DONE/ )  {
-      printf (" %5i", $h_reason{$key}->{$reason});
+  END {
+    # sorted output
+    #
+    foreach my $key (sort {     $h_reason{$b}->{"IOERROR"}       <=> $h_reason{$a}->{"IOERROR"}
+                            or  $h_reason{$b}->{"TIMEOUT"}       <=> $h_reason{$a}->{"TIMEOUT"}
+                            or  $h_reason{$b}->{"CONNECTRESET"}  <=> $h_reason{$a}->{"CONNECTRESET"}
+                            or  $h_reason{$b}->{"DONE"}          <=> $h_reason{$a}->{"DONE"}
+                          } keys %h_reason) {
+      printf ("%s", $key);
+      foreach my $reason ( qw/IOERROR TIMEOUT CONNECTRESET DONE/ )  {
+        printf (" %5i", $h_reason{$key}->{$reason});
+      }
+      print "\n";
     }
-    print "\n";
-  }
-  ' |\
+  }' $1 |\
 
-# this file contains the fingerprints versus their counts of STATUS
+# this stream contains the fingerprints versus their counts of STATUS
 #
 #   format:
 #   ABCD1234     8     6     0     0
 #
-tee fingerprints |\
-
-# create a histogram of the
-#   format:
+# create from that a histogram:
 #     0       417
 #     1       1065
 #     2       355
 #
-# read this as:
+# read it as:
 #   417 nodes are fine. 1065 had 1 ioerror, 355 had 2 ioerrors, ...
-#
-perl -we '
-  my %h_ioerror = ();
 
-  while (<>) {
+perl -wane '
+  BEGIN {
+    my %h_ioerror = ();
+  }
+  {
     chomp();
     s/^\s+//g;
 
@@ -79,15 +73,13 @@ perl -we '
     #
     $h_ioerror{$ioerror}++;
   }
+  END {
+    foreach my $key (sort { $a <=> $b } keys %h_ioerror) {
+      print $key, "\t", $h_ioerror{$key}, "\n";
+    }
+  }' > $tmpfile
 
-  foreach my $key (sort { $a <=> $b } keys %h_ioerror) {
-    print $key, "\t", $h_ioerror{$key}, "\n";
-  }
-  ' > histogram
-
-wc -l $* fingerprints histogram
-
-# plot the content of "histogram" (contains only io errors)
+# "$tmpfile" contains only the io errors
 #
 gnuplot -e '
   set terminal dumb 90 25;
@@ -96,5 +88,7 @@ gnuplot -e '
   set key noautotitle;
   set logscale y 10;
 
-  plot "histogram" with impuls;
+  plot "'$tmpfile'" with impuls;
   '
+
+rm $tmpfile
