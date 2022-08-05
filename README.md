@@ -97,7 +97,7 @@ ipset-stats.sh -p /tmp/ipsets4.txt
     7777     3                      3                (None)
 ```
 
-*orstatus.py* monitors closing Tor events and *orstatus-stats.sh* plots them:
+*orstatus.py* monitors closing Tor events:
 
 ```bash
     orstatus.py --ctrlport 9051 | tee x
@@ -105,6 +105,7 @@ ipset-stats.sh -p /tmp/ipsets4.txt
     DONE         6E642BD08A5D687B2C55E35936E3272636A90362  <snip>  9001 v4 0.3.5.11
     IOERROR      C89F338C54C21EDA9041DC8F070A13850358ED0B  <snip>   443 v4 0.4.3.5
 ```
+and *orstatus-stats.sh* plots them.
 *key-expires.py* returns the seconds till a mid-term signing key expires. A cronjob example:
 
 ```crontab
