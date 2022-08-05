@@ -47,6 +47,7 @@ $> ipset-stats.sh -p /tmp/ipsets4.txt
          0    1    2   3    4    5    6    7    8   9    10   11   12   13  14   15   16  
                                   occurrence of an ip address                             
 ```
+Use `-a` and `-A` respectively to anonymise the addresses a little bit.
 
 ### info about Tor relay
 
