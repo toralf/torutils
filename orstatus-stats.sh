@@ -8,7 +8,7 @@ export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 
 
-# work on the output of orstatus.py
+# work on the output file of an orstatus.py call
 #   format:
 #   reason        fingerprint                                 address       port ip version
 #
@@ -90,12 +90,11 @@ wc -l $* fingerprints histogram
 # plot the content of "histogram" (contains only io errors)
 #
 gnuplot -e '
-  set logscale y 10;
-  set logscale x 10;
+  set terminal dumb 90 25;
   set xlabel "ioerrors";
   set ylabel "relays";
-  set style line 1 lc rgb "#0060ad" lt 1 lw 1 pt 7 ps 1.5;
+  set key noautotitle;
+  set logscale y 10;
 
-  plot "histogram" with linespoints ls 1;
-  pause(-1);
+  plot "histogram" with impuls;
   '
