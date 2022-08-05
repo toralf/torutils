@@ -16,7 +16,7 @@ The blocked addresses are in stored using ipsets named *tor-ddos* and *tor-ddos6
 
 Gather data from those via a cronjob (but do not disclose those data!), eg. by a cronjob:
 
-```crontab
+```cron
 */30 * * * * /opt/torutils/ipset-stats.sh -d >> /tmp/ipset4.txt
 ```
 Use `-a` and `-A` respectively to anonymise the addresses a little bit.
@@ -48,7 +48,13 @@ $> # ipset-stats.sh -p /tmp/ipset4.txt
          0    1   2    3   4    5   6    7   8    9   10   11  12   13  14   15  16   17  
                                   occurrence of an ip address                             
 ```
-Here're stats from iptables for 2 relays at the same ip address after about 2 days:
+Check whether Tor relays are catched:
+
+```bash
+curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - | jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | xargs -r -n 1 > /tmp/relays
+ipset list -s tor-ddos | grep -w -f /tmp/relays
+```
+Here're my iptables stats for 2 relays at the same ip address after about 2 days:
 
 ```console
 # iptables -nv -L INPUT
@@ -96,7 +102,7 @@ ORport 9051
 +------------------------------+-------+-------+
 
 ```
-*ps.py* continuously monitors exit ports usage:
+*ps.py* watches exit ports usage:
 
 ```console
 $> ps.py --ctrlport 9051
@@ -110,18 +116,18 @@ $> ps.py --ctrlport 9051
     7777     3                      3                (None)
 ```
 
-*orstatus.py* monitors closing Tor events and *orstatus-stats.sh* plots them. *key-expires.py* returns the seconds till a mid-term signing key expires. A cronjob example:
+*orstatus.py* monitors Tor closing events and *orstatus-stats.sh* plots them. *key-expires.py* returns the seconds till the mid-term signing key expires. A cronjob example:
 
-```crontab
+```cron
 @daily    n="$(($(key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert) / 86400))"; [[ $n -lt 23 ]] && echo "Tor signing key expires in <$n day(s)"
 ```
 ### more info
 You need the Python library [Stem](https://stem.torproject.org/index.html) for the python scripts:
 
 ```bash
-$> cd <somewhere>
-$> git clone https://github.com/torproject/stem.git
-$> export PYTHONPATH=$PWD/stem
+cd /tmp
+git clone https://github.com/torproject/stem.git
+export PYTHONPATH=$PWD/stem
 ```
 and [gnuplot](http://www.gnuplot.info/) for the *-stats.sh* scripts.
 
