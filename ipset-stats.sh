@@ -56,8 +56,7 @@ function plot() {
         printf "%4i  %5i\n", $k, $h{$k}
       }
     }
-    ' |\
-  tee $tmpfile
+    ' > $tmpfile
 
   local xmax=$(tail -n 1 $tmpfile | awk '{ print ($1) }')
   ((xmax++))
