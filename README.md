@@ -23,7 +23,7 @@ Use `-a` and `-A` respectively to anonymise the addresses a little bit.
 Plot a histogram:
 
 ```console
-$> ipset-stats.sh -p /tmp/ipsets4.txt
+$> ipset-stats.sh -p /tmp/ipset4.txt
 
                                  934 ip addresses, 9490 entries                           
      450 +----------------------------------------------------------------------------+   
