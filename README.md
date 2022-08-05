@@ -100,4 +100,5 @@ $> cd <somewhere>
 $> git clone https://github.com/torproject/stem.git
 $> export PYTHONPATH=$PWD/stem
 ```
+and [gnuplot](http://www.gnuplot.info/) for the *-stats.sh* scripts.
 
