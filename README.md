@@ -21,7 +21,7 @@ Gather data from those via a cronjob (but do not disclose those data!), eg. by a
 ```
 and plot a histogram:
 
-```bash
+```console
 $> ipset-stats.sh -p /tmp/ipsets4.txt
 
                                  934 ip addresses, 9490 entries                           
@@ -52,7 +52,7 @@ $> ipset-stats.sh -p /tmp/ipsets4.txt
 
 *info.py* gives an overview about the connections of a relay:
 
-```bash
+```console
 $> python info.py --ctrlport 9051
 
 ORport 9051
@@ -75,7 +75,7 @@ ORport 9051
 ```
 *ps.py* continuously monitors exit ports usage:
 
-```bash
+```console
 $> ps.py --ctrlport 9051
 
     port     # opened closed      max                ( :9051, 8998 conns 0.28 sec )
