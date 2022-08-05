@@ -14,7 +14,7 @@ from the same ip address.
 A blocked ip address is released after 30 minutes, if the rules are no longer violated. 
 The blocked addresses are in stored using ipsets named *tor-ddos* and *tor-ddos6*.
 
-Gather data from those via a cronjob (**keep those data private !**), eg.:
+Gather data from those via a cronjob (but do not disclose those data!), eg. by a cronjob:
 
 ```crontab
 */30 * * * * /opt/torutils/ipset-stats.sh -d >> /tmp/ipset4.txt
@@ -24,28 +24,28 @@ and plot a histogram:
 ```bash
 $> ipset-stats.sh -p /tmp/ipsets4.txt
 
-                                1229 ip addresses, 14978 entries
-     350 +----------------------------------------------------------------------------+
-         |  *  +  + +  +  +  +  +  +  + +  +  +  +  +  + +  +  +  +  +  +  + +  +  +  |
-         |  *                                                                      *  |
-     300 |-+*                                                                      *+-|
-         |  *                                                                      *  |
-     250 |-+*                                                                      *+-|
-         |  *                                                                      *  |
-         |  *                                                                      *  |
-     200 |-+*                                                                      *+-|
-         |  *                                                                      *  |
-     150 |-+*                                                                      *+-|
-         |  *                                                                      *  |
-         |  *                                                                      *  |
-     100 |-+*                      *                                               *+-|
-         |  *  *                   *                                               *  |
-      50 |-+*  *                   *                                               *+-|
-         |  *  *  *                *                                         *  *  *  |
-         |  *  *  * *  *  *  +  *  *  * *  *  *  *  *  + *  *  *  +  +  +  * *  *  *  |
-       0 +----------------------------------------------------------------------------+
-         0  1  2  3 4  5  6  7  8  9  1 11 12 13 14 15 1 17 18 19 20 21 22 2 24 25 26 27
-                                  occurrence of an ip address
+                                 934 ip addresses, 9490 entries                           
+     450 +----------------------------------------------------------------------------+   
+         |    +    +   +    +    +    +    +    +   +    +    +    +    +   +    *    |   
+     400 |-+                                                                     *  +-|   
+         |                                                                       *    |   
+     350 |-+                                                                     *  +-|   
+         |                                                                       *    |   
+     300 |-+                                                                     *  +-|   
+         |                                                                       *    |   
+     250 |-+                                                                     *  +-|   
+         |                                                                       *    |   
+     200 |-+                                                                     *  +-|   
+         |                                                                       *    |   
+     150 |-+  *                                                                  *  +-|   
+         |    *                                                                  *    |   
+     100 |-+  *                                                                  *  +-|   
+         |    *                                                                  *    |   
+      50 |-+  *    *                                               *             *  +-|   
+         |    *    *   *    *    *    +    *    *   *    *    *    *    *   *    *    |   
+       0 +----------------------------------------------------------------------------+   
+         0    1    2   3    4    5    6    7    8   9    10   11   12   13  14   15   16  
+                                  occurrence of an ip address                             
 ```
 
 ### info about Tor relay
