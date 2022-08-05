@@ -5,13 +5,20 @@ Few tools around a Tor relay.
 
 ### Firewall scripts
 *ipv4-rules.sh* and *ipv6-rules.sh* blocks ip addresses DDoS'ing the local Tor relays.
+They implement 2 rules for IPv4 and IPv6 respectively:
 
-Gather data form via a cronjob, eg.:
+- no more than 3 connections
+- no more than 15 connection attempts within 5 minutes
+from the same ip address.
+A blocked ip address is released after 30 minutes, if the rules are no longer violated. 
+The blocked addresses are in stored using ipsets named *tor-ddos* and *tor-ddos6*.
+
+Gather data from those via a cronjob, eg.:
 
 ```crontab
-*/30 * * * * /opt/torutils/ipset-stats.sh -d | tee -a /tmp/ipset4.txt; /opt/torutils/ipset-stats.sh -D | tee -a /tmp/ipset6.txt
+*/30 * * * * /opt/torutils/ipset-stats.sh -d >> /tmp/ipset4.txt
 ```
-and plot them:
+and plot a histogram:
 
 ```bash
 ipset-stats.sh -p /tmp/ipsets4.txt
