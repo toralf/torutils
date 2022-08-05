@@ -14,7 +14,7 @@ from the same ip address.
 A blocked ip address is released after 30 minutes, if the rules are no longer violated. 
 The blocked addresses are in stored using ipsets named *tor-ddos* and *tor-ddos6*.
 
-Gather data from those via a cronjob, eg.:
+Gather data from those via a cronjob (**keep those data private !**), eg.:
 
 ```crontab
 */30 * * * * /opt/torutils/ipset-stats.sh -d >> /tmp/ipset4.txt
@@ -22,7 +22,7 @@ Gather data from those via a cronjob, eg.:
 and plot a histogram:
 
 ```bash
-ipset-stats.sh -p /tmp/ipsets4.txt
+$> ipset-stats.sh -p /tmp/ipsets4.txt
 
                                 1229 ip addresses, 14978 entries
      350 +----------------------------------------------------------------------------+
@@ -53,7 +53,7 @@ ipset-stats.sh -p /tmp/ipsets4.txt
 *info.py* gives an overview about the connections of a relay:
 
 ```bash
-    python info.py --ctrlport 9051
+$> python info.py --ctrlport 9051
     0.4.6.0-alpha-dev   uptime: 5-07:14:15   flags: Fast, Guard, HSDir, Running, Stable, V2Dir, Valid
 
     +------------------------------+------+------+
@@ -87,7 +87,7 @@ ipset-stats.sh -p /tmp/ipsets4.txt
 *ps.py* continuously monitors exit ports usage:
 
 ```bash
-    ps.py --ctrlport 9051
+$> ps.py --ctrlport 9051
 
     port     # opened closed      max                ( :9051, 8998 conns 0.28 sec )
      853     3                      3      1      1  (None)
@@ -101,10 +101,10 @@ ipset-stats.sh -p /tmp/ipsets4.txt
 *orstatus.py* monitors closing Tor events:
 
 ```bash
-    orstatus.py --ctrlport 9051 | tee x
+$> orstatus.py --ctrlport 9051 | tee x
 
-    DONE         6E642BD08A5D687B2C55E35936E3272636A90362  <snip>  9001 v4 0.3.5.11
-    IOERROR      C89F338C54C21EDA9041DC8F070A13850358ED0B  <snip>   443 v4 0.4.3.5
+DONE         6E642BD08A5D687B2C55E35936E3272636A90362  <snip>  9001 v4 0.3.5.11
+IOERROR      C89F338C54C21EDA9041DC8F070A13850358ED0B  <snip>   443 v4 0.4.3.5
 ```
 and *orstatus-stats.sh* plots them.
 *key-expires.py* returns the seconds till a mid-term signing key expires. A cronjob example:
@@ -116,6 +116,6 @@ and *orstatus-stats.sh* plots them.
 You need the Python lib Stem (https://stem.torproject.org/index.html) for the python scripts:
 
 ```bash
-export PYTHONPATH=<path to stem>
+$> export PYTHONPATH=<path to stem>
 ```
 
