@@ -54,35 +54,24 @@ $> ipset-stats.sh -p /tmp/ipsets4.txt
 
 ```bash
 $> python info.py --ctrlport 9051
-    0.4.6.0-alpha-dev   uptime: 5-07:14:15   flags: Fast, Guard, HSDir, Running, Stable, V2Dir, Valid
 
-    +------------------------------+------+------+
-    | Type                         | IPv4 | IPv6 |
-    +------------------------------+------+------+
-    | Inbound to our OR from OR    | 1884 |   17 |
-    | Inbound to our OR from other | 2649 |    3 |
-    | Inbound to our DirPort       |      |      |
-    | Inbound to our ControlPort   |    1 |      |
-    | Outbound to relay OR         | 3797 |  563 |
-    | Outbound to relay non-OR     |    3 |    1 |
-    | Outbound exit traffic        |   45 |    8 |
-    | Outbound unknown             |   13 |    2 |
-    +------------------------------+------+------+
-    | Total                        | 8392 |  594 |
-    +------------------------------+------+------+
+ORport 9051
+ 0.4.8.0-alpha-dev   uptime: 2-08:25:40   flags: Fast, Guard, Running, Stable, V2Dir, Valid
 
-    +------------------------------+------+------+
-    | Exit Port                    | IPv4 | IPv6 |
-    +------------------------------+------+------+
-    | 853                          |    1 |      |
-    | 5222 (Jabber)                |   33 |    8 |
-    | 5223 (Jabber)                |    4 |      |
-    | 5269 (Jabber)                |    2 |      |
-    | 6667 (IRC)                   |    2 |      |
-    | 7777                         |    3 |      |
-    +------------------------------+------+------+
-    | Total                        |   45 |    8 |
-    +------------------------------+------+------+
++------------------------------+-------+-------+
+| Type                         |  IPv4 |  IPv6 |
++------------------------------+-------+-------+
+| Inbound to our OR from relay |  2269 |   809 |
+| Inbound to our OR from other |  2925 |    87 |
+| Inbound to our ControlPort   |     2 |       |
+| Outbound to relay OR         |  2823 |   784 |
+| Outbound to relay non-OR     |     4 |     4 |
+| Outbound exit traffic        |       |       |
+| Outbound unknown             |    40 |    29 |
++------------------------------+-------+-------+
+| Total                        |  8063 |  1713 |
++------------------------------+-------+-------+
+
 ```
 *ps.py* continuously monitors exit ports usage:
 
