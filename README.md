@@ -9,6 +9,7 @@ They implement 2 rules for IPv4 and IPv6 respectively:
 
 - no more than 3 connections
 - no more than 15 connection attempts within 5 minutes
+
 from the same ip address.
 A blocked ip address is released after 30 minutes, if the rules are no longer violated. 
 The blocked addresses are in stored using ipsets named *tor-ddos* and *tor-ddos6*.
