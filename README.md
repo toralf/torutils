@@ -53,7 +53,7 @@ Check whether Tor relays are catched:
 curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - | jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | xargs -r -n 1 > /tmp/relays
 ipset list -s tor-ddos | grep -w -f /tmp/relays
 ```
-Here're the iptables stats for [these](https://metrics.torproject.org/rs.html#search/toralf) 2 relays after 2 days:
+Here're the iptables stats for [these](https://metrics.torproject.org/rs.html#search/toralf) 2 relays after 3 days:
 
 ```console
 $> iptables -nv -L INPUT
