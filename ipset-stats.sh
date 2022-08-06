@@ -70,7 +70,6 @@ function plot() {
     set ylabel "ip addresses";
     set key noautotitle;
     set xrange [0:'$xmax'];
-    set xtics 1;
     plot "'$tmpfile'" with impuls;
     '
 
