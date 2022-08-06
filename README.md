@@ -53,27 +53,28 @@ Check whether Tor relays are catched:
 curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - | jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | xargs -r -n 1 > /tmp/relays
 ipset list -s tor-ddos | grep -w -f /tmp/relays
 ```
-Here're my iptables stats for 2 relays at the same ip address after about 2 days:
+Here're the iptables stats for [these](https://metrics.torproject.org/rs.html#search/toralf) 2 relays after 2 days:
 
 ```console
-# iptables -nv -L INPUT
-Chain INPUT (policy DROP 70762 packets, 4471K bytes)
- pkts bytes target     prot opt in     out     source               destination         
- 125K   75M DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp flags:!0x17/0x02 state NEW /* Wed Aug  3 03:29:33 PM CEST 2022 */
-1893K 1206M ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0           
-  46M 2737M            tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 recent: SET name: tor-ddos-443 side: source mask: 255.255.255.255
-  44M 2655M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 recent: UPDATE seconds: 300 hit_count: 15 TTL-Match name: tor-ddos-443 side: source mask: 255.255.255.255 add-set tor-ddos src exist
- 322K   81M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 #conn src/32 > 3 add-set tor-ddos src exist
-45103   11M ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 match-set tor-authorities src
-  34M 2040M            tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 recent: SET name: tor-ddos-9001 side: source mask: 255.255.255.255
-  33M 1960M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 recent: UPDATE seconds: 300 hit_count: 15 TTL-Match name: tor-ddos-9001 side: source mask: 255.255.255.255 add-set tor-ddos src exist
- 188K   53M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 #conn src/32 > 3 add-set tor-ddos src exist
-69182   15M ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 match-set tor-authorities src
-  79M 4935M DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set tor-ddos src
-2848M 2505G ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443
-2585M 2094G ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001
-3282M 4157G ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED
-27904   19M DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate INVALID
+$> iptables -nv -L INPUT
+
+Chain INPUT (policy DROP 85112 packets, 5236K bytes)
+ pkts bytes target     prot opt in     out     source               destination
+ 147K   88M DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp flags:!0x17/0x02 state NEW /* Wed Aug  3 03:29:33 PM CEST 2022 */
+2107K 1335M ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0
+  50M 2984M            tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 recent: SET name: tor-ddos-443 side: source mask: 255.255.255.255
+  48M 2885M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 recent: UPDATE seconds: 300 hit_count: 15 TTL-Match name: tor-ddos-443 side: source mask: 255.255.255.255 add-set tor-ddos src exist
+ 373K   93M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 #conn src/32 > 3 add-set tor-ddos src exist
+68847   16M ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 match-set tor-authorities src
+  37M 2229M            tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 recent: SET name: tor-ddos-9001 side: source mask: 255.255.255.255
+  36M 2134M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 recent: UPDATE seconds: 300 hit_count: 15 TTL-Match name: tor-ddos-9001 side: source mask: 255.255.255.255 add-set tor-ddos src exist
+ 220K   62M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 #conn src/32 > 3 add-set tor-ddos src exist
+73923   17M ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 match-set tor-authorities src
+  86M 5392M DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set tor-ddos src
+3456M 3056G ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443
+3116M 2560G ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001
+3988M 5076G ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED
+31962   21M DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate INVALID
 ...
 ```
 ### info about Tor relay
