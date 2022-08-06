@@ -20,32 +20,31 @@ Gather data from those via a cronjob (but do not disclose those data!), eg. by a
 */30 * * * * /opt/torutils/ipset-stats.sh -d >> /tmp/ipset4.txt
 ```
 Use `-a` and `-A` respectively to anonymise the addresses a little bit.
-Plot a histogram:
+Plot a histogram (i.e. 38 ipsets == last 19 hours), eg.:
 
 ```console
 $> # ipset-stats.sh -p /tmp/ipset4.txt
-
-                                960 ip addresses, 10260 entries                           
-     250 +----------------------------------------------------------------------------+   
-         |   +    +   +   +   +    +   +   +    +   +   +   +    +   +   +   +    *   |   
-         |                                                               *        *   |   
-         |                                                               *        *   |   
-     200 |-+                                                             *        * +-|   
-         |                                                               *        *   |   
-         |   *                                                           *        *   |   
-     150 |-+ *                                                           *        * +-|   
-         |   *                                                           *        *   |   
-         |   *                                                           *        *   |   
-         |   *                                                           *        *   |   
-     100 |-+ *                                                           *        * +-|   
-         |   *                                                           *        *   |   
-         |   *                                                           *        *   |   
-      50 |-+ *                                                           *        * +-|   
-         |   *    *   *                                     *            *        *   |   
-         |   *    *   *   *   *                     *   *   *    *   *   *   *    *   |   
-         |   *    *   *   *   *    *   +   *    *   *   *   *    *   *   *   *    *   |   
+                                1187 ip addresses, 17937 entries                          
+     300 +----------------------------------------------------------------------------+   
+         | *       +         +         +        +         +         +         +       |   
+         | *                                                                          |   
+     250 |-*                                                                        +-|   
+         | *                                                                          |   
+         | *                           *                                              |   
+     200 |-*                           *                                            *-|   
+         | *                           *                                            * |   
+         | *                           *                                            * |   
+     150 |-*                           *                                            *-|   
+         | *                           *                                            * |   
+         | *                           *                                            * |   
+     100 |-*                           *                                            *-|   
+         | * *                         *                                            * |   
+         | * *                         *                                            * |   
+      50 |-* * *                       *                                            *-|   
+         | * * * *               *     *                                            * |   
+         | * * * * * * * * * * * * * * *        +         *   *     *   *   * * * * * |   
        0 +----------------------------------------------------------------------------+   
-         0   1    2   3   4   5    6   7   8    9   10  11  12   13  14  15  16   17  18  
+         0         5         10        15       20        25        30        35          
                                   occurrence of an ip address                             
 ```
 Check whether Tor relays are catched:
