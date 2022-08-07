@@ -30,7 +30,7 @@ function addTor() {
   fi
   for orport in 443 9001
   do
-    name=$denylist-$orport
+    local name=$denylist-$orport
     iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --set
     iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds $seconds --hitcount $hitcount --rttl -j SET --add-set $denylist src --exist
     iptables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above $connlimit -j SET --add-set $denylist src --exist
@@ -50,8 +50,8 @@ function addTor() {
   iptables -A INPUT -m conntrack --ctstate INVALID             -j DROP
 
   # ssh
-  sshport=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
-  iptables -A INPUT -p tcp --destination $sshaddr --destination-port ${sshport:-22} -j ACCEPT
+  local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
+  iptables -A INPUT -p tcp --destination-port ${port:-22} -j ACCEPT
   
   ## ratelimit ICMP echo
   iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 6/s -j ACCEPT
@@ -62,7 +62,7 @@ function addTor() {
 # only needed for Hetzner customers
 # https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
 function addHetzner() {
-  monlist=hetzner-monlist
+  local monlist=hetzner-monlist
   ipset create -exist $monlist hash:ip
   getent ahostsv4 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u |\
   while read i
@@ -75,10 +75,13 @@ function addHetzner() {
 
 # replace this content with your own stuff -or- kick it off
 function addLocal() {
+  local addr=$(ip -4 address | grep -w "inet .* scope global enp8s0" | awk '{ print $2 }' | cut -f1 -d'/')
+  local port
+
   port=$(crontab -l -u torproject | grep -m 1 -F " --port" | sed -e 's,.* --port ,,g' | cut -f1 -d ' ')
-  [[ -n "$port" ]] && iptables -A INPUT -p tcp --destination $sshaddr --destination-port $port -j ACCEPT
+  [[ -n "$port" ]] && iptables -A INPUT -p tcp --destination $addr --destination-port $port -j ACCEPT
   port=$(crontab -l -u tinderbox  | grep -m 1 -F " --port" | sed -e 's,.* --port ,,g' | cut -f1 -d ' ')
-  [[ -n "$port" ]] && iptables -A INPUT -p tcp --destination $sshaddr --destination-port $port -j ACCEPT
+  [[ -n "$port" ]] && iptables -A INPUT -p tcp --destination $addr --destination-port $port -j ACCEPT
 }
 
 
@@ -107,13 +110,6 @@ timeout=1800  # release ip address if no rule was fired within this timeframe
 seconds=300   # ratelimit time
 hitcount=11   # ratelimit for NEW conns to ORPort
 connlimit=2   # max connections to ORPort
-
-# if there're 2 ip addresses then do assume that the 2nd is used for ssh etc.
-dev=$(ip -4 route | grep "^default" | awk '{ print $5 }')
-sshaddr=$(ip -4 address show dev $dev | grep -w "inet .* scope global" | grep -v -w "$oraddr" | awk '{ print $2 }' | cut -f1 -d'/')
-if [[ -z $sshaddr ]]; then
-  sshaddr=$oraddr
-fi
 
 case $1 in
   start)  addTor

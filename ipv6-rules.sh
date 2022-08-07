@@ -31,7 +31,7 @@ function addTor() {
   fi
   for orport in 443 9001
   do
-    name=$denylist-$orport
+    local name=$denylist-$orport
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --set
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds $seconds --hitcount $hitcount --rttl -j SET --add-set $denylist src --exist
     ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above $connlimit -j SET --add-set $denylist src --exist
@@ -51,8 +51,8 @@ function addTor() {
   ip6tables -A INPUT -m conntrack --ctstate INVALID             -j DROP
   
   # ssh
-  sshport=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
-  ip6tables -A INPUT -p tcp --destination $sshaddr --destination-port ${sshport:-22} -j ACCEPT
+  local sshport=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
+  ip6tables -A INPUT -p tcp --destination-port ${sshport:-22} -j ACCEPT
  
   ## ratelimit ICMP echo, allow others
   ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -m limit --limit 6/s -j ACCEPT
@@ -63,7 +63,7 @@ function addTor() {
 
 function addHetzner() {
   # https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
-  monlist=hetzner-monlist6
+  local monlist=hetzner-monlist6
   ipset create -exist $monlist hash:ip family inet6
   getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u |\
   while read i
@@ -99,13 +99,6 @@ timeout=1800  # release ip address if no rule was fired within this timeframe
 seconds=300   # ratelimit time
 hitcount=11   # ratelimit for NEW conns to ORPort
 connlimit=2   # max connections to ORPort
-
-# if there're 2 ip addresses then do assume that the 2nd is used for ssh etc.
-dev=$(ip -6 route | grep "^default" | awk '{ print $5 }')
-sshaddr=$(ip -6 address show dev $dev | grep -w "inet6 .* scope global" | grep -v -w "$oraddr" | awk '{ print $2 }' | cut -f1 -d'/')
-if [[ -z $sshaddr ]]; then
-  sshaddr=$oraddr
-fi
 
 case $1 in
   start)  addTor
