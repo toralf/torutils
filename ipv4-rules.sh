@@ -22,25 +22,31 @@ function addTor() {
     ipset add -exist $allowlist $i
   done
 
-  # create denylist for ip addresses violating ratelimit/connlimit rules of incoming Tor connections
+  # create denylist for ip addresses
   if [[ -s /var/tmp/ipset.$denylist ]]; then
     ipset restore -exist -f /var/tmp/ipset.$denylist
   else
-    ipset create -exist $denylist hash:ip timeout $timeout
+    ipset create -exist $denylist hash:ip timeout 1800
   fi
-  for orport in 443 9001
+
+  for orport in ${orports[*]}
   do
+    # new connection attempts
     local name=$denylist-$orport
     iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --set
-    iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds $seconds --hitcount $hitcount --rttl -j SET --add-set $denylist src --exist
-    iptables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above $connlimit -j SET --add-set $denylist src --exist
-    # trust Tor authorities but keep their data in recent
+    iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds 300 --hitcount 11 --rttl -j SET --add-set $denylist src --exist
+    # trust Tor authorities
     iptables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set --match-set $allowlist src -j ACCEPT
   done
- 
-  # drop any traffic of denylist, allow passing packets to connect to ORport
+
+  # max connections == ORports + 1
+  iptables -A INPUT -p tcp --destination $oraddr -m multiport --destination-ports $(tr ' ' ',' <<< ${orports[*]}) -m connlimit --connlimit-mask 128 --connlimit-above $(( ${#orports[*]} + 1 )) -j SET --add-set $denylist src --exist
+
+  # drop any traffic from denylist
   iptables -A INPUT -p tcp -m set --match-set $denylist src -j DROP
-  for orport in 443 9001
+  
+  # allow passing packets to connect to ORport
+  for orport in ${orports[*]}
   do
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
   done
@@ -105,11 +111,9 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 # Tor
 oraddr="65.21.94.13"
+orports=(443 9001)
+
 denylist=tor-ddos
-timeout=1800  # release ip address if no rule was fired within this timeframe
-seconds=300   # ratelimit time
-hitcount=11   # ratelimit for NEW conns to ORPort
-connlimit=2   # max connections to ORPort
 
 case $1 in
   start)  addTor
