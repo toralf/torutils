@@ -7,20 +7,19 @@ Few tools around a Tor relay.
 *ipv4-rules.sh* and *ipv6-rules.sh* blocks ip addresses DDoS'ing the local Tor relays.
 They implement 2 rules for IPv4 and IPv6 respectively:
 
-- no more than 3 connections
-- no more than 15 connection attempts within 5 minutes
+- no more than 2 connections
+- no more than 11 connection attempts within 5 minutes
 
-from the same ip address.
+from the same ip address to the local relay ORPort.
 A blocked ip address is released after 30 minutes, if the rules are no longer violated. 
-The blocked addresses are in stored using ipsets named *tor-ddos* and *tor-ddos6*.
+The addresses are stored in ipsets named *tor-ddos* and *tor-ddos6* respectively.
 
-Gather data from those via a cronjob (but do not disclose those data!), eg. by a cronjob:
+Collect data from an ipset eg. by cronjob:
 
 ```cron
 */30 * * * * /opt/torutils/ipset-stats.sh -d >> /tmp/ipset4.txt
 ```
-Use `-a` and `-A` respectively to anonymise the addresses a little bit.
-Plot a histogram (i.e. 38 ipsets == last 19 hours), eg.:
+and plot a histogram (i.e. 38 ipsets == last 19 hours):
 
 ```console
 $> # ipset-stats.sh -p /tmp/ipset4.txt
@@ -47,13 +46,13 @@ $> # ipset-stats.sh -p /tmp/ipset4.txt
          0         5         10        15       20        25        30        35          
                                   occurrence of an ip address                             
 ```
-Check whether Tor relays are catched:
+Check whether Tor relays are catched in an ipset:
 
 ```bash
 curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - | jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | xargs -r -n 1 > /tmp/relays
 ipset list -s tor-ddos | grep -w -f /tmp/relays
 ```
-Here're the iptables stats for [these](https://metrics.torproject.org/rs.html#search/toralf) 2 relays after 3 days:
+Here're the iptables statistics for [these](https://metrics.torproject.org/rs.html#search/toralf) 2 relays after 3 days:
 
 ```console
 $> iptables -nv -L INPUT

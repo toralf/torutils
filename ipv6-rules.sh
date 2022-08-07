@@ -97,8 +97,8 @@ oraddr="2a01:4f9:3b:468e::13"
 denylist=tor-ddos6
 timeout=1800  # release ip address if no rule was fired within this timeframe
 seconds=300   # ratelimit time
-hitcount=15   # ratelimit for NEW conns to ORPort
-connlimit=3   # max connections to ORPort
+hitcount=11   # ratelimit for NEW conns to ORPort
+connlimit=2   # max connections to ORPort
 
 # if there're 2 ip addresses then do assume that the 2nd is used for ssh etc.
 dev=$(ip -6 route | grep "^default" | awk '{ print $5 }')
