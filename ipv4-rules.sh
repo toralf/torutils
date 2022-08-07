@@ -31,16 +31,15 @@ function addTor() {
 
   for orport in ${orports[*]}
   do
-    # new connection attempts
+    # <= 11 new connection attempts within 5 min
     local name=$denylist-$orport
     iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --set
     iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds 300 --hitcount 11 --rttl -j SET --add-set $denylist src --exist
     # trust Tor authorities
     iptables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set --match-set $allowlist src -j ACCEPT
+    # max 2 connections to an ORPort
+  iptables -A INPUT -p tcp         --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 2 -j SET --add-set $denylist src --exist
   done
-
-  # max connections == ORports + 1
-  iptables -A INPUT -p tcp --destination $oraddr -m multiport --destination-ports $(tr ' ' ',' <<< ${orports[*]}) -m connlimit --connlimit-mask 128 --connlimit-above $(( ${#orports[*]} * 2 )) -j SET --add-set $denylist src --exist
 
   # drop any traffic from denylist
   iptables -A INPUT -p tcp -m set --match-set $denylist src -j DROP
