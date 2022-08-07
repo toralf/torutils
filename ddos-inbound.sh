@@ -44,7 +44,7 @@ set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-limit=4
+limit=3
 relays=$(grep "^ORPort" /etc/tor/torrc{,2} 2>/dev/null | awk '{ print $2 }' | sort)
 
 while getopts l:r: opt
@@ -52,7 +52,9 @@ do
   case $opt in
     l)  limit=$OPTARG ;;
     r)  relays=$OPTARG ;;
-    *)  echo "unknown parameter '$opt'"; exit 1;;
+    *)  echo "unknown parameter '$opt'"
+        exit 1
+        ;;
   esac
 done
 
