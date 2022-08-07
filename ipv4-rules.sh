@@ -40,7 +40,7 @@ function addTor() {
   done
 
   # max connections == ORports + 1
-  iptables -A INPUT -p tcp --destination $oraddr -m multiport --destination-ports $(tr ' ' ',' <<< ${orports[*]}) -m connlimit --connlimit-mask 128 --connlimit-above $(( ${#orports[*]} + 1 )) -j SET --add-set $denylist src --exist
+  iptables -A INPUT -p tcp --destination $oraddr -m multiport --destination-ports $(tr ' ' ',' <<< ${orports[*]}) -m connlimit --connlimit-mask 128 --connlimit-above $(( ${#orports[*]} * 2 )) -j SET --add-set $denylist src --exist
 
   # drop any traffic from denylist
   iptables -A INPUT -p tcp -m set --match-set $denylist src -j DROP
