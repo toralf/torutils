@@ -52,31 +52,7 @@ Check whether Tor relays are catched in an ipset:
 curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - | jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | xargs -r -n 1 > /tmp/relays
 ipset list -s tor-ddos | grep -w -f /tmp/relays
 ```
-Here're the iptables statistics for [these](https://metrics.torproject.org/rs.html#search/toralf) 2 relays after 3 days:
-
-```console
-$> iptables -nv -L INPUT
-
-Chain INPUT (policy DROP 85112 packets, 5236K bytes)
- pkts bytes target     prot opt in     out     source               destination
- 147K   88M DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp flags:!0x17/0x02 state NEW /* Wed Aug  3 03:29:33 PM CEST 2022 */
-2107K 1335M ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0
-  50M 2984M            tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 recent: SET name: tor-ddos-443 side: source mask: 255.255.255.255
-  48M 2885M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 recent: UPDATE seconds: 300 hit_count: 15 TTL-Match name: tor-ddos-443 side: source mask: 255.255.255.255 add-set tor-ddos src exist
- 373K   93M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 #conn src/32 > 3 add-set tor-ddos src exist
-68847   16M ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 match-set tor-authorities src
-  37M 2229M            tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 recent: SET name: tor-ddos-9001 side: source mask: 255.255.255.255
-  36M 2134M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 recent: UPDATE seconds: 300 hit_count: 15 TTL-Match name: tor-ddos-9001 side: source mask: 255.255.255.255 add-set tor-ddos src exist
- 220K   62M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 #conn src/32 > 3 add-set tor-ddos src exist
-73923   17M ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 match-set tor-authorities src
-  86M 5392M DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set tor-ddos src
-3456M 3056G ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443
-3116M 2560G ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001
-3988M 5076G ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED
-31962   21M DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate INVALID
-...
-```
-### info about Tor relay
+### info about Tor relay connections
 
 *info.py* gives an overview about the connections of a relay:
 
@@ -101,7 +77,7 @@ ORport 9051
 +------------------------------+-------+-------+
 
 ```
-*ps.py* watches exit ports usage:
+*ps.py* watches Tor exits connections:
 
 ```console
 $> ps.py --ctrlport 9051
