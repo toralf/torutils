@@ -30,16 +30,15 @@ function addTor() {
     ipset create -exist $denylist hash:ip timeout 1800 family inet6
   fi
 
+  # the ruleset for an orport
   for orport in ${orports[*]}
   do
     # <= 11 new connection attempts within 5 min
     local name=$denylist-$orport
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --set
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds 300 --hitcount 11 --rttl -j SET --add-set $denylist src --exist
-  
-    # max 2 connections to an ORport
+    # <= 2 connections
     ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 2 -j SET --add-set $denylist src --exist
-    
     # trust Tor authorities
     ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set --match-set $allowlist src -j ACCEPT
   done
