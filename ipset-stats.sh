@@ -31,26 +31,7 @@ function anonymise6()  {
 function plot() {
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
-  perl -wane '
-    BEGIN {
-      my %h = ();
-    }
-    {
-      chomp();
-      $h{$F[0]}++;      # count occurrence of a particular ip address
-    }
-    END {
-      my %h2 = ();
-
-      foreach my $k (sort { $h{$a} <=> $h{$b} || $a cmp $b } keys %h) {
-        $h2{$h{$k}}++;      # count occurrence of occurrences
-      }
-      foreach my $k (sort { $a <=> $b } keys %h2) {
-        printf "%4i  %5i\n", $k, $h2{$k}
-      }
-    }
-  ' > $tmpfile
-
+  sort | uniq -c | sort -bn | awk '{ print $1 }' | uniq -c | awk '{ print $2, $1 }' > $tmpfile
   local xmax=$(tail -n 1 $tmpfile | awk '{ print ($1) }')
   ((xmax++))
 
