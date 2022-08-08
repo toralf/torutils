@@ -27,36 +27,29 @@ function anonymise6()  {
 }
 
 
-# a simple historgram
+# a simple histogram
 function plot() {
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
   perl -wane '
     BEGIN {
-      my %h=();
+      my %h = ();
     }
     {
-      $h{$F[0]}++;
+      chomp();
+      $h{$F[0]}++;      # count occurrence of a particular ip address
     }
     END {
+      my %h2 = ();
+
       foreach my $k (sort { $h{$a} <=> $h{$b} || $a cmp $b } keys %h) {
-        printf "%4i  %-s\n", $h{$k}, $k;
+        $h2{$h{$k}}++;      # count occurrence of occurrences
+      }
+      foreach my $k (sort { $a <=> $b } keys %h2) {
+        printf "%4i  %5i\n", $k, $h2{$k}
       }
     }
-    ' |\
-  perl -wane '
-    BEGIN {
-      my %h=();
-    }
-    {
-      $h{$F[0]}++;
-    }
-    END {
-      foreach my $k (sort { $a <=> $b } keys %h) {
-        printf "%4i  %5i\n", $k, $h{$k}
-      }
-    }
-    ' > $tmpfile
+  ' > $tmpfile
 
   local xmax=$(tail -n 1 $tmpfile | awk '{ print ($1) }')
   ((xmax++))
@@ -69,7 +62,7 @@ function plot() {
     set key noautotitle;
     set xrange [0:'$xmax'];
     plot "'$tmpfile'" with impuls;
-    '
+  '
 
   rm $tmpfile
 }
@@ -88,6 +81,6 @@ do
     d)  dump tor-ddos  ;;
     D)  dump tor-ddos6 ;;
     p)  shift; N=$(cat $* | wc -l); n=$(cat $* | sort -u | wc -l); cat $* | plot ;;
-    *)  echo "unknown parameter '$opt'"; exit 1;;
+    *)  echo "unknown parameter '$opt'"; exit 1 ;;
   esac
 done
