@@ -11,15 +11,17 @@ They implement 2 rules for IPv4 and IPv6 respectively:
 - no more than 11 connection attempts within 5 minutes
 
 from the same ip address to the local relay ORPort.
-A blocked ip address is released after 30 minutes, if the rules are no longer violated. 
-The addresses are stored in ipsets named *tor-ddos* and *tor-ddos6* respectively.
+A blocked ip address is released after 30 minutes, if it no longer violates the rules. 
+Technically addresses are stored in a so-called [ipset](https://ipset.netfilter.org/).
 
-Collect data from an ipset eg. by cronjob:
+An ipset can be modified by the command *ipset* itself or by *iptables*.
 
-```cron
-*/30 * * * * /opt/torutils/ipset-stats.sh -d >> /tmp/ipset4.txt
+`ipset-stats.sh` is used to list ip addresses:
+
+```bash
+/opt/torutils/ipset-stats.sh -d >> /tmp/ipset4.txt
 ```
-and plot a histogram (i.e. 38 ipsets == last 19 hours):
+and to plot them (i.e. 38 ipsets half-hourly collected):
 
 ```console
 $> # ipset-stats.sh -p /tmp/ipset4.txt
