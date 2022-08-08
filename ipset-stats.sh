@@ -2,7 +2,7 @@
 # set -x
 
 
-# anonymise/plot about blocked ip addresses (see ipv4-rules.sh and ipv6-rules.sh)
+# anonymise/plot blocked ip addresses (see ipv4-rules.sh and ipv6-rules.sh how to collect them)
 
 
 function dump()  {
@@ -43,7 +43,7 @@ function plot() {
         printf "%4i  %-s\n", $h{$k}, $k;
       }
     }
-    ' $1 |\
+    ' |\
   perl -wane '
     BEGIN {
       my %h=();
@@ -60,12 +60,10 @@ function plot() {
 
   local xmax=$(tail -n 1 $tmpfile | awk '{ print ($1) }')
   ((xmax++))
-  local n=$(sort -u $1 | wc -l)
-  local N=$(wc -l < $1)
 
   gnuplot -e '
     set terminal dumb 90 25;
-    set title " '"$n"' ip addresses, '"$N"' entries";
+    set title " '"$n"' ip addresses, '"$N"' hits";
     set xlabel "occurrence of an ip address";
     set ylabel "ip addresses";
     set key noautotitle;
@@ -82,14 +80,14 @@ set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-while getopts aAdDp: opt
+while getopts aAdDp opt
 do
   case $opt in
     a)  dump tor-ddos  | anonymise  ;;
     A)  dump tor-ddos6 | anonymise6 ;;
     d)  dump tor-ddos  ;;
     D)  dump tor-ddos6 ;;
-    p)  plot $OPTARG ;;
+    p)  shift; N=$(cat $* | wc -l); n=$(cat $* | sort -u | wc -l); cat $* | plot ;;
     *)  echo "unknown parameter '$opt'"; exit 1;;
   esac
 done
