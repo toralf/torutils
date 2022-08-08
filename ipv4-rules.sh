@@ -18,6 +18,17 @@ function addTor() {
     ipset create -exist $denylist hash:ip timeout 1800
   fi
 
+  # ipset for ip addresses where >1 Tor relay is running
+  local multilist=tor-multi-relays
+  ipset create -exist $multilist hash:ip
+  curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |\
+  jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | sort | uniq -c | grep -v ' 1 ' |\
+  awk '{ print $2 }' |\
+  while read i
+  do
+    ipset add -exist $multilist $i
+  done
+
   # iptables
   iptables -P INPUT   DROP
   iptables -P OUTPUT  ACCEPT
@@ -37,9 +48,10 @@ function addTor() {
     iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --set
     iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds 300 --hitcount 11 --rttl -j SET --add-set $denylist src --exist
     # trust Tor authorities
-    iptables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set --match-set $authlist src -j ACCEPT
-    # <=2 connections
-    iptables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 2 -j SET --add-set $denylist src --exist
+    iptables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set   --match-set $authlist  src -j ACCEPT
+    # 2 connections for a multirelay, 1 otherwise
+    iptables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set   --match-set $multilist src -m connlimit --connlimit-mask 32 --connlimit-above 2 -j SET --add-set $denylist src --exist
+    iptables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set ! --match-set $multilist src -m connlimit --connlimit-mask 32 --connlimit-above 1 -j SET --add-set $denylist src --exist
   done
 
   # drop any traffic from denylist

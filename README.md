@@ -5,12 +5,11 @@ Few tools around a Tor relay.
 
 ### Firewall scripts
 *ipv4-rules.sh* and *ipv6-rules.sh* blocks ip addresses DDoS'ing the local Tor relays.
-They implement 2 rules for IPv4 and IPv6 respectively:
+They implement 2 rules for IPv4 and IPv6 respectively for a remote ip address connecting to the local ORPort :
 
-- no more than 2 connections
-- no more than 11 connection attempts within 5 minutes
+- <=  2 inbound connections (if there's >1 relay running), 1 otherwise
+- <= 11 new inbound connection attempts within 5 minutes
 
-from the same ip address to the local relay ORPort.
 A blocked ip address is released after 30 minutes, if it no longer violates the rules. 
 Technically addresses are stored in a so-called [ipset](https://ipset.netfilter.org/).
 
@@ -21,31 +20,32 @@ An ipset can be modified by the command *ipset* itself or by *iptables*.
 ```bash
 */30 * * * * d=$(date +\%H-\%M); /opt/torutils/ipset-stats.sh -d > /tmp/ipset4.$d.txt; /opt/torutils/ipset-stats.sh -D > /tmp/ipset6.$d.txt
 ```
-and to plot them later:
+and/or to plot them:
 
 ```console
 $> # ipset-stats.sh -p /tmp/ipset4.??-??.txt
-                                  1709 ip addresses, 5754 hits                            
-     800 +----------------------------------------------------------------------------+   
-         |            +            +            +           +            +            |   
-     700 |-+                                                             *          +-|   
-         |                                                               *            |   
-     600 |-+                                                             *          +-|   
-         |                                                               *            |   
-         |                                                               *            |   
-     500 |-+                                                             *          +-|   
-         |                                                               *            |   
-     400 |-+          *                                                  *          +-|   
-         |            *                                                  *            |   
-     300 |-+          *                                                  *          +-|   
-         |            *                                                  *            |   
-     200 |-+          *            *            *                        *          +-|   
-         |            *            *            *           *            *            |   
-         |            *            *            *           *            *            |   
-     100 |-+          *            *            *           *            *          +-|   
-         |            *            *            *           *            *            |   
+
+                                 2954 ip addresses, 19860 hits                            
+     900 +----------------------------------------------------------------------------+   
+         |    *    +          +         +         +         +          +         +    |   
+     800 |-+  *                                                                     +-|   
+         |    *                                                                       |   
+     700 |-+  *                                                                     +-|   
+         |    *                                                                       |   
+     600 |-+  *                                                                     +-|   
+         |    *                                                                  *    |   
+     500 |-+  *                                                                  *  +-|   
+         |    *                                                                  *    |   
+     400 |-+  *                                                                  *  +-|   
+         |    *                                                                  *    |   
+     300 |-+  *                                                                  *  +-|   
+         |    *                                   *                              *    |   
+     200 |-+  *    *                              *                              *  +-|   
+         |    *    *                         *    *                         *    *    |   
+     100 |-+  *    *    *     *    *    *    *    *    *    *    *     *    *    *  +-|   
+         |    *    *    *     *    *    *    *    *    *    *    *     *    *    *    |   
        0 +----------------------------------------------------------------------------+   
-         0            1            2            3           4            5            6   
+         0         2          4         6         8         10         12        14       
                                   occurrence of an ip address                             
 ```
 Check whether Tor relays are catched in an ipset:

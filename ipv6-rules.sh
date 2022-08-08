@@ -15,8 +15,19 @@ function addTor() {
   if [[ -s /var/tmp/ipset.$denylist ]]; then
     ipset restore -exist -f /var/tmp/ipset.$denylist
   else
-    ipset create -exist $denylist hash:ip timeout 1800 family inet6
+    ipset create -exist $denylist hash:ip family inet6 timeout 1800
   fi
+
+  # ipset for ip addresses where >1 Tor relay is running
+  local multilist=tor-multi-relays6
+  ipset create -exist $multilist hash:ip family inet6
+  curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |\
+  jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | sort | uniq -c | grep -v ' 1 ' |\
+  grep -F ':' | awk '{ print $3 }' |\
+  while read i
+  do
+    ipset add -exist $multilist $i
+  done
 
   # iptables
   ip6tables -P INPUT   DROP
@@ -37,10 +48,12 @@ function addTor() {
     local name=$denylist-$orport
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --set
     ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds 300 --hitcount 11 --rttl -j SET --add-set $denylist src --exist
-    # <= 2 connections
-    ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 2 -j SET --add-set $denylist src --exist
     # trust Tor authorities
-    ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set --match-set $authlist src -j ACCEPT
+    ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set   --match-set $authlist  src -j ACCEPT
+    # 2 connections for a multirelay, 1 otherwise
+    ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set   --match-set $multilist src -m connlimit --connlimit-mask 128 --connlimit-above 2 -j SET --add-set $denylist src --exist
+    ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set ! --match-set $multilist src -m connlimit --connlimit-mask 128 --connlimit-above 1 -j SET --add-set $denylist src --exist
+
   done
 
   # drop any traffic from denylist
