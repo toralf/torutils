@@ -56,9 +56,9 @@ function addTor() {
 
   done
 
-  # drop any traffic from denylist
-  ip6tables -A INPUT -p tcp -m set --match-set $denylist src -j DROP
-  
+  # drop traffic from denylist to ORPort
+  ip6tables -A INPUT -p tcp --destination $oraddr -m multiport --destination-ports $(tr ' ' ',' <<< ${orports[*]}) -m set --match-set $denylist src -j DROP
+
   # allow passing packets to connect to ORport
   for orport in ${orports[*]}
   do

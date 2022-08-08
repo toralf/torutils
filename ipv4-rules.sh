@@ -54,8 +54,8 @@ function addTor() {
     iptables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set ! --match-set $multilist src -m connlimit --connlimit-mask 32 --connlimit-above 1 -j SET --add-set $denylist src --exist
   done
 
-  # drop any traffic from denylist
-  iptables -A INPUT -p tcp -m set --match-set $denylist src -j DROP
+  # drop traffic from denylist to ORPort
+  iptables -A INPUT -p tcp --destination $oraddr -m multiport --destination-ports $(tr ' ' ',' <<< ${orports[*]}) -m set --match-set $denylist src -j DROP
   
   # allow passing packets to connect to ORport
   for orport in ${orports[*]}
