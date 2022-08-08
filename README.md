@@ -16,36 +16,36 @@ Technically addresses are stored in a so-called [ipset](https://ipset.netfilter.
 
 An ipset can be modified by the command *ipset* itself or by *iptables*.
 
-`ipset-stats.sh` is used to list ip addresses:
+`ipset-stats.sh` is used to list ip addresses (ie. a crontab entry):
 
 ```bash
-/opt/torutils/ipset-stats.sh -d >> /tmp/ipset4.txt
+*/30 * * * * d=$(date +\%H-\%M); /opt/torutils/ipset-stats.sh -d > /tmp/ipset4.$d.txt; /opt/torutils/ipset-stats.sh -D > /tmp/ipset6.$d.txt
 ```
-and to plot them (i.e. 38 ipsets half-hourly collected):
+and to plot them later:
 
 ```console
-$> # ipset-stats.sh -p /tmp/ipset4.txt
-                                1187 ip addresses, 17937 entries                          
-     300 +----------------------------------------------------------------------------+   
-         | *       +         +         +        +         +         +         +       |   
-         | *                                                                          |   
-     250 |-*                                                                        +-|   
-         | *                                                                          |   
-         | *                           *                                              |   
-     200 |-*                           *                                            *-|   
-         | *                           *                                            * |   
-         | *                           *                                            * |   
-     150 |-*                           *                                            *-|   
-         | *                           *                                            * |   
-         | *                           *                                            * |   
-     100 |-*                           *                                            *-|   
-         | * *                         *                                            * |   
-         | * *                         *                                            * |   
-      50 |-* * *                       *                                            *-|   
-         | * * * *               *     *                                            * |   
-         | * * * * * * * * * * * * * * *        +         *   *     *   *   * * * * * |   
+$> # ipset-stats.sh -p /tmp/ipset4.??-??.txt
+                                  1709 ip addresses, 5754 hits                            
+     800 +----------------------------------------------------------------------------+   
+         |            +            +            +           +            +            |   
+     700 |-+                                                             *          +-|   
+         |                                                               *            |   
+     600 |-+                                                             *          +-|   
+         |                                                               *            |   
+         |                                                               *            |   
+     500 |-+                                                             *          +-|   
+         |                                                               *            |   
+     400 |-+          *                                                  *          +-|   
+         |            *                                                  *            |   
+     300 |-+          *                                                  *          +-|   
+         |            *                                                  *            |   
+     200 |-+          *            *            *                        *          +-|   
+         |            *            *            *           *            *            |   
+         |            *            *            *           *            *            |   
+     100 |-+          *            *            *           *            *          +-|   
+         |            *            *            *           *            *            |   
        0 +----------------------------------------------------------------------------+   
-         0         5         10        15       20        25        30        35          
+         0            1            2            3           4            5            6   
                                   occurrence of an ip address                             
 ```
 Check whether Tor relays are catched in an ipset:
