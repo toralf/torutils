@@ -9,6 +9,7 @@
 
 function show() {
   ss --no-header --tcp -${v:-4} --numeric |\
+  # only count inbound to our ORPort - therefore the trailing space
   grep "^ESTAB .* $(sed -e 's,\[,\\[,g' -e 's,\],\\],g' <<< $relay) " |\
   perl -wane '
     BEGIN {
