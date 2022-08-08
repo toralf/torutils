@@ -39,7 +39,7 @@ function addTor() {
     # trust Tor authorities
     iptables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set --match-set $authlist src -j ACCEPT
     # <=2 connections
-  iptables -A INPUT -p tcp         --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 2 -j SET --add-set $denylist src --exist
+    iptables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 2 -j SET --add-set $denylist src --exist
   done
 
   # drop any traffic from denylist
