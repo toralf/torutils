@@ -14,13 +14,13 @@ function addTor() {
   ip6tables -A INPUT --in-interface lo                                -j ACCEPT
   ip6tables -A INPUT -p udp --source fe80::/10 --destination ff02::1  -j ACCEPT
  
-  # create allowlist for Tor authorities
-  allowlist=tor-authorities6
-  ipset create -exist $allowlist hash:ip family inet6
+  # create authlist for Tor authorities
+  local authlist=tor-authorities6
+  ipset create -exist $authlist hash:ip family inet6
   # https://metrics.torproject.org/rs.html#search/flag:authority%20
   for i in 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2001:858:2:2:aabb:0:563b:1526 2607:8500:154::3 2610:1c0:0:5::131 2620:13:4000:6000::1000:118
   do
-    ipset add -exist $allowlist $i
+    ipset add -exist $authlist $i
   done
 
   # create denylist for ip addresses
@@ -40,7 +40,7 @@ function addTor() {
     # <= 2 connections
     ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 2 -j SET --add-set $denylist src --exist
     # trust Tor authorities
-    ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set --match-set $allowlist src -j ACCEPT
+    ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set --match-set $authlist src -j ACCEPT
   done
 
   # drop any traffic from denylist
