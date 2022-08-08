@@ -11,6 +11,11 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 [[ -s $1 ]]
 tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
+
+# this creates the fingerprints versus their reasons IOERROR TIMEOUT CONNECTRESET DONE
+#
+#   format:
+#   ABCD1234     8     6     0     0
 perl -wane '
   BEGIN {
     my %h_reason = ();
@@ -46,48 +51,27 @@ perl -wane '
     }
   }' $1 |\
 
-# this stream contains the fingerprints versus their counts of STATUS
-#
-#   format:
-#   ABCD1234     8     6     0     0
-#
-# create from that a histogram:
+# currently we are only interested in ioerrors
+# create from the stream above a histogram:
 #     0       417
 #     1       1065
 #     2       355
 #
 # read it as:
 #   417 nodes are fine. 1065 had 1 ioerror, 355 had 2 ioerrors, ...
+awk '{ print $2 }' |\
+sort | uniq -c | awk ' { print $2, $1 }' > $tmpfile
 
-perl -wane '
-  BEGIN {
-    my %h_ioerror = ();
-  }
-  {
-    chomp();
-    s/^\s+//g;
+xmax=$(tail -n 1 $tmpfile | awk '{ print $1 }')
+((xmax++))
 
-    my ($fingerprint, $ioerror, $timeout, $connectreset, $done) = split();
-
-    # currently we are only interested in ioerrors
-    #
-    $h_ioerror{$ioerror}++;
-  }
-  END {
-    foreach my $key (sort { $a <=> $b } keys %h_ioerror) {
-      print $key, "\t", $h_ioerror{$key}, "\n";
-    }
-  }' > $tmpfile
-
-# "$tmpfile" contains only the io errors
-#
 gnuplot -e '
   set terminal dumb 90 25;
   set xlabel "ioerrors";
-  set ylabel "relays";
+  set title "relays";
   set key noautotitle;
   set logscale y 10;
-
+  set xrange [-1:'$xmax'];
   plot "'$tmpfile'" with impuls;
   '
 
