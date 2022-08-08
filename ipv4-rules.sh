@@ -3,6 +3,22 @@
 
 
 function addTor() {
+  # ipset for Tor authorities https://metrics.torproject.org/rs.html#search/flag:authority%20
+  local authlist=tor-authorities
+  ipset create -exist $authlist hash:ip
+  for i in 128.31.0.34 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 194.13.81.26 199.58.81.140 204.13.164.118 45.66.33.45 66.111.2.131 86.59.21.38
+  do
+    ipset add -exist $authlist $i
+  done
+
+  # ipset for blocked ip addresses
+  if [[ -s /var/tmp/ipset.$denylist ]]; then
+    ipset restore -exist -f /var/tmp/ipset.$denylist
+  else
+    ipset create -exist $denylist hash:ip timeout 1800
+  fi
+
+  # iptables
   iptables -P INPUT   DROP
   iptables -P OUTPUT  ACCEPT
   iptables -P FORWARD DROP
@@ -13,22 +29,6 @@ function addTor() {
   # allow local traffic
   iptables -A INPUT --in-interface lo -j ACCEPT
   
-  # create authlist for Tor authorities
-  local authlist=tor-authorities
-  ipset create -exist $authlist hash:ip
-  # https://metrics.torproject.org/rs.html#search/flag:authority%20
-  for i in 128.31.0.34 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 194.13.81.26 199.58.81.140 204.13.164.118 45.66.33.45 66.111.2.131 86.59.21.38
-  do
-    ipset add -exist $authlist $i
-  done
-
-  # create denylist for ip addresses
-  if [[ -s /var/tmp/ipset.$denylist ]]; then
-    ipset restore -exist -f /var/tmp/ipset.$denylist
-  else
-    ipset create -exist $denylist hash:ip timeout 1800
-  fi
-
   # the ruleset for an orport
   for orport in ${orports[*]}
   do
