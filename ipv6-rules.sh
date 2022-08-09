@@ -31,25 +31,20 @@ function addTor() {
   ip6tables -A INPUT --in-interface lo                                -j ACCEPT
   ip6tables -A INPUT -p udp --source fe80::/10 --destination ff02::1  -j ACCEPT
  
-  # the ruleset for an orport
+  # the ruleset for inbound to an ORPort
   for orport in ${orports[*]}
   do
     # trust Tor authorities
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $authlist src -j ACCEPT
     # block for >2 conenctions
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 2 -j SET --add-set $blocklist src --exist
-  done
-
-  # drop traffic from blocklist to ORPort/s
-  ip6tables -A INPUT -p tcp --destination $oraddr -m multiport --destination-ports $(tr ' ' ',' <<< ${orports[*]}) -m set --match-set $blocklist src -j DROP
-
-  # allow to connect to ORport
-  for orport in ${orports[*]}
-  do
+    # drop traffic from blocklist
+    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $blocklist src -j DROP
+    # allow to connect to ORport
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
   done
-  
-  # trust already established connections - this is almost Tor traffic initiated by us
+
+  # trust already established connections - this is almost Tor traffic outbound to an ORPort
   ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   ip6tables -A INPUT -m conntrack --ctstate INVALID             -j DROP
 

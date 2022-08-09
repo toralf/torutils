@@ -30,25 +30,20 @@ function addTor() {
   # allow local traffic
   iptables -A INPUT --in-interface lo -j ACCEPT
   
-  # the ruleset for an orport
+  # the ruleset for inbound to an ORPort
   for orport in ${orports[*]}
   do
     # trust Tor authorities
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $authlist src -j ACCEPT
-    # block for >2 conenctions
+    # add to blocklist if >2 connections
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 2 -j SET --add-set $blocklist src --exist
-  done
-
-  # drop traffic from blocklist to ORPort/s
-  iptables -A INPUT -p tcp --destination $oraddr -m multiport --destination-ports $(tr ' ' ',' <<< ${orports[*]}) -m set --match-set $blocklist src -j DROP
-
-  # allow to connect to ORport
-  for orport in ${orports[*]}
-  do
+    # drop traffic from blocklist
+    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $blocklist src -j DROP
+    # allow to connect to ORport
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
   done
-  
-  # trust already established connections - this is almost Tor traffic initiated by us
+
+  # trust already established connections - this is almost Tor traffic outbound to an ORPort
   iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   iptables -A INPUT -m conntrack --ctstate INVALID             -j DROP
 
