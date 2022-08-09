@@ -3,23 +3,22 @@
 # torutils
 Few tools around a Tor relay.
 
-### Firewall scripts
-*ipv4-rules.sh* and *ipv6-rules.sh* blocks ip addresses DDoS'ing the local Tor relays.
-They implement a simple rule for a remote ip address going to the local ORPort:
+### Tor firewall
+*ipv4-rules.sh* and *ipv6-rules.sh* block ip addresses DDoS'ing the local Tor relay(s).
+They implement a simple rule for a remote ip address going to a local ORPort:
 *Allow only 2 inbound connections.*
-
 Otherwise the ip address gets blocked.
 A blocked ip address is released after 30 minutes, if it doesn't violate the rule any longer.
-Technically the ips are stored in a so-called [ipset](https://ipset.netfilter.org/).
 
-An ipset can be modified by the command *ipset* itself or by *iptables*.
+Technically the ip is stored in a so-called [ipset](https://ipset.netfilter.org/).
+An ipset can be modified by the command *ipset* or by *iptables*.
 
-`ipset-stats.sh` is used to list ip addresses (ie. a crontab entry):
+To list ip addresses *ipset-stats.sh* is used, eg. by a crontab entry:
 
 ```bash
 */30 * * * * d=$(date +\%H-\%M); /opt/torutils/ipset-stats.sh -d > /tmp/ipset4.$d.txt; /opt/torutils/ipset-stats.sh -D > /tmp/ipset6.$d.txt
 ```
-and to plot them:
+A hiistogram over the ip addresses stored in those files can plotted by:
 
 ```console
 $> # ipset-stats.sh -p /tmp/ipset4.??-??.txt
@@ -47,13 +46,13 @@ $> # ipset-stats.sh -p /tmp/ipset4.??-??.txt
          0         2          4         6         8         10         12        14       
                                   occurrence of an ip address                             
 ```
-Check whether Tor relays are catched in an ipset:
+To check whether a Tor relay is blocked too, run:
 
 ```bash
 curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - | jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | xargs -r -n 1 > /tmp/relays
 ipset list -s tor-ddos | grep -w -f /tmp/relays
 ```
-### info about Tor relay connections
+### info about local Tor relay connections
 
 *info.py* gives an overview about the connections of a relay:
 
