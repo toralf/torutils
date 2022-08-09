@@ -35,8 +35,8 @@ function addTor() {
   for orport in ${orports[*]}
   do
     # trust Tor authorities
-    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $authlist  src -j ACCEPT
-    # no new connection attempt if there already more than 1 connections
+    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $authlist src -j ACCEPT
+    # penalty if a 3rd connection is tried to open
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 1 -j SET --add-set $blocklist src --exist
   done
 
@@ -52,7 +52,7 @@ function addTor() {
   # trust already established connections - this is almost Tor traffic initiated by us
   ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   ip6tables -A INPUT -m conntrack --ctstate INVALID             -j DROP
-  
+
   # ssh
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
   ip6tables -A INPUT -p tcp --destination-port ${port:-22} -j ACCEPT
@@ -107,7 +107,7 @@ case $1 in
   start)  addTor
           addHetzner
           ;;
-  stop)   clearAll 
+  stop)   clearAll
           ;;
 esac
 
