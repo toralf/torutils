@@ -46,7 +46,12 @@ export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 limit=2
+
 relays=$(grep "^ORPort" /etc/tor/torrc{,2} 2>/dev/null | awk '{ print $2 }' | sort)
+if [[ ! $relays =~ '.' ]]; then
+  address=$(grep "^Address" /etc/tor/torrc | awk '{ print $2 }' | sort -u)
+  relays="$address:$relays"
+fi
 
 while getopts l:r: opt
 do
