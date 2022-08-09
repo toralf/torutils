@@ -5,13 +5,12 @@ Few tools around a Tor relay.
 
 ### Firewall scripts
 *ipv4-rules.sh* and *ipv6-rules.sh* blocks ip addresses DDoS'ing the local Tor relays.
-They implement 2 rules for IPv4 and IPv6 respectively for a remote ip address connecting to the local ORPort :
+They implement a simple rule for a remote ip address going to the local ORPort:
+*Allow only 2 inbound connections.*
 
-- <=  2 inbound connections (if there's >1 relay running), 1 otherwise
-- <= 11 new inbound connection attempts within 5 minutes
-
-A blocked ip address is released after 30 minutes, if it no longer violates the rules. 
-Technically addresses are stored in a so-called [ipset](https://ipset.netfilter.org/).
+Otherwise the ip address gets blocked.
+A blocked ip address is released after 30 minutes, if it doesn't violate the rule any longer.
+Technically the ips are stored in a so-called [ipset](https://ipset.netfilter.org/).
 
 An ipset can be modified by the command *ipset* itself or by *iptables*.
 
@@ -20,7 +19,7 @@ An ipset can be modified by the command *ipset* itself or by *iptables*.
 ```bash
 */30 * * * * d=$(date +\%H-\%M); /opt/torutils/ipset-stats.sh -d > /tmp/ipset4.$d.txt; /opt/torutils/ipset-stats.sh -D > /tmp/ipset6.$d.txt
 ```
-and/or to plot them:
+and to plot them:
 
 ```console
 $> # ipset-stats.sh -p /tmp/ipset4.??-??.txt

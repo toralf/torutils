@@ -5,6 +5,7 @@
 function addTor() {
   # ipset for Tor authorities https://metrics.torproject.org/rs.html#search/flag:authority%20
   local authlist=tor-authorities6
+
   ipset create -exist $authlist hash:ip family inet6
   for i in 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2001:858:2:2:aabb:0:563b:1526 2607:8500:154::3 2610:1c0:0:5::131 2620:13:4000:6000::1000:118
   do
@@ -12,22 +13,11 @@ function addTor() {
   done
 
   # ipset for blocked ip addresses
-  if [[ -s /var/tmp/ipset.$denylist ]]; then
-    ipset restore -exist -f /var/tmp/ipset.$denylist
+  if [[ -s /var/tmp/ipset.$blocklist ]]; then
+    ipset restore -exist -f /var/tmp/ipset.$blocklist
   else
-    ipset create -exist $denylist hash:ip family inet6 timeout 1800
+    ipset create -exist $blocklist hash:ip family inet6 timeout 1800
   fi
-
-  # ipset for ip addresses where >1 Tor relay is running
-  local multilist=tor-multi-relays6
-  ipset create -exist $multilist hash:ip family inet6
-  curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |\
-  jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | sort | uniq -c | grep -v ' 1 ' |\
-  grep -F ':' | awk '{ print $3 }' |\
-  while read i
-  do
-    ipset add -exist $multilist $i
-  done
 
   # iptables
   ip6tables -P INPUT   DROP
@@ -44,22 +34,16 @@ function addTor() {
   # the ruleset for an orport
   for orport in ${orports[*]}
   do
-    # <= 11 new connection attempts within 5 min
-    local name=$denylist-$orport
-    ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --set
-    ip6tables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds 300 --hitcount 11 --rttl -j SET --add-set $denylist src --exist
     # trust Tor authorities
-    ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set   --match-set $authlist  src -j ACCEPT
-    # 2 connections for a multirelay, 1 otherwise
-    ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set   --match-set $multilist src -m connlimit --connlimit-mask 128 --connlimit-above 2 -j SET --add-set $denylist src --exist
-    ip6tables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set ! --match-set $multilist src -m connlimit --connlimit-mask 128 --connlimit-above 1 -j SET --add-set $denylist src --exist
-
+    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $authlist  src -j ACCEPT
+    # no new connection attempt if there already more than 1 connections
+    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 1 -j SET --add-set $blocklist src --exist
   done
 
-  # drop traffic from denylist to ORPort
-  ip6tables -A INPUT -p tcp --destination $oraddr -m multiport --destination-ports $(tr ' ' ',' <<< ${orports[*]}) -m set --match-set $denylist src -j DROP
+  # drop traffic from blocklist to ORPort
+  ip6tables -A INPUT -p tcp --destination $oraddr -m multiport --destination-ports $(tr ' ' ',' <<< ${orports[*]}) -m set --match-set $blocklist src -j DROP
 
-  # allow passing packets to connect to ORport
+  # allow to connect to ORport
   for orport in ${orports[*]}
   do
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
@@ -80,9 +64,11 @@ function addTor() {
 }
 
 
+# only needed for Hetzner customers
+# https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
 function addHetzner() {
-  # https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
   local monlist=hetzner-monlist6
+
   ipset create -exist $monlist hash:ip family inet6
   getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u |\
   while read i
@@ -102,9 +88,9 @@ function clearAll() {
   ip6tables -P OUTPUT  ACCEPT
   ip6tables -P FORWARD ACCEPT
 
-  ipset save $denylist -f /var/tmp/ipset.$denylist.tmp &&\
-  mv /var/tmp/ipset.$denylist.tmp /var/tmp/ipset.$denylist &&\
-  ipset destroy $denylist
+  ipset save $blocklist -f /var/tmp/ipset.$blocklist.tmp &&\
+  mv /var/tmp/ipset.$blocklist.tmp /var/tmp/ipset.$blocklist &&\
+  ipset destroy $blocklist
 }
 
 
@@ -115,7 +101,7 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 oraddr="2a01:4f9:3b:468e::13"
 orports=(443 9001)
 
-denylist=tor-ddos6
+blocklist=tor-ddos6
 
 case $1 in
   start)  addTor

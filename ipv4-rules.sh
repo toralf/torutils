@@ -5,6 +5,7 @@
 function addTor() {
   # ipset for Tor authorities https://metrics.torproject.org/rs.html#search/flag:authority%20
   local authlist=tor-authorities
+
   ipset create -exist $authlist hash:ip
   for i in 128.31.0.34 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 194.13.81.26 199.58.81.140 204.13.164.118 45.66.33.45 66.111.2.131 86.59.21.38
   do
@@ -12,22 +13,11 @@ function addTor() {
   done
 
   # ipset for blocked ip addresses
-  if [[ -s /var/tmp/ipset.$denylist ]]; then
-    ipset restore -exist -f /var/tmp/ipset.$denylist
+  if [[ -s /var/tmp/ipset.$blocklist ]]; then
+    ipset restore -exist -f /var/tmp/ipset.$blocklist
   else
-    ipset create -exist $denylist hash:ip timeout 1800
+    ipset create -exist $blocklist hash:ip timeout 1800
   fi
-
-  # ipset for ip addresses where >1 Tor relay is running
-  local multilist=tor-multi-relays
-  ipset create -exist $multilist hash:ip
-  curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |\
-  jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | sort | uniq -c | grep -v ' 1 ' |\
-  awk '{ print $2 }' |\
-  while read i
-  do
-    ipset add -exist $multilist $i
-  done
 
   # iptables
   iptables -P INPUT   DROP
@@ -43,21 +33,16 @@ function addTor() {
   # the ruleset for an orport
   for orport in ${orports[*]}
   do
-    # <= 11 new connection attempts within 5 min
-    local name=$denylist-$orport
-    iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --set
-    iptables -A INPUT -p tcp --syn --destination $oraddr --destination-port $orport -m recent --name $name --update --seconds 300 --hitcount 11 --rttl -j SET --add-set $denylist src --exist
     # trust Tor authorities
-    iptables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set   --match-set $authlist  src -j ACCEPT
-    # 2 connections for a multirelay, 1 otherwise
-    iptables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set   --match-set $multilist src -m connlimit --connlimit-mask 32 --connlimit-above 2 -j SET --add-set $denylist src --exist
-    iptables -A INPUT -p tcp       --destination $oraddr --destination-port $orport -m set ! --match-set $multilist src -m connlimit --connlimit-mask 32 --connlimit-above 1 -j SET --add-set $denylist src --exist
+    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $authlist src -j ACCEPT
+    # no new connection attempt if there already more than 1 connections
+    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 1 -j SET --add-set $blocklist src --exist
   done
 
-  # drop traffic from denylist to ORPort
-  iptables -A INPUT -p tcp --destination $oraddr -m multiport --destination-ports $(tr ' ' ',' <<< ${orports[*]}) -m set --match-set $denylist src -j DROP
-  
-  # allow passing packets to connect to ORport
+  # drop traffic from blocklist to ORPort
+  iptables -A INPUT -p tcp --destination $oraddr -m multiport --destination-ports $(tr ' ' ',' <<< ${orports[*]}) -m set --match-set $blocklist src -j DROP
+
+  # allow to connect to ORport
   for orport in ${orports[*]}
   do
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
@@ -81,6 +66,7 @@ function addTor() {
 # https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
 function addHetzner() {
   local monlist=hetzner-monlist
+
   ipset create -exist $monlist hash:ip
   getent ahostsv4 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u |\
   while read i
@@ -112,9 +98,9 @@ function clearAll() {
   iptables -P OUTPUT  ACCEPT
   iptables -P FORWARD ACCEPT
 
-  ipset save $denylist -f /var/tmp/ipset.$denylist.tmp &&\
-  mv /var/tmp/ipset.$denylist.tmp /var/tmp/ipset.$denylist &&\
-  ipset destroy $denylist
+  ipset save $blocklist -f /var/tmp/ipset.$blocklist.tmp &&\
+  mv /var/tmp/ipset.$blocklist.tmp /var/tmp/ipset.$blocklist &&\
+  ipset destroy $blocklist
 }
 
 
@@ -125,7 +111,7 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 oraddr="65.21.94.13"
 orports=(443 9001)
 
-denylist=tor-ddos
+blocklist=tor-ddos
 
 case $1 in
   start)  addTor
@@ -135,15 +121,4 @@ case $1 in
   stop)   clearAll
           ;;
 esac
-
-# the module is loaded/intialized by its first usage
-if ! grep -q "10000" /sys/module/xt_recent/parameters/ip_list_tot; then
-  cat << EOF -
-  The parameter 'ip_list_tot' of kernel module 'xt_recent' is not set to its max value."
-  Put either a line into /etc/modprobe.d/xt_recent.conf like:
-      options xt_recent ip_list_tot=10000
-  or add to the kernel command line (into the grub config file) the string
-      xt_recent.ip_list_tot=10000
-EOF
-fi
 
