@@ -54,6 +54,8 @@ set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
+set -o pipefail
+
 while getopts aAdDp opt
 do
   case $opt in
@@ -61,7 +63,7 @@ do
     A)  dump tor-ddos6 | anonymise6 ;;
     d)  dump tor-ddos  ;;
     D)  dump tor-ddos6 ;;
-    p)  shift; N=$(cat $* | wc -l); n=$(cat $* | sort -u | wc -l); cat $* | plot ;;
+    p)  shift; [[ $# -gt 0 ]] || exit 1; N=$(cat $* | wc -l); n=$(cat $* | sort -u | wc -l); cat $* | plot ;;
     *)  echo "unknown parameter '$opt'"; exit 1 ;;
   esac
 done
