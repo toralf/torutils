@@ -18,7 +18,7 @@ To list ip addresses *ipset-stats.sh* is used, eg. by a crontab entry:
 ```bash
 */30 * * * * d=$(date +\%H-\%M); /opt/torutils/ipset-stats.sh -d > /tmp/ipset4.$d.txt; /opt/torutils/ipset-stats.sh -D > /tmp/ipset6.$d.txt
 ```
-A hiistogram over the ip addresses stored in those files can plotted by:
+A histogram of the occurrences of ip addresses in those files can plotted by (i.e. 14 files):
 
 ```console
 $> # ipset-stats.sh -p /tmp/ipset4.??-??.txt
