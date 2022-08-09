@@ -36,8 +36,8 @@ function addTor() {
   do
     # trust Tor authorities
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $authlist src -j ACCEPT
-    # add to blocklist if a 3rd connection is tried to open
-    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 1 -j SET --add-set $blocklist src --exist
+    # block for >2 conenctions
+    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 2 -j SET --add-set $blocklist src --exist
   done
 
   # drop traffic from blocklist to ORPort/s
