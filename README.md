@@ -104,6 +104,6 @@ cd /tmp
 git clone https://github.com/torproject/stem.git
 export PYTHONPATH=$PWD/stem
 ```
-and [gnuplot](http://www.gnuplot.info/) for the *-stats.sh* scripts.
-[jq](https://stedolan.github.io/jq/) is a good JSON parser.
+, [gnuplot](http://www.gnuplot.info/) for the *-stats.sh* scripts
+and [jq](https://stedolan.github.io/jq/) to parse JSON data.
 

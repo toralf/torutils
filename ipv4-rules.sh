@@ -25,7 +25,7 @@ function addTor() {
   for orport in ${orports[*]}
   do
     # add to blocklist if >2 connections
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 2 -j SET --add-set $blocklist src --exist
+    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 3 -j SET --add-set $blocklist src --exist
     # drop blocklist entries
     iptables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
     # allow to connect
