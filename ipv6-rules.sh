@@ -3,15 +3,6 @@
 
 
 function addTor() {
-  # ipset for Tor authorities https://metrics.torproject.org/rs.html#search/flag:authority%20
-  local authlist=tor-authorities6
-
-  ipset create -exist $authlist hash:ip family inet6
-  for i in 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2001:858:2:2:aabb:0:563b:1526 2607:8500:154::3 2610:1c0:0:5::131 2620:13:4000:6000::1000:118
-  do
-    ipset add -exist $authlist $i
-  done
-
   # ipset for blocked ip addresses
   if [[ -s /var/tmp/ipset.$blocklist ]]; then
     ipset restore -exist -f /var/tmp/ipset.$blocklist
@@ -34,13 +25,11 @@ function addTor() {
   # the ruleset for inbound to an ORPort
   for orport in ${orports[*]}
   do
-    # trust Tor authorities
-    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $authlist src -j ACCEPT
-    # block for >2 conenctions
+    # add to blocklist if >2 connections
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 2 -j SET --add-set $blocklist src --exist
-    # drop traffic from blocklist
-    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $blocklist src -j DROP
-    # allow to connect to ORport
+    # drop blocklist entries
+    ip6tables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
+    # allow to connect
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
   done
 

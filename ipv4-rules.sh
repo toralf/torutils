@@ -3,15 +3,6 @@
 
 
 function addTor() {
-  # ipset for Tor authorities https://metrics.torproject.org/rs.html#search/flag:authority%20
-  local authlist=tor-authorities
-
-  ipset create -exist $authlist hash:ip
-  for i in 128.31.0.34 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 194.13.81.26 199.58.81.140 204.13.164.118 45.66.33.45 66.111.2.131 86.59.21.38
-  do
-    ipset add -exist $authlist $i
-  done
-
   # ipset for blocked ip addresses
   if [[ -s /var/tmp/ipset.$blocklist ]]; then
     ipset restore -exist -f /var/tmp/ipset.$blocklist
@@ -33,13 +24,11 @@ function addTor() {
   # the ruleset for inbound to an ORPort
   for orport in ${orports[*]}
   do
-    # trust Tor authorities
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $authlist src -j ACCEPT
     # add to blocklist if >2 connections
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 2 -j SET --add-set $blocklist src --exist
-    # drop traffic from blocklist
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $blocklist src -j DROP
-    # allow to connect to ORport
+    # drop blocklist entries
+    iptables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
+    # allow to connect
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
   done
 
