@@ -1,42 +1,25 @@
 #!/bin/bash
 # set -x
 
-# catch addresses DDoS'ing the OR port
-
-# https://gitlab.torproject.org/tpo/core/tor/-/issues/40636
-# https://gitlab.torproject.org/tpo/core/tor/-/issues/40637
-
+# count inbound to local ORPort per remote ip address
 
 function show() {
-  ss --no-header --tcp -${v:-4} --numeric |\
-  # only count inbound to our ORPort - therefore the trailing space
-  grep "^ESTAB .* $(sed -e 's,\[,\\[,g' -e 's,\],\\],g' <<< $relay) " |\
-  perl -wane '
-    BEGIN {
-      my $ip = undef;
-      my %h = ();
-    }
+  local sum=0
+  local ips=0
 
-    if ("'$v'" eq "6")  {
-      $ip = (split(/\]/, $F[4]))[0];
-      $ip =~ tr/[//d;
-    } else {
-      $ip = (split(/:/, $F[4]))[0];
-    }
-    $h{$ip}++;
-
-    END {
-      my $ips = 0;
-      my $sum = 0;
-      foreach my $ip (sort { $h{$a} <=> $h{$b} || $a cmp $b } grep { $h{$_} > '$limit' } keys %h) {
-        $ips++;
-        my $conns = $h{$ip};
-        $sum += $conns;
-        printf "%-10s %-25s %4i\n", "address'$v'", $ip, $conns;
-      }
-      printf "relay:%s    adresses:%i    conns:%i\n\n", "'$relay'", $ips, $sum;
-    }
-  '
+  while read -r conns ip
+  do
+    if [[ $conns -gt $limit ]]; then
+      printf "%-10s %-40s %5i\n" address$v $ip $conns
+      (( ++ips ))
+      (( sum = sum + conns ))
+    fi
+  done < <(
+    ss --no-header --tcp -${v:-4} --numeric |\
+    grep "^ESTAB .* $(sed -e 's,\[,\\[,g' -e 's,\],\\],g' <<< $relay) " |\
+    awk '{ print $5 }' | sort | sed 's,:[[:digit:]]*$,,g' | uniq -c
+  )
+  printf "relay:%-40s  adresses:%-5i  conns:%-5i\n\n" $relay $ips $sum
 }
 
 
@@ -47,6 +30,8 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 limit=2
 
+# preferrable the local relay address is defined too in the ORPort config line
+# and at least 1 IPv4 is expected
 relays=$(grep "^ORPort" /etc/tor/torrc{,2} 2>/dev/null | awk '{ print $2 }' | sort)
 if [[ ! $relays =~ '.' ]]; then
   address=$(grep "^Address" /etc/tor/torrc | awk '{ print $2 }' | sort -u)
@@ -58,9 +43,7 @@ do
   case $opt in
     l)  limit=$OPTARG ;;
     r)  relays=$OPTARG ;;
-    *)  echo "unknown parameter '$opt'"
-        exit 1
-        ;;
+    *)  echo "unknown parameter '$opt'"; exit 1 ;;
   esac
 done
 
