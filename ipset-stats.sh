@@ -2,7 +2,7 @@
 # set -x
 
 
-# anonymise/plot blocked ip addresses (see ipv4-rules.sh and ipv6-rules.sh how to collect them)
+# dump and plot ip addresses from an ipset
 
 
 function dump()  {
@@ -32,16 +32,15 @@ function plot() {
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
   sort | uniq -c | sort -bn | awk '{ print $1 }' | uniq -c | awk '{ print $2, $1 }' > $tmpfile
-  local xmax=$(tail -n 1 $tmpfile | awk '{ print ($1) }')
-  ((xmax++))
 
   gnuplot -e '
-    set terminal dumb 90 25;
-    set title " '"$n"' ip addresses, '"$N"' hits";
+    set terminal dumb 67 25;
+    set title "'"$n"' ip addresses, '"$N"' hits";
     set xlabel "occurrence of an ip address";
     set ylabel "ip addresses";
     set key noautotitle;
-    set xrange [0:'$xmax'];
+    set logscale y 2;
+    set xrange [-2:51];
     plot "'$tmpfile'" with impuls;
   '
 
