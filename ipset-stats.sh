@@ -7,8 +7,7 @@
 
 function dump()  {
   ipset list -s $1 |\
-  grep ' timeout' |\
-  grep -v 'Header' |\
+  sed -e '1,8d' |\
   awk '{ print $1 }'
 }
 
@@ -34,13 +33,12 @@ function plot() {
   sort | uniq -c | sort -bn | awk '{ print $1 }' | uniq -c | awk '{ print $2, $1 }' > $tmpfile
 
   gnuplot -e '
-    set terminal dumb 67 25;
+    set terminal dumb 60 25;
     set title "'"$n"' ip addresses, '"$N"' hits";
-    set xlabel "occurrence of an ip address";
-    set ylabel "ip addresses";
     set key noautotitle;
-    set logscale y 2;
+    set xlabel "occurrence of an ip address";
     set xrange [-2:51];
+    set logscale y 2;
     plot "'$tmpfile'" with impuls;
   '
 
@@ -57,12 +55,13 @@ set -o pipefail
 
 while getopts aAdDp opt
 do
+  shift
   case $opt in
-    a)  dump tor-ddos  | anonymise  ;;
-    A)  dump tor-ddos6 | anonymise6 ;;
-    d)  dump tor-ddos  ;;
-    D)  dump tor-ddos6 ;;
-    p)  shift; [[ $# -gt 0 ]] || exit 1; N=$(cat $* | wc -l); n=$(cat $* | sort -u | wc -l); cat $* | plot ;;
+    a)  dump ${1:-tor-ddos}  | anonymise  ;;
+    A)  dump ${1:-tor-ddos6} | anonymise6 ;;
+    d)  dump ${1:-tor-ddos}  ;;
+    D)  dump ${1:-tor-ddos6} ;;
+    p)  N=$(cat $* | wc -l); n=$(cat $* | sort -u | wc -l); cat $* | plot ;;
     *)  echo "unknown parameter '$opt'"; exit 1 ;;
   esac
 done
