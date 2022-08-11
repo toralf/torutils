@@ -13,38 +13,38 @@ A blocked ip address is released after 30 minutes, if it doesn't violate the rul
 Technically the ip is stored in a so-called [ipset](https://ipset.netfilter.org/).
 An ipset can be modified by the command *ipset* or by *iptables*.
 
-To list ip addresses *ipset-stats.sh* is used, eg. by a crontab entry:
+After a dump of ip addresses using *ipset-stats.sh* eg. by a crontab entry:
 
 ```bash
 */30 * * * * d=$(date +\%H-\%M); /opt/torutils/ipset-stats.sh -d > /tmp/ipset4.$d.txt; /opt/torutils/ipset-stats.sh -D > /tmp/ipset6.$d.txt
 ```
-A histogram of the occurrences of ip addresses in those files can plotted by (i.e. 14 files):
+a histogram of the occurrence of ip addresses at last 24h is plotted by:
 
 ```console
 $> # ipset-stats.sh -p /tmp/ipset4.??-??.txt
 
-                      2400 ip addresses, 29023 hits
-     2048 +----------------------------------------------------+
-          | +         +         +         +         +         +|
-     1024 |-+*                                               +-|
-          |  *                                                 |
-      512 |-+*                                               +-|
-          |  *                                                 |
-      256 |-+*                                               +-|
-          |  **                                                |
-      128 |-+**                                          *   +-|
-          |  ***                                         *     |
-       64 |-+****                                       ***  +-|
-          |  ****                                       ***    |
-       32 |-+*******                                 ******  +-|
-          |  *******  *                            ********    |
-       16 |-+***********     *                ** **********  +-|
-          |  ************** ** ******        *** **********    |
-        8 |-+***************** ****************************  +-|
-          | +***************** ****************************   +|
-        4 +----------------------------------------------------+
-            0         10        20        30        40        50
-                       occurrence of an ip address
+                   2454 ip addresses, 29878 hits                
+  2048 +----------------------------------------------------+   
+       | +         +         +        +         +         + |   
+  1024 |-+*                                               +-|   
+       |  *                                                 |   
+   512 |-+*                                               +-|   
+       |  *                                                 |   
+   256 |-+**                                              +-|   
+       |  **                                                |   
+   128 |-+**                                         *    +-|   
+       |  ***                                        *      |   
+    64 |-+****                                      **  * +-|   
+       |  ****                                      **  *   |   
+    32 |-+*******                                  ****** +-|   
+       |  ******** *                             ********   |   
+    16 |-+************    *      *         ***  ********* +-|   
+       |  ***************** ** * *  *  * * **************   |   
+     8 |-+************************ **  * **************** +-|   
+       | +*********************************************** + |   
+     4 +----------------------------------------------------+   
+         0         10        20       30        40        50    
+                    occurrence of an ip address                 
 ```
 To check whether a Tor relay is blocked too, run:
 
