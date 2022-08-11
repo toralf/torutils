@@ -33,11 +33,11 @@ function plot() {
   sort | uniq -c | sort -bn | awk '{ print $1 }' | uniq -c | awk '{ print $2, $1 }' > $tmpfile
 
   gnuplot -e '
-    set terminal dumb 60 25;
+    set terminal dumb 64 25;
     set title "'"$n"' ip addresses, '"$N"' hits";
     set key noautotitle;
     set xlabel "occurrence of an ip address";
-    set xrange [-2:51];
+    set xrange [-2:52];
     set logscale y 2;
     plot "'$tmpfile'" with impuls;
   '
