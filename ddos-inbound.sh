@@ -19,7 +19,10 @@ function show() {
     grep "^ESTAB .* $(sed -e 's,\[,\\[,g' -e 's,\],\\],g' <<< $relay) " |\
     awk '{ print $5 }' | sort | sed 's,:[[:digit:]]*$,,g' | uniq -c
   )
-  printf "relay:%-40s  adresses:%-5i  conns:%-5i\n\n" $relay $ips $sum
+
+  if [[ $ips -gt 0 ]]; then
+    printf "relay:%-40s  adresses:%-5i  conns:%-5i\n\n" $relay $ips $sum
+  fi
 }
 
 
