@@ -5,7 +5,7 @@
 function addTor() {
   # ipset for blocked ip addresses
   if [[ -s /var/tmp/ipset.$blocklist ]]; then
-    ipset restore -exist -f /var/tmp/ipset.$blocklist
+    ipset restore -exist -f /var/tmp/ipset.$blocklist && shred -u /var/tmp/ipset.$blocklist
   else
     ipset create -exist $blocklist hash:ip timeout 1800
   fi
