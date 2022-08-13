@@ -36,7 +36,7 @@ function plot() {
     set terminal dumb 64 25;
     set title "'"$n"' ip addresses, '"$N"' hits";
     set key noautotitle;
-    set xlabel "occurrence of an ip address";
+    set xlabel "occurrence";
     set xrange [-2:52];
     set logscale y 2;
     plot "'$tmpfile'" with impuls;
