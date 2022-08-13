@@ -24,10 +24,13 @@ function addTor() {
   # the ruleset for inbound to an ORPort
   for orport in ${orports[*]}
   do
-    # add to blocklist if >2 connections
+    # add an ip to the blocklist if ...
+    # ... there're 2 connections and another SYN is made -or- there're more than 2 connections already -or- another packet arrived within timeout
     iptables -A INPUT -p tcp   --syn --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 2 -j SET --add-set $blocklist src --exist
     iptables -A INPUT -p tcp ! --syn --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 2 -j SET --add-set $blocklist src --exist
-    # drop blocklist entries
+    iptables -A INPUT -p tcp         --destination $oraddr --destination-port $orport -m set --match-set $blocklist src                    -j SET --add-set $blocklist src --exist
+
+    # drop all packets from blocklist entries
     iptables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
     # allow to connect
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
