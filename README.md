@@ -13,7 +13,7 @@ A blocked ip address is released after 30 minutes, if it doesn't violate the rul
 Technically the ip is stored in a so-called [ipset](https://ipset.netfilter.org/).
 An ipset can be modified by the command *ipset* or by *iptables*.
 
-After few dumps of an ipset using *ipset-stats.sh* (onto TempFS or `shred` the files afterwards), eg.:
+After few dumps of an ipset using *ipset-stats.sh* (onto TempFS or `shred -u` the files afterwards), eg.:
 
 ```crontab
 */30 * * * * d=$(date +\%H-\%M); /opt/torutils/ipset-stats.sh -d > /tmp/ipset4.$d.txt; /opt/torutils/ipset-stats.sh -D > /tmp/ipset6.$d.txt
