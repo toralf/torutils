@@ -46,7 +46,7 @@ def orconn_event(controller, event):
             print('%-12s %s' % (event.reason, fingerprint), end='')
             if fingerprint in desc_versions:
                 address, or_port, ip, version = desc_versions[fingerprint]
-                print(' %15s %5i %s %s' % (address, or_port, ip, version), flush=True)
+                print(' %-15s %5i %s %s' % (address, or_port, ip, version), flush=True)
             else:
                 print('', flush=True)
 
