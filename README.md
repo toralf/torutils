@@ -23,27 +23,28 @@ a histogram about occurrencies versus the amount of ip addresses can be plotted 
 ```console
 $> # ipset-stats.sh -p /tmp/ipset4.??-??.txt
 
-                 2127 ip addresses, 48 input file(s)             
-  1024 +-----------------------------------------------------+   
-       | +o        +         +         +         +         + |   
-       |                                                     |   
-   256 |-+                                                 +-|   
-       |   o                               o                 |   
-       |    o                                                |   
-    64 |-+   o                                   o       o +-|   
-       |      ooo                         o             o    |   
-       |         o  o o                  o      o            |   
-    16 |-+        oo   o              ooo     o   o o o    +-|   
-       |             o       oo   oooo      oo o   o o o     |   
-       |                ooooo  ooo                           |   
-     4 |-+                                                 +-|   
-       |                                                     |   
-       |                                                     |   
-     1 |-+                                                 +-|   
-       | +         +         +         +         +         + |   
-       +-----------------------------------------------------+   
-         0         10        20        30        40        50    
-                             occurrence                          
+                2124 ip addresses, 34968 occurrencies
+  1024 +-----------------------------------------------------+
+       |    +     +    +     +    +    +     +    +     +    |
+   512 |o+                                                 +-|
+       |                                                     |
+   256 |-+                                                 +-|
+       | o                                      o            |
+   128 |-+                                                 o-|
+       |  o                                                  |
+    64 |-+ o                                               +-|
+       |    o                              o      o          |
+       |     o o                                 o           |
+    32 |-+      oo   o                                     +-|
+       |          oo                      o o      oo    o   |
+    16 |-+          o oo            o oo     ooo          o+-|
+       |                     o     o    o            o o     |
+     8 |-+              o     o o o                     o  +-|
+       |    +     +    + o  o+ o o+  o +     +    +     +    |
+     4 +------------------o----------------------------------+
+       0    5     10   15    20   25   30    35   40    45   50
+                             occurrence
+
 ```
 To check whether/how often a Tor relay is among them, run:
 
