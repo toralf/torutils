@@ -28,8 +28,8 @@ function addTor() {
     # add an ip to the blocklist at the 3rd connection
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 2 -j SET --add-set $blocklist src --exist
 
-    # drop all traffic for blocklist entries
-    ip6tables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
+    # drop traffic for blocklist entries
+    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $blocklist src -j DROP
     
     # allow to connect
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT

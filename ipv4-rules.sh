@@ -27,8 +27,8 @@ function addTor() {
     # # add an ip to the blocklist at the 3rd connection
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 2 -j SET --add-set $blocklist src --exist
 
-    # drop all traffic for blocklist entries
-    iptables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
+    # drop traffic for blocklist entries
+    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $blocklist src -j DROP
     
     # allow to connect
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
