@@ -33,11 +33,10 @@ function plot() {
 
   gnuplot -e '
     set terminal dumb 65 24;
-    set title "'"$n"' ip addresses, '"$N"' input file(s)";
+    set border back;
+    set title "'"$n"' ip addresses, '"$N"' occurrencies";
     set key noautotitle;
     set xlabel "occurrence";
-    set xrange [-2:52];
-    set yrange [0.5:*];
     set logscale y 2;
     plot "'$tmpfile'" pt "o";
   '
@@ -61,7 +60,7 @@ do
     A)  dump ${1:-tor-ddos6} | anonymise6 ;;
     d)  dump ${1:-tor-ddos}  ;;
     D)  dump ${1:-tor-ddos6} ;;
-    p)  [[ $# -gt 0 ]]; N=$#; n=$(cat $* | sort -u | wc -l); cat $* | plot ;;
+    p)  [[ $# -gt 0 ]]; N=$(cat $* | wc -l); n=$(cat $* | sort -u | wc -l); cat $* | plot ;;
     *)  echo "unknown parameter '$opt'"; exit 1 ;;
   esac
 done

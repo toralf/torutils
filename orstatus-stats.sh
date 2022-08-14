@@ -47,17 +47,14 @@ else
   grep -h "^$reason " $files |\
   awk '{ print $2 }' | sort     | uniq -c |\
   awk '{ print $1 }' | sort -bn | uniq -c |\
-  awk '{ print $2, $1 }' | tee $tmpfile
-
-  xmax=$(tail -n 1 $tmpfile | awk '{ print $1 }')
-  (( xmax = xmax + 2))
+  awk '{ print $2, $1 }' > $tmpfile
 
   gnuplot -e '
     set terminal dumb;
+    set border back;
     set title "fingerprints";
     set key noautotitle;
     set xlabel "ioerrors";
-    set xrange [-0.5:'"$xmax"'];
     set logscale y 10;
     plot "'$tmpfile'" pt "o";
     '
