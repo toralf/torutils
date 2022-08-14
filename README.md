@@ -76,7 +76,7 @@ ORport 9051
 | Total                        |  8063 |  1713 |
 +------------------------------+-------+-------+
 ```
-*ps.py* watches *exits* connections:
+For realtime watching of *exit* connections use *ps.py*:
 
 ```console
 $> ps.py --ctrlport 9051
@@ -90,7 +90,9 @@ $> ps.py --ctrlport 9051
     7777     3                      3                (None)
 ```
 
-*orstatus.py* monitors circuit closing events, *orstatus-stats.sh* plots them. *key-expires.py* returns the seconds till the mid-term signing key expires. A cronjob example:
+*orstatus.py* logs in realtime circuit closing events, *orstatus-stats.sh* plots them later.
+*key-expires.py* returns the seconds till expiration of the mid-term signing key.
+A cronjob example:
 
 ```cron
 @daily    n="$(($(key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert) / 86400))"; [[ $n -lt 23 ]] && echo "Tor signing key expires in <$n day(s)"

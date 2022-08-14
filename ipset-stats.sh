@@ -34,7 +34,7 @@ function plot() {
   gnuplot -e '
     set terminal dumb 65 24;
     set border back;
-    set title "'"$n"' ip addresses, '"$N"' occurrencies";
+    set title "'"$N"' occurrences of '"$n"' ip addresses";
     set key noautotitle;
     set xlabel "occurrence";
     set logscale y 2;
