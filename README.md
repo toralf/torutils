@@ -44,7 +44,6 @@ $> # ipset-stats.sh -p /tmp/ipset4.??-??.txt
        +-----------------------------------------------------+   
          0         10        20        30        40        50    
                              occurrence                          
-                                                                 
 ```
 To check whether/how often a Tor relay is among them, run:
 
@@ -75,7 +74,6 @@ ORport 9051
 +------------------------------+-------+-------+
 | Total                        |  8063 |  1713 |
 +------------------------------+-------+-------+
-
 ```
 *ps.py* watches *exits* connections:
 
@@ -96,7 +94,7 @@ $> ps.py --ctrlport 9051
 ```cron
 @daily    n="$(($(key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert) / 86400))"; [[ $n -lt 23 ]] && echo "Tor signing key expires in <$n day(s)"
 ```
-### more info
+### prereq
 You need the Python library [Stem](https://stem.torproject.org/index.html) for the python scripts:
 
 ```bash
@@ -104,6 +102,6 @@ cd /tmp
 git clone https://github.com/torproject/stem.git
 export PYTHONPATH=$PWD/stem
 ```
-, [gnuplot](http://www.gnuplot.info/) for the *-stats.sh* scripts
+[gnuplot](http://www.gnuplot.info/) for the *-stats.sh* scripts
 and [jq](https://stedolan.github.io/jq/) to parse JSON data.
 
