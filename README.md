@@ -13,49 +13,48 @@ A blocked ip address is released after 30 minutes, if it doesn't violate the rul
 Technically the ip is stored in a so-called [ipset](https://ipset.netfilter.org/).
 An ipset can be modified by the command *ipset* or by *iptables*.
 
-After a regular dump of ip addresses using *ipset-stats.sh* (TempFS preferred), eg.:
+After few dumps of an ipset using *ipset-stats.sh* (onto TempFS or `shred` the files afterwards), eg.:
 
 ```crontab
 */30 * * * * d=$(date +\%H-\%M); /opt/torutils/ipset-stats.sh -d > /tmp/ipset4.$d.txt; /opt/torutils/ipset-stats.sh -D > /tmp/ipset6.$d.txt
 ```
-a histogram of the occurrencies of ip addresses in the last 24h can be plotted by:
+a histogram about occurrencies versus the amount of ip addresses can be plotted by:
 
 ```console
 $> # ipset-stats.sh -p /tmp/ipset4.??-??.txt
 
-                  2128 ip addresses, 29251 hits                
-  1024 +----------------------------------------------------+   
-       | +*        +         +        +         +         + |   
-   512 |-+*                                               +-|   
-       |  *                                                 |   
-   256 |-+*                                               +-|   
-       |  **                                                |   
-   128 |-+**                                        *     +-|   
-       |  ***                                       *       |   
-    64 |-+****                                      *   * +-|   
-       |  ****                                     **   *   |   
-    32 |-+******                       **          ***  * +-|   
-       |  ******        *   *          ***        **** **   |   
-    16 |-+**********  * *  ***      * **** *      **** ** +-|   
-       |  ********************** **** ******* ******** **   |   
-     8 |-+********************** ************ *********** +-|   
-       |  ********************** ************************   |   
-     4 |-+********************** ************************ +-|   
-       | +*********************************************** + |   
-     2 +----------------------------------------------------+   
-         0         10        20       30        40        50    
-                            occurrence                          
-
+                 2127 ip addresses, 48 input file(s)             
+  1024 +-----------------------------------------------------+   
+       | +o        +         +         +         +         + |   
+       |                                                     |   
+   256 |-+                                                 +-|   
+       |   o                               o                 |   
+       |    o                                                |   
+    64 |-+   o                                   o       o +-|   
+       |      ooo                         o             o    |   
+       |         o  o o                  o      o            |   
+    16 |-+        oo   o              ooo     o   o o o    +-|   
+       |             o       oo   oooo      oo o   o o o     |   
+       |                ooooo  ooo                           |   
+     4 |-+                                                 +-|   
+       |                                                     |   
+       |                                                     |   
+     1 |-+                                                 +-|   
+       | +         +         +         +         +         + |   
+       +-----------------------------------------------------+   
+         0         10        20        30        40        50    
+                             occurrence                          
+                                                                 
 ```
-To check whether a Tor relay is blocked too, run:
+To check whether/how often a Tor relay is among them, run:
 
 ```bash
 curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - | jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | xargs -r -n 1 > /tmp/relays
-ipset list -s tor-ddos | grep -w -f /tmp/relays
+grep -h -w -f /tmp/relays /tmp/ipset6.??-??.txt | sort | uniq -c | sort -bn
 ```
-### info about local Tor relay connections
+### info about a local running Tor relay
 
-*info.py* gives an overview about the connections of a relay:
+*info.py* gives an overview about the connections:
 
 ```console
 $> python info.py --ctrlport 9051
@@ -78,7 +77,7 @@ ORport 9051
 +------------------------------+-------+-------+
 
 ```
-*ps.py* watches Tor exits connections:
+*ps.py* watches *exits* connections:
 
 ```console
 $> ps.py --ctrlport 9051
@@ -92,7 +91,7 @@ $> ps.py --ctrlport 9051
     7777     3                      3                (None)
 ```
 
-*orstatus.py* monitors Tor closing events and *orstatus-stats.sh* plots them. *key-expires.py* returns the seconds till the mid-term signing key expires. A cronjob example:
+*orstatus.py* monitors circuit closing events, *orstatus-stats.sh* plots them. *key-expires.py* returns the seconds till the mid-term signing key expires. A cronjob example:
 
 ```cron
 @daily    n="$(($(key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert) / 86400))"; [[ $n -lt 23 ]] && echo "Tor signing key expires in <$n day(s)"
