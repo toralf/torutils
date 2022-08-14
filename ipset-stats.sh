@@ -34,13 +34,13 @@ function plot() {
 
   gnuplot -e '
     set terminal dumb 64 24;
-    set title "'"$n"' ip addresses, '"$N"' ipset lines";
+    set title "'"$n"' ip addresses";
     set key noautotitle;
-    set xlabel "occurrency in ipset/s";
+    set xlabel "ipsets";
     set xrange [-2:52];
     set yrange [0.5:*];
     set logscale y 2;
-    plot "'$tmpfile'" with impuls;
+    plot "'$tmpfile'" pt "o";
   '
 
   rm $tmpfile

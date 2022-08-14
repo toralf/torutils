@@ -72,7 +72,7 @@ gnuplot -e '
   set key noautotitle;
   set logscale y 10;
   set xrange [-1:'$xmax'];
-  plot "'$tmpfile'" with impuls;
+  plot "'$tmpfile'" pt "o";
   '
 
 rm $tmpfile
