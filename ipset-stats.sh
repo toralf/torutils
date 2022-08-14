@@ -2,8 +2,7 @@
 # set -x
 
 
-# dump and plot ip addresses from an ipset
-
+# dump and plot hostograms about occurrence of ip addresses in ipset(s)
 
 function dump()  {
   ipset list -s $1 |\
@@ -33,10 +32,10 @@ function plot() {
   sort | uniq -c | sort -bn | awk '{ print $1 }' | uniq -c | awk '{ print $2, $1 }' > $tmpfile
 
   gnuplot -e '
-    set terminal dumb 64 24;
-    set title "'"$n"' ip addresses";
+    set terminal dumb 65 24;
+    set title "'"$n"' ip addresses, '"$N"' input file(s)";
     set key noautotitle;
-    set xlabel "ipsets";
+    set xlabel "occurrence";
     set xrange [-2:52];
     set yrange [0.5:*];
     set logscale y 2;
@@ -62,7 +61,7 @@ do
     A)  dump ${1:-tor-ddos6} | anonymise6 ;;
     d)  dump ${1:-tor-ddos}  ;;
     D)  dump ${1:-tor-ddos6} ;;
-    p)  N=$(cat $* | wc -l); n=$(cat $* | sort -u | wc -l); cat $* | plot ;;
+    p)  [[ $# -gt 0 ]]; N=$#; n=$(cat $* | sort -u | wc -l); cat $* | plot ;;
     *)  echo "unknown parameter '$opt'"; exit 1 ;;
   esac
 done
