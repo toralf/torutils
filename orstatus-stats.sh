@@ -37,6 +37,8 @@ do
   fi
 done
 
+[[ -n $files ]]
+
 if [[ -z $reason ]]; then
   # just count reasons
   awk '{ print $1 }' $files | sort | uniq -c
@@ -56,7 +58,6 @@ else
     set key noautotitle;
     set xlabel "ioerrors";
     set xrange [-0.5:'"$xmax"'];
-    set yrange [0.5:*];
     set logscale y 10;
     plot "'$tmpfile'" pt "o";
     '
