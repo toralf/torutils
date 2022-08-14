@@ -23,16 +23,19 @@ function addTor() {
   ip6tables -A INPUT -p udp --source fe80::/10 --destination ff02::1  -j ACCEPT
 
   # the ruleset for inbound to an ORPort
-  for orport in ${orports[*]}
+  for oraddr in $oraddrs
   do
-    # add an ip to the blocklist at the 3rd connection
-    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 2 -j SET --add-set $blocklist src --exist
+    for orport in $orports
+    do
+      # add an ip to the blocklist at the 3rd connection
+      ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 2 -j SET --add-set $blocklist src --exist
 
-    # drop traffic for blocklist entries
-    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $blocklist src -j DROP
+      # drop traffic for blocklist entries
+      ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $blocklist src -j DROP
     
-    # allow to connect
-    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
+      # allow to connect
+      ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
+    done
   done
 
   # trust already established connections - this is almost Tor traffic outbound to an ORPort
@@ -84,8 +87,8 @@ function clearAll() {
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 # Tor
-oraddr="2a01:4f9:3b:468e::13"
-orports=(443 9001)
+oraddrs="2a01:4f9:3b:468e::13"
+orports="443 9001"
 
 blocklist=tor-ddos6
 
