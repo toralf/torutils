@@ -23,7 +23,7 @@ a histogram about occurrencies versus the amount of ip addresses can be plotted 
 ```console
 $> # ipset-stats.sh -p /tmp/ipset4.??-??.txt
 
-                2124 ip addresses, 34968 occurrencies
+               34968 occurrences of 2124 ip addresses
   1024 +-----------------------------------------------------+
        |    +     +    +     +    +    +     +    +     +    |
    512 |o+                                                 +-|
