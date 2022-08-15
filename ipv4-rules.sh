@@ -15,6 +15,10 @@ function addTor() {
   iptables -P OUTPUT  ACCEPT
   iptables -P FORWARD DROP
   
+  # allow already established connections
+  iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+  iptables -A INPUT -m conntrack --ctstate INVALID             -j DROP
+  
   # make sure NEW incoming tcp connections are SYN packets
   iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP -m comment --comment "$(date)"
   
@@ -27,19 +31,15 @@ function addTor() {
     oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
     orport=$(grep -Po '\d+$' <<< $relay)
 
-    # # add an ip to the blocklist at the 3rd connection
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 2 -j SET --add-set $blocklist src --exist
+    # blocklist if appropriate
+    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 3 -j SET --add-set $blocklist src --exist
 
-    # drop traffic for blocklist entries
+    # drop blocklisted
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $blocklist src -j DROP
     
-    # allow to connect
+    # allow remaining
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
   done
-
-  # trust already established connections - this is almost Tor traffic outbound to an ORPort
-  iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-  iptables -A INPUT -m conntrack --ctstate INVALID             -j DROP
 
   # ssh
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')

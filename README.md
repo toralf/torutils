@@ -6,9 +6,8 @@ Few tools around a Tor relay.
 ### Tor firewall
 *ipv4-rules.sh* and *ipv6-rules.sh* block ip addresses DDoS'ing the local Tor relay(s).
 They implement a simple rule for a remote ip address going to a local ORPort:
-*Allow only 2 inbound connections.*
-Otherwise the ip address gets blocked.
-A blocked ip address is released after 30 minutes, if it doesn't violate the rule any longer.
+*Allow only 3 inbound connections.*
+Otherwise the ip address is for next 30 min not allowed to open new connections.
 
 Technically the ip is stored in a so-called [ipset](https://ipset.netfilter.org/).
 An ipset can be modified by the command *ipset* or by *iptables*.
