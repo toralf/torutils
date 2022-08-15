@@ -20,10 +20,10 @@ function addTor() {
   iptables -A INPUT -m conntrack --ctstate INVALID             -j DROP
   
   # make sure NEW incoming tcp connections are SYN packets
-  iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP -m comment --comment "$(date)"
+  iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
   
   # allow local traffic
-  iptables -A INPUT --in-interface lo -j ACCEPT
+  iptables -A INPUT --in-interface lo -j ACCEPT -m comment --comment "$(date -R)"
   
   # the ruleset for inbound to an ORPort
   for relay in $relays
