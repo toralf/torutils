@@ -3,57 +3,51 @@
 # torutils
 Few tools around a Tor relay.
 
-### Tor firewall
-*ipv4-rules.sh* and *ipv6-rules.sh* block ip addresses DDoS'ing the local Tor relay(s).
-They implement a simple rule for a remote ip address going to a local ORPort:
+### Firewall
+*ipv4-rules.sh* and *ipv6-rules.sh* block ip addresses DDoS'ing local Tor relay(s).
+They implement a simple rule for a remote ipv4/6 address connecting to the local ORPort:
 *Allow only 3 inbound connections.*
-Otherwise the ip address is for next 30 min not allowed to open new connections.
+Otherwise the ip address is for the next 30 min not allowed to open any new connection.
 
-Technically the ip is stored in a so-called [ipset](https://ipset.netfilter.org/).
-An ipset can be modified by the command *ipset* or by *iptables*.
+Technically the ip is stored in an [ipset](https://ipset.netfilter.org/).
+Such a set can be modified both by the command *ipset* or by *iptables*.
 
-After few dumps of an ipset using *ipset-stats.sh* (onto TempFS or `shred -u` the files afterwards), eg.:
+After few dumps of the content of an ipset using *ipset-stats.sh* (to TempFS and/or `shred -u` the files afterwards), eg.:
 
 ```crontab
 */30 * * * * d=$(date +\%H-\%M); /opt/torutils/ipset-stats.sh -d > /tmp/ipset4.$d.txt; /opt/torutils/ipset-stats.sh -D > /tmp/ipset6.$d.txt
 ```
-a histogram about occurrencies versus the amount of ip addresses can be plotted by:
+a histogram of occurrencies versus their amount of ip addresses can be plotted by:
 
 ```console
 $> # ipset-stats.sh -p /tmp/ipset4.??-??.txt
 
-               34968 occurrences of 2124 ip addresses
-  1024 +-----------------------------------------------------+
-       |    +     +    +     +    +    +     +    +     +    |
-   512 |o+                                                 +-|
-       |                                                     |
-   256 |-+                                                 +-|
-       | o                                      o            |
-   128 |-+                                                 o-|
-       |  o                                                  |
-    64 |-+ o                                               +-|
-       |    o                              o      o          |
-       |     o o                                 o           |
-    32 |-+      oo   o                                     +-|
-       |          oo                      o o      oo    o   |
-    16 |-+          o oo            o oo     ooo          o+-|
-       |                     o     o    o            o o     |
-     8 |-+              o     o o o                     o  +-|
-       |    +     +    + o  o+ o o+  o +     +    +     +    |
-     4 +------------------o----------------------------------+
-       0    5     10   15    20   25   30    35   40    45   50
-                             occurrence
+               26553 occurrences of 1877 ip addresses            
+  1024 +-----------------------------------------------------+   
+       |o   +     +    +     +    +    +     +    +     +    |   
+   512 |-+                                                 +-|   
+       |                                                     |   
+   256 |-+                                                 +-|   
+       |                                                     |   
+   128 |-o                                                 o-|   
+       |                                                  o  |   
+    64 |-+o                                                +-|   
+       |   o                                                 |   
+       |    o  o                                         o   |   
+    32 |-+      o                                          +-|   
+       |     o   o  o                            oo     o    |   
+    16 |-+        oo  oo oo    o              o o  o       +-|   
+       |             o  o    o              oo      o        |   
+     8 |-+                  o o o o oo oo oo         o     +-|   
+       |    +     +    +     +   o+   o+     + o  +     +    |   
+     4 +---------------------------o-------------------o-----+   
+       0    5     10   15    20   25   30    35   40    45   50  
+                             occurrence                          
 
 ```
-To check whether/how often a Tor relay is among them, run:
+### info
 
-```bash
-curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - | jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | xargs -r -n 1 > /tmp/relays
-grep -h -w -f /tmp/relays /tmp/ipset6.??-??.txt | sort | uniq -c | sort -bn
-```
-### info about a local running Tor relay
-
-*info.py* gives an overview about the connections:
+*info.py* gives an connection overview of a local Tor relay:
 
 ```console
 $> python info.py --ctrlport 9051
