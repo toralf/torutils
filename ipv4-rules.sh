@@ -22,19 +22,19 @@ function addTor() {
   iptables -A INPUT --in-interface lo -j ACCEPT
   
   # the ruleset for inbound to an ORPort
-  for oraddr in $oraddrs
+  for relay in $relays
   do
-    for orport in $orports
-    do
-      # # add an ip to the blocklist at the 3rd connection
-      iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 2 -j SET --add-set $blocklist src --exist
+    oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
+    orport=$(grep -Po '\d+$' <<< $relay)
 
-      # drop traffic for blocklist entries
-      iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $blocklist src -j DROP
+    # # add an ip to the blocklist at the 3rd connection
+    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 2 -j SET --add-set $blocklist src --exist
+
+    # drop traffic for blocklist entries
+    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $blocklist src -j DROP
     
-      # allow to connect
-      iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
-    done
+    # allow to connect
+    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
   done
 
   # trust already established connections - this is almost Tor traffic outbound to an ORPort
@@ -97,8 +97,7 @@ function clearAll() {
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 # Tor
-oraddrs="65.21.94.13"
-orports="43 9001"
+relays="65.21.94.13:443    65.21.94.13:9001"
 
 blocklist=tor-ddos
 
