@@ -19,8 +19,8 @@ After few dumps of the content of an ipset using *ipset-stats.sh* (to TempFS and
 ```
 a histogram of occurrencies versus their amount of ip addresses can be plotted by:
 
-```console
-$> # ipset-stats.sh -p /tmp/ipset4.??-??.txt
+```bash
+ipset-stats.sh -p /tmp/ipset4.??-??.txt
 ```
 ### info
 *info.py* gives an connection overview of a local Tor relay:
