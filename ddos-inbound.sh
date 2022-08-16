@@ -31,7 +31,7 @@ set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-limit=2
+limit=3
 
 # preferrable the local relay address is defined too in the ORPort config line
 # and at least 1 IPv4 is expected
