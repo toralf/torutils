@@ -21,32 +21,8 @@ a histogram of occurrencies versus their amount of ip addresses can be plotted b
 
 ```console
 $> # ipset-stats.sh -p /tmp/ipset4.??-??.txt
-
-               26553 occurrences of 1877 ip addresses            
-  1024 +-----------------------------------------------------+   
-       |o   +     +    +     +    +    +     +    +     +    |   
-   512 |-+                                                 +-|   
-       |                                                     |   
-   256 |-+                                                 +-|   
-       |                                                     |   
-   128 |-o                                                 o-|   
-       |                                                  o  |   
-    64 |-+o                                                +-|   
-       |   o                                                 |   
-       |    o  o                                         o   |   
-    32 |-+      o                                          +-|   
-       |     o   o  o                            oo     o    |   
-    16 |-+        oo  oo oo    o              o o  o       +-|   
-       |             o  o    o              oo      o        |   
-     8 |-+                  o o o o oo oo oo         o     +-|   
-       |    +     +    +     +   o+   o+     + o  +     +    |   
-     4 +---------------------------o-------------------o-----+   
-       0    5     10   15    20   25   30    35   40    45   50  
-                             occurrence                          
-
 ```
 ### info
-
 *info.py* gives an connection overview of a local Tor relay:
 
 ```console
