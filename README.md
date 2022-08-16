@@ -22,10 +22,11 @@ a histogram of occurrencies versus their amount of ip addresses can be plotted b
 ```bash
 ipset-stats.sh -p /tmp/ipset4.??-??.txt
 ```
+And with
 ```bash
 ddos-inbound.sh -l 2
 ```
-lists all inbound ip addresses with >2 connections to the local Tor relay ORPort.
+all inbound ip addresses with >2 connections to the local Tor relay ORPort are listed.
 ### info
 *info.py* gives an connection overview of a local Tor relay:
 
