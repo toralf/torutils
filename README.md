@@ -12,12 +12,12 @@ Otherwise the ip address is for the next 30 min not allowed to open any new conn
 Technically the ip is stored in an [ipset](https://ipset.netfilter.org/).
 Such a set can be modified both by the command *ipset* or by *iptables*.
 
-After few dumps of the content of an ipset using *ipset-stats.sh* (to TempFS and/or `shred -u` the files afterwards), eg.:
+*ipset-stats.sh* dumps the content iof an ipset to stdout. By a cron job like:
 
-```crontab
+```cron
 */30 * * * * d=$(date +\%H-\%M); /opt/torutils/ipset-stats.sh -d > /tmp/ipset4.$d.txt; /opt/torutils/ipset-stats.sh -D > /tmp/ipset6.$d.txt
 ```
-a histogram of occurrencies versus their amount of ip addresses can be plotted by:
+a histogram of occurrencies versus their amount of ip addresses can be plotted later:
 
 ```bash
 ipset-stats.sh -p /tmp/ipset4.??-??.txt
