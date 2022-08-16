@@ -62,8 +62,8 @@ $> ps.py --ctrlport 9051
 *orstatus.py* logs in realtime circuit closing events, *orstatus-stats.sh* plots them later.
 *key-expires.py* returns the seconds till expiration of the mid-term signing key:
 
-```bash
-key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert
+```console
+$> key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert
 7286915
 ```
 ### prereq
