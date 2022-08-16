@@ -60,11 +60,11 @@ $> ps.py --ctrlport 9051
 ```
 
 *orstatus.py* logs in realtime circuit closing events, *orstatus-stats.sh* plots them later.
-*key-expires.py* returns the seconds till expiration of the mid-term signing key.
-A cronjob example:
+*key-expires.py* returns the seconds till expiration of the mid-term signing key:
 
-```cron
-@daily    n="$(($(key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert) / 86400))"; [[ $n -lt 23 ]] && echo "Tor signing key expires in <$n day(s)"
+```bash
+key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert
+7286915
 ```
 ### prereq
 You need the Python library [Stem](https://stem.torproject.org/index.html) for the python scripts:
@@ -75,5 +75,5 @@ git clone https://github.com/torproject/stem.git
 export PYTHONPATH=$PWD/stem
 ```
 [gnuplot](http://www.gnuplot.info/) for the *-stats.sh* scripts
-and [jq](https://stedolan.github.io/jq/) to parse JSON data.
+and [jq](https://stedolan.github.io/jq/) at least for *get-authority-ips.sh*.
 
