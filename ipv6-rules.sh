@@ -3,12 +3,7 @@
 
 
 function addTor() {
-  # ipset for blocked ip addresses
-  if [[ -s /var/tmp/ipset.$blocklist ]]; then
-    ipset restore -exist -f /var/tmp/ipset.$blocklist && shred -u /var/tmp/ipset.$blocklist
-  else
-    ipset create -exist $blocklist hash:ip family inet6 timeout 1800
-  fi
+  ipset create -exist $blocklist hash:ip family inet6 timeout 1800
 
   # iptables
   ip6tables -P INPUT   DROP
@@ -77,8 +72,6 @@ function clearAll() {
   ip6tables -P OUTPUT  ACCEPT
   ip6tables -P FORWARD ACCEPT
 
-  ipset save $blocklist -f /var/tmp/ipset.$blocklist.tmp &&\
-  mv /var/tmp/ipset.$blocklist.tmp /var/tmp/ipset.$blocklist &&\
   ipset destroy $blocklist
 }
 
