@@ -49,12 +49,15 @@ else
   awk '{ print $1 }' | sort -bn | uniq -c |\
   awk '{ print $2, $1 }' > $tmpfile
 
+  m=$(grep -hc "^$reason " $files)
+  n=$(grep -h  "^$reason " $files | awk '{ print $2 }' | sort -u | wc -l)
+
   gnuplot -e '
     set terminal dumb;
     set border back;
-    set title "fingerprints";
+    set title "'"$m x $reason"' for '"$n"' fingerprint(s)";
     set key noautotitle;
-    set xlabel "ioerrors";
+    set xlabel "'"$reason"'";
     set logscale y 10;
     plot "'$tmpfile'" pt "o";
     '
