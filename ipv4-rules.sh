@@ -26,7 +26,7 @@ function addTor() {
     oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
     orport=$(grep -Po '\d+$' <<< $relay)
 
-    # blocklist if appropriate
+    # add to blocklist if appropriate
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 3 -j SET --add-set $blocklist src --exist
 
     # drop blocklisted
