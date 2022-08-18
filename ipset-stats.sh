@@ -56,8 +56,8 @@ while getopts aAdDp opt
 do
   shift
   case $opt in
-    a)  dump ${1:-tor-ddos}  | anonymise  ;;
-    A)  dump ${1:-tor-ddos6} | anonymise6 ;;
+    a)  dump ${1:-tor-ddos}  | anonymise  | uniq -c ;;
+    A)  dump ${1:-tor-ddos6} | anonymise6 | uniq -c ;;
     d)  dump ${1:-tor-ddos}  ;;
     D)  dump ${1:-tor-ddos6} ;;
     p)  [[ $# -gt 0 ]]; N=$(cat $* | wc -l); n=$(cat $* | sort -u | wc -l); cat $* | plot ;;
