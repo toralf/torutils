@@ -31,12 +31,12 @@ set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-limit=3
+limit=2
 
-# preferrable the local relay address is defined too in the ORPort config line
-# and at least 1 IPv4 is expected
+# is the local relay address contained in the ORPort config value ?
 relays=$(grep "^ORPort" /etc/tor/torrc{,2} 2>/dev/null | awk '{ print $2 }' | sort)
 if [[ ! $relays =~ '.' ]]; then
+  # no, so get it here
   address=$(grep "^Address" /etc/tor/torrc | awk '{ print $2 }' | sort -u)
   relays="$address:$relays"
 fi
