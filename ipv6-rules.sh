@@ -8,12 +8,12 @@ function init () {
   ip6tables -P OUTPUT  ACCEPT
   ip6tables -P FORWARD DROP
   
-  # make sure NEW incoming tcp connections are SYN packets
-  ip6tables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
-  
   # allow local traffic
   ip6tables -A INPUT --in-interface lo                                -j ACCEPT -m comment --comment "$(date -R)"
   ip6tables -A INPUT -p udp --source fe80::/10 --destination ff02::1  -j ACCEPT
+  
+  # make sure NEW incoming tcp connections are SYN packets
+  ip6tables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
   
   # ssh
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')

@@ -8,11 +8,11 @@ function init() {
   iptables -P OUTPUT  ACCEPT
   iptables -P FORWARD DROP
   
-  # make sure NEW incoming tcp connections are SYN packets
-  iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
-  
   # allow local traffic
   iptables -A INPUT --in-interface lo -j ACCEPT -m comment --comment "$(date -R)"
+  
+  # make sure NEW incoming tcp connections are SYN packets
+  iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
   
   # ssh
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
