@@ -10,24 +10,27 @@ function addTor() {
   iptables -P OUTPUT  ACCEPT
   iptables -P FORWARD DROP
   
-  # allow already established connections
-  iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-  iptables -A INPUT -m conntrack --ctstate INVALID             -j DROP
-  
   # make sure NEW incoming tcp connections are SYN packets
   iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
   
   # allow local traffic
   iptables -A INPUT --in-interface lo -j ACCEPT -m comment --comment "$(date -R)"
   
+  local blocklist=tor-ddos
+
   # the ruleset for inbound to an ORPort
   for relay in $relays
   do
-    oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
-    orport=$(grep -Po '\d+$' <<< $relay)
+    local oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
+    local orport=$(grep -Po '\d+$' <<< $relay)
 
     # add to blocklist if appropriate
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 2 -j SET --add-set $blocklist src --exist
+    local name=$blocklist-$orport
+    #iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $name --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 10/minute --hashlimit-burst 10 --hashlimit-htable-expire 60000 -j SET --add-set $name src --exist
+    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m recent --name $name --set
+    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m recent --name $name --update --seconds 60 --hitcount 10 --rttl -j SET --add-set $blocklist src
+
+    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 10 -j SET --add-set $blocklist src --exist
 
     # drop blocklisted
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $blocklist src -j DROP
@@ -36,6 +39,10 @@ function addTor() {
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
   done
 
+  # allow already established connections
+  iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+  iptables -A INPUT -m conntrack --ctstate INVALID             -j DROP
+  
   # ssh
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
   iptables -A INPUT -p tcp --destination-port ${port:-22} -j ACCEPT
@@ -91,8 +98,6 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 # Tor
 relays="65.21.94.13:443    65.21.94.13:9001"
-
-blocklist=tor-ddos
 
 case $1 in
   start)  addTor
