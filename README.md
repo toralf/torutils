@@ -1,18 +1,14 @@
 [![StandWithUkraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
 # torutils
-Few tools to maintain/watch a local Tor relay.
+Few tools for a Tor relay.
 
 ### Firewall
-*ipv4-rules.sh* and *ipv6-rules.sh* block ip addresses DDoS'ing a Tor relay and maybe the Tor network too.
-Both scripts implement one simple rule for a remote ipv4/6 address respectively connecting to the local relay:
-*Allow up to 3 inbound connections.*
-Otherwise the ip address is not allowed to open any new connection for the next 30 min.
-
+*ipv4-rules.sh* and *ipv6-rules.sh* block ip addresses [DDoS'ing](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
+a Tor relay.
 Technically the ip is stored in an [ipset](https://ipset.netfilter.org/).
-Such a set can be modified by either the command *ipset* or by *iptables*.
-
-*ipset-stats.sh* dumps the content of the ipset to stdout. By a cron job like:
+Such a set can be modified by either the command *ipset* or by *iptables*:
+*ipset-stats.sh* dumps the content of the ipset. With a cron job like:
 
 ```cron
 */30 * * * * d=$(date +\%H-\%M); /opt/torutils/ipset-stats.sh -d > /tmp/ipset4.$d.txt; /opt/torutils/ipset-stats.sh -D > /tmp/ipset6.$d.txt
@@ -22,11 +18,11 @@ a histogram of occurrencies versus their amount of ip addresses can be plotted:
 ```bash
 ipset-stats.sh -p /tmp/ipset4.??-??.txt
 ```
-And with
+With
 ```bash
 ddos-inbound.sh -l 2
 ```
-all inbound ip addresses with >2 connections to the Tor relay are listed.
+all inbound ip addresses opened >2 connections to the Tor relay are listed.
 ### info
 *info.py* gives an connection overview of a Tor relay:
 
