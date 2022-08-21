@@ -28,17 +28,16 @@ function init () {
 
 function addTor() {
   local blocklist=tor-ddos6
- 
+  
   ipset create -exist $blocklist hash:ip family inet6 timeout 1800
   
   for relay in $relays
   do
     local oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
     local orport=$(grep -Po '\d+$' <<< $relay)
-    local name=$blocklist-$orport
 
     # add to blocklist if appropriate
-    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $name --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 10/minute --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 10/minute --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 10 -j SET --add-set $blocklist src --exist
 
     # drop blocklisted
@@ -57,8 +56,7 @@ function addTor() {
 }
 
 
-# only needed for Hetzner customers
-# https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
+# only usefulfor Hetzner customers: https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
 function addHetzner() {
   local monlist=hetzner-monlist6
 
