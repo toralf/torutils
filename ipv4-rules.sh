@@ -33,17 +33,17 @@ function addTor() {
   do
     local oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
     local orport=$(grep -Po '\d+$' <<< $relay)
+    local name=$blocklist-$orport
 
     # add to blocklist if appropriate
-    local name=$blocklist-$orport
-    #iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $name --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 10/minute --hashlimit-burst 10 --hashlimit-htable-expire 60000 -j SET --add-set $name src --exist
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m recent --name $name --set
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m recent --name $name --update --seconds 60 --hitcount 10 --rttl -j SET --add-set $blocklist src
-
+    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $name --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 10/minute --hashlimit-burst 10 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 10 -j SET --add-set $blocklist src --exist
 
     # drop blocklisted
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $blocklist src -j DROP
+    
+    # handle buggy (?) clients
+    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 2 -j DROP
     
     # allow remaining
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT

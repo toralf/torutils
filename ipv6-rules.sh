@@ -35,18 +35,18 @@ function addTor() {
   do
     local oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
     local orport=$(grep -Po '\d+$' <<< $relay)
+    local name=$blocklist-$orport
 
     # add to blocklist if appropriate
-    local name=$blocklist-$orport
-    #ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $name --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 10/minute --hashlimit-burst 10 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
-    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m recent --name $name --set
-    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m recent --name $name --update --seconds 60 --hitcount 10 --rttl -j SET --add-set $blocklist src
-
+    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $name --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 10/minute --hashlimit-burst 10 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 10 -j SET --add-set $blocklist src --exist
 
     # drop blocklisted
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $blocklist src -j DROP
-    
+  
+    # handle buggy (?) clients
+    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 2 -j DROP
+  
     # allow remaining
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
   done
