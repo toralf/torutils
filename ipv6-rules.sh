@@ -2,9 +2,7 @@
 # set -x
 
 
-function addTor() {
-  ipset create -exist $blocklist hash:ip family inet6 timeout 1800
-
+function init () {
   # iptables
   ip6tables -P INPUT   DROP
   ip6tables -P OUTPUT  ACCEPT
@@ -16,10 +14,23 @@ function addTor() {
   # allow local traffic
   ip6tables -A INPUT --in-interface lo                                -j ACCEPT -m comment --comment "$(date -R)"
   ip6tables -A INPUT -p udp --source fe80::/10 --destination ff02::1  -j ACCEPT
+  
+  # ssh
+  local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
+  ip6tables -A INPUT -p tcp --destination-port ${port:-22} -j ACCEPT
+ 
+  ## ratelimit ICMP echo, allow others
+  ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -m limit --limit 6/s -j ACCEPT
+  ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -j DROP
+  ip6tables -A INPUT -p ipv6-icmp                            -j ACCEPT
+}
 
+
+function addTor() {
   local blocklist=tor-ddos6
-
-  # the ruleset for inbound to an ORPort
+ 
+  ipset create -exist $blocklist hash:ip family inet6 timeout 1800
+  
   for relay in $relays
   do
     local oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
@@ -43,15 +54,6 @@ function addTor() {
   # allow already established connections
   ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   ip6tables -A INPUT -m conntrack --ctstate INVALID             -j DROP
-
-  # ssh
-  local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
-  ip6tables -A INPUT -p tcp --destination-port ${port:-22} -j ACCEPT
- 
-  ## ratelimit ICMP echo, allow others
-  ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -m limit --limit 6/s -j ACCEPT
-  ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -j DROP
-  ip6tables -A INPUT -p ipv6-icmp                            -j ACCEPT
 }
 
 
@@ -61,6 +63,7 @@ function addHetzner() {
   local monlist=hetzner-monlist6
 
   ipset create -exist $monlist hash:ip family inet6
+
   getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u |\
   while read i
   do
@@ -88,8 +91,9 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 relays="2a01:4f9:3b:468e::13:443   2a01:4f9:3b:468e::13:9001"
 
 case $1 in
-  start)  addTor
+  start)  init
           addHetzner
+          addTor
           ;;
   stop)   clearAll
           ;;

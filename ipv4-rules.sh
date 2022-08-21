@@ -2,9 +2,7 @@
 # set -x
 
 
-function addTor() {
-  ipset create -exist $blocklist hash:ip timeout 1800
-
+function init() {
   # iptables
   iptables -P INPUT   DROP
   iptables -P OUTPUT  ACCEPT
@@ -16,9 +14,21 @@ function addTor() {
   # allow local traffic
   iptables -A INPUT --in-interface lo -j ACCEPT -m comment --comment "$(date -R)"
   
+  # ssh
+  local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
+  iptables -A INPUT -p tcp --destination-port ${port:-22} -j ACCEPT
+  
+  ## ratelimit ICMP echo
+  iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 6/s -j ACCEPT
+  iptables -A INPUT -p icmp --icmp-type echo-request                      -j DROP
+}
+
+
+function addTor() {
   local blocklist=tor-ddos
 
-  # the ruleset for inbound to an ORPort
+  ipset create -exist $blocklist hash:ip timeout 1800
+
   for relay in $relays
   do
     local oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
@@ -42,14 +52,6 @@ function addTor() {
   # allow already established connections
   iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   iptables -A INPUT -m conntrack --ctstate INVALID             -j DROP
-  
-  # ssh
-  local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
-  iptables -A INPUT -p tcp --destination-port ${port:-22} -j ACCEPT
-  
-  ## ratelimit ICMP echo
-  iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 6/s -j ACCEPT
-  iptables -A INPUT -p icmp --icmp-type echo-request                      -j DROP
 }
 
 
@@ -59,6 +61,7 @@ function addHetzner() {
   local monlist=hetzner-monlist
 
   ipset create -exist $monlist hash:ip
+
   getent ahostsv4 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u |\
   while read i
   do
@@ -68,7 +71,7 @@ function addHetzner() {
 }
 
 
-# replace this content with your own stuff -or- kick it off
+# local stuff only
 function addLocal() {
   local addr=$(ip -4 address | grep -w "inet .* scope global enp8s0" | awk '{ print $2 }' | cut -f1 -d'/')
   local port
@@ -88,8 +91,6 @@ function clearAll() {
   iptables -P INPUT   ACCEPT
   iptables -P OUTPUT  ACCEPT
   iptables -P FORWARD ACCEPT
-
-  ipset destroy $blocklist
 }
 
 
@@ -97,11 +98,12 @@ function clearAll() {
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 # Tor
-relays="65.21.94.13:443    65.21.94.13:9001"
+relays="65.21.94.13:443   65.21.94.13:9001"
 
 case $1 in
-  start)  addTor
+  start)  init
           addHetzner
+          addTor
           addLocal
           ;;
   stop)   clearAll
