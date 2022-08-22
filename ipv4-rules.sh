@@ -25,14 +25,24 @@ function init() {
 
 
 function addTor() {
+  local allowlist=tor-allow
   local blocklist=tor-ddos
-
-  ipset create -exist $blocklist hash:ip timeout 1800
   
+  ipset create -exist $allowlist hash:ip 
+  ipset create -exist $blocklist hash:ip timeout 1800
+ 
+  for i in $(dig +short snowflake-01.torproject.net. A)
+  do
+    ipset add -exist $allowlist $i
+  done
+
   for relay in $relays
   do
     local oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
     local orport=$(grep -Po '\d+$' <<< $relay)
+
+    # accept dedicated ip addresses
+    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $allowlist src -j ACCEPT
 
     # add to blocklist if appropriate
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 10/minute --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
@@ -40,10 +50,10 @@ function addTor() {
 
     # drop blocklisted
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $blocklist src -j DROP
-    
+  
     # handle buggy (?) clients
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 2 -j DROP
-    
+  
     # allow remaining
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
   done

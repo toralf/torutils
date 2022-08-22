@@ -2,7 +2,7 @@
 # set -x
 
 
-function init () {
+function init() {
   # iptables
   ip6tables -P INPUT   DROP
   ip6tables -P OUTPUT  ACCEPT
@@ -19,7 +19,7 @@ function init () {
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
   ip6tables -A INPUT -p tcp --destination-port ${port:-22} -j ACCEPT
  
-  ## ratelimit ICMP echo, allow others
+  ## ratelimit ICMP echo
   ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -m limit --limit 6/s -j ACCEPT
   ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -j DROP
   ip6tables -A INPUT -p ipv6-icmp                            -j ACCEPT
@@ -27,15 +27,25 @@ function init () {
 
 
 function addTor() {
+  local allowlist=tor-allow6
   local blocklist=tor-ddos6
   
+  ipset create -exist $allowlist hash:ip family inet6
   ipset create -exist $blocklist hash:ip family inet6 timeout 1800
-  
+ 
+  for i in $(dig +short snowflake-01.torproject.net. AAAA)
+  do
+    ipset add -exist $allowlist $i
+  done
+
   for relay in $relays
   do
     local oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
     local orport=$(grep -Po '\d+$' <<< $relay)
 
+    # accept dedicated ip addresses
+    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $allowlist src -j ACCEPT
+    
     # add to blocklist if appropriate
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 10/minute --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 10 -j SET --add-set $blocklist src --exist
@@ -46,7 +56,7 @@ function addTor() {
     # handle buggy (?) clients
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 2 -j DROP
   
-    # allow remaining
+    # accept remaining
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
   done
   
@@ -56,7 +66,7 @@ function addTor() {
 }
 
 
-# only usefulfor Hetzner customers: https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
+# only useful for Hetzner customers: https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
 function addHetzner() {
   local monlist=hetzner-monlist6
 
