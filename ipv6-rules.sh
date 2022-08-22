@@ -73,8 +73,8 @@ function addHetzner() {
 
   ipset create -exist $monlist hash:ip family inet6
 
-  getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u |\
-  while read i
+  # getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u | xargs
+  for i in 2a01:4f8:0:a101::5:1 2a01:4f8:0:a101::6:1 2a01:4f8:0:a101::6:2 2a01:4f8:0:a101::6:3 2a01:4f8:0:a112::c:1
   do
     ipset add -exist $monlist $i
   done
