@@ -31,8 +31,8 @@ function addTor() {
   ipset create -exist $allowlist hash:ip 
   ipset create -exist $blocklist hash:ip timeout 1800
 
-  # (dig +short snowflake-01.torproject.net. A; get-authority-ips.sh | grep -F '.') | xargs
-  for i in 193.187.88.42 128.31.0.34 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118 45.66.33.45 66.111.2.131 86.59.21.38
+  # (dig +short snowflake-01.torproject.net. A; get-authority-ips.sh | grep -F '.' | sort -n) | xargs
+  for i in 193.187.88.42 45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.34 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118
   do
     ipset add -exist $allowlist $i
   done
