@@ -48,7 +48,7 @@ function addTor() {
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $allowlist src -j ACCEPT
     
     # add to blocklist if appropriate
-    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 10/minute --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 10/minute --hashlimit-burst 9 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 10 -j SET --add-set $blocklist src --exist
 
     # drop blocklisted
