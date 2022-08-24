@@ -4,10 +4,10 @@
 Few tools for a Tor relay.
 
 ### Firewall
-*ipv4-rules.sh* and *ipv6-rules.sh* block ip addresses [DDoS'ing](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
-a Tor relay.
-Technically the ip is stored in an [ipset](https://ipset.netfilter.org/).
-Such a set can be modified by either the command *ipset* or by *iptables*:
+*ipv4-rules.sh* and *ipv6-rules.sh* block ip addresses DDoSing a Tor relay 
+[(issue 40636)](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636).
+Blocked ips are stored in an [ipset](https://ipset.netfilter.org/).
+That can be modified by the command *ipset* or by *iptables*:
 *ipset-stats.sh* dumps the content of the ipset. With a cron job like:
 
 ```cron
