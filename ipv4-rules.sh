@@ -42,15 +42,15 @@ function addTor() {
     local oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
     local orport=$(grep -Po '\d+$' <<< $relay)
 
-    # accept dedicated ip addresses
+    # allow allowlisted
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $allowlist src -j ACCEPT
 
     # add to blocklist if appropriate
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 10/minute --hashlimit-burst 9 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 10 -j SET --add-set $blocklist src --exist
+    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 8/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 4 -j SET --add-set $blocklist src --exist
 
-    # drop blocklisted
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $blocklist src -j DROP
+    # drop blocklisted entirely
+    iptables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
   
     # handle buggy (?) clients
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 2 -j DROP
