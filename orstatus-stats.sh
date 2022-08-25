@@ -4,9 +4,9 @@
 
 # work on output of orstatus.py, eg.: plot a histogram for specific event reason:
 #
-#   orstatus.py --address ::1 --ctrlport 29051 >> /tmp/orstatus6.29051 &
+#   orstatus.py --address ::1 --ctrlport 29051 >> /tmp/orstatus.29051 &
 #   sleep 3600
-#   orstatus-stats.sh /tmp/orstatus6.29051 IOERROR
+#   orstatus-stats.sh /tmp/orstatus.29051 IOERROR
 
 
 #######################################################################

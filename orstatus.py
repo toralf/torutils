@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 
 
-# dump OR closing event reasons
+# dump OR closing event reasons:
+#
+#   orstatus.py --address ::1 --ctrlport 39051
 
 
 import argparse
