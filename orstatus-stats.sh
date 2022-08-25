@@ -40,9 +40,12 @@ done
 [[ -n $files ]]
 
 if [[ -z $reason ]]; then
-  # just count reasons
-  awk '{ print $1 }' $files | sort | uniq -c
+  # count per reason
+  awk '{ print $1 }' $files | sort | uniq -c |\
+  perl -wane '$sum += $F[0]; print; END { printf("%7i\n", $sum) }'
+
 else
+  # plot for given reason
   tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
   grep -h "^$reason " $files |\
   awk '{ print $2 }' | sort     | uniq -c |\
