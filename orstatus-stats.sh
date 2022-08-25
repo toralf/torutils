@@ -2,23 +2,11 @@
 # set -x
 
 
-# work on output of orstatus.py, eg.:
+# work on output of orstatus.py, eg.: plot a histogram for specific event reason:
 #
-# $> orstatus.py --ctrlport 29051 >> /tmp/orstatus.29051 &
-#
-# wait a while
-#
-# $> orstatus-stats.sh /tmp/orstatus.29051
-#     146 CONNECTRESET
-#     337 DONE
-#     539 IOERROR
-#       1 NOROUTE
-#      36 TIMEOUT
-#     137 TLS_ERROR
-#
-# plot a histogram:
-#
-# $>  orstatus-stats.sh /tmp/orstatus.29051 TIMEOUT
+#   orstatus.py --address ::1 --ctrlport 29051 >> /tmp/orstatus6.29051 &
+#   sleep 3600
+#   orstatus-stats.sh /tmp/orstatus6.29051 IOERROR
 
 
 #######################################################################

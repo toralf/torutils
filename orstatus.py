@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# collect data wrt to https://trac.torproject.org/projects/tor/ticket/13603
-#
+
+# dump OR closing event reasons
+
 
 import argparse
 import functools
