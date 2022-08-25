@@ -17,11 +17,12 @@ from stem.util.connection import is_valid_ipv4_address
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--address', type=str, help='default: 127.0.0.1', default='127.0.0.1')
     parser.add_argument('--ctrlport', type=int, help='default: 9051', default=9051)
     args = parser.parse_args()
 
     try:
-        with Controller.from_port(port=args.ctrlport) as controller:
+        with Controller.from_port(address=args.address, port=args.ctrlport) as controller:
             controller.authenticate()
 
             for desc in parse_file('/var/lib/tor/data/cached-consensus'):
@@ -39,7 +40,7 @@ def main():
                 except KeyboardInterrupt:
                     break
     except:
-        print('Cannot open control port %i' % args.ctrlport)
+        print('Cannot open %s : %i' % (args.address, args.ctrlport))
 
 def orconn_event(controller, event):
     if event.status == ORStatus.CLOSED:

@@ -37,11 +37,12 @@ def parse_consensus(relays, filename):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--address', type=str, help='default: 127.0.0.1', default='127.0.0.1')
     parser.add_argument('--ctrlport', type=int, help='default: 9051', default=9051)
     parser.add_argument('--resolver', help='default: autodetect', default='')
     args = parser.parse_args()
 
-    with Controller.from_port(port=args.ctrlport) as controller:
+    with Controller.from_port(address=args.address, port=args.ctrlport) as controller:
         controller.authenticate()
 
         try:
@@ -108,8 +109,6 @@ def main():
                     Prev = Curr.copy()
                     Curr.clear()
 
-                my_ipv4 = '5.9.158.75'
-                my_ipv6 = ipaddress.IPv6Address('2a01:4f8:190:514a::2').exploded
                 for conn in connections:
                     laddr, raddr = conn.local_address, conn.remote_address
                     lport, rport = conn.local_port, conn.remote_port
@@ -140,8 +139,8 @@ def main():
                 dt = t2-t1
 
                 os.system('clear')
-                print('  port     # opened closed      max                ( %s:%s, %i conns %.2f sec )' % (
-                    args.resolver, args.ctrlport, len(connections), dt))
+                print('  port     # opened closed      max                ( "%s" %s:%s, %i conns %.2f sec )' % (
+                    args.resolver, args.address, args.ctrlport, len(connections), dt))
 
                 if first:
                     Prev = Curr.copy()
@@ -185,4 +184,7 @@ def main():
 
 
 if __name__ == '__main__':
+    # TODO: get this from torrc
+    my_ipv4 = '65.21.94.13'
+    my_ipv6 = ipaddress.IPv6Address('2a01:4f9:3b:468e::13').exploded
     main()

@@ -46,11 +46,12 @@ def parse_consensus(relays, filename):
 
 def main(args=None):
     parser = argparse.ArgumentParser()
+    parser.add_argument('--address', type=str, help='default: 127.0.0.1', default='127.0.0.1')
     parser.add_argument('--ctrlport', type=int, help='default: 9051', default=9051)
     parser.add_argument('--resolver', help='default: autodetected', default='')
     args = parser.parse_args()
 
-    controller = connect(control_port=('127.0.0.1', args.ctrlport))
+    controller = connect(control_port=(args.address, args.ctrlport))
     if not controller:
         return
 
