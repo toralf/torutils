@@ -6,25 +6,29 @@ Few tools for a Tor relay.
 ### Firewall
 *ipv4-rules.sh* and *ipv6-rules.sh* block ip addresses DDoSing a Tor relay 
 [(issue 40636)](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636).
-The current ruleset blocks about 200-500 addresses at 2 relays having ~10K connections each.
 
-The ip addresses are stored in an [ipset](https://ipset.netfilter.org/).
-
-### info
-An ipset can be managed by *ipset*.
-The script *ipset-stats.sh* dumps the content of the ipset.
-With a cron job like:
-
-```cron
-*/30 * * * * d=$(date +\%H-\%M); /opt/torutils/ipset-stats.sh -d > /tmp/ipset4.$d.txt; /opt/torutils/ipset-stats.sh -D > /tmp/ipset6.$d.txt
-```
-data can be collectedi for later inspection.
-Eg. a histogram of occurrencies versus their amount of ip addresses can be plotted by *ipset-stats.sh*:
+Technically the ip addresses are stored in an [ipset](https://ipset.netfilter.org/).
+The current ruleset blocks about 200-500 addresses for 2 relays having ~10K connections each:
 
 ```bash
-ipset-stats.sh -p /tmp/ipset4.??-??.txt
+ipset list -t | grep -A 7 tor-ddos | grep ^N
+Name: tor-ddos
+Number of entries: 267
+Name: tor-ddos6
+Number of entries: 0
 ```
+### info
+The script *ipset-stats.sh* plots a histogram from one or more ip sets:
 
+```bash
+for i in 1 2 3 4 5 6
+do
+  ipset-stats.sh -d > /tmp/ipset.$i.txt
+  sleep 1800
+done
+ipset-stats.sh -p /tmp/ipset.?.txt
+```
+### info tools
 *info.py* gives an connection overview of a Tor relay:
 
 ```console
