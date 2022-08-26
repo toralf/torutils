@@ -6,24 +6,25 @@ Few tools for a Tor relay.
 ### Firewall
 *ipv4-rules.sh* and *ipv6-rules.sh* block ip addresses DDoSing a Tor relay 
 [(issue 40636)](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636).
-Blocked ips are stored in an [ipset](https://ipset.netfilter.org/).
-That can be modified by the command *ipset* or by *iptables*:
-*ipset-stats.sh* dumps the content of the ipset. With a cron job like:
+The current ruleset blocks about 200-500 addresses at 2 relays having ~10K connections each.
+
+The ip addresses are stored in an [ipset](https://ipset.netfilter.org/).
+
+### info
+An ipset can be managed by *ipset*.
+The script *ipset-stats.sh* dumps the content of the ipset.
+With a cron job like:
 
 ```cron
 */30 * * * * d=$(date +\%H-\%M); /opt/torutils/ipset-stats.sh -d > /tmp/ipset4.$d.txt; /opt/torutils/ipset-stats.sh -D > /tmp/ipset6.$d.txt
 ```
-a histogram of occurrencies versus their amount of ip addresses can be plotted:
+data can be collectedi for later inspection.
+Eg. a histogram of occurrencies versus their amount of ip addresses can be plotted by *ipset-stats.sh*:
 
 ```bash
 ipset-stats.sh -p /tmp/ipset4.??-??.txt
 ```
-With
-```bash
-ddos-inbound.sh -l 2
-```
-all inbound ip addresses opened >2 connections to the Tor relay are listed.
-### info
+
 *info.py* gives an connection overview of a Tor relay:
 
 ```console
@@ -60,7 +61,7 @@ $> ps.py --ctrlport 9051
     7777     3                      3                (None)
 ```
 
-*orstatus.py* logs in realtime circuit closing events, *orstatus-stats.sh* plots them later.
+*orstatus.py* logs the reasons of circuit closing events, *orstatus-stats.sh* made stats of that output.
 *key-expires.py* returns the seconds till expiration of the mid-term signing key:
 
 ```console
