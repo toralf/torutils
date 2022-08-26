@@ -25,7 +25,10 @@ do
   fi
 done
 
-[[ -n $files ]]
+if [[ -z $files ]]; then
+  echo " no files ?!"
+  exit 1
+fi
 
 # count per reason
 awk '{ print $1 }' $files | sort | uniq -c |\
