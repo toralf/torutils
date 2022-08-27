@@ -44,10 +44,10 @@ function addTor() {
     local oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
     local orport=$(grep -Po '\d+$' <<< $relay)
 
-    # allow allowlisted
+    # allowlisted
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $allowlist src -j ACCEPT
     
-    # add to blocklist if appropriate
+    # blocklist ruleset
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 8/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 4 -j SET --add-set $blocklist src --exist
 
