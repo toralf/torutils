@@ -29,7 +29,7 @@ done
 ipset-stats.sh -p /tmp/ipset.?.txt
 ```
 ### info tools
-*info.py* gives an connection overview of a Tor relay:
+*info.py* gives a summary of a Tor relay:
 
 ```console
 $> python info.py --ctrlport 9051
