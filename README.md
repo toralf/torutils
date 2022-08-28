@@ -8,7 +8,8 @@ Few tools for a Tor relay.
 [(issue 40636)](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636).
 
 Technically the ip addresses are stored in an [ipset](https://ipset.netfilter.org/).
-The current ruleset blocks about 200-500 addresses at 2 relays each serving about 10K connections.
+The current ruleset blocks about 200-500 addresses at
+[these 2](https://metrics.torproject.org/rs.html#search/toralf) relays each serving about 10K connections.
 
 ### info
 The script *ipset-stats.sh* plots a histogram from ip set content:
