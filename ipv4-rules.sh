@@ -2,13 +2,13 @@
 # set -x
 
 
-function init() {
+function addCommon() {
   # iptables
   iptables -P INPUT   DROP
   iptables -P OUTPUT  ACCEPT
   iptables -P FORWARD DROP
-  
-  # allow local traffic
+
+  # allow loopback
   iptables -A INPUT --in-interface lo -j ACCEPT -m comment --comment "$(date -R)"
   
   # make sure NEW incoming tcp connections are SYN packets
@@ -80,14 +80,14 @@ function addHetzner() {
 }
 
 
-# local stuff only
-function addLocal() {
-  local addr=$(ip -4 address | grep -w "inet .* scope global enp8s0" | awk '{ print $2 }' | cut -f1 -d'/')
+# make 2 local status pages available
+function addMisc() {
+  local addr=$(ip -4 address | awk ' /inet .* scope global enp8s0/ { print $2 }' | cut -f1 -d'/')
   local port
 
-  port=$(crontab -l -u torproject | grep -m 1 -F " --port" | sed -e 's,.* --port ,,g' | cut -f1 -d ' ')
+  port=$(crontab -l -u torproject | grep -m 1 -Po "\-\-port \d+" | cut -f2 -d ' ')
   [[ -n "$port" ]] && iptables -A INPUT -p tcp --destination $addr --destination-port $port -j ACCEPT
-  port=$(crontab -l -u tinderbox  | grep -m 1 -F " --port" | sed -e 's,.* --port ,,g' | cut -f1 -d ' ')
+  port=$(crontab -l -u tinderbox  | grep -m 1 -Po "\-\-port \d+" | cut -f2 -d ' ')
   [[ -n "$port" ]] && iptables -A INPUT -p tcp --destination $addr --destination-port $port -j ACCEPT
 }
 
@@ -110,10 +110,10 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 relays="65.21.94.13:443   65.21.94.13:9001"
 
 case $1 in
-  start)  init
+  start)  addCommon
           addHetzner
           addTor
-          addLocal
+          addMisc
           ;;
   stop)   clearAll
           ;;

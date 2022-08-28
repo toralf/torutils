@@ -2,13 +2,13 @@
 # set -x
 
 
-function init() {
+function addCommon() {
   # iptables
   ip6tables -P INPUT   DROP
   ip6tables -P OUTPUT  ACCEPT
   ip6tables -P FORWARD DROP
-  
-  # allow local traffic
+
+  # allow loopback
   ip6tables -A INPUT --in-interface lo                                -j ACCEPT -m comment --comment "$(date -R)"
   ip6tables -A INPUT -p udp --source fe80::/10 --destination ff02::1  -j ACCEPT
   
@@ -100,7 +100,7 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 relays="2a01:4f9:3b:468e::13:443   2a01:4f9:3b:468e::13:9001"
 
 case $1 in
-  start)  init
+  start)  addCommon
           addHetzner
           addTor
           ;;
