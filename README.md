@@ -3,16 +3,18 @@
 # torutils
 Few tools for a Tor relay.
 
-### block DDOsS of Tor
-*ipv4-rules.sh* and *ipv6-rules.sh* block ip addresses DDoSing a Tor relay and/or the Tor network.
-[(issue 40636)](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636).
+### block DDoS Tor TLS traffic
+*ipv4-rules.sh* and *ipv6-rules.sh* block ip addresses DDoSing a Tor relay and/or the network
+by opening dozens of TLS connections to the local ORPort in a short time
+([(issue 40636)](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)).
+FWIW in a perfect world a Tor client should open just 1 TLS connection and handles all circuits over it.
 
-Technically the ip addresses are stored in an [ipset](https://ipset.netfilter.org/).
+Technically the ip addresses are stored in a so-called [ipset](https://ipset.netfilter.org/).
 The current ruleset blocks about 200-500 addresses at
-[these 2](https://metrics.torproject.org/rs.html#search/toralf) relays each serving about 10K connections.
+[these 2](https://metrics.torproject.org/rs.html#search/toralf) relays (each serving about 10K connections).
 
 ### info
-The script *ipset-stats.sh* plots a histogram from ip set content:
+The script *ipset-stats.sh* plots a histogram from ip set contents:
 
 ```bash
 for i in 1 2 3 4 5 6
