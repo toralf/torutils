@@ -1,26 +1,27 @@
 [![StandWithUkraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
 # torutils
+
 Few tools for a Tor relay.
 
-### block DDoS traffic
-*ipvX-rules.sh* blocks ip addresses DDoSing a Tor relay
+## block DDoS traffic
+
+_ipvX-rules.sh_ blocks ip addresses DDoSing a Tor relay
 ([issue 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)).
-The rule set is:
+The rule set for an inbound ip is:
 
 1. trust Tor authorities
 1. block an ip for the next 30 min if more than 8 inbound connection attempts per minute are made
-1. block an ip for the next 30 min if more than 5 inbound connections are established
-
-In addition there's a weaker rule:
-
-1. drop connection attempts if 2 inbound connections are already established.
+1. block an ip for the next 30 min if more than 3 inbound connections are established
+1. ignore an connection attempt if 2 inbound connections are established
 
 Technically the ip addresses are stored in a so-called [ipset](https://ipset.netfilter.org/).
 Currently about 200-500 addresses are blocked at
 [these](https://metrics.torproject.org/rs.html#search/toralf) 2 relays (each serving about 10K connections).
 
-The script *ipset-stats.sh* dumps an ip set and plots a histogram:
+_Hint_: If you're behind a NAT then have a look at [issue 1](https://github.com/toralf/torutils/issues/1).
+
+The script _ipset-stats.sh_ dumps an ip set and plots a histogram:
 
 ```bash
 for i in 1 2 3 4 5 6
@@ -30,8 +31,10 @@ do
 done
 ipset-stats.sh -p /tmp/ipset.?.txt
 ```
-### info tools
-*info.py* gives a summary of a Tor relay:
+
+## info tools
+
+_info.py_ gives a summary of a Tor relay:
 
 ```console
 $> info.py --ctrlport 9051
@@ -51,7 +54,8 @@ $> info.py --ctrlport 9051
 | Total                        |  8063 |  1713 |
 +------------------------------+-------+-------+
 ```
-For a monitoring of *exit* connections use *ps.py*:
+
+For a monitoring of _exit_ connections use _ps.py_:
 
 ```console
 $> ps.py --ctrlport 9051
@@ -65,15 +69,17 @@ $> ps.py --ctrlport 9051
     7777     3                      3                (None)
 ```
 
-*orstatus.py* logs the reasons of circuit closing events, *orstatus-stats.sh* made stats of its output.
+_orstatus.py_ logs the reasons of circuit closing events, _orstatus-stats.sh_ made stats of its output.
 
-*key-expires.py* returns the seconds till expiration of the mid-term signing key:
+_key-expires.py_ returns the seconds till expiration of the mid-term signing key:
 
 ```console
 $> key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert
 7286915
 ```
-### prereq
+
+## prereq
+
 You need the Python library [Stem](https://stem.torproject.org/index.html) for the python scripts:
 
 ```bash
@@ -81,6 +87,6 @@ cd /tmp
 git clone https://github.com/torproject/stem.git
 export PYTHONPATH=$PWD/stem
 ```
-[gnuplot](http://www.gnuplot.info/) for the *-stats.sh* scripts
-and [jq](https://stedolan.github.io/jq/) at least for *get-authority-ips.sh*.
 
+[gnuplot](http://www.gnuplot.info/) for the _-stats.sh_ scripts
+and [jq](https://stedolan.github.io/jq/) eg. for _get-authority-ips.sh_.

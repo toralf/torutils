@@ -26,30 +26,35 @@ function addCommon() {
 }
 
 
-function addTor() {
-  local allowlist=tor-allow6
-  local blocklist=tor-ddos6
-  
-  ipset create -exist $allowlist hash:ip family inet6
-  ipset create -exist $blocklist hash:ip family inet6 timeout 1800
+function __fill_list() {
+  # central Tor services
+  #dig +short snowflake-01.torproject.net. AAAA
+  #curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a | select(length > 1) | .[1]' | tr -d ']['
+  echo 2a0c:dd40:1:b::42 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2001:858:2:2:aabb:0:563b:1526 2607:8500:154::3 2610:1c0:0:5::131 2620:13:4000:6000::1000:118 |
+  xargs -r -n 1 -P 20 ipset add -exist $trustlist
+}
 
-  # (dig +short snowflake-01.torproject.net. AAAA; get-authority-ips.sh | grep -F ':' | sort -n) | xargs
-  for i in 2a0c:dd40:1:b::42 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2001:858:2:2:aabb:0:563b:1526 2607:8500:154::3 2610:1c0:0:5::131 2620:13:4000:6000::1000:118
-  do
-    ipset add -exist $allowlist $i
-  done
+
+function addTor() {
+  local blocklist=tor-ddos6
+  local trustlist=tor-trust6
+
+  ipset create -exist $blocklist hash:ip family inet6 timeout 1800
+  ipset create -exist $trustlist hash:ip family inet6
+
+  __fill_list & # helpful but not mandatory -> background to close a race gap
 
   for relay in $relays
   do
     local oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
     local orport=$(grep -Po '\d+$' <<< $relay)
 
-    # allowlisted
-    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $allowlist src -j ACCEPT
+    # allow trusted
+    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $trustlist src -j ACCEPT
     
-    # blocklist ruleset
+    # blocklist rules
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 8/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
-    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 5 -j SET --add-set $blocklist src --exist
+    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 3 -j SET --add-set $blocklist src --exist
 
     # drop blocklisted entirely
     ip6tables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
@@ -97,7 +102,7 @@ function clearAll() {
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 # Tor
-relays="2a01:4f9:3b:468e::13:443   2a01:4f9:3b:468e::13:9001"
+relays="2a01:4f9:3b:468e::13:9001   2a01:4f9:3b:468e::13:443"
 
 case $1 in
   start)  addCommon
@@ -106,5 +111,8 @@ case $1 in
           ;;
   stop)   clearAll
           ;;
+     *)   exit 1
+          ;;
+
 esac
 

@@ -24,30 +24,35 @@ function addCommon() {
 }
 
 
-function addTor() {
-  local allowlist=tor-allow
-  local blocklist=tor-ddos
-  
-  ipset create -exist $allowlist hash:ip 
-  ipset create -exist $blocklist hash:ip timeout 1800
+function __fill_list()  {
+  # central Tor services
+  #dig +short snowflake-01.torproject.net. A
+  #curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a[0]'
+  echo 193.187.88.42 45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.34 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118 |
+  xargs -r -n 1 -P 20 ipset add -exist $trustlist
+}
 
-  # (dig +short snowflake-01.torproject.net. A; get-authority-ips.sh | grep -F '.' | sort -n) | xargs
-  for i in 193.187.88.42 45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.34 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118
-  do
-    ipset add -exist $allowlist $i
-  done
+
+function addTor() {
+  local blocklist=tor-ddos
+  local trustlist=tor-trust
+
+  ipset create -exist $blocklist hash:ip timeout 1800
+  ipset create -exist $trustlist hash:ip
+
+  __fill_list & # helpful but not mandatory -> background to close a race gap
 
   for relay in $relays
   do
     local oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
     local orport=$(grep -Po '\d+$' <<< $relay)
 
-    # allowlisted
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $allowlist src -j ACCEPT
+    # allow trusted
+    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $trustlist src -j ACCEPT
 
-    # blocklist ruleset
+    # blocklist rules
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 8/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 5 -j SET --add-set $blocklist src --exist
+    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 3 -j SET --add-set $blocklist src --exist
 
     # drop blocklisted entirely
     iptables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
@@ -107,7 +112,7 @@ function clearAll() {
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 # Tor
-relays="65.21.94.13:443   65.21.94.13:9001"
+relays="65.21.94.13:9001   65.21.94.13:443"
 
 case $1 in
   start)  addCommon
@@ -116,6 +121,8 @@ case $1 in
           addMisc
           ;;
   stop)   clearAll
+          ;;
+     *)   exit 1
           ;;
 esac
 
