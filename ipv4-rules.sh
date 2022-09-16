@@ -111,7 +111,7 @@ function clearAll() {
 #######################################################################
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-# Tor
+# Tor, this must match ORPort
 relays="65.21.94.13:9001   65.21.94.13:443"
 
 case $1 in
