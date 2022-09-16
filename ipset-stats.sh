@@ -31,6 +31,13 @@ function plot() {
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
   sort | uniq -c | sort -bn | awk '{ print $1 }' | uniq -c | awk '{ print $2, $1 }' > $tmpfile
+  if [[ $(wc -l < $tmpfile) -gt 7 ]]; then
+    head -n 3 $tmpfile
+    echo '...'
+    tail -n 3 $tmpfile
+  else
+    cat $tmpfile
+  fi
 
   gnuplot -e '
     set terminal dumb 65 24;
