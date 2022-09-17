@@ -101,7 +101,7 @@ function clearAll() {
 #######################################################################
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-# Tor, this must match ORPort
+# Tor, this must match ORPort, see https://github.com/toralf/torutils/issues/1
 relays="2a01:4f9:3b:468e::13:9001   2a01:4f9:3b:468e::13:443"
 
 case $1 in
