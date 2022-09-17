@@ -3,10 +3,9 @@
 
 
 function addCommon() {
-  # iptables
-  iptables -P INPUT   DROP
-  iptables -P OUTPUT  ACCEPT
-  iptables -P FORWARD DROP
+  iptables -t raw -P PREROUTING ACCEPT
+  iptables        -P INPUT      DROP
+  iptables        -P OUTPUT     ACCEPT
 
   # allow loopback
   iptables -A INPUT --in-interface lo -j ACCEPT -m comment --comment "$(date -R)"
@@ -25,9 +24,8 @@ function addCommon() {
 
 
 function __fill_list()  {
-  # central Tor services
-  #dig +short snowflake-01.torproject.net. A
-  #curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a[0]'
+  # dig +short snowflake-01.torproject.net. A
+  # curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a[0]'
   echo 193.187.88.42 45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.34 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118 |
   xargs -r -n 1 -P 20 ipset add -exist $trustlist
 }
@@ -47,17 +45,18 @@ function addTor() {
     local oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
     local orport=$(grep -Po '\d+$' <<< $relay)
 
-    # allow trusted
+    # block SYN flood
+    iptables -t raw -A PREROUTING -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 8/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    iptables -t raw -A PREROUTING -p tcp -m set --match-set $blocklist src -j DROP
+
+    # trust Tora people
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $trustlist src -j ACCEPT
 
-    # blocklist rules
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 8/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    # block too much connections
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 3 -j SET --add-set $blocklist src --exist
-
-    # drop blocklisted entirely
     iptables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
   
-    # handle buggy (?) clients
+    # ignore connection attempts
     iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 2 -j DROP
   
     # allow remaining
@@ -99,12 +98,13 @@ function addMisc() {
 
 function clearAll() {
   iptables -P INPUT   ACCEPT
-  iptables -P OUTPUT  ACCEPT
-  iptables -P FORWARD ACCEPT
-  
-  iptables -F
-  iptables -X
-  iptables -Z
+
+  for table in filter raw
+  do
+    iptables -F -t $table
+    iptables -X -t $table
+    iptables -Z -t $table
+  done
 }
 
 
@@ -116,13 +116,15 @@ relays="65.21.94.13:9001   65.21.94.13:443"
 
 case $1 in
   start)  addCommon
-          addHetzner
           addTor
+          addHetzner
           addMisc
           ;;
   stop)   clearAll
           ;;
-     *)   exit 1
+  *)      iptables -nv -L -t raw || echo -e "\n\n+ + + Warning: you kernel lacks CONFIG_IP_NF_RAW=y\n\n"
+          echo
+          iptables -nv -L
           ;;
 esac
 

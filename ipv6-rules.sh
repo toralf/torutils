@@ -3,10 +3,9 @@
 
 
 function addCommon() {
-  # iptables
-  ip6tables -P INPUT   DROP
-  ip6tables -P OUTPUT  ACCEPT
-  ip6tables -P FORWARD DROP
+  ip6tables -t raw -P PREROUTING ACCEPT
+  ip6tables        -P INPUT      DROP
+  ip6tables        -P OUTPUT     ACCEPT
 
   # allow loopback
   ip6tables -A INPUT --in-interface lo                                -j ACCEPT -m comment --comment "$(date -R)"
@@ -27,9 +26,8 @@ function addCommon() {
 
 
 function __fill_list() {
-  # central Tor services
-  #dig +short snowflake-01.torproject.net. AAAA
-  #curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a | select(length > 1) | .[1]' | tr -d ']['
+  # dig +short snowflake-01.torproject.net. AAAA
+  # curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a | select(length > 1) | .[1]' | tr -d ']['
   echo 2a0c:dd40:1:b::42 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2001:858:2:2:aabb:0:563b:1526 2607:8500:154::3 2610:1c0:0:5::131 2620:13:4000:6000::1000:118 |
   xargs -r -n 1 -P 20 ipset add -exist $trustlist
 }
@@ -49,17 +47,18 @@ function addTor() {
     local oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
     local orport=$(grep -Po '\d+$' <<< $relay)
 
-    # allow trusted
+    # block SYN flood
+    ip6tables -t raw -A PREROUTING -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 8/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    ip6tables -t raw -A PREROUTING -p tcp -m set --match-set $blocklist src -j DROP
+
+    # trust Tor people
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $trustlist src -j ACCEPT
     
-    # blocklist rules
-    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 8/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    # block too much connections
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 3 -j SET --add-set $blocklist src --exist
-
-    # drop blocklisted entirely
     ip6tables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
   
-    # handle buggy (?) clients
+    # ignore connection attempts
     ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 2 -j DROP
   
     # allow remaining
@@ -89,12 +88,13 @@ function addHetzner() {
 
 function clearAll() {
   ip6tables -P INPUT   ACCEPT
-  ip6tables -P OUTPUT  ACCEPT
-  ip6tables -P FORWARD ACCEPT
-  
-  ip6tables -F
-  ip6tables -X
-  ip6tables -Z
+
+  for table in filter raw
+  do
+    ip6tables -F -t $table
+    ip6tables -X -t $table
+    ip6tables -Z -t $table
+  done
 }
 
 
@@ -106,13 +106,14 @@ relays="2a01:4f9:3b:468e::13:9001   2a01:4f9:3b:468e::13:443"
 
 case $1 in
   start)  addCommon
-          addHetzner
           addTor
+          addHetzner
           ;;
   stop)   clearAll
           ;;
-     *)   exit 1
+  *)      ip6tables -nv -L -t raw || echo -e "\n\n+ + + Warning: you kernel lacks CONFIG_IP6_NF_RAW=y\n\n"
+          echo
+          ip6tables -nv -L
           ;;
-
 esac
 
