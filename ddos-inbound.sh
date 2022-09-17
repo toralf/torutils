@@ -16,8 +16,8 @@ function show() {
       (( sum = sum + conns ))
     fi
   done < <(
-    ss --no-header --tcp -${v:-4} --numeric |\
-    grep "^ESTAB .* $(sed -e 's,\[,\\[,g' -e 's,\],\\],g' <<< $relay) " |\
+    ss --no-header --tcp -${v:-4} --numeric |
+    grep "^ESTAB .* $(sed -e 's,\[,\\[,g' -e 's,\],\\],g' <<< $relay) " |
     awk '{ print $5 }' | sort | sed 's,:[[:digit:]]*$,,g' | uniq -c
   )
 

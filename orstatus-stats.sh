@@ -32,15 +32,15 @@ if [[ -z $files ]]; then
 fi
 
 # count per reason
-awk '{ print $1 }' $files | sort | uniq -c |\
+awk '{ print $1 }' $files | sort | uniq -c |
 perl -wane 'BEGIN { $sum = 0 } { $sum += $F[0]; print } END { printf("%7i\n", $sum) }'
 
 if [[ -n $reason ]]; then
   # plot for given reason
   tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
-  grep -h "^$reason " $files |\
-  awk '{ print $2 }' | sort     | uniq -c |\
-  awk '{ print $1 }' | sort -bn | uniq -c |\
+  grep -h "^$reason " $files |
+  awk '{ print $2 }' | sort     | uniq -c |
+  awk '{ print $1 }' | sort -bn | uniq -c |
   awk '{ print $2, $1 }' > $tmpfile
 
   m=$(grep -hc "^$reason " $files)
