@@ -6,8 +6,8 @@
 # dump and plot hostograms about occurrence of ip addresses in ipset(s)
 
 function dump()  {
-  ipset list -s $1 |\
-  sed -e '1,8d' |\
+  ipset list -s $1 |
+  sed -e '1,8d' |
   awk '{ print $1 }'
 }
 
@@ -20,8 +20,8 @@ function anonymise()  {
 
 # 2000::23:42 -> 2000::/64
 function anonymise6()  {
-  /opt/torutils/expand_v6.py |\
-  cut -c1-19 |\
+  /opt/torutils/expand_v6.py |
+  cut -c1-19 |
   sed -e "s,$,::/64,"
 }
 

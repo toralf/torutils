@@ -8,15 +8,17 @@ Few tools for a Tor relay.
 
 _ipvX-rules.sh_ blocks ip addresses DDoSing a Tor relay
 ([issue 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)).
-The rule set for an inbound ip is:
+Run the script without an argument shows the current iptables settings.
+
+The rules are:
 
 1. trust Tor authorities
-1. block an ip for the next 30 min if more than 8 inbound connection attempts per minute are made
-1. block an ip for the next 30 min if more than 3 inbound connections are established
-1. ignore an connection attempt if 2 inbound connections are established
+1. block an ip for the next 30 min if more than 8 inbound connection attempts per minute are made (SYN flood)
+1. block an ip for the next 30 min if more than 3 inbound connections are established (too much connections)
+1. ignore a connection attempt if 2 inbound connections are already established
 
-Technically the ip addresses are stored in a so-called [ipset](https://ipset.netfilter.org/).
-Currently about 200-500 addresses are blocked at
+Technically ip addresses are stored in a so-called [ipset](https://ipset.netfilter.org/).
+Currently about 200 addresses are blocked at
 [these](https://metrics.torproject.org/rs.html#search/toralf) 2 relays (each serving about 10K connections).
 
 _Hint_: If you're behind a NAT then have a look at [issue 1](https://github.com/toralf/torutils/issues/1).
