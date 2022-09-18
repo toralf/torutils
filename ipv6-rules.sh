@@ -42,27 +42,24 @@ function addTor() {
 
   __fill_list & # helpful but not mandatory -> background to close a race gap
 
-  for relay in $relays
+  for orport in $orports
   do
-    local oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
-    local orport=$(grep -Po '\d+$' <<< $relay)
-
     # block SYN flood
-    ip6tables -t raw -A PREROUTING -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 8/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    ip6tables -t raw -A PREROUTING -p tcp --destination $orip --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 8/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     ip6tables -t raw -A PREROUTING -p tcp -m set --match-set $blocklist src -j DROP
 
     # trust Tor people
-    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $trustlist src -j ACCEPT
+    ip6tables -A INPUT -p tcp --destination $orip --destination-port $orport -m set --match-set $trustlist src -j ACCEPT
     
     # block too much connections
-    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 3 -j SET --add-set $blocklist src --exist
+    ip6tables -A INPUT -p tcp --destination $orip --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 3 -j SET --add-set $blocklist src --exist
     ip6tables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
   
     # ignore connection attempts
-    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 2 -j DROP
+    ip6tables -A INPUT -p tcp --destination $orip --destination-port $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 2 -j DROP
   
     # allow remaining
-    ip6tables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
+    ip6tables -A INPUT -p tcp --destination $orip --destination-port $orport -j ACCEPT
   done
   
   # allow already established connections
@@ -101,8 +98,9 @@ function clearAll() {
 #######################################################################
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-# Tor, this must match ORPort, see https://github.com/toralf/torutils/issues/1
-relays="2a01:4f9:3b:468e::13:9001   2a01:4f9:3b:468e::13:443"
+# Tor, this should match ORPort, see https://github.com/toralf/torutils/issues/1
+orip="2a01:4f9:3b:468e::13"
+orports="9001 443"
 
 case $1 in
   start)  addCommon

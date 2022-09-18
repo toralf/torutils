@@ -40,27 +40,24 @@ function addTor() {
 
   __fill_list & # helpful but not mandatory -> background to close a race gap
 
-  for relay in $relays
+  for orport in $orports
   do
-    local oraddr=$(sed -e 's,:[0-9]*$,,' <<< $relay)
-    local orport=$(grep -Po '\d+$' <<< $relay)
-
     # block SYN flood
-    iptables -t raw -A PREROUTING -p tcp --destination $oraddr --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 8/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    iptables -t raw -A PREROUTING -p tcp --destination $orip --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 8/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     iptables -t raw -A PREROUTING -p tcp -m set --match-set $blocklist src -j DROP
 
     # trust Tora people
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m set --match-set $trustlist src -j ACCEPT
+    iptables -A INPUT -p tcp --destination $orip --destination-port $orport -m set --match-set $trustlist src -j ACCEPT
 
     # block too much connections
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 3 -j SET --add-set $blocklist src --exist
+    iptables -A INPUT -p tcp --destination $orip --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 3 -j SET --add-set $blocklist src --exist
     iptables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
   
     # ignore connection attempts
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 2 -j DROP
+    iptables -A INPUT -p tcp --destination $orip --destination-port $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 2 -j DROP
   
     # allow remaining
-    iptables -A INPUT -p tcp --destination $oraddr --destination-port $orport -j ACCEPT
+    iptables -A INPUT -p tcp --destination $orip --destination-port $orport -j ACCEPT
   done
 
   # allow already established connections
@@ -84,7 +81,7 @@ function addHetzner() {
 }
 
 
-# make 2 local status pages available
+# only valid for tor-relay.zwiebeltoralf.de
 function addMisc() {
   local addr=$(ip -4 address | awk ' /inet .* scope global enp8s0/ { print $2 }' | cut -f1 -d'/')
   local port
@@ -111,8 +108,9 @@ function clearAll() {
 #######################################################################
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-# Tor, this must match ORPort, see https://github.com/toralf/torutils/issues/1
-relays="65.21.94.13:9001   65.21.94.13:443"
+# Tor, this should match ORPort, see https://github.com/toralf/torutils/issues/1
+orip="65.21.94.13"
+orports="9001 443"
 
 case $1 in
   start)  addCommon
