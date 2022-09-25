@@ -46,7 +46,7 @@ function addTor() {
     iptables -t raw -A PREROUTING -p tcp --destination $orip --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 8/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     iptables -t raw -A PREROUTING -p tcp -m set --match-set $blocklist src -j DROP
 
-    # trust Tora people
+    # trust Tor people
     iptables -A INPUT -p tcp --destination $orip --destination-port $orport -m set --match-set $trustlist src -j ACCEPT
 
     # block too much connections
@@ -81,7 +81,7 @@ function addHetzner() {
 }
 
 
-# only valid for tor-relay.zwiebeltoralf.de
+# only valid for zwiebeltoralf.de
 function addMisc() {
   local addr=$(ip -4 address | awk ' /inet .* scope global enp8s0/ { print $2 }' | cut -f1 -d'/')
   local port
