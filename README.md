@@ -8,7 +8,6 @@ Few tools for a Tor relay.
 
 _ipvX-rules.sh_ blocks ip addresses DDoSing a Tor relay
 ([issue 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)).
-Run the script without an argument shows the current iptables settings.
 
 The rules are:
 
@@ -23,7 +22,12 @@ Currently about 200 addresses are blocked at
 
 _Hint_: If you're behind a NAT then have a look at [issue 1](https://github.com/toralf/torutils/issues/1).
 
-The script _ipset-stats.sh_ dumps an ip set and plots a histogram:
+Watch the current iptables statistics:
+
+```bash
+watch ipv4-rules.sh
+```
+The script _ipset-stats.sh_ dumps the ip set (default: _tor-ddos_ and _tor-ddos6_ respectively) and plots a histogram:
 
 ```bash
 for i in 1 2 3 4 5 6
