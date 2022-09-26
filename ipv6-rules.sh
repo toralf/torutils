@@ -3,9 +3,9 @@
 
 
 function addCommon() {
-  ip6tables -t raw -P PREROUTING ACCEPT
-  ip6tables        -P INPUT      DROP
-  ip6tables        -P OUTPUT     ACCEPT
+  ip6tables -t raw -P PREROUTING ACCEPT     # drop explicitely
+  ip6tables        -P INPUT      DROP       # accept explicitely
+  ip6tables        -P OUTPUT     ACCEPT     # accept all
 
   # allow loopback
   ip6tables -A INPUT --in-interface lo                                -j ACCEPT -m comment --comment "$(date -R)"
@@ -45,7 +45,7 @@ function addTor() {
   for orport in $orports
   do
     # block SYN flood
-    ip6tables -t raw -A PREROUTING -p tcp --destination $orip --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 8/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    ip6tables -t raw -A PREROUTING -p tcp --destination $orip --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 6/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     ip6tables -t raw -A PREROUTING -p tcp -m set --match-set $blocklist src -j DROP
 
     # trust Tor people
