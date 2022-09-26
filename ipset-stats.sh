@@ -62,6 +62,7 @@ set -o pipefail
 
 while getopts aAdDp opt
 do
+  # $2 -if set- is the ipset name
   shift
   case $opt in
     a)  dump ${1:-tor-ddos}  | anonymise  | uniq -c ;;
