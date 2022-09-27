@@ -12,17 +12,15 @@ _ipvX-rules.sh_ blocks ip addresses DDoSing a Tor relay
 The rules are:
 
 1. trust Tor authorities
-1. block an ip for the next 30 min if more than 8 inbound connection attempts per minute are made (SYN flood)
-1. block an ip for the next 30 min if more than 3 inbound connections are established (too much connections)
+1. block an ip for the next 30 min if more than 6 inbound connection attempts per minute were made
+1. block an ip for the next 30 min if more than 3 inbound connections are established
 1. ignore a connection attempt if 2 inbound connections are already established
 
 Technically ip addresses are stored in a so-called [ipset](https://ipset.netfilter.org/).
 Currently about 200 addresses are blocked at
 [these](https://metrics.torproject.org/rs.html#search/toralf) 2 relays (each serving about 10K connections).
 
-_Hint_: If you're behind a NAT then have a look at [issue 1](https://github.com/toralf/torutils/issues/1).
-
-Watch the current iptables statistics:
+After applying watch the current statistics:
 
 ```bash
 watch ipv4-rules.sh
