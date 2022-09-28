@@ -42,9 +42,6 @@ function addTor() {
 
   for orport in $orports
   do
-    # trust Tor people
-    iptables -t raw -A PREROUTING -p tcp --destination $orip --destination-port $orport -m set --match-set $trustlist src -j ACCEPT
-
     # block SYN flood
     iptables -t raw -A PREROUTING -p tcp --destination $orip --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 6/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     iptables -t raw -A PREROUTING -p tcp -m set --match-set $blocklist src -j DROP
