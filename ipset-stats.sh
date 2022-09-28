@@ -26,11 +26,13 @@ function anonymise6()  {
 }
 
 
-# a simple histogram
+# plot a histogram (if enough lines are available)
 function plot() {
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
   sort | uniq -c | sort -bn | awk '{ print $1 }' | uniq -c | awk '{ print $2, $1 }' > $tmpfile
+
+  echo
   if [[ $(wc -l < $tmpfile) -gt 7 ]]; then
     head -n 3 $tmpfile
     echo '...'
@@ -39,15 +41,19 @@ function plot() {
     cat $tmpfile
   fi
 
-  gnuplot -e '
-    set terminal dumb 65 24;
-    set border back;
-    set title "'"$N"' occurrences of '"$n"' ip addresses";
-    set key noautotitle;
-    set xlabel "occurrence";
-    set logscale y 2;
-    plot "'$tmpfile'" pt "o";
-  '
+  if [[ $(wc -l < $tmpfile) -gt 1 ]]; then
+    gnuplot -e '
+      set terminal dumb 65 24;
+      set border back;
+      set title "'"$N"' occurrences of '"$n"' ip addresses";
+      set key noautotitle;
+      set xlabel "occurrence";
+      set logscale y 2;
+      plot "'$tmpfile'" pt "o";
+    '
+  else
+    echo
+  fi
 
   rm $tmpfile
 }
