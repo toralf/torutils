@@ -50,7 +50,7 @@ function addTor() {
 
     # trust Tor people
     ip6tables -A INPUT -p tcp --destination $orip --destination-port $orport -m set --match-set $trustlist src -j ACCEPT
-    
+
     # block too much connections
     ip6tables -A INPUT -p tcp --destination $orip --destination-port $orport -m connlimit --connlimit-mask 128 --connlimit-above 3 -j SET --add-set $blocklist src --exist
     ip6tables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
@@ -61,7 +61,7 @@ function addTor() {
     # allow remaining
     ip6tables -A INPUT -p tcp --destination $orip --destination-port $orport -j ACCEPT
   done
-  
+
   # allow already established connections
   ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   ip6tables -A INPUT -m conntrack --ctstate INVALID             -j DROP
