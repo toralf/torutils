@@ -54,7 +54,7 @@ function addTor() {
     iptables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
   
     # ignore connection attempts
-    iptables -A INPUT -p tcp --destination $orip --destination-port $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 2 -j DROP
+    iptables -A INPUT -p tcp --destination $orip --destination-port $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 1 -j DROP
   
     # allow remaining
     iptables -A INPUT -p tcp --destination $orip --destination-port $orport -j ACCEPT

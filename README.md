@@ -14,7 +14,10 @@ The rules are:
 1. trust Tor authorities
 1. block an ip for the next 30 min if more than 6 inbound connection attempts per minute were made
 1. block an ip for the next 30 min if more than 3 inbound connections are established
-1. ignore a connection attempt if 2 inbound connections are already established
+1. ignore a connection attempt if 1 inbound connection is already established
+
+The last rule even covers the case of 2 relays with the same ip address (A) and different ORPorts (a1 and a2) have to speak with 2 other relays having the same ip address (B) and different ORPorts (b1 and b2):
+A:a1 -> B:b1, B:b1 -> A:a2, A:a2 -> B:b2, B:b2 -> A:a1
 
 Technically ip addresses are stored in a so-called [ipset](https://ipset.netfilter.org/).
 Currently about 200 addresses are blocked at

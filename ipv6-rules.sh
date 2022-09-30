@@ -56,7 +56,7 @@ function addTor() {
     ip6tables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
   
     # ignore connection attempts
-    ip6tables -A INPUT -p tcp --destination $orip --destination-port $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 2 -j DROP
+    ip6tables -A INPUT -p tcp --destination $orip --destination-port $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 1 -j DROP
   
     # allow remaining
     ip6tables -A INPUT -p tcp --destination $orip --destination-port $orport -j ACCEPT
