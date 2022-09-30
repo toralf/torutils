@@ -38,10 +38,12 @@ function addTor() {
   ipset create -exist $blocklist hash:ip timeout 1800
   ipset create -exist $trustlist hash:ip
 
-  __fill_list & # helpful but not mandatory -> background to close a race gap
+  __fill_list & # # lazy fill to minimize restart time
 
-  for orport in $orports
+  for relay in $relays
   do
+    read -r orip orport <<< $(tr ':' ' ' <<< $relay)
+
     # block SYN flood
     iptables -t raw -A PREROUTING -p tcp --destination $orip --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 6/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     iptables -t raw -A PREROUTING -p tcp -m set --match-set $blocklist src -j DROP
@@ -109,8 +111,7 @@ function clearAll() {
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 # Tor, this should match ORPort, see https://github.com/toralf/torutils/issues/1
-orip="65.21.94.13"
-orports="9001 443"
+relays="65.21.94.13:9001 65.21.94.13:443"
 
 case $1 in
   start)  addCommon
