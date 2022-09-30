@@ -7,28 +7,26 @@ Few tools for a Tor relay.
 ## block DDoS traffic
 
 _ipvX-rules.sh_ blocks ip addresses DDoSing a Tor relay
-([issue 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)).
-
-The rules are:
-
-1. trust Tor authorities
-1. block an ip for the next 30 min if more than 6 inbound connection attempts per minute were made
-1. block an ip for the next 30 min if more than 3 inbound connections are established
-1. ignore a connection attempt if 1 inbound connection is already established
-
-The last rule even covers the case of 2 relays with the same ip address (A) and different ORPorts (a1 and a2) have to speak with 2 other relays having the same ip address (B) and different ORPorts (b1 and b2):
-A:a1 -> B:b1, B:b1 -> A:a2, A:a2 -> B:b2, B:b2 -> A:a1
-
-Technically ip addresses are stored in a so-called [ipset](https://ipset.netfilter.org/).
-Currently about 200 addresses are blocked at
+([Torproject issue 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)).
+Currently about 100-600 addresses are blocked at
 [these](https://metrics.torproject.org/rs.html#search/toralf) 2 relays (each serving about 10K connections).
 
-After applying watch the current statistics:
+The rules for an inbound ip are:
+
+1. trust Tor authorities
+1. block the ip for the next 30 min if more than 6 inbound connection attempts per minute were made
+1. block the ip for the next 30 min if more than 3 inbound connections are established
+1. ignore a connection attempt from an ip hosting < 2 relays if 1 inbound connection is already established 
+1. ignore a connection attempt if 2 inbound connections are already established
+
+[Here're](./sysstat.svg) network statistics got with [sysstat](http://pagesperso-orange.fr/sebastien.godard/).
+
+The local (live) statistics of the working rules can be watched via:
 
 ```bash
 watch ipv4-rules.sh
 ```
-The script _ipset-stats.sh_ dumps the ip set (default: _tor-ddos_ and _tor-ddos6_ respectively) and plots a histogram:
+The script _ipset-stats.sh_ dumps or visualize the [ipset](https://ipset.netfilter.org), which holds the blocked ip addresses:
 
 ```bash
 for i in 1 2 3 4 5 6
@@ -87,13 +85,13 @@ $> key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert
 
 ## prereq
 
-You need the Python library [Stem](https://stem.torproject.org/index.html) for the python scripts:
+You need [jq](https://stedolan.github.io/jq/) for _ipvX-rules.sh_,
+[Stem](https://stem.torproject.org/index.html) for the python scripts:
 
 ```bash
 cd /tmp
 git clone https://github.com/torproject/stem.git
 export PYTHONPATH=$PWD/stem
 ```
+and [gnuplot](http://www.gnuplot.info/) for  _*-stats.sh_.
 
-[gnuplot](http://www.gnuplot.info/) for the _-stats.sh_ scripts
-and [jq](https://stedolan.github.io/jq/) eg. for _get-authority-ips.sh_.

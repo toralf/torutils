@@ -15,7 +15,7 @@ function addCommon() {
   
   # ssh
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
-  iptables -A INPUT -p tcp --destination-port ${port:-22} -j ACCEPT
+  iptables -A INPUT -p tcp --dport ${port:-22} -j ACCEPT
   
   ## ratelimit ICMP echo
   iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 6/s -j ACCEPT
@@ -23,43 +23,51 @@ function addCommon() {
 }
 
 
-function __fill_list()  {
+function __fill_lists()  {
   # dig +short snowflake-01.torproject.net. A
   # curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a[0]'
   echo 193.187.88.42 45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.34 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118 |
   xargs -r -n 1 -P 20 ipset add -exist $trustlist
+
+  curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |
+  jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | sort | uniq -c | grep -v ' 1 ' |
+  xargs -r -n 1 | grep -F '.' |
+  xargs -r -n 1 -P 20 ipset add -exist $multilist
 }
 
 
 function addTor() {
   local blocklist=tor-ddos
+  local multilist=tor-multi
   local trustlist=tor-trust
 
   ipset create -exist $blocklist hash:ip timeout 1800
+  ipset create -exist $multilist hash:ip
   ipset create -exist $trustlist hash:ip
 
-  __fill_list & # # lazy fill to minimize restart time
+  __fill_lists & # lazy fill to minimize restart time
 
   for relay in $relays
   do
     read -r orip orport <<< $(tr ':' ' ' <<< $relay)
 
     # block SYN flood
-    iptables -t raw -A PREROUTING -p tcp --destination $orip --destination-port $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 6/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    iptables -t raw -A PREROUTING -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 6/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     iptables -t raw -A PREROUTING -p tcp -m set --match-set $blocklist src -j DROP
 
     # trust Tor people
-    iptables -A INPUT -p tcp --destination $orip --destination-port $orport -m set --match-set $trustlist src -j ACCEPT
+    iptables -A INPUT -p tcp --dst $orip --dport $orport -m set --match-set $trustlist src -j ACCEPT
 
     # block too much connections
-    iptables -A INPUT -p tcp --destination $orip --destination-port $orport -m connlimit --connlimit-mask 32 --connlimit-above 3 -j SET --add-set $blocklist src --exist
+    iptables -A INPUT -p tcp --dst $orip --dport $orport -m connlimit --connlimit-mask 32 --connlimit-above 3 -j SET --add-set $blocklist src --exist
     iptables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
   
     # ignore connection attempts
-    iptables -A INPUT -p tcp --destination $orip --destination-port $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 1 -j DROP
+    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 1 -m set ! --match-set $multilist src -j DROP
+    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 2 -j DROP
   
     # allow remaining
-    iptables -A INPUT -p tcp --destination $orip --destination-port $orport -j ACCEPT
+    iptables -A INPUT -p tcp --dst $orip --dport $orport -j ACCEPT
   done
 
   # allow already established connections
@@ -89,9 +97,9 @@ function addMisc() {
   local port
 
   port=$(crontab -l -u torproject | grep -m 1 -Po "\-\-port \d+" | cut -f2 -d ' ')
-  [[ -n "$port" ]] && iptables -A INPUT -p tcp --destination $addr --destination-port $port -j ACCEPT
+  [[ -n "$port" ]] && iptables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
   port=$(crontab -l -u tinderbox  | grep -m 1 -Po "\-\-port \d+" | cut -f2 -d ' ')
-  [[ -n "$port" ]] && iptables -A INPUT -p tcp --destination $addr --destination-port $port -j ACCEPT
+  [[ -n "$port" ]] && iptables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
 }
 
 
