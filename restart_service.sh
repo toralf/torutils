@@ -1,7 +1,7 @@
 #!/bin/bash
 #set -x
 
-# works under Gentoo Linxu and OpenRC
+# works under Gentoo Linux with OpenRC
 
 while :
 do
