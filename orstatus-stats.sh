@@ -43,6 +43,15 @@ if [[ -n $reason ]]; then
   awk '{ print $1 }' | sort -bn | uniq -c |
   awk '{ print $2, $1 }' > $tmpfile
 
+  echo
+  if [[ $(wc -l < $tmpfile) -gt 7 ]]; then
+    head -n 3 $tmpfile
+    echo '...'
+    tail -n 3 $tmpfile
+  else
+    cat $tmpfile
+  fi
+
   m=$(grep -hc "^$reason " $files)
   n=$(grep -h  "^$reason " $files | awk '{ print $2 }' | sort -u | wc -l)
 
