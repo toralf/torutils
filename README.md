@@ -1,11 +1,11 @@
 [![StandWithUkraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
 # torutils
-
 Few tools for a Tor relay.
 
 ## block DDoS traffic
 
+### rule set
 _ipvX-rules.sh_ blocks ip addresses DDoSing a Tor relay
 ([Torproject issue 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)).
 Currently about 100-600 addresses are blocked at
@@ -21,28 +21,52 @@ The rules for an inbound ip are:
 
 [Here're](./sysstat.svg) network statistics got with [sysstat](http://pagesperso-orange.fr/sebastien.godard/).
 
-The local (live) statistics of the working rules can be watched via:
-
+### start/stop
+The IPv4 and IPv6 rules are started separately:
 ```bash
-watch ipv4-rules.sh
+sudo ./ipv4-rules.sh start
+sudo ./ipv6-rules.sh start
 ```
-The script _ipset-stats.sh_ dumps or visualize the [ipset](https://ipset.netfilter.org), which holds the blocked ip addresses:
+After this Tor should be (re)started.
 
+Replace `start` with `stop` to remove the rules. This requires no restart of Tor.
+### monitoring
+The current settings of your firewall can be seen via:
+```bash
+sudo iptables -nv -L -t raw
+sudo iptables -nv -L -t filter
+```
+The script _ipset-stats.sh_ dumps and visualizes ipset data (default: blocked ips).
+Run it in regular intervalls and plot the results, eg. for 3 hours:
 ```bash
 for i in 1 2 3 4 5 6
 do
-  ipset-stats.sh -d > /tmp/ipset.$i.txt
+  sudo ./ipset-stats.sh -d > /tmp/ipset4.$i.txt
+  sudo ./ipset-stats.sh -D > /tmp/ipset6.$i.txt
   sleep 1800
 done
-ipset-stats.sh -p /tmp/ipset.?.txt
+sudo ./ipset-stats.sh -p /tmp/ipset4.?.txt
+sudo ./ipset-stats.sh -p /tmp/ipset6.?.txt
 ```
+### configuring
+You have to configure your relay(s) explicitely, eg. for IPv4 change line [122](ipv4-rules.sh#L122) of `ipv4-rules.sh`:
+```bash
+relays="<ip address>:<or port>"
+```
+Furthermore comment out the function calls `addMisc` (and mayy `addHetzner` too) few lines below -or- remove the not-used code lines entirely.
+For installation prerequisites please take a look at [Installation](#Installation).
 
-## info tools
-
-_info.py_ gives a summary of a Tor relay:
-
+## query Tor process via its API
+A configured control port in `torrc` is needed for the python tools to work, eg.:
 ```console
-$> info.py --ctrlport 9051
+ControlPort 127.0.0.1:9051
+ControlPort [::1]:9051
+```
+_info.py_ gives a summary of a Tor relay:
+```bash
+sudo ./info.py --address 127.0.0.1 --ctrlport 9051
+```
+```console
  0.4.8.0-alpha-dev   uptime: 2-08:25:40   flags: Fast, Guard, Running, Stable, V2Dir, Valid
 
 +------------------------------+-------+-------+
@@ -59,12 +83,11 @@ $> info.py --ctrlport 9051
 | Total                        |  8063 |  1713 |
 +------------------------------+-------+-------+
 ```
-
 For a monitoring of _exit_ connections use _ps.py_:
-
+```bash
+sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
+```
 ```console
-$> ps.py --ctrlport 9051
-
     port     # opened closed      max                ( "" ::1:9051, 8998 conns 0.28 sec )
      853     3                      3      1      1  (None)
     5222    42                     42                (Jabber)
@@ -73,25 +96,35 @@ $> ps.py --ctrlport 9051
     6667     4                      4                (IRC)
     7777     3                      3                (None)
 ```
-
 _orstatus.py_ logs the reasons of circuit closing events, _orstatus-stats.sh_ made stats of its output.
-
-_key-expires.py_ returns the seconds till expiration of the mid-term signing key:
-
-```console
-$> key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert
+Run it in a terminal, (set _PYTHONPATH_ before) eg.:
+```bash
+sudo ./orstatus.py --ctrlport 9051 --address ::1 >> /tmp/orstatus.9051
+```
+after a certain time press Ctrl-C and take a look, eg. at the distribution of _IOERROR_:
+```bash
+sudo ./orstatus-stats.sh /tmp/orstatus.9051
+```
+_key-expires.py_ returns the time in seconds when the mid-term signing key will expire, eg.:
+```bash
+sudo ./key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert
 7286915
+
+expr 7286915 / 86400
+84
 ```
 
-## prereq
-
-You need [jq](https://stedolan.github.io/jq/) for _ipvX-rules.sh_,
-[Stem](https://stem.torproject.org/index.html) for the python scripts:
-
+## Installation
+You might have to install [iptables](https://www.netfilter.org/projects/iptables/) (which should install [ipset](https://ipset.netfilter.org) too), eg.:
 ```bash
-cd /tmp
+sudo apt-get install iptables 
+```
+for Debian installer systems.
+[jq](https://stedolan.github.io/jq/) is used too in _ipvX-rules.sh_ and is usually available by your package manager.
+The [Stem](https://stem.torproject.org/index.html) library (for the python scripts) however might have been installed manually:
+```bash
+cd <your favourite path>
 git clone https://github.com/torproject/stem.git
 export PYTHONPATH=$PWD/stem
 ```
-and [gnuplot](http://www.gnuplot.info/) for  _*-stats.sh_.
-
+[gnuplot](http://www.gnuplot.info/) is used by the  _*-stats.sh_ scripts.
