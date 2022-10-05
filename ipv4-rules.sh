@@ -47,36 +47,42 @@ function addTor() {
 
   __fill_lists & # lazy fill to minimize restart time
 
+  #Establish the below iptables rules for each Tor relay (IP and port) combination defined in: 'relays="65.21.94.13:9001 65.21.94.13:443"'
   for relay in $relays
   do
     read -r orip orport <<< $(tr ':' ' ' <<< $relay)
 
-    # block SYN flood
+    # Drop SYN flood packets when:
+    # The initial 6 requests (--hashlimit-burst 6) are reached within 10 seconds (--hashlimit-above 6/minute).
+    # Further, drop all requests and only allow one request to be accepted per each following 10 second period (--hashlimit-above 6/minute).
+    # If no further requests have been made and  ~16 hours (--hashlimit-htable-expire 60000) have passed, then reset the counts to 0 and allow all traffic. Another words, maintain packet counts for ~16 hours before seeing no traffic and reseting the counters to 0 and allowing all traffic.
+    # For more information, decent tutorial: https://poorlydocumented.com/2017/08/understanding-iptables-hashlimit-module/ 
     iptables -t raw -A PREROUTING -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 6/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     iptables -t raw -A PREROUTING -p tcp -m set --match-set $blocklist src -j DROP
 
-    # trust Tor people
+    # Accept all traffic for the Tor authorities set in $trustlist
     iptables -A INPUT -p tcp --dst $orip --dport $orport -m set --match-set $trustlist src -j ACCEPT
 
-    # block too much connections
+    # Drop connections when they exceed more than 3 concurrent connections (--connlimit-above 3) per IP address (--connlimit-mask 32)
     iptables -A INPUT -p tcp --dst $orip --dport $orport -m connlimit --connlimit-mask 32 --connlimit-above 3 -j SET --add-set $blocklist src --exist
     iptables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
   
-    # ignore connection attempts
+    # Drop connection attempts per IP (--connlimit-mask 32) when they exceed more than 1 concurrent connection (--connlimit-above 1) and are NOT on the list of 2 Tor relays per IP ($multiset)
+    # OR Drop connection attemps per IP (--connlimit-mask 32) when they exceed more than 2 concurrent connections 
     iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 1 -m set ! --match-set $multilist src -j DROP
     iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 2 -j DROP
   
-    # allow remaining
+    # Accept remaining connections
     iptables -A INPUT -p tcp --dst $orip --dport $orport -j ACCEPT
   done
 
-  # allow already established connections
+  # Accept already established connections
   iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   iptables -A INPUT -m conntrack --ctstate INVALID             -j DROP
 }
 
 
-# only useful for Hetzner customers: https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
+# Comment out when not a Hetzner customers: https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
 function addHetzner() {
   local monlist=hetzner-monlist
 
