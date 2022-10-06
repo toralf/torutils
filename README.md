@@ -75,6 +75,8 @@ or run the script without a parameter, eg. for IPv4:
 sudo ./ipv4-rules.sh
 ```
 
+Here are example outputs for [IPv4](./iptables-L.txt) and [IPv6](./ip6tables-L.txt) respectively.
+
 The script _ipset-stats.sh_ dumps and visualizes ipset data (default: the ipset of the blocked ips).
 In the example below it is run half-hourly for 3 hours. Afterwards the results are plotted:
 
