@@ -30,7 +30,7 @@ function __fill_lists()  {
   xargs -r -n 1 -P 20 ipset add -exist $trustlist
 
   curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |
-  jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | sort | uniq -c | grep -v ' 1 ' |
+  jq -cr '.relays[].a' | tr '][",' ' ' | sort | uniq -c | grep -v ' 1 ' |
   xargs -r -n 1 | grep -F '.' |
   xargs -r -n 1 -P 20 ipset add -exist $multilist
 }
@@ -51,32 +51,33 @@ function addTor() {
   do
     read -r orip orport <<< $(tr ':' ' ' <<< $relay)
 
-    # block SYN flood
+    # rule 2
     iptables -t raw -A PREROUTING -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 6/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     iptables -t raw -A PREROUTING -p tcp -m set --match-set $blocklist src -j DROP
 
-    # trust Tor people
+    # rule 1
     iptables -A INPUT -p tcp --dst $orip --dport $orport -m set --match-set $trustlist src -j ACCEPT
 
-    # block too much connections
+    # rule 3
     iptables -A INPUT -p tcp --dst $orip --dport $orport -m connlimit --connlimit-mask 32 --connlimit-above 3 -j SET --add-set $blocklist src --exist
     iptables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
   
-    # ignore connection attempts
+    # rule 4
     iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 1 -m set ! --match-set $multilist src -j DROP
+    
+    # rule 5
     iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 2 -j DROP
   
-    # allow remaining
+    # accept remaining connections
     iptables -A INPUT -p tcp --dst $orip --dport $orport -j ACCEPT
   done
 
-  # allow already established connections
+  # this traffic is almost initiated by the local Tor
   iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   iptables -A INPUT -m conntrack --ctstate INVALID             -j DROP
 }
 
 
-# only useful for Hetzner customers: https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
 function addHetzner() {
   local monlist=hetzner-monlist
 
@@ -91,7 +92,6 @@ function addHetzner() {
 }
 
 
-# only valid for zwiebeltoralf.de
 function addMisc() {
   local addr=$(ip -4 address | awk ' /inet .* scope global enp8s0/ { print $2 }' | cut -f1 -d'/')
   local port

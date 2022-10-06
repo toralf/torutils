@@ -53,32 +53,33 @@ function addTor() {
   do
     read -r orip orport <<< $(sed -e 's,]:, ,' <<< $relay | tr '[' ' ')
 
-    # block SYN flood
+    # rule 2
     ip6tables -t raw -A PREROUTING -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 6/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     ip6tables -t raw -A PREROUTING -p tcp -m set --match-set $blocklist src -j DROP
 
-    # trust Tor people
+    # rule 1
     ip6tables -A INPUT -p tcp --dst $orip --dport $orport -m set --match-set $trustlist src -j ACCEPT
 
-    # block too much connections
+    # rule 3
     ip6tables -A INPUT -p tcp --dst $orip --dport $orport -m connlimit --connlimit-mask 128 --connlimit-above 3 -j SET --add-set $blocklist src --exist
     ip6tables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
   
-    # ignore connection attempts
+    # rule 4
     ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 1 -m set ! --match-set $multilist src -j DROP
+    
+    # rule 5
     ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 2 -j DROP
   
-    # allow remaining
+    # accept remaining connections
     ip6tables -A INPUT -p tcp --dst $orip --dport $orport -j ACCEPT
   done
 
-  # allow already established connections
+  # this traffic is almost initiated by the local Tor
   ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   ip6tables -A INPUT -m conntrack --ctstate INVALID             -j DROP
 }
 
 
-# only useful for Hetzner customers: https://wiki.hetzner.de/index.php/System_Monitor_(SysMon)
 function addHetzner() {
   local monlist=hetzner-monlist6
 
