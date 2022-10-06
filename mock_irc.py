@@ -38,7 +38,7 @@ def main():
       logging.info(clienthost + ':' + str(clientport) + ' ' + resp)
     except KeyboardInterrupt:
       sys.exit(1)
-    except:
+    except Exception:
       continue
 
 

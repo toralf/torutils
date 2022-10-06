@@ -17,7 +17,7 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
 
 files=""
 reason=""
-for opt in $*
+for opt in "$@"
 do
   if [[ -e $opt ]]; then
     files+=" $opt"
