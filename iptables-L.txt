@@ -1,42 +1,43 @@
-Thu, 06 Oct 2022 22:04:32 +0200
+Sun, 09 Oct 2022 20:34:05 +0200
 
-Chain PREROUTING (policy ACCEPT 5713M packets, 4517G bytes)
+Chain PREROUTING (policy ACCEPT 19G packets, 15T bytes)
  pkts bytes target     prot opt in     out     source               destination         
- 424K   25M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 limit: above 6/min burst 6 mode srcip add-set tor-ddos src exist
-4034K  331M DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set tor-ddos src
- 5410  323K SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 limit: above 6/min burst 6 mode srcip add-set tor-ddos src exist
- 5410  323K DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set tor-ddos src
+2014K  121M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 limit: above 6/min burst 6 mode srcip add-set tor-ddos src exist
+  15M 1190M DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set tor-ddos src
+16301  978K SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 limit: above 6/min burst 6 mode srcip add-set tor-ddos src exist
+16301  978K DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set tor-ddos src
 
-Chain OUTPUT (policy ACCEPT 5230M packets, 4870G bytes)
+Chain OUTPUT (policy ACCEPT 18G packets, 16T bytes)
  pkts bytes target     prot opt in     out     source               destination         
 
-Chain INPUT (policy DROP 39835 packets, 2202K bytes)
+Chain INPUT (policy DROP 143K packets, 7390K bytes)
  pkts bytes target     prot opt in     out     source               destination         
-50660   13M ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0            /* Wed, 05 Oct 2022 16:33:33 +0200 */
-69662   33M DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp flags:!0x17/0x02 state NEW
-47136 4025K ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:535
-62610 2258K ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8 limit: avg 6/sec burst 5
-  304 11106 DROP       icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8
-20345 5043K ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 match-set tor-trust src
-   35  9532 SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 #conn src/32 > 3 add-set tor-ddos src exist
-  116 14068 DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set tor-ddos src
- 301K   18M DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 #conn src/32 > 1 ! match-set tor-multi src
-  421 25172 DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 #conn src/32 > 2
-1738M 1040G ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001
-30028 8450K ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 match-set tor-trust src
-   59  5126 SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 #conn src/32 > 3 add-set tor-ddos src exist
-   59  5126 DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set tor-ddos src
- 283K   16M DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 #conn src/32 > 1 ! match-set tor-multi src
-  397 23820 DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 #conn src/32 > 2
-1577M  965G ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443
-2397M 2512G ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED
-13233 8478K DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate INVALID
+ 163K   43M ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0            /* Wed, 05 Oct 2022 16:33:33 +0200 */
+ 356K  117M DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp flags:!0x17/0x02 state NEW
+ 121K 8768K ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:535
+ 204K 7410K ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8 limit: avg 6/sec burst 5
+  307 11202 DROP       icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8
+ 122K   28M ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 match-set tor-trust src
+   41  9876 SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 #conn src/32 > 3 add-set tor-ddos src exist
+  266 22276 DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set tor-ddos src
+ 876K   51M DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 #conn src/32 > 1 ! match-set tor-multi src
+ 1407 84204 DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 #conn src/32 > 2
+5788M 3519G ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001
+78819   22M ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 match-set tor-trust src
+  207 15263 SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 #conn src/32 > 3 add-set tor-ddos src exist
+  208 15323 DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set tor-ddos src
+1074K   63M DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 #conn src/32 > 1 ! match-set tor-multi src
+ 2167  130K DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 #conn src/32 > 2
+5247M 3216G ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443
+8088M 8376G ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED
+43917   26M DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate INVALID
     0     0 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set hetzner-monlist src
     0     0 ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.49          tcp dpt:31556
-    4   240 ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.49          tcp dpt:31560
+   29  1740 ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.49          tcp dpt:31560
 
 Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
  pkts bytes target     prot opt in     out     source               destination         
 
-Chain OUTPUT (policy ACCEPT 5230M packets, 4870G bytes)
+Chain OUTPUT (policy ACCEPT 18G packets, 16T bytes)
  pkts bytes target     prot opt in     out     source               destination         
+

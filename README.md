@@ -1,18 +1,17 @@
 [![StandWithUkraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
-# torutils
+# Torutils
 
 Few tools for a Tor relay.
 
-## block DDoS traffic
+## Block DDoS Traffic
 
-### rule set
+### Goal
 
-_ipvX-rules.sh_ blocks ip addresses DDoSing a Tor relay
-([Torproject issue 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)).
-Currently a 3-digit-number of addresses are blocked at
-[these](https://metrics.torproject.org/rs.html#search/toralf) 2 relays (each serving about 10K connections).
-
+To reduce the DDoS impact at TCP/IP level for a Tor relay
+use [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) respectively.
+Currently a 3-digit-number of ips gets blocked at
+[these](https://metrics.torproject.org/rs.html#search/toralf) 2 relays, each serving about 10K connections.
 The rules for an inbound ip are:
 
 1. trust Tor authorities
@@ -21,64 +20,44 @@ The rules for an inbound ip are:
 1. ignore a connection attempt from an ip hosting < 2 relays if 1 inbound connection is already established
 1. ignore a connection attempt if 2 inbound connections are already established
 
-[Here're](./sysstat.svg) few metrics to show the effect (data collected with [sysstat](http://pagesperso-orange.fr/sebastien.godard/)).
+[Here're](./sysstat.svg) metrics to show the effect (data collected with [sysstat](http://pagesperso-orange.fr/sebastien.godard/)).
+More details might be found in Issue [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636) and Issue  [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393).
 
-### installation
-You've to install [iptables](https://www.netfilter.org/projects/iptables/) (which should install [ipset](https://ipset.netfilter.org) too), eg.:
+All examples below are for the IPv4 case. For IPv6 replace `4` with `6` in `ipv4-rules.sh`.
 
-```bash
-sudo apt-get install iptables
-```
-
-for Debian installer systems.
-Furthermore, [jq](https://stedolan.github.io/jq/) is needed by the _ipvX-rules.sh_ scripts and [gnuplot](http://www.gnuplot.info/) to plot histograms by the _\*-stats.sh_ scripts.
-
-Configure your relay(s) explicitly, eg. in `ipv4-rules.sh` line [122](ipv4-rules.sh#L122) for IPv4:
+### Quick Start
 
 ```bash
-relays="<ip address>:<or port>"
-```
-If your hoster is not Hetzner or you didn't use their monitoring then delete the code for `addHetzner()`.
-
-If you have additional network services, then open their inbound ports in the function `addMisc()` too
--or- remove `addMisc()` and simply set the default policy for the chain `INPUT` to `ACCEPT` in function `addCommon()`:
-
-```bash
-iptables -P INPUT ACCEPT
-```
-
-
-### start/stop
-
-The IPv4 and IPv6 rules have to be started separately:
-
-```bash
+wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
+chmod +x ./ipv4-rules.sh
 sudo ./ipv4-rules.sh start
-sudo ./ipv6-rules.sh start
 ```
 
-Tor should be started after this.
-To remove the rules you've to replace `start` with `stop`. This does not need a restart of Tor.
-
-### monitoring
-
-The current settings of your firewall can be seen via (use _ip6tables_ for the IPv6 variant):
-
-```bash
-sudo iptables -nv -L -t raw
-sudo iptables -nv -L -t filter
-```
-
-or run the script without a parameter, eg. for IPv4:
+Then (re-)start Tor.
+The current settings of your firewall are printed by:
 
 ```bash
 sudo ./ipv4-rules.sh
 ```
 
-Here are example outputs for [IPv4](./iptables-L.txt) and [IPv6](./ip6tables-L.txt) respectively.
+They should look similar to these [IPv4](./iptables-L.txt) and [IPv6](./ip6tables-L.txt) examples.
+The packages [iptables](https://www.netfilter.org/projects/iptables/) and [jq](https://stedolan.github.io/jq/) are required,
+eg. for Debian run:
 
-The script _ipset-stats.sh_ dumps and visualizes ipset data (default: the ipset of the blocked ips).
-In the example below it is run half-hourly for 3 hours. Afterwards the results are plotted:
+```bash
+sudo apt-get install iptables jq
+```
+### Stop
+To reset the local firewall entirely, run:
+```bash
+sudo ./ipv4-rules.sh stop
+```
+
+### Monitoring
+
+The script _ipset-stats.sh_ dumps and visualizes the content of the used and so-called [ipsets](https://ipset.netfilter.org).
+In the example below the blocked ips are dumped half-hourly over 3 hours.
+Afterwards their distribution is plotted:
 
 ```bash
 for i in 1 2 3 4 5 6
@@ -87,11 +66,41 @@ do
   sudo ./ipset-stats.sh -D > /tmp/ipset6.$i.txt   # dump content of IPv6 ipset "tor-ddos6"
   sleep 1800
 done
-sudo ./ipset-stats.sh -p /tmp/ipset4.?.txt  # plot histogram from input data
-sudo ./ipset-stats.sh -p /tmp/ipset6.?.txt  # "
+sudo ./ipset-stats.sh -p /tmp/ipset4.?.txt  # plot histogram from IPv4 data set
+sudo ./ipset-stats.sh -p /tmp/ipset6.?.txt  # "                   IPv6 "
 ```
 
-## query Tor process via its API
+The package [gnuplot](http://www.gnuplot.info/) is needed to plot graphs.
+
+### Detailed Installation and Configuration
+
+If Tor is behind a NAT, listens at another ip or if 2 Tor services do run at the same ip, then:
+1. specify the Tor ORPort(s) as parameter/s, eg.
+    ```bash
+    sudo ./ipv4-rules.sh start 127.0.0.1:443 10.20.30.4:9001
+    ```
+1. -or- configure them, i.e. for IPv4 in line [137](ipv4-rules.sh#L137):
+    ```bash
+    relays=${*:-"0.0.0.0:443"}
+    ```
+
+For additional local running services, either
+1. set them before you start the script, eg.:
+    ```bash
+    export ADD_LOCAL_SERVICES="10.20.30.40:25 10.20.30.41:80"
+    export ADD_LOCAL_SERVICES6="[dead:beef]:23"
+    ```
+1. -or- configure them, i.e. for IPv4 in line [81](ipv4-rules.sh#L81)
+1. -or- change the default policy, i.e. for IPv4 in line [5](ipv4-rules.sh#L5):
+    ```bash
+    iptables -P INPUT ACCEPT
+    ```
+
+If you do not use the [Hetzner monitoring](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/), then
+1. ignore the firewall rule
+1. -or- remove the `addHetzner()` code, at least line [140](ipv4-rules.sh#L140)
+
+## query Tor via its API
 
 A configured control port in `torrc` is needed to query the Tor process over its API, eg.:
 
@@ -100,6 +109,16 @@ ControlPort 127.0.0.1:9051
 ControlPort [::1]:9051
 ```
 
+The python library [Stem](https://stem.torproject.org/index.html) is mandatory.
+Often it has to be installed manually:
+
+```bash
+cd <your favourite path>
+git clone https://github.com/torproject/stem.git
+export PYTHONPATH=$PWD/stem
+```
+
+The package [gnuplot](http://www.gnuplot.info/) is needed if graphs shall be plotted.
 _info.py_ gives a summary of a Tor relay:
 
 ```bash
@@ -140,8 +159,7 @@ sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
     7777     3                      3                (None)
 ```
 
-_orstatus.py_ logs the reasons of circuit closing events, _orstatus-stats.sh_ made stats of its output.
-Run it in a terminal, (set _PYTHONPATH_ before) eg.:
+_orstatus.py_ logs the reasons of circuit closing events, _orstatus-stats.sh_ made stats of its output, eg.:
 
 ```bash
 sudo ./orstatus.py --ctrlport 9051 --address ::1 >> /tmp/orstatus.9051
@@ -166,20 +184,10 @@ _key-expires.py_ returns the time in seconds when the mid-term signing key will 
 sudo ./key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert
 7286915
 ```
-which are about 84 days (rounded to nearest lower integer), eg.:
+
+, this is in days (rounded to an integer):
+
 ```bash
 expr 7286915 / 24 / 3600
 84
 ```
-
-### Installation
-
-The [Stem](https://stem.torproject.org/index.html) library (for the python scripts) is needed and often have to be installed manually:
-
-```bash
-cd <your favourite path>
-git clone https://github.com/torproject/stem.git
-export PYTHONPATH=$PWD/stem
-```
-
-Furthermore install [gnuplot](http://www.gnuplot.info/).

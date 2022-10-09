@@ -1,42 +1,43 @@
-Thu, 06 Oct 2022 22:04:32 +0200
+Sun, 09 Oct 2022 20:34:11 +0200
 
-Chain PREROUTING (policy ACCEPT 1132M packets, 1129G bytes)
+Chain PREROUTING (policy ACCEPT 4002M packets, 4029G bytes)
  pkts bytes target     prot opt in     out     source               destination         
-   79  5932 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 limit: above 6/min burst 6 mode srcip add-set tor-ddos6 src exist
-  986  135K DROP       tcp      *      *       ::/0                 ::/0                 match-set tor-ddos6 src
-    6   468 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 limit: above 6/min burst 6 mode srcip add-set tor-ddos6 src exist
-    6   468 DROP       tcp      *      *       ::/0                 ::/0                 match-set tor-ddos6 src
+ 1878  157K SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 limit: above 6/min burst 6 mode srcip add-set tor-ddos6 src exist
+21624 2094K DROP       tcp      *      *       ::/0                 ::/0                 match-set tor-ddos6 src
+   20  1572 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 limit: above 6/min burst 6 mode srcip add-set tor-ddos6 src exist
+   20  1572 DROP       tcp      *      *       ::/0                 ::/0                 match-set tor-ddos6 src
 
-Chain OUTPUT (policy ACCEPT 961M packets, 593G bytes)
+Chain OUTPUT (policy ACCEPT 3425M packets, 2214G bytes)
  pkts bytes target     prot opt in     out     source               destination         
 
-Chain INPUT (policy DROP 117 packets, 8800 bytes)
+Chain INPUT (policy DROP 217 packets, 15408 bytes)
  pkts bytes target     prot opt in     out     source               destination         
-7778K 1507M ACCEPT     all      lo     *       ::/0                 ::/0                 /* Wed, 05 Oct 2022 16:33:33 +0200 */
+  23M 4775M ACCEPT     all      lo     *       ::/0                 ::/0                 /* Wed, 05 Oct 2022 16:33:33 +0200 */
     0     0 ACCEPT     udp      *      *       fe80::/10            ff02::1             
- 2259 1503K DROP       tcp      *      *       ::/0                 ::/0                 tcp flags:!0x17/0x02 state NEW
-  314 19468 ACCEPT     tcp      *      *       ::/0                 ::/0                 tcp dpt:535
- 1587  156K ACCEPT     ipv6-icmp    *      *       ::/0                 ::/0                 ipv6-icmptype 128 limit: avg 6/sec burst 5
+ 6981 4569K DROP       tcp      *      *       ::/0                 ::/0                 tcp flags:!0x17/0x02 state NEW
+ 1062 65844 ACCEPT     tcp      *      *       ::/0                 ::/0                 tcp dpt:535
+ 5498  543K ACCEPT     ipv6-icmp    *      *       ::/0                 ::/0                 ipv6-icmptype 128 limit: avg 6/sec burst 5
     0     0 DROP       ipv6-icmp    *      *       ::/0                 ::/0                 ipv6-icmptype 128
- 6791 5993K ACCEPT     ipv6-icmp    *      *       ::/0                 ::/0                
-12568 4513K ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 match-set tor-trust6 src
-    3   232 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 #conn src/128 > 3 add-set tor-ddos6 src exist
-    3   232 DROP       tcp      *      *       ::/0                 ::/0                 match-set tor-ddos6 src
- 1070 83120 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 #conn src/128 > 1 ! match-set tor-multi6 src
-   73  5840 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 #conn src/128 > 2
- 252M  245G ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001
- 7909 2700K ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 match-set tor-trust6 src
-    3   224 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 #conn src/128 > 3 add-set tor-ddos6 src exist
-    3   224 DROP       tcp      *      *       ::/0                 ::/0                 match-set tor-ddos6 src
-  841 64748 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 #conn src/128 > 1 ! match-set tor-multi6 src
-   38  3040 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 #conn src/128 > 2
- 170M  160G ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443
- 702M  722G ACCEPT     all      *      *       ::/0                 ::/0                 ctstate RELATED,ESTABLISHED
- 3601 4260K DROP       all      *      *       ::/0                 ::/0                 ctstate INVALID
+23724   22M ACCEPT     ipv6-icmp    *      *       ::/0                 ::/0                
+31924   11M ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 match-set tor-trust6 src
+    6   472 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 #conn src/128 > 3 add-set tor-ddos6 src exist
+    6   472 DROP       tcp      *      *       ::/0                 ::/0                 match-set tor-ddos6 src
+ 3822  296K DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 #conn src/128 > 1 ! match-set tor-multi6 src
+  173 13840 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 #conn src/128 > 2
+ 818M  782G ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001
+29747   11M ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 match-set tor-trust6 src
+    6   464 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 #conn src/128 > 3 add-set tor-ddos6 src exist
+    6   464 DROP       tcp      *      *       ::/0                 ::/0                 match-set tor-ddos6 src
+ 3479  267K DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 #conn src/128 > 1 ! match-set tor-multi6 src
+  160 12800 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 #conn src/128 > 2
+ 624M  580G ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443
+2536M 2662G ACCEPT     all      *      *       ::/0                 ::/0                 ctstate RELATED,ESTABLISHED
+ 9207   11M DROP       all      *      *       ::/0                 ::/0                 ctstate INVALID
     0     0 ACCEPT     all      *      *       ::/0                 ::/0                 match-set hetzner-monlist6 src
 
 Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
  pkts bytes target     prot opt in     out     source               destination         
 
-Chain OUTPUT (policy ACCEPT 961M packets, 593G bytes)
+Chain OUTPUT (policy ACCEPT 3425M packets, 2214G bytes)
  pkts bytes target     prot opt in     out     source               destination         
+
