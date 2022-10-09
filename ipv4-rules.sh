@@ -72,9 +72,18 @@ function addTor() {
     iptables -A INPUT -p tcp --dst $orip --dport $orport -j ACCEPT
   done
 
-  # this traffic is almost initiated by the local Tor
+  # this traffic is initiated by the local services
   iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   iptables -A INPUT -m conntrack --ctstate INVALID             -j DROP
+}
+
+
+function addLocalServices() {
+  for service in $ADD_LOCAL_SERVICES
+  do
+    read -r addr port <<< $(tr ':' ' ' <<< $service)
+    iptables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
+  done
 }
 
 
@@ -82,7 +91,6 @@ function addHetzner() {
   local monlist=hetzner-monlist
 
   ipset create -exist $monlist hash:ip
-
   # getent ahostsv4 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u | xargs
   for i in 188.40.24.211 213.133.113.82 213.133.113.83 213.133.113.84 213.133.113.86
   do
@@ -92,25 +100,29 @@ function addHetzner() {
 }
 
 
-function addMisc() {
-  local addr=$(ip -4 address | awk ' /inet .* scope global enp8s0/ { print $2 }' | cut -f1 -d'/')
-  local port
+function clearAll() {
+  iptables -t raw -P PREROUTING ACCEPT
+  iptables        -P INPUT      ACCEPT
+  iptables        -P OUTPUT     ACCEPT
 
-  port=$(crontab -l -u torproject | grep -m 1 -Po "\-\-port \d+" | cut -f2 -d ' ')
-  [[ -n "$port" ]] && iptables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
-  port=$(crontab -l -u tinderbox  | grep -m 1 -Po "\-\-port \d+" | cut -f2 -d ' ')
-  [[ -n "$port" ]] && iptables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
+  for table in raw mangle nat filter
+  do
+    if iptables -F -t $table 2>/dev/null; then
+      iptables -X -t $table
+      iptables -Z -t $table
+    fi
+  done
 }
 
 
-function clearAll() {
-  iptables -P INPUT   ACCEPT
-
-  for table in filter raw
+function printFirewall()  {
+  date -R
+  echo
+  for table in raw mangle nat filter
   do
-    iptables -F -t $table
-    iptables -X -t $table
-    iptables -Z -t $table
+    if iptables -nv -L -t $table 2>/dev/null; then
+      echo
+    fi
   done
 }
 
@@ -118,20 +130,18 @@ function clearAll() {
 #######################################################################
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-# Tor, this should match ORPort, see https://github.com/toralf/torutils/issues/1
-relays="65.21.94.13:9001 65.21.94.13:443"
-
 case $1 in
-  start)  addCommon
+  start)  clearAll
+          addCommon
+          shift
+          relays=${*:-"0.0.0.0:443"}
           addTor
+          addLocalServices
           addHetzner
-          addMisc
           ;;
   stop)   clearAll
           ;;
-  *)      iptables -nv -L -t raw || echo -e "\n\n+ + + Warning: you kernel lacks CONFIG_IP_NF_RAW=y\n\n"
-          echo
-          iptables -nv -L
+  *)      printFirewall
           ;;
 esac
 

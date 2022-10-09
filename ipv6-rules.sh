@@ -74,9 +74,18 @@ function addTor() {
     ip6tables -A INPUT -p tcp --dst $orip --dport $orport -j ACCEPT
   done
 
-  # this traffic is almost initiated by the local Tor
+  # this traffic is initiated by the local services
   ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   ip6tables -A INPUT -m conntrack --ctstate INVALID             -j DROP
+}
+
+
+function addLocalServices() {
+  for service in $ADD_LOCAL_SERVICES6
+  do
+    read -r addr port <<< $(sed -e 's,]:, ,' <<< $service | tr '[' ' ')
+    ip6tables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
+  done
 }
 
 
@@ -84,7 +93,6 @@ function addHetzner() {
   local monlist=hetzner-monlist6
 
   ipset create -exist $monlist hash:ip family inet6
-
   # getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u | xargs
   for i in 2a01:4f8:0:a101::5:1 2a01:4f8:0:a101::6:1 2a01:4f8:0:a101::6:2 2a01:4f8:0:a101::6:3 2a01:4f8:0:a112::c:1
   do
@@ -95,13 +103,28 @@ function addHetzner() {
 
 
 function clearAll() {
-  ip6tables -P INPUT   ACCEPT
+  ip6tables -t raw -P PREROUTING ACCEPT
+  ip6tables        -P INPUT      ACCEPT
+  ip6tables        -P OUTPUT     ACCEPT
 
-  for table in filter raw
+  for table in raw mangle nat filter
   do
-    ip6tables -F -t $table
-    ip6tables -X -t $table
-    ip6tables -Z -t $table
+    if ip6tables -F -t $table 2>/dev/null; then
+      ip6tables -X -t $table
+      ip6tables -Z -t $table
+    fi
+  done
+}
+
+
+function printFirewall()  {
+  date -R
+  echo
+  for table in raw mangle nat filter
+  do
+    if ip6tables -nv -L -t $table 2>/dev/null; then
+      echo
+    fi
   done
 }
 
@@ -109,19 +132,18 @@ function clearAll() {
 #######################################################################
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-# Tor, this should match ORPort, see https://github.com/toralf/torutils/issues/1
-relays="[2a01:4f9:3b:468e::13]:9001 [2a01:4f9:3b:468e::13]:443"
-
 case $1 in
-  start)  addCommon
+  start)  clearAll
+          addCommon
+          shift
+          relays=${*:-"[::]:443"}
           addTor
+          addLocalServices
           addHetzner
           ;;
   stop)   clearAll
           ;;
-  *)      ip6tables -nv -L -t raw || echo -e "\n\n+ + + Warning: you kernel lacks CONFIG_IP6_NF_RAW=y\n\n"
-          echo
-          ip6tables -nv -L
+  *)      printFirewall
           ;;
 esac
 
