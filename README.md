@@ -79,7 +79,7 @@ If Tor is behind a NAT, listens at another ip or if 2 Tor services do run at the
     ```bash
     sudo ./ipv4-rules.sh start 127.0.0.1:443 10.20.30.4:9001
     ```
-1. -or- configure them, i.e. for IPv4 in line [137](ipv4-rules.sh#L137):
+1. -or- configure them, i.e. for IPv4 in line [142](ipv4-rules.sh#L142):
     ```bash
     relays=${*:-"0.0.0.0:443"}
     ```
@@ -90,8 +90,8 @@ For additional local running services, either
     export ADD_LOCAL_SERVICES="10.20.30.40:25 10.20.30.41:80"
     export ADD_LOCAL_SERVICES6="[dead:beef]:23"
     ```
-1. -or- configure them, i.e. for IPv4 in line [81](ipv4-rules.sh#L81)
-1. -or- change the default policy, i.e. for IPv4 in line [5](ipv4-rules.sh#L5):
+1. -or- configure them directly, i.e. for IPv4 in line [81](ipv4-rules.sh#L81)
+1. -or- change the default policy, i.e. for IPv4 in line [7](ipv4-rules.sh#L7):
     ```bash
     iptables -P INPUT ACCEPT
     ```
