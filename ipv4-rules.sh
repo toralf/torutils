@@ -108,17 +108,20 @@ function addHetzner() {
 
 
 function clearAll() {
-  iptables -t raw -P PREROUTING ACCEPT
+  set +e
+
+  iptables -t raw -P PREROUTING ACCEPT 2>/dev/null
   iptables        -P INPUT      ACCEPT
   iptables        -P OUTPUT     ACCEPT
 
   for table in raw mangle nat filter
   do
-    if iptables -F -t $table 2>/dev/null; then
-      iptables -X -t $table
-      iptables -Z -t $table
-    fi
+    iptables -F -t $table 2>/dev/null
+    iptables -X -t $table 2>/dev/null
+    iptables -Z -t $table 2>/dev/null
   done
+
+  set -e
 }
 
 

@@ -110,17 +110,20 @@ function addHetzner() {
 
 
 function clearAll() {
-  ip6tables -t raw -P PREROUTING ACCEPT
+  set +e
+
+  ip6tables -t raw -P PREROUTING ACCEPT 2>/dev/null
   ip6tables        -P INPUT      ACCEPT
   ip6tables        -P OUTPUT     ACCEPT
 
   for table in raw mangle nat filter
   do
-    if ip6tables -F -t $table 2>/dev/null; then
-      ip6tables -X -t $table
-      ip6tables -Z -t $table
-    fi
+    ip6tables -F -t $table 2>/dev/null
+    ip6tables -X -t $table 2>/dev/null
+    ip6tables -Z -t $table 2>/dev/null
   done
+
+  set -e
 }
 
 
