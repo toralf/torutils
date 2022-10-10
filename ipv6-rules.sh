@@ -53,19 +53,12 @@ function addTor() {
   do
     read -r orip orport <<< $(sed -e 's,]:, ,' <<< $relay | tr '[' ' ')
 
-    # +++ table raw +++
-
-    # rule 1
-    ip6tables -t raw -A PREROUTING -p tcp --dst $orip --dport $orport -m set --match-set $trustlist src -j ACCEPT
-
-    # rule 2
-    ip6tables -t raw -A PREROUTING -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 6/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
-    ip6tables -t raw -A PREROUTING -p tcp -m set --match-set $blocklist src -j DROP
-
-    # +++ table filter +++
-
     # rule 1
     ip6tables -A INPUT -p tcp --dst $orip --dport $orport -m set --match-set $trustlist src -j ACCEPT
+
+    # rule 2
+    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 6/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    ip6tables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
 
     # rule 3
     ip6tables -A INPUT -p tcp --dst $orip --dport $orport -m connlimit --connlimit-mask 128 --connlimit-above 3 -j SET --add-set $blocklist src --exist
@@ -132,6 +125,7 @@ function printFirewall()  {
   echo
   for table in raw mangle nat filter
   do
+    echo "table: $table"
     if ip6tables -nv -L -t $table 2>/dev/null; then
       echo
     fi
@@ -145,11 +139,11 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 case $1 in
   start)  clearAll
           addCommon
+          addHetzner
           shift
           relays=${*:-"[::]:443"}
           addTor
           addLocalServices
-          addHetzner
           ;;
   stop)   clearAll
           ;;
