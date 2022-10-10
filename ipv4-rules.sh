@@ -51,12 +51,16 @@ function addTor() {
   do
     read -r orip orport <<< $(tr ':' ' ' <<< $relay)
 
+    # +++ table raw  +++
+
     # rule 1
     iptables -t raw -A PREROUTING -p tcp --dst $orip --dport $orport -m set --match-set $trustlist src -j ACCEPT
 
     # rule 2
     iptables -t raw -A PREROUTING -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 6/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     iptables -t raw -A PREROUTING -p tcp -m set --match-set $blocklist src -j DROP
+
+    # +++ table filter +++
 
     # rule 1
     iptables -A INPUT -p tcp --dst $orip --dport $orport -m set --match-set $trustlist src -j ACCEPT
