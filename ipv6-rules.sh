@@ -15,8 +15,9 @@ function addCommon() {
   ip6tables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
   
   # ssh
-  local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+" /etc/ssh/sshd_config | awk '{ print $2 }')
-  ip6tables -A INPUT -p tcp --dport ${port:-22} -j ACCEPT
+  local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config | awk '{ print $2 }')
+  local addr=$(grep -m 1 -E "^ListenAddress\s+.+$"  /etc/ssh/sshd_config | awk '{ print $2 }' | grep -F ':')
+  ip6tables -A INPUT -p tcp --dst ${addr:-"::/0"} --dport ${port:-22} -j ACCEPT
  
   ## ratelimit ICMP echo
   ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -m limit --limit 6/s -j ACCEPT
