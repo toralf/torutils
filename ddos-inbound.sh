@@ -35,13 +35,13 @@ function show() {
 
 
 #######################################################################
-set -euf
+set -eu
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 limit=2
 
-relays="65.21.94.13:443 65.21.94.13:9001 [2a01:4f9:3b:468e::13]:443 [2a01:4f9:3b:468e::13]:9001"
+relays=$(grep -e "^ORPort" /etc/tor/torrc* | awk '{ print $2 }' | xargs)
 
 while getopts l:r: opt
 do
