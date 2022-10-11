@@ -26,7 +26,6 @@ The rules for an inbound ip are:
 More details might be found in Issue [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636) and Issue  [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393).
 
 ### Quick Start
-Warning: The script clears any existing iptables/nftables/firewall configuration!
 
 ```bash
 wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
@@ -34,22 +33,25 @@ chmod +x ./ipv4-rules.sh
 sudo ./ipv4-rules.sh start
 ```
 
-Then (re-)start Tor.
-The current settings/stats of your network traffix filtering are printed by:
+Best is to (re-)start Tor afterwards.
+The live statistics of your entwork rules can be watched by:
 
 ```bash
-sudo ./ipv4-rules.sh
+sudo watch -t ./ipv4-rules.sh
 ```
 
-They should do look similar to the [IPv4](./iptables-L.txt) and [IPv6](./ip6tables-L.txt) example.
+The output should look similar to these [IPv4](./iptables-L.txt) and [IPv6](./ip6tables-L.txt) examples.
 The packages [iptables](https://www.netfilter.org/projects/iptables/) and [jq](https://stedolan.github.io/jq/) are required,
-eg. for Debian run:
+eg. for Debian install them with:
 
 ```bash
 sudo apt-get install iptables jq
 ```
+
 ### Stop
-To reset the local firewall entirely, run:
+
+To reset the local firewall, run:
+
 ```bash
 sudo ./ipv4-rules.sh stop
 ```
@@ -63,43 +65,44 @@ Afterwards their distribution is plotted:
 ```bash
 for i in 1 2 3 4 5 6
 do
-  sudo ./ipset-stats.sh -d > /tmp/ipset4.$i.txt   # dump content of IPv4 ipset "tor-ddos"
-  sudo ./ipset-stats.sh -D > /tmp/ipset6.$i.txt   # dump content of IPv6 ipset "tor-ddos6"
+  sudo ./ipset-stats.sh -d > /tmp/ipset4.$i.txt   # IPv4, default ipset "tor-ddos"
+  sudo ./ipset-stats.sh -D > /tmp/ipset6.$i.txt   # IPv6, default ipset "tor-ddos6"
   sleep 1800
 done
-sudo ./ipset-stats.sh -p /tmp/ipset4.?.txt  # plot histogram from IPv4 data set
-sudo ./ipset-stats.sh -p /tmp/ipset6.?.txt  # "                   IPv6 "
+sudo ./ipset-stats.sh -p /tmp/ipset4.?.txt  # plot histogram from dumped IPv4 data
+sudo ./ipset-stats.sh -p /tmp/ipset6.?.txt  # "                          IPv6 "
 ```
 
-The package [gnuplot](http://www.gnuplot.info/) is needed to plot graphs.
+The package [gnuplot](http://www.gnuplot.info/) is needed to plot the graphs.
 
 ### Installation and Configuration Hints
 
-If Tor is behind a NAT, listens at another ip or if 2 Tor services do run at the same ip, then:
-1. specify the Tor ORPort(s) as parameter/s, eg.:
+If the detection of the confgured _ORport_ doesn't work (line [129](ipv4-rules.sh#L129)), then:
+1. specify the Tor ORPort at the command line, eg.:
     ```bash
     sudo ./ipv4-rules.sh start 127.0.0.1:443 10.20.30.4:9001
     ```
-1. -or- hard code them, i.e. for IPv4 in line [142](ipv4-rules.sh#L142):
+1. -or- hard code them, i.e. for IPv4 in line [158](ipv4-rules.sh#L158):
     ```bash
-    relays=${*:-"0.0.0.0:443"}
+     addTor 1.2.3.4:567
     ```
+1. -or- create a pull requests to fix it ;)
 
-For additional local running services, either
-1. set them before you start the script, eg.:
+To enable any additional local services, either
+1. define them in the environment, eg.:
     ```bash
     export ADD_LOCAL_SERVICES="10.20.30.40:25 10.20.30.41:80"
     export ADD_LOCAL_SERVICES6="[dead:beef]:23"
     ```
-1. -or- hard code them, i.e. for IPv4 in line [81](ipv4-rules.sh#L81)
-1. -or- change the code of the default policy, i.e. for IPv4 in line [7](ipv4-rules.sh#L7):
+1. -or- hard code them in the script, i.e. for IPv4 in line [81](ipv4-rules.sh#L81)
+1. -or- edit the default policy, i.e. for IPv4 in line [6](ipv4-rules.sh#L6) to allow any TCP traffic not matched by a rule:
     ```bash
     iptables -P INPUT ACCEPT
     ```
 
 If you do not use the [Hetzner monitoring](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/), then
-1. ignore the appropriate iptables rule
-1. -or- remove the `addHetzner()` code, at least line [140](ipv4-rules.sh#L140)
+1. remove the `addHetzner()` code, but at least the call in line [156](ipv4-rules.sh#L156)
+1. -or- ignore it
 
 ## query Tor via its API
 
@@ -143,38 +146,24 @@ sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
     7777     3                      3                (None)
 ```
 
-_orstatus.py_ logs the reasons of circuit closing events, _orstatus-stats.sh_ made stats of its output, eg.:
+_orstatus.py_ logs the easons of a circuit closing event, _orstatus-stats.sh_ makes and plots stats of its output, eg.:
 
 ```bash
 sudo ./orstatus.py --ctrlport 9051 --address ::1 >> /tmp/orstatus.9051
 ```
 
-after a certain time press Ctrl-C (or let it run and switch to another terminal).
-Take a look eg. at the distribution of _IOERROR_:
+After a certain time switch to another terminal (or press Ctrl-C) and take a look, eg. at the distribution of _IOERROR_:
 
 ```bash
-sudo ./orstatus-stats.sh /tmp/orstatus.9051
+sudo ./orstatus-stats.sh /tmp/orstatus.9051 _IOERROR_
 ```
 
-or directly grep for the most often occurrences, eg. of _TLS_ERROR_:
+or directly grep for the most often occurrences of a reason, eg.:
 
 ```bash
 grep 'TLS_ERROR' /tmp/orstatus.9051 | awk '{ print $3 }' | sort | uniq -c | sort -bn | tail
 ```
 
-_key-expires.py_ returns the time in seconds when the mid-term signing key will expire, eg.:
-
-```bash
-sudo ./key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert
-7286915
-```
-
-, this is in days (rounded to an integer):
-
-```bash
-expr 7286915 / 24 / 3600
-84
-```
 ### Installation and Configuration Hints
 An open Tor control port is needed to query the Tor process over its API.
 Configure it in `torrc`, eg.:
@@ -194,4 +183,37 @@ export PYTHONPATH=$PWD/stem
 ```
 
 The package [gnuplot](http://www.gnuplot.info/) is needed if graphs shall be plotted.
+
+## Misc
+
+_ddos-inbound.sh_ lists ips, where the # of inbound connections exceeds the given limit (default: 2).
+So this
+
+```bash
+ddos-inbound.sh -l 3
+```
+
+should show only the address of snowflake-01:
+
+```console
+ip         193.187.88.42                               12
+relay:65.21.94.13:443                                      ips:1     conns:12   
+
+ip         193.187.88.42                               12
+relay:65.21.94.13:9001                                     ips:1     conns:12   
+```
+
+_key-expires.py_ returns the seconds before the mid-term signing key expires, eg.:
+
+```bash
+sudo ./key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert
+7286915
+```
+
+This gives the days (rounded to nearest integer):
+
+```bash
+expr 7286915 / 24 / 3600
+84
+```
 
