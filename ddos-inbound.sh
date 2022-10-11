@@ -8,7 +8,7 @@ function show() {
   local relay=$1
 
   local v=""
-  if [[ $orip =~ ':' ]]; then
+  if [[ $relay =~ '[' ]]; then
     v="6"
   fi
   local sum=0
@@ -41,23 +41,18 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 limit=2
 
-orips="65.21.94.13  [2a01:4f9:3b:468e::13]"
-orports="9001 443"
+relays="65.21.94.13:443 65.21.94.13:9001 [2a01:4f9:3b:468e::13]:443 [2a01:4f9:3b:468e::13]:9001"
 
-while getopts i:l:p: opt
+while getopts l:r: opt
 do
   case $opt in
-    i)  orips=$OPTARG ;;
     l)  limit=$OPTARG ;;
-    p)  orports=$OPTARG ;;
+    r)  relays="$OPTARG" ;;
     *)  echo "unknown parameter '$opt'"; exit 1 ;;
   esac
 done
 
-for orip in $orips
+for relay in $relays
 do
-  for orport in $orports
-  do
-    show $orip:$orport
-  done
+  show $relay
 done
