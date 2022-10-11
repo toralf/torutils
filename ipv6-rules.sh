@@ -130,9 +130,19 @@ function printFirewall()  {
 
 function getConfiguredRelays()  {
   (
-    grep -E "^ORPort\s+\[[0-9a-f:]+\]:[0-9]+\s*$" /etc/tor/torrc* | awk '{ print $2 }'
-    grep -E "^ORPort\s+[0-9]+\s*$" /etc/tor/torrc* | awk '{ print $2 }' | sed 's,^,[::]:,g'
-  ) | sort -u | xargs
+    set +e
+
+    grep -hE "^ORPort\s+" /etc/tor/torrc* |
+    sed -e "s,^ORPort\s*,," |
+    sed -e 's,\s*#.*,,' |
+    grep -v ' ' |
+    while read line
+    do
+      grep -E "^\[[0-9a-f:]+\]:[0-9]+$" <<< $line
+      grep -E "^[0-9]+$" <<< $line | sed 's,^,[::]:,g'
+    done |
+    sort -u | xargs
+  )
 }
 
 
