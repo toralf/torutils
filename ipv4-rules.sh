@@ -3,12 +3,11 @@
 
 
 function addCommon() {
-  iptables -t raw -P PREROUTING ACCEPT     # drop explicitely
-  iptables        -P INPUT      DROP       # accept explicitely
-  iptables        -P OUTPUT     ACCEPT     # accept all
+  iptables -P INPUT  DROP
+  iptables -P OUTPUT ACCEPT
 
   # allow loopback
-  iptables -A INPUT --in-interface lo -j ACCEPT -m comment --comment "$(date -R)"
+  iptables -A INPUT --in-interface lo -m comment --comment "$(date -R)" -j ACCEPT 
   
   # make sure NEW incoming tcp connections are SYN packets
   iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
@@ -48,7 +47,7 @@ function addTor() {
 
   __fill_lists & # lazy fill to minimize restart time
 
-  for relay in $relays
+  for relay in $*
   do
     read -r orip orport <<< $(tr ':' ' ' <<< $relay)
 
@@ -73,7 +72,7 @@ function addTor() {
     iptables -A INPUT -p tcp --dst $orip --dport $orport -j ACCEPT
   done
 
-  # this traffic is initiated by the local services
+  # initiated locally
   iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   iptables -A INPUT -m conntrack --ctstate INVALID             -j DROP
 }
@@ -83,7 +82,7 @@ function addLocalServices() {
   for service in $ADD_LOCAL_SERVICES
   do
     read -r addr port <<< $(tr ':' ' ' <<< $service)
-    iptables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
+    iptables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT || echo " addLocalServices(): error for $service"
   done
 }
 
@@ -102,20 +101,15 @@ function addHetzner() {
 
 
 function clearAll() {
-  set +e
+  iptables -P INPUT  ACCEPT
+  iptables -P OUTPUT ACCEPT
 
-  iptables -t raw -P PREROUTING ACCEPT 2>/dev/null
-  iptables        -P INPUT      ACCEPT
-  iptables        -P OUTPUT     ACCEPT
-
-  for table in raw mangle nat filter
+  for table in filter
   do
     iptables -F -t $table 2>/dev/null
     iptables -X -t $table 2>/dev/null
     iptables -Z -t $table 2>/dev/null
   done
-
-  set -e
 }
 
 
@@ -132,6 +126,27 @@ function printFirewall()  {
 }
 
 
+function getConfiguredRelays()  {
+  for f in /etc/tor/torrc*
+  do
+    local value=$(grep -E "^ORPort\s+.+$" $f | awk '{ print $2 }' | grep -m 1 -F '.')
+    if [[ -z $value ]]; then
+      continue
+    fi
+
+    if grep -q -F ':' <<< $value; then
+      echo $value
+    else
+      local orport=$value
+      local address=$(grep -E "^Address\s+.+$" $f | awk '{ print $2 }' | grep -m 1 -F '.')
+      echo ${address:-"0.0.0.0"}:$orport
+    fi
+  done |
+  sort -u |
+  xargs
+}
+
+
 #######################################################################
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
@@ -140,8 +155,7 @@ case $1 in
           addCommon
           addHetzner
           shift
-          relays=${*:-"0.0.0.0:443"}
-          addTor
+          addTor ${*:-$(getConfiguredRelays)}
           addLocalServices
           ;;
   stop)   clearAll

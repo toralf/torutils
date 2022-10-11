@@ -3,13 +3,12 @@
 
 
 function addCommon() {
-  ip6tables -t raw -P PREROUTING ACCEPT     # drop explicitely
-  ip6tables        -P INPUT      DROP       # accept explicitely
-  ip6tables        -P OUTPUT     ACCEPT     # accept all
+  ip6tables -P INPUT  DROP
+  ip6tables -P OUTPUT ACCEPT
 
   # allow loopback
-  ip6tables -A INPUT --in-interface lo                                -j ACCEPT -m comment --comment "$(date -R)"
-  ip6tables -A INPUT -p udp --source fe80::/10 --dst ff02::1  -j ACCEPT
+  ip6tables -A INPUT --in-interface lo -m comment --comment "$(date -R)" -j ACCEPT
+  ip6tables -A INPUT -p udp --source fe80::/10 --dst ff02::1 -j ACCEPT
   
   # make sure NEW incoming tcp connections are SYN packets
   ip6tables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
@@ -50,7 +49,7 @@ function addTor() {
 
   __fill_lists & # lazy fill to minimize restart time
 
-  for relay in $relays
+  for relay in $*
   do
     read -r orip orport <<< $(sed -e 's,]:, ,' <<< $relay | tr '[' ' ')
 
@@ -75,7 +74,7 @@ function addTor() {
     ip6tables -A INPUT -p tcp --dst $orip --dport $orport -j ACCEPT
   done
 
-  # this traffic is initiated by the local services
+  # initiated locally
   ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   ip6tables -A INPUT -m conntrack --ctstate INVALID             -j DROP
 }
@@ -85,7 +84,7 @@ function addLocalServices() {
   for service in $ADD_LOCAL_SERVICES6
   do
     read -r addr port <<< $(sed -e 's,]:, ,' <<< $service | tr '[' ' ')
-    ip6tables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
+    ip6tables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT || echo " addLocalServices(): error for $service"
   done
 }
 
@@ -104,20 +103,15 @@ function addHetzner() {
 
 
 function clearAll() {
-  set +e
+  ip6tables -P INPUT  ACCEPT
+  ip6tables -P OUTPUT ACCEPT
 
-  ip6tables -t raw -P PREROUTING ACCEPT 2>/dev/null
-  ip6tables        -P INPUT      ACCEPT
-  ip6tables        -P OUTPUT     ACCEPT
-
-  for table in raw mangle nat filter
+  for table in filter
   do
     ip6tables -F -t $table 2>/dev/null
     ip6tables -X -t $table 2>/dev/null
     ip6tables -Z -t $table 2>/dev/null
   done
-
-  set -e
 }
 
 
@@ -134,6 +128,27 @@ function printFirewall()  {
 }
 
 
+function getConfiguredRelays()  {
+  for f in /etc/tor/torrc*
+  do
+    local value=$(grep -E "^ORPort\s+.+$" $f | awk '{ print $2 }' | grep -m 1 -F '[')
+    if [[ -z $value ]]; then
+      continue
+    fi
+
+    if grep -q -F ':' <<< $value; then
+      echo $value
+    else
+      local orport=$value
+      local address=$(grep -E "^Address\s+.+$" $f | awk '{ print $2 }' | grep -m 1 -F '[')
+      echo ${address:-"[::]"}:$orport
+    fi
+  done |
+  sort -u |
+  xargs
+}
+
+
 #######################################################################
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
@@ -142,8 +157,7 @@ case $1 in
           addCommon
           addHetzner
           shift
-          relays=${*:-"[::]:443"}
-          addTor
+          addTor ${*:-$(getConfiguredRelays)}
           addLocalServices
           ;;
   stop)   clearAll
