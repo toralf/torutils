@@ -5,14 +5,14 @@
 Few tools for a Tor relay.
 
 ## Block DDoS Traffic
-MOst examples below are for the IPv4 case. For IPv6 replace `ipv4-rules.sh` with `ipv6-rules.sh`.
+This doc covers IPv4. To filter IPv6 usually just replace `4` with `6` or simply add `6` where needed.
 
 ### Goal
 
 The script [ipv4-rules.sh](./ipv4-rules.sh) is designed to lower the impact of a DDoS
 of a Tor relay at [layer-3](https://www.infoblox.com/glossary/layer-3-of-the-osi-model-network-layer/).
 DDoS attacks at layer-7 have to be handled by the Tor process.
-Currently a 3-digit-number of ips gets blocked at [these](https://metrics.torproject.org/rs.html#search/toralf) 2 relays.
+Currently usually a 3-digit-number of ips gets blocked (eg. at [these](https://metrics.torproject.org/rs.html#search/toralf) 2 relays).
 
 The rules for an inbound ip are:
 
@@ -25,7 +25,9 @@ The rules for an inbound ip are:
 [Here're](./sysstat.svg) metrics to show the effect (data collected with [sysstat](http://pagesperso-orange.fr/sebastien.godard/)).
 More details might be found in Issue [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636) and Issue  [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393).
 
-### Quick Start
+### Quick start
+
+Note: The script replaces the previous content of the iptables [filter](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) table with the rule set seen above.
 
 ```bash
 wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
@@ -40,9 +42,9 @@ The live statistics of your entwork rules can be watched by:
 sudo watch -t ./ipv4-rules.sh
 ```
 
-The output should look similar to these [IPv4](./iptables-L.txt) and [IPv6](./ip6tables-L.txt) examples.
+The output should look similar to the [IPv4](./iptables-L.txt) and [IPv6](./ip6tables-L.txt) examples.
 The packages [iptables](https://www.netfilter.org/projects/iptables/) and [jq](https://stedolan.github.io/jq/) are required,
-eg. for Debian install them with:
+eg. for Debian install the prerequisites with:
 
 ```bash
 sudo apt-get install iptables jq
@@ -50,7 +52,7 @@ sudo apt-get install iptables jq
 
 ### Stop
 
-To reset the local firewall, run:
+To reset the `filter` table of iptables, run:
 
 ```bash
 sudo ./ipv4-rules.sh stop
@@ -75,21 +77,21 @@ sudo ./ipset-stats.sh -p /tmp/ipset6.?.txt  # "                          IPv6 "
 
 The package [gnuplot](http://www.gnuplot.info/) is needed to plot the graphs.
 
-### Installation and Configuration Hints
+### Installation and configuration hints
 
-If the detection of the confgured _ORport_ doesn't work (line [129](ipv4-rules.sh#L129)), then:
-1. specify the Tor ORPort at the command line, eg.:
+If the detection of the confgured relays doesn't work (line [129](ipv4-rules.sh#L129)), then:
+1. specify them at the command line, eg.:
     ```bash
     sudo ./ipv4-rules.sh start 127.0.0.1:443 10.20.30.4:9001
     ```
-1. -or- hard code them, i.e. for IPv4 in line [158](ipv4-rules.sh#L158):
+1. -or- hard code them, i.e. for IPv4 in line [145](ipv4-rules.sh#L145):
     ```bash
      addTor 1.2.3.4:567
     ```
 1. -or- create a pull requests to fix it ;)
 
-To enable any additional local services, either
-1. define them in the environment, eg.:
+To enable additional local services, either
+1. define them ias environment variables, eg.:
     ```bash
     export ADD_LOCAL_SERVICES="10.20.30.40:25 10.20.30.41:80"
     export ADD_LOCAL_SERVICES6="[dead:beef]:23"
@@ -101,8 +103,8 @@ To enable any additional local services, either
     ```
 
 If you do not use the [Hetzner monitoring](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/), then
-1. remove the `addHetzner()` code, but at least the call in line [156](ipv4-rules.sh#L156)
-1. -or- ignore it
+1. remove the `addHetzner()` code, at least the call in line [143](ipv4-rules.sh#L143)
+1. -or- just ignore it
 
 ## query Tor via its API
 
@@ -164,7 +166,7 @@ or directly grep for the most often occurrences of a reason, eg.:
 grep 'TLS_ERROR' /tmp/orstatus.9051 | awk '{ print $3 }' | sort | uniq -c | sort -bn | tail
 ```
 
-### Installation and Configuration Hints
+### Prerequisites
 An open Tor control port is needed to query the Tor process over its API.
 Configure it in `torrc`, eg.:
 
