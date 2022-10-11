@@ -5,14 +5,14 @@
 Few tools for a Tor relay.
 
 ## Block DDoS Traffic
-This doc covers IPv4. To filter IPv6 usually just replace `4` with `6` or simply add `6` where needed.
+This readme covers IPv4. To filter IPv6 usually just replace "4" with "6" or simply add "6" where needed.
 
 ### Goal
 
 The script [ipv4-rules.sh](./ipv4-rules.sh) is designed to lower the impact of a DDoS
-of a Tor relay at [layer-3](https://www.infoblox.com/glossary/layer-3-of-the-osi-model-network-layer/).
-DDoS attacks at layer-7 have to be handled by the Tor process.
-Currently usually a 3-digit-number of ips gets blocked (eg. at [these](https://metrics.torproject.org/rs.html#search/toralf) 2 relays).
+at [layer-3](https://www.infoblox.com/glossary/layer-3-of-the-osi-model-network-layer/)
+against a Tor relay.
+Currently a 3-digit-number of ips gets blocked.
 
 The rules for an inbound ip are:
 
@@ -84,7 +84,7 @@ If the detection of the confgured relays doesn't work (line [129](ipv4-rules.sh#
     ```bash
     sudo ./ipv4-rules.sh start 127.0.0.1:443 10.20.30.4:9001
     ```
-1. -or- hard code them, i.e. for IPv4 in line [145](ipv4-rules.sh#L145):
+1. -or- hard code them, i.e. for IPv4 in line [154](ipv4-rules.sh#L154):
     ```bash
      addTor 1.2.3.4:567
     ```
@@ -103,7 +103,7 @@ To enable additional local services, either
     ```
 
 If you do not use the [Hetzner monitoring](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/), then
-1. remove the `addHetzner()` code, at least the call in line [143](ipv4-rules.sh#L143)
+1. remove the `addHetzner()` code, at least the call in line [152](ipv4-rules.sh#L152)
 1. -or- just ignore it
 
 ## query Tor via its API
