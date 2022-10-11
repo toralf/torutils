@@ -19,7 +19,7 @@ function show() {
     if [[ $conns -gt $limit ]]; then
       printf "%-10s %-40s %5i\n" ip$v $ip $conns
       (( ++ips ))
-      (( sum = sum + conns ))
+      (( sum += conns ))
     fi
   done < <(
     ss --no-header --tcp -${v:-4} --numeric |
@@ -34,6 +34,17 @@ function show() {
 }
 
 
+function getConfiguredRelays()  {
+   (
+    grep -E "^ORPort\s+[0-9\.]+:[0-9]+\s*$" /etc/tor/torrc* | awk '{ print $2 }'
+    grep -E "^ORPort\s+[0-9]+\s*$" /etc/tor/torrc* | awk '{ print $2 }' | sed 's,^,0.0.0.0:,g'
+
+    grep -E "^ORPort\s+\[[0-9a-f:]+\]:[0-9]+\s*$" /etc/tor/torrc* | awk '{ print $2 }'
+    grep -E "^ORPort\s+[0-9]+\s*$" /etc/tor/torrc* | awk '{ print $2 }' | sed 's,^,[::]:,g'
+  ) | sort -u | xargs
+}
+
+
 #######################################################################
 set -eu
 export LANG=C.utf8
@@ -41,7 +52,7 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 limit=2
 
-relays=$(grep -e "^ORPort" /etc/tor/torrc* | awk '{ print $2 }' | xargs)
+relays=$(getConfiguredRelays)
 
 while getopts l:r: opt
 do
