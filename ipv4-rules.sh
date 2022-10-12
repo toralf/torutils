@@ -11,6 +11,7 @@ function addCommon() {
   
   # make sure NEW incoming tcp connections are SYN packets
   iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
+  iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
   
   # ssh
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config | awk '{ print $2 }')
@@ -78,7 +79,6 @@ function addTor() {
 
   # initiated locally
   iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-  iptables -A INPUT -m conntrack --ctstate INVALID             -j DROP
 }
 
 
