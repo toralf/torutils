@@ -46,13 +46,13 @@ sudo ./ipv4-rules.sh start
 ```
 
 Best is to (re-)start Tor afterwards.
-The live statistics of your entwork rules can be watched by:
+The live statistics of your network rules can be shown by:
 
 ```bash
 sudo watch -t ./ipv4-rules.sh
 ```
 
-The output should look similar to the [IPv4](./iptables-L.txt) and [IPv6](./ip6tables-L.txt) examples.
+The output should look similar to the [IPv4](./iptables-L.txt) and [IPv6](./ip6tables-L.txt) example.
 
 ### Stop
 
@@ -83,7 +83,7 @@ The package [gnuplot](http://www.gnuplot.info/) is needed to plot the graphs.
 
 ### Installation and configuration hints
 
-If the detection of the confgured relays doesn't work (line [133](ipv4-rules.sh#L133)), then:
+If the detection of the configured relays doesn't work (line [133](ipv4-rules.sh#L133)), then:
 1. specify them at the command line, eg.:
     ```bash
     sudo ./ipv4-rules.sh start 127.0.0.1:443 10.20.30.4:9001
@@ -95,13 +95,13 @@ If the detection of the confgured relays doesn't work (line [133](ipv4-rules.sh#
 1. -or- create a pull requests to fix it ;)
 
 To enable additional local services, either
-1. define them ias environment variables, eg.:
+1. define them as environment variables, eg.:
     ```bash
     export ADD_LOCAL_SERVICES="10.20.30.40:25 10.20.30.41:80"
     export ADD_LOCAL_SERVICES6="[dead:beef]:23"
     ```
-1. -or- hard code them in the script, i.e. for IPv4 in line [85](ipv4-rules.sh#L85)
-1. -or- edit the default policy, i.e. for IPv4 in line [6](ipv4-rules.sh#L6) to allow any TCP traffic not matched by a rule:
+1. -or- hard code them, i.e. for IPv4 in line [85](ipv4-rules.sh#L85)
+1. -or- edit the default policy, i.e. for IPv4 in line [6](ipv4-rules.sh#L6) to accept any TCP inbound traffic not matched by any rule:
     ```bash
     iptables -P INPUT ACCEPT
     ```
