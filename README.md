@@ -17,13 +17,23 @@ Currently a 3-digit-number of ips gets blocked.
 The rules for an inbound ip are:
 
 1. trust Tor authorities
-1. block the ip for the next 30 min if more than 6 inbound connection attempts per minute are made
-1. block the ip for the next 30 min if more than 3 inbound connections are established
-1. ignore a connection attempt from an ip hosting < 2 relays if 1 inbound connection is already established
-1. ignore a connection attempt if 2 inbound connections are already established
+2. block the ip for the next 30 min if more than 6 inbound connection attempts per minute are made
+3. block the ip for the next 30 min if more than 3 inbound connections are established
+4. ignore a connection attempt from an ip hosting < 2 relays if 1 inbound connection is already established (*)
+5. ignore a connection attempt if 2 inbound connections are already established (**)
 
-[Here're](./sysstat.svg) metrics to show the effect (data collected with [sysstat](http://pagesperso-orange.fr/sebastien.godard/)).
-More details might be found in Issue [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636) and Issue  [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393).
+[Here's](./sysstat.svg) a graph to show the effect (data collected with [sysstat](http://pagesperso-orange.fr/sebastien.godard/)).
+Details are in the issues [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
+and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393).
+The package [iptables](https://www.netfilter.org/projects/iptables/) needs to be installed.
+[jq](https://stedolan.github.io/jq/) is required for rule 4 only.
+
+(*) Having _jq_ not being installed and deactivating its code would work but would half the cost of a DDoS attempt.
+
+(**) Removing rule 4 and changing "2" to "1" in rule 5 would work but would force 2 relays,
+running at the same ip address (ORPorts a1 and a2), connecting to 2 relays,
+running at (their) same ip address B (ORports b1 and b2) to talk to each other in the following way:
+A -> b1, B -> a2, A -> b2, B -> a1
 
 ### Quick start
 
@@ -43,12 +53,6 @@ sudo watch -t ./ipv4-rules.sh
 ```
 
 The output should look similar to the [IPv4](./iptables-L.txt) and [IPv6](./ip6tables-L.txt) examples.
-The packages [iptables](https://www.netfilter.org/projects/iptables/) and [jq](https://stedolan.github.io/jq/) are required,
-eg. for Debian install the prerequisites with:
-
-```bash
-sudo apt-get install iptables jq
-```
 
 ### Stop
 
@@ -79,12 +83,12 @@ The package [gnuplot](http://www.gnuplot.info/) is needed to plot the graphs.
 
 ### Installation and configuration hints
 
-If the detection of the confgured relays doesn't work (line [129](ipv4-rules.sh#L129)), then:
+If the detection of the confgured relays doesn't work (line [133](ipv4-rules.sh#L133)), then:
 1. specify them at the command line, eg.:
     ```bash
     sudo ./ipv4-rules.sh start 127.0.0.1:443 10.20.30.4:9001
     ```
-1. -or- hard code them, i.e. for IPv4 in line [154](ipv4-rules.sh#L154):
+1. -or- hard code them, i.e. for IPv4 in line [159](ipv4-rules.sh#L159):
     ```bash
      addTor 1.2.3.4:567
     ```
@@ -96,14 +100,14 @@ To enable additional local services, either
     export ADD_LOCAL_SERVICES="10.20.30.40:25 10.20.30.41:80"
     export ADD_LOCAL_SERVICES6="[dead:beef]:23"
     ```
-1. -or- hard code them in the script, i.e. for IPv4 in line [81](ipv4-rules.sh#L81)
+1. -or- hard code them in the script, i.e. for IPv4 in line [85](ipv4-rules.sh#L85)
 1. -or- edit the default policy, i.e. for IPv4 in line [6](ipv4-rules.sh#L6) to allow any TCP traffic not matched by a rule:
     ```bash
     iptables -P INPUT ACCEPT
     ```
 
 If you do not use the [Hetzner monitoring](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/), then
-1. remove the `addHetzner()` code, at least the call in line [152](ipv4-rules.sh#L152)
+1. remove the `addHetzner()` code, at least the call in line [157](ipv4-rules.sh#L157)
 1. -or- just ignore it
 
 ## query Tor via its API
