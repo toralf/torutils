@@ -193,13 +193,13 @@ The package [gnuplot](http://www.gnuplot.info/) is needed if graphs shall be plo
 ## Misc
 
 _ddos-inbound.sh_ lists ips, where the # of inbound connections exceeds the given limit (default: 2).
-So this
+If called
 
 ```bash
-ddos-inbound.sh -l 3
+ddos-inbound.sh
 ```
 
-should show only the address of snowflake-01:
+it should usually list only _snowflake-01_ at your relay(s):
 
 ```console
 ip         193.187.88.42                               12
