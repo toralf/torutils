@@ -42,7 +42,7 @@ function getConfiguredRelays()  {
     sed -e "s,^ORPort\s*,," |
     sed -e 's,\s*#.*,,' |
     grep -v ' ' |
-    while read line
+    while read -r line
     do
       grep -E "^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+$" <<< $line
       grep -E "^[0-9]+$" <<< $line | sed 's,^,0.0.0.0:,g'
