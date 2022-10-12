@@ -25,12 +25,15 @@ function addCommon() {
 }
 
 
-function __fill_lists() {
+function __fill_trustlist() {
   # dig +short snowflake-01.torproject.net. AAAA
   # curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a | select(length > 1) | .[1]' | tr -d ']['
   echo 2a0c:dd40:1:b::42 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2001:858:2:2:aabb:0:563b:1526 2607:8500:154::3 2610:1c0:0:5::131 2620:13:4000:6000::1000:118 |
   xargs -r -n 1 -P 20 ipset add -exist $trustlist
+}
 
+
+function __fill_multilist() {
   curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |
   jq -cr '.relays[].a' | tr '][",' ' ' | sort | uniq -c | grep -v ' 1 ' |
   xargs -r -n 1 | grep -F ':' |
@@ -40,14 +43,15 @@ function __fill_lists() {
 
 function addTor() {
   local blocklist=tor-ddos6
-  local multilist=tor-multi6
+  local multilist=tor-multi6  # rule 4
   local trustlist=tor-trust6
 
   ipset create -exist $blocklist hash:ip family inet6 timeout 1800
-  ipset create -exist $multilist hash:ip family inet6
+  ipset create -exist $multilist hash:ip family inet6               # rule 4
   ipset create -exist $trustlist hash:ip family inet6
 
-  __fill_lists & # lazy fill to minimize restart time
+  __fill_trustlist
+  __fill_multilist &  # rule 4
 
   for relay in $*
   do
