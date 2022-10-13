@@ -14,15 +14,20 @@ at [layer-3](https://www.infoblox.com/glossary/layer-3-of-the-osi-model-network-
 against a Tor relay.
 Currently a 3-digit-number of ips gets blocked.
 
-The rules for an inbound ip are:
+The rules for an inbound connecting to the local ORPort are:
 
 1. trust Tor authorities
-2. block the ip for the next 30 min if more than 6 inbound connection attempts per minute are made
-3. block the ip for the next 30 min if more than 3 inbound connections are established
+2. block the ip for the next 30 min if > 6 inbound connection attempts per minute are made
+3. block the ip for the next 30 min if > 3 inbound connections are established
 4. ignore a connection attempt from an ip hosting < 2 relays if 1 inbound connection is already established (*)
-5. ignore a connection attempt if 2 inbound connections are already established
+5. ignore a connection attempt if 2 inbound connections are already established (**)
 
 (*) Having _jq_ not being installed and deactivating its code would work but would half the cost of a DDoS attempt.
+
+(**) Deleting rule 4 and changing "2" to "1" in rule 5 would work.
+But that would have an impact for 2 remote Tor relays running at the same ip.
+If both want to talk to the local filtered ORPort, then one of both can initiate its connection to the local ORPort.
+But now the other remote Tor relay has to wait till the local Tor relay opens an outbound connection to it.
 
 [Here's](./sysstat.svg) a graph to show the effect (data collected with [sysstat](http://pagesperso-orange.fr/sebastien.godard/)).
 Details are in the issues [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
