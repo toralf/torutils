@@ -35,7 +35,7 @@ function __fill_trustlist() {
 function __fill_multilist() {
   curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |
   jq -cr '.relays[].a' | tr '][",' ' ' | sort | uniq -c | grep -v ' 1 ' |
-  xargs -r -n 1 | grep -F '.' |
+  xargs -n 1 | grep -F '.' |
   xargs -r -n 1 -P 20 ipset add -exist $multilist
 }
 
