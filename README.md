@@ -20,20 +20,15 @@ The rules for an inbound ip are:
 2. block the ip for the next 30 min if more than 6 inbound connection attempts per minute are made
 3. block the ip for the next 30 min if more than 3 inbound connections are established
 4. ignore a connection attempt from an ip hosting < 2 relays if 1 inbound connection is already established (*)
-5. ignore a connection attempt if 2 inbound connections are already established (**)
+5. ignore a connection attempt if 2 inbound connections are already established
+
+(*) Having _jq_ not being installed and deactivating its code would work but would half the cost of a DDoS attempt.
 
 [Here's](./sysstat.svg) a graph to show the effect (data collected with [sysstat](http://pagesperso-orange.fr/sebastien.godard/)).
 Details are in the issues [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393).
 The package [iptables](https://www.netfilter.org/projects/iptables/) needs to be installed.
 [jq](https://stedolan.github.io/jq/) is required for rule 4 only.
-
-(*) Having _jq_ not being installed and deactivating its code would work but would half the cost of a DDoS attempt.
-
-(**) Removing rule 4 and changing "2" to "1" in rule 5 would work but would force 2 relays,
-running at the same ip address (ORPorts a1 and a2), connecting to 2 relays,
-running at (their) same ip address B (ORports b1 and b2) to talk to each other in the following way:
-A -> b1, B -> a2, A -> b2, B -> a1
 
 ### Quick start
 
