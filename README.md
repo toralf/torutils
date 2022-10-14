@@ -41,21 +41,17 @@ sudo ./ipv4-rules.sh stop
 ### Rule Set
 The rules for an inbound connecting to the local ORPort are:
 
-1. trust Tor authorities [1]
-2. block the ip for the next 30 min if > 6 inbound connection attempts per minute are made [2]
-3. block the ip for the next 30 min if > 3 inbound connections are established [3]
-4. ignore a connection attempt from an ip hosting < 2 relays if 1 inbound connection is already established [4]
-5. ignore a connection attempt if 2 inbound connections are already established [5]
+1. trust Tor authorities _[1]_
+2. block the ip for the next 30 min if > 6 inbound connection attempts per minute are made _[2]_
+3. block the ip for the next 30 min if > 3 inbound connections are established _[3]_
+4. ignore a connection attempt from an ip hosting < 2 relays if 1 inbound connection is already established _[4]_
+5. ignore a connection attempt if 2 inbound connections are already established _[5]_
 
-[1] including the snowflake server
-
-[2] A 3-digit number of (changing) ips are blocked currently.
-
-[3] About 100 ips do "tunnel" rule 4 and 5 daily.
-
-[4] Having _jq_ not being installed and deactivating its code would work but would half the cost of a DDoS.
-
-[5] Deleting rule 4 and changing "2" to "1" in rule 5 would work.
+_[1]_ including snowflake
+_[2]_ a 3-digit number of (changing) ips are blocked currently
+_[3]_ about 100 ips do "tunnel" rule 4 and 5 daily
+_[4]_ having _jq_ not being installed and deactivating its code would work but would half the cost of a DDoS
+_[5]_ Deleting rule 4 and changing "2" to "1" in rule 5 would work.
 But that would have an impact for 2 remote Tor relays running at the same ip.
 If both want to talk to the local filtered ORPort, then one of both can initiate its connection to the local ORPort.
 But now the other remote Tor relay has to wait till the local Tor relay opens an outbound connection to it.
