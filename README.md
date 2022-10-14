@@ -5,39 +5,20 @@
 Few tools for a Tor relay.
 
 ## Block DDoS Traffic
-This readme covers IPv4. To filter IPv6 usually just replace "4" with "6" or simply add "6" where needed.
-
-### Goal
 
 The script [ipv4-rules.sh](./ipv4-rules.sh) is designed to lower the impact of a DDoS
 at [layer-3](https://www.infoblox.com/glossary/layer-3-of-the-osi-model-network-layer/)
 against a Tor relay.
-Currently a 3-digit-number of ips gets blocked.
-
-The rules for an inbound connecting to the local ORPort are:
-
-1. trust Tor authorities
-2. block the ip for the next 30 min if > 6 inbound connection attempts per minute are made
-3. block the ip for the next 30 min if > 3 inbound connections are established
-4. ignore a connection attempt from an ip hosting < 2 relays if 1 inbound connection is already established (*)
-5. ignore a connection attempt if 2 inbound connections are already established (**)
-
-(*) Having _jq_ not being installed and deactivating its code would work but would half the cost of a DDoS attempt.
-
-(**) Deleting rule 4 and changing "2" to "1" in rule 5 would work.
-But that would have an impact for 2 remote Tor relays running at the same ip.
-If both want to talk to the local filtered ORPort, then one of both can initiate its connection to the local ORPort.
-But now the other remote Tor relay has to wait till the local Tor relay opens an outbound connection to it.
-
-[Here's](./sysstat.svg) a graph to show the effect (data collected with [sysstat](http://pagesperso-orange.fr/sebastien.godard/)).
+Currently a 3-digit-number of ips gets blocked if they make too much connection (attempts) to the local ORPort
+which corresponds to a 4-digit number of local ports not being opened.
+[Here're](./sysstat.svg) metrics to show the effect (data gathered by [sysstat](http://pagesperso-orange.fr/sebastien.godard/)).
 Details are in the issues [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393).
-The package [iptables](https://www.netfilter.org/projects/iptables/) needs to be installed.
-[jq](https://stedolan.github.io/jq/) is required for rule 4 only.
 
 ### Quick start
+The packages [iptables](https://www.netfilter.org/projects/iptables/) and [jq](https://stedolan.github.io/jq/) are needed.
 
-Note: The script replaces the previous content of the iptables [filter](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) table with the rule set seen above.
+The call below replaces the previous content of the [filter](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) table of _iptables_ with rule set described [here](#rule-set).
 
 ```bash
 wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
@@ -53,35 +34,31 @@ sudo watch -t ./ipv4-rules.sh
 ```
 
 The output should look similar to the [IPv4](./iptables-L.txt) and [IPv6](./ip6tables-L.txt) example.
-
-### Stop
-
-To reset the `filter` table of iptables, run:
+To reset the filter table, run:
 
 ```bash
 sudo ./ipv4-rules.sh stop
 ```
 
-### Monitoring
+### Rule Set
+The rules for an inbound connecting to the local ORPort are:
 
-The script _ipset-stats.sh_ dumps and visualizes the content of an [ipset](https://ipset.netfilter.org).
-In the example below the blocked ips are dumped half-hourly over 3 hours.
-Afterwards their distribution is plotted:
+1. trust Tor authorities
+2. block the ip for the next 30 min if > 6 inbound connection attempts per minute are made
+3. block the ip for the next 30 min if > 3 inbound connections are established
+4. ignore a connection attempt from an ip hosting < 2 relays if 1 inbound connection is already established [1]
+5. ignore a connection attempt if 2 inbound connections are already established [2]
 
-```bash
-for i in 1 2 3 4 5 6
-do
-  sudo ./ipset-stats.sh -d > /tmp/ipset4.$i.txt   # IPv4, default ipset "tor-ddos"
-  sudo ./ipset-stats.sh -D > /tmp/ipset6.$i.txt   # IPv6, default ipset "tor-ddos6"
-  sleep 1800
-done
-sudo ./ipset-stats.sh -p /tmp/ipset4.?.txt  # plot histogram from dumped IPv4 data
-sudo ./ipset-stats.sh -p /tmp/ipset6.?.txt  # "                          IPv6 "
-```
+[1] Having _jq_ not being installed and deactivating its code would work but would half the cost of a DDoS attempt.
 
-The package [gnuplot](http://www.gnuplot.info/) is needed to plot the graphs.
+[2] Deleting rule 4 and changing "2" to "1" in rule 5 would work.
+But that would have an impact for 2 remote Tor relays running at the same ip.
+If both want to talk to the local filtered ORPort, then one of both can initiate its connection to the local ORPort.
+But now the other remote Tor relay has to wait till the local Tor relay opens an outbound connection to it.
 
 ### Installation and configuration hints
+
+This document covers the IPv4 part only. For IPv6 usually just replace "4" with "6" or simply add "6" where needed.
 
 If the detection of the configured relays doesn't work (line [133](ipv4-rules.sh#L133)), then:
 1. specify them at the command line, eg.:
@@ -106,8 +83,8 @@ To enable additional local services, either
     iptables -P INPUT ACCEPT
     ```
 
-If you do not use the [Hetzner monitoring](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/), then
-1. remove the `addHetzner()` code, at least the call in line [157](ipv4-rules.sh#L157)
+If you do not use the Hetzner [monitoring service](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/), then
+1. remove the `addHetzner()` code, at least its call in line [157](ipv4-rules.sh#L157)
 1. -or- just ignore it
 
 ## query Tor via its API
@@ -192,14 +169,8 @@ The package [gnuplot](http://www.gnuplot.info/) is needed if graphs shall be plo
 
 ## Misc
 
-_ddos-inbound.sh_ lists ips, where the # of inbound connections exceeds the given limit (default: 2).
-If called
-
-```bash
-ddos-inbound.sh
-```
-
-it should usually list only _snowflake-01_ at your relay(s):
+_ddos-inbound.sh_ lists ips, where the # of inbound connections exceeds the given limit.
+It should usually list _snowflake-01_ only:
 
 ```console
 ip         193.187.88.42                               12
@@ -209,6 +180,21 @@ ip         193.187.88.42                               12
 relay:65.21.94.13:9001                                     ips:1     conns:12   
 ```
 
+The script _ipset-stats.sh_ dumps and visualizes the content of an [ipset](https://ipset.netfilter.org).
+In the example below the blocked ips are dumped half-hourly over 3 hours.
+Afterwards their distribution is plotted (ackage [gnuplot](http://www.gnuplot.info/) is needed):
+
+```bash
+for i in 1 2 3 4 5 6
+do
+  sudo ./ipset-stats.sh -d > /tmp/ipset4.$i.txt   # IPv4, default ipset "tor-ddos"
+  sudo ./ipset-stats.sh -D > /tmp/ipset6.$i.txt   # IPv6, default ipset "tor-ddos6"
+  sleep 1800
+done
+sudo ./ipset-stats.sh -p /tmp/ipset4.?.txt  # plot histogram from dumped IPv4 data
+sudo ./ipset-stats.sh -p /tmp/ipset6.?.txt  # "                          IPv6 "
+```
+
 _key-expires.py_ returns the seconds before the mid-term signing key expires, eg.:
 
 ```bash
@@ -216,10 +202,4 @@ sudo ./key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert
 7286915
 ```
 
-This gives the days (rounded to nearest integer):
-
-```bash
-expr 7286915 / 24 / 3600
-84
-```
-
+(about 84 days).
