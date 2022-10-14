@@ -68,13 +68,13 @@ function addTor() {
     # rule 3
     ip6tables -A INPUT -p tcp --dst $orip --dport $orport -m connlimit --connlimit-mask 128 --connlimit-above 3 -j SET --add-set $blocklist src --exist
     ip6tables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
-  
+
     # rule 4
     ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 1 -m set ! --match-set $multilist src -j DROP
-    
+
     # rule 5
     ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 2 -j DROP
-  
+
     # accept remaining connections
     ip6tables -A INPUT -p tcp --dst $orip --dport $orport -j ACCEPT
   done
