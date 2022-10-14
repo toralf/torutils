@@ -45,16 +45,15 @@ The rules for an inbound connecting to the local ORPort are:
 2. block the ip for the next 30 min if > 6 inbound connection attempts per minute are made _[2]_
 3. block the ip for the next 30 min if > 3 inbound connections are established _[3]_
 4. ignore a connection attempt from an ip hosting < 2 relays if 1 inbound connection is already established _[4]_
-5. ignore a connection attempt if 2 inbound connections are already established _[5]_
+5. ignore a connection attempt if 2 inbound connections are already established
 
 _[1]_ including snowflake
 _[2]_ a 3-digit number of (changing) ips are blocked currently
 _[3]_ about 100 ips do "tunnel" rule 4 and 5 daily
-_[4]_ having _jq_ not being installed and deactivating its code would work but would half the cost of a DDoS
-_[5]_ Deleting rule 4 and changing "2" to "1" in rule 5 would work.
-But that would have an impact for 2 remote Tor relays running at the same ip.
-If both want to talk to the local filtered ORPort, then one of both can initiate its connection to the local ORPort.
-But now the other remote Tor relay has to wait till the local Tor relay opens an outbound connection to it.
+_[4]_ Having _jq_ not being installed would still work.
+But that would have an impact for very pair of Tor relays running at the same ip.
+If both want to talk to the iltered ORPort, then one of both can initiate its connection to the ORPort.
+But now the other Tor relay has to wait till the local Tor relay opens an outbound connection to it.
 
 ### Installation and configuration hints
 
@@ -173,11 +172,8 @@ _ddos-inbound.sh_ lists ips, where the # of inbound connections exceeds the give
 It should usually list _snowflake-01_ only:
 
 ```console
-ip         193.187.88.42                               12
+ip         193.187.88.42          12
 relay:65.21.94.13:443                                      ips:1     conns:12   
-
-ip         193.187.88.42                               12
-relay:65.21.94.13:9001                                     ips:1     conns:12   
 ```
 
 The script _ipset-stats.sh_ dumps and visualizes the content of an [ipset](https://ipset.netfilter.org).
@@ -193,6 +189,31 @@ do
 done
 sudo ./ipset-stats.sh -p /tmp/ipset4.?.txt  # plot histogram from dumped IPv4 data
 sudo ./ipset-stats.sh -p /tmp/ipset6.?.txt  # "                          IPv6 "
+```
+An example output looks like
+
+```console    
+                8152 occurrences of 1407 ip addresses            
+  1024 +-----------------------------------------------------+   
+       |o   +     +    +     +    +    +     +    +     +    |   
+       |                                                     |   
+   256 |-+                                                 +-|   
+       | o                                                   |   
+       |                                                     |   
+       |  o                                                  |   
+    64 |-+                                                 +-|   
+       |   oo                                                |   
+       |     o                                               |   
+    16 |-+      o                                      oo  +-|   
+       |                                             o   o   |   
+       |         o   o                 o  o                  |   
+       |          oo  o   o   o            ooo      o      o |   
+     4 |-+     o    o    o     o oo     o     o  o         +-|   
+       |               oo       o   ooo        o   o         |   
+       |    +     +    +     +    +    +     +    +     +    |   
+     1 +---------------------o-----o-------------------------+   
+       0    5     10   15    20   25   30    35   40    45   50  
+                             occurrence                          
 ```
 
 _key-expires.py_ returns the seconds before the mid-term signing key expires, eg.:
