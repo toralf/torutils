@@ -34,24 +34,25 @@ function show() {
 }
 
 
-function getConfiguredRelays()  {
-  (
-    set +e
+function getConfiguredRelays4()  {
+  local orport
+  local address
 
-    grep -hE "^ORPort\s+" /etc/tor/torrc* |
-    sed -e "s,^ORPort\s*,," |
-    sed -e 's,\s*#.*,,' |
-    grep -v ' ' |
-    while read -r line
-    do
-      grep -E "^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+$" <<< $line
-      grep -E "^[0-9]+$" <<< $line | sed 's,^,0.0.0.0:,g'
+  for f in /etc/tor/torrc*
+  do
+    if orport=$(sed 's,\s*#.*,,' $f | grep -m 1 -P "^ORPort\s+.+\s*$"); then
+      if ! grep -Po "^ORPort\s+\d+\.\d+\.\d+\.\d+\:\d+\s*$" <<< $orport; then
+        if address=$(sed 's,\s*#.*,,' $f | grep -m 1 -P "^Address\s+\d+\.\d+\.\d+\.\d+\s*$"); then
+          echo $(awk '{ print $2 }' <<< $address):$(awk '{ print $2 }' <<< $orport)
+        fi
+      fi
+    fi
+  done
+}
 
-      grep -E "^\[[0-9a-f:]+\]:[0-9]+$" <<< $line
-      grep -E "^[0-9]+$" <<< $line | sed 's,^,[::]:,g'
-    done |
-    sort -u | xargs
-  )
+
+function getConfiguredRelays6()  {
+  sed 's,#.*,,' /etc/tor/torrc* | grep -P "^ORPort\s+[0-9a-f:\[\]]+:\d+\s*$" | awk '{ print $2 }'
 }
 
 
@@ -60,9 +61,11 @@ set -eu
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-limit=2
+getConfiguredRelays4
+exit
 
-relays=$(getConfiguredRelays)
+limit=2
+relays=$(getConfiguredRelays4; getConfiguredRelays6)
 
 while getopts l:r: opt
 do

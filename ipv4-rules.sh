@@ -7,12 +7,12 @@ function addCommon() {
   iptables -P OUTPUT ACCEPT
 
   # allow loopback
-  iptables -A INPUT --in-interface lo -m comment --comment "$(date -R)" -j ACCEPT 
-  
+  iptables -A INPUT --in-interface lo -m comment --comment "$(date -R)" -j ACCEPT
+
   # make sure NEW incoming tcp connections are SYN packets
   iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
   iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
-  
+
   # ssh
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config | awk '{ print $2 }')
   local addr=$(grep -m 1 -E "^ListenAddress\s+.+$"  /etc/ssh/sshd_config | awk '{ print $2 }' | grep -F '.')
@@ -60,7 +60,7 @@ function addTor() {
     iptables -A INPUT -p tcp --dst $orip --dport $orport -m set --match-set $trustlist src -j ACCEPT
 
     # rule 2
-    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 6/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 6/minute --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     iptables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
 
     # rule 3
@@ -129,34 +129,34 @@ function printFirewall()  {
   done
 }
 
+function getConfiguredRelays4()  {
+  local orport
+  local address
 
-function getConfiguredRelays()  {
-  (
-    set +e
-
-    grep -hE "^ORPort\s+" /etc/tor/torrc* |
-    sed -e "s,^ORPort\s*,," |
-    sed -e 's,\s*#.*,,' |
-    grep -v ' ' |
-    while read line
-    do
-      grep -E "^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+$" <<< $line
-      grep -E "^[0-9]+$" <<< $line | sed 's,^,0.0.0.0:,g'
-    done |
-    sort -u | xargs
-  )
+  for f in /etc/tor/torrc*
+  do
+    if orport=$(sed 's,\s*#.*,,' $f | grep -m 1 -P "^ORPort\s+.+\s*$"); then
+      if ! grep -Po "^ORPort\s+\d+\.\d+\.\d+\.\d+\:\d+\s*$" <<< $orport; then
+        if address=$(sed 's,\s*#.*,,' $f | grep -m 1 -P "^Address\s+\d+\.\d+\.\d+\.\d+\s*$"); then
+          echo $(awk '{ print $2 }' <<< $address):$(awk '{ print $2 }' <<< $orport)
+        fi
+      fi
+    fi
+  done
 }
 
 
 #######################################################################
+set -eu
+export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-case $1 in
+case ${1:-} in
   start)  clearAll
           addCommon
           addHetzner
           shift
-          addTor ${*:-$(getConfiguredRelays)}
+          addTor ${*:-$(getConfiguredRelays4)}
           addLocalServices
           ;;
   stop)   clearAll

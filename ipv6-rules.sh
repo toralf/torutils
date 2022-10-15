@@ -9,16 +9,16 @@ function addCommon() {
   # allow loopback
   ip6tables -A INPUT --in-interface lo -m comment --comment "$(date -R)" -j ACCEPT
   ip6tables -A INPUT -p udp --source fe80::/10 --dst ff02::1 -j ACCEPT
-  
+
   # make sure NEW incoming tcp connections are SYN packets
   ip6tables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
   ip6tables -A INPUT -m conntrack --ctstate INVALID -j DROP
-  
+
   # ssh
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config | awk '{ print $2 }')
   local addr=$(grep -m 1 -E "^ListenAddress\s+.+$"  /etc/ssh/sshd_config | awk '{ print $2 }' | grep -F ':')
   ip6tables -A INPUT -p tcp --dst ${addr:-"::/0"} --dport ${port:-22} -j ACCEPT
- 
+
   ## ratelimit ICMP echo
   ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -m limit --limit 6/s -j ACCEPT
   ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -j DROP
@@ -62,7 +62,7 @@ function addTor() {
     ip6tables -A INPUT -p tcp --dst $orip --dport $orport -m set --match-set $trustlist src -j ACCEPT
 
     # rule 2
-    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 6/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 6/minute --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     ip6tables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
 
     # rule 3
@@ -132,33 +132,22 @@ function printFirewall()  {
 }
 
 
-function getConfiguredRelays()  {
-  (
-    set +e
-
-    grep -hE "^ORPort\s+" /etc/tor/torrc* |
-    sed -e "s,^ORPort\s*,," |
-    sed -e 's,\s*#.*,,' |
-    grep -v ' ' |
-    while read line
-    do
-      grep -E "^\[[0-9a-f:]+\]:[0-9]+$" <<< $line
-      grep -E "^[0-9]+$" <<< $line | sed 's,^,[::]:,g'
-    done |
-    sort -u | xargs
-  )
+function getConfiguredRelays6()  {
+  sed 's,#.*,,' /etc/tor/torrc* | grep -P "^ORPort\s+[0-9a-f:\[\]]+:\d+\s*$" | awk '{ print $2 }'
 }
 
 
 #######################################################################
+set -eu
+export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-case $1 in
+case ${1:-} in
   start)  clearAll
           addCommon
           addHetzner
           shift
-          addTor ${*:-$(getConfiguredRelays)}
+          addTor ${*:-$(getConfiguredRelays6)}
           addLocalServices
           ;;
   stop)   clearAll
