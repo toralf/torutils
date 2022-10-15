@@ -129,6 +129,7 @@ function printFirewall()  {
   done
 }
 
+
 function getConfiguredRelays4()  {
   local orport
   local address

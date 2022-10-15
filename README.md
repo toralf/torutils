@@ -59,12 +59,12 @@ But now the other Tor relay has to wait till the local Tor relay opens an outbou
 
 This document covers the IPv4 part only. For IPv6 usually just replace "4" with "6" or simply add "6" where needed.
 
-If the detection of the configured relays doesn't work (line [132](ipv4-rules.sh#L132)), then:
+If the detection of the configured relays doesn't work (line [133](ipv4-rules.sh#L133)), then:
 1. specify them at the command line, eg.:
     ```bash
     sudo ./ipv4-rules.sh start 127.0.0.1:443 10.20.30.4:9001
     ```
-1. -or- hard code them, i.e. for IPv4 in line [159](ipv4-rules.sh#L159):
+1. -or- hard code them, i.e. for IPv4 in line [160](ipv4-rules.sh#L160):
     ```bash
      addTor 1.2.3.4:567
     ```
