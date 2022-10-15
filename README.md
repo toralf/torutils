@@ -9,7 +9,7 @@ Few tools for a Tor relay.
 The script [ipv4-rules.sh](./ipv4-rules.sh) is designed to lower the impact of a DDoS
 at [layer-3](https://www.infoblox.com/glossary/layer-3-of-the-osi-model-network-layer/)
 against a Tor relay by blocking ips making too much connection (attempts) to the local ORPort.
-[Here're](./sysstat.svg) metrics to show the effect (data gathered by [sysstat](http://pagesperso-orange.fr/sebastien.godard/)).
+[Here're](./sysstat.svg) metrics to show the effect (data gathered by [sysstat](http://pagesperso-orange.fr/sebastien.godard/), reboot at around 11:30).
 Details are in the issues [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393).
 
