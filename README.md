@@ -174,11 +174,11 @@ which can be plotted later by eg.:
 sudo ./ipset-stats.sh -p /tmp/ipset4.?.txt
 ```
 
-[key-expires.py](./key-expires.py) returns the seconds before the mid-term signing key expires, eg.:
+If you do use [Tor offline keys](https://support.torproject.org/relay-operators/offline-ed25519/)
+then [key-expires.py](./key-expires.py) helps you to not miss the key rotation timeline.
+It returns the seconds before the mid-term signing key expires, use it in a cron jobe like:
 
-```bash
-sudo ./key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert
-7286915
+```cron
+# Tor expiring keys
+@daily      n="$(( $(/opt/torutils/key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert)/86400 ))"; [[ $n -lt 23 ]] && echo "Tor signing key expires in less than $n day(s)"
 ```
-
-(about 84 days).
