@@ -11,12 +11,12 @@ to react on DDoS network attack against a Tor relay
 (issues [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)).
 They do block ips making too much connection (attempts) to the local ORPort.
-[This](./metrics-1.svg) and [this](./metrics-2.svg) metric show the effect for continuous and one-time attacks respectively.
-The data were gathered by [sysstat](http://pagesperso-orange.fr/sebastien.godard/), a reboot is seen too.
+Both [this](./metrics-1.svg) and [this](./metrics-2.svg) metric show the effect.
+The data were gathered by [sysstat](http://pagesperso-orange.fr/sebastien.godard/).
 
 ### Quick start
 The packages [iptables](https://www.netfilter.org/projects/iptables/) and [jq](https://stedolan.github.io/jq/) are needed.
-The call below replaces the previous content of the [filter](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) table of _iptables_ with [this](#rule-set) rule set.
+The call below replaces the previous content of the [filter](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) table of _iptables_ with the [rule set](#rule-set) described below.
 
 ```bash
 wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
@@ -47,40 +47,41 @@ The rules for an inbound connection to the local ORPort are:
 4. ignore a connection attempt from an ip hosting < 2 relays if 1 inbound connection is already established _[***]_
 5. ignore a connection attempt if 2 inbound connections are already established
 
-_[*]_ a 3-digit number of (changing) ips are blocked currently
-_[**]_ about 100 ips do "tunnel" rule 4 and 5 daily
-_[***]_ Having _jq_ not being installed would still work.
-But that would have an impact for 2 remote Tor relays running at the same ip.
-If both want to talk to the local filtered ORPort, then the first can initiate its connection.
-But now the 2nd has to wait till the local Tor relay opens an outbound connection to it.
+_[*]_ a 3-digit number of ips are blocked currently
+_[**]_ about 50 ips per day do "tunnel" rule 4 and 5
+_[***]_ Needs jq, but would work without jq being installed.
+But that would affect 2 Tor relays running at the same ip.
+If both want to talk to the local filtered ORPort, then as soon as one of both established a connection
+the connection attempts from the other are ignored.
+That relay has to wait till the local Tor relay opens a connection to it.
 
 ### Installation and configuration hints
 
-This document covers IPv4 mostly.
-For IPv6 just replace "4" with "6" or simply add "6" where needed and adapt the line numbers.
+Only the IPv4 case is covered.
+For IPv6 replace "4" with "6" or simply add "6" where needed and adapt the line numbers.
 
-If the detection of the configured relays doesn't work (line [133](ipv4-rules.sh#L133)) for you, then:
-1. define them in the environment, eg.:
+If the detection of the local Tor relays doesn't work (line [133](ipv4-rules.sh#L133)), then:
+1. specify them in the environment, eg.:
     ```bash
     export CONFIGURED_RELAYS="1.2.3.4:443"
     export CONFIGURED_RELAYS6="[cafe::beef]:9001"
     ```
 1. -and/or- create a pull requests to fix it ;)
 
-Allow inbound to additional local network services by:
-1. define them in the environment, eg.:
+Allow inbound traffic to additional local network services by:
+1. specifying them in the environment, eg.:
     ```bash
     export ADD_LOCAL_SERVICES="1.2.3.4:80 1.2.3.4:993"
     export ADD_LOCAL_SERVICES6="[dead:beef]:25"
     ```
 1. -or- hard code them in line [85](ipv4-rules.sh#L85)
-1. -or- edit the default policy in line [6](ipv4-rules.sh#L6) to accept any TCP inbound traffic not matched by any rule:
+1. -or- edit the default policy in line [6](ipv4-rules.sh#L6) to accept any TCP inbound traffic not matching an iptables rule:
     ```bash
     iptables -P INPUT ACCEPT
     ```
 
-If you do not use the Hetzner [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/), then
-1. remove the `addHetzner()` code, at least its call in line [158](ipv4-rules.sh#L158)
+If you do not use Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/), then
+1. remove the `addHetzner()` code, at least that call in line [158](ipv4-rules.sh#L158)
 1. -or- just ignore it
 
 ## query Tor via its API
@@ -117,17 +118,8 @@ For a monitoring of _exit_ connections use [ps.py](./ps.py):
 sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
 ```
 
-[orstatus.py](./orstatus.py) logs the reason of Tor circuit closing events.
-[orstatus-stats.sh](./orstatus-stats.sh) plots statistics of that output, eg.:
-
-```bash
-sudo ./orstatus.py --ctrlport 9051 --address ::1 >> /tmp/orstatus.9051 &
-sleep 60
-sudo ./orstatus-stats.sh /tmp/orstatus.9051 IOERROR
-```
-
 ### Prerequisites
-An open Tor control port is needed to query the Tor process over its API.
+An open Tor control port is needed to query the Tor process via API.
 Configure it in `torrc`, eg.:
 
 ```console
@@ -158,24 +150,35 @@ relay:65.21.94.13:443            ips:1     conns:12
 
 The script [ipset-stats.sh](./ipset-stats.sh) (package [gnuplot](http://www.gnuplot.info/) is needed)
 dumps and visualizes the content of an [ipset](https://ipset.netfilter.org).
-The cron example below (for user _root_) shows how to gather data:
+The cron example below (of user _root_) shows how to gather data:
 
 ```cron
 # Tor DDoS stats
 */30 * * * *  d=$(date +\%H-\%M); ~/torutils/ipset-stats.sh -d | tee -a /tmp/ipset4.txt > /tmp/ipset4.$d.txt
 ```
 
-which can be plotted later by eg.:
+from which histograms can be plotted, eg.:
 
 ```bash
 sudo ./ipset-stats.sh -p /tmp/ipset4.?.txt
 ```
 
+[orstatus.py](./orstatus.py) logs the reason of Tor circuit closing events.
+[orstatus-stats.sh](./orstatus-stats.sh) plots statistics over that output, eg.:
+
+```bash
+sudo ./orstatus.py --ctrlport 9051 --address ::1 >> /tmp/orstatus.9051 &
+sleep 600
+sudo ./orstatus-stats.sh /tmp/orstatus.9051 IOERROR
+```
+
 If you do use [Tor offline keys](https://support.torproject.org/relay-operators/offline-ed25519/)
 then [key-expires.py](./key-expires.py) helps you to not miss the key rotation timeline.
-It returns the seconds before the mid-term signing key expires, use it in a cron jobe like:
+It returns the seconds before the mid-term signing key expires, a cron job like:
 
 ```cron
 # Tor expiring keys
 @daily      n="$(( $(/opt/torutils/key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert)/86400 ))"; [[ $n -lt 23 ]] && echo "Tor signing key expires in less than $n day(s)"
 ```
+
+helps with that (if an mailer is configured).
