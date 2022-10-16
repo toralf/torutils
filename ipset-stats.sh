@@ -32,7 +32,7 @@ function plot() {
 
   sort | uniq -c | sort -bn | awk '{ print $1 }' | uniq -c | awk '{ print $2, $1 }' > $tmpfile
 
-  echo
+  echo "hits ips"
   if [[ $(wc -l < $tmpfile) -gt 7 ]]; then
     head -n 3 $tmpfile
     echo '...'
@@ -45,9 +45,9 @@ function plot() {
     gnuplot -e '
       set terminal dumb 65 24;
       set border back;
-      set title "'"$N"' occurrences of '"$n"' ip addresses";
+      set title "'"$N"' hits of '"$n"' ips";
       set key noautotitle;
-      set xlabel "occurrence";
+      set xlabel "hit";
       set logscale y 2;
       plot "'$tmpfile'" pt "o";
     '
