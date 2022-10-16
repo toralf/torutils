@@ -181,4 +181,4 @@ It returns the seconds before the mid-term signing key expires, a cron job like:
 @daily      n="$(( $(/opt/torutils/key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert)/86400 ))"; [[ $n -lt 23 ]] && echo "Tor signing key expires in less than $n day(s)"
 ```
 
-helps with that (if an mailer is configured).
+helps with that (if a mailer is configured).
