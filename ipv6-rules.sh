@@ -147,7 +147,7 @@ case ${1:-} in
           addCommon
           addHetzner
           shift
-          addTor ${*:-$(getConfiguredRelays6)}
+          addTor ${CONFIGURED_RELAYS6:-$(getConfiguredRelays6)}
           addLocalServices
           ;;
   stop)   clearAll
