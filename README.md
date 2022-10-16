@@ -11,8 +11,8 @@ to react on DDoS network attack against a Tor relay
 (issues [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)).
 They do block ips making too much connection (attempts) to the local ORPort.
-[These](./sysstat.svg) metrics show the effect.
-The data were gathered by [sysstat](http://pagesperso-orange.fr/sebastien.godard/), a reboot is seen around 11:35.
+[This](./metrics-1.svg) and [this](./metrics-2.svg) metric show the effect for continuous and one-time attacks respectively.
+The data were gathered by [sysstat](http://pagesperso-orange.fr/sebastien.godard/), a reboot is seen too.
 
 ### Quick start
 The packages [iptables](https://www.netfilter.org/projects/iptables/) and [jq](https://stedolan.github.io/jq/) are needed.
