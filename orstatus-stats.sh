@@ -44,6 +44,7 @@ if [[ -n $reason ]]; then
   awk '{ print $2, $1 }' > $tmpfile
 
   echo
+  echo "$reason fingerprints"
   if [[ $(wc -l < $tmpfile) -gt 7 ]]; then
     head -n 3 $tmpfile
     echo '...'
