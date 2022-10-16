@@ -59,22 +59,19 @@ But now the 2nd has to wait till the local Tor relay opens an outbound connectio
 This document covers IPv4 mostly.
 For IPv6 just replace "4" with "6" or simply add "6" where needed and adapt the line numbers.
 
-If the detection of the configured relays doesn't work (line [133](ipv4-rules.sh#L133)), then:
-1. specify them at the command line, eg.:
+If the detection of the configured relays doesn't work (line [133](ipv4-rules.sh#L133)) for you, then:
+1. define them in the environment, eg.:
     ```bash
-    sudo ./ipv4-rules.sh start 127.0.0.1:443 10.20.30.4:9001
+    export CONFIGURED_RELAYS="1.2.3.4:443"
+    export CONFIGURED_RELAYS6="[cafe::beef]:9001"
     ```
-1. -or- hard code them, i.e. for IPv4 in line [160](ipv4-rules.sh#L160):
-    ```bash
-     addTor 1.2.3.4:567
-    ```
-1. -or- create a pull requests to fix it ;)
+1. -and/or- create a pull requests to fix it ;)
 
-To allow inbound to additional local network services, either
-1. define them in the appropriate environment variable, eg.:
+Allow inbound to additional local network services by:
+1. define them in the environment, eg.:
     ```bash
-    export ADD_LOCAL_SERVICES="10.20.30.40:25 10.20.30.41:80"
-    export ADD_LOCAL_SERVICES6="[dead:beef]:23"
+    export ADD_LOCAL_SERVICES="1.2.3.4:80 1.2.3.4:993"
+    export ADD_LOCAL_SERVICES6="[dead:beef]:25"
     ```
 1. -or- hard code them in line [85](ipv4-rules.sh#L85)
 1. -or- edit the default policy in line [6](ipv4-rules.sh#L6) to accept any TCP inbound traffic not matched by any rule:
