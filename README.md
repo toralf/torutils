@@ -47,13 +47,13 @@ The rules for an inbound connection to the local ORPort are:
 4. ignore a connection attempt from an ip hosting < 2 relays if 1 inbound connection is already established _[***]_
 5. ignore a connection attempt if 2 inbound connections are already established
 
-_[*]_ a 3-digit number of ips are blocked currently
+_[*]_ a 3-digit number of ips are blocked, the "5" is a heuristic value and not yet fixed
 _[**]_ about 50 ips per day do "tunnel" rule 4 and 5
-_[***]_ Needs jq, but would work without jq being installed.
+_[***]_ jq needed, but the rule would work without jq being installed too.
 But that would affect 2 Tor relays running at the same ip.
-If both want to talk to the local filtered ORPort, then as soon as one of both established a connection
-the connection attempts from the other are ignored.
-That relay has to wait till the local Tor relay opens a connection to it.
+If both want to talk to the local filtered ORPort, then as soon as one established a connection,
+then all subsequent connection attempts from the other are ignored.
+The other has to wait till the local Tor relay opens a connection to it.
 
 ### Installation and configuration hints
 
