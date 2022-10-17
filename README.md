@@ -81,8 +81,22 @@ Allow inbound traffic to additional local network services by:
     ```
 
 If you do not use Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/), then
-1. remove the `addHetzner()` code, at least that call in line [158](ipv4-rules.sh#L158)
+1. remove the _addHetzner()_ code, at least that call in line [158](ipv4-rules.sh#L158)
 1. -or- just ignore it
+
+I do have set the _uname_ limit for the Tor process to _60000_.
+Furthermore I do apply this sysctl settings via _/etc/sysctl.d/local.conf_:
+
+```console
+net.ipv4.ip_local_port_range = 2000 63999
+kernel.kptr_restrict = 1
+kernel.perf_event_paranoid = 3
+kernel.kexec_load_disabled = 1
+kernel.yama.ptrace_scope = 1
+user.max_user_namespaces = 0
+kernel.unprivileged_bpf_disabled = 1
+net.core.bpf_jit_harden = 2
+```
 
 ## query Tor via its API
 
@@ -120,7 +134,7 @@ sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
 
 ### Prerequisites
 An open Tor control port is needed to query the Tor process via API.
-Configure it in `torrc`, eg.:
+Configure it in _torrc_, eg.:
 
 ```console
 ControlPort 127.0.0.1:9051
@@ -164,7 +178,7 @@ sudo ./ipset-stats.sh -p /tmp/ipset4.?.txt
 ```
 
 [orstatus.py](./orstatus.py) logs the reason of Tor circuit closing events.
-[orstatus-stats.sh](./orstatus-stats.sh) plots statistics over that output, eg.:
+[orstatus-stats.sh](./orstatus-stats.sh) plots statistics fram the output, eg.:
 
 ```bash
 sudo ./orstatus.py --ctrlport 9051 --address ::1 >> /tmp/orstatus.9051 &
