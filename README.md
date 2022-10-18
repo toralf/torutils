@@ -178,13 +178,61 @@ sudo ./ipset-stats.sh -p /tmp/ipset4.?.txt
 ```
 
 [orstatus.py](./orstatus.py) logs the reason of Tor circuit closing events.
-[orstatus-stats.sh](./orstatus-stats.sh) plots statistics fram the output, eg.:
+[orstatus-stats.sh](./orstatus-stats.sh) prints and/or plots statistics from the output, eg.:
 
 ```bash
 sudo ./orstatus.py --ctrlport 9051 --address ::1 >> /tmp/orstatus.9051 &
-sleep 600
-sudo ./orstatus-stats.sh /tmp/orstatus.9051 IOERROR
 ```
+
+After running it for about 3 days run (the reason is optional):
+
+```bash
+sudo ./orstatus-stats.sh /tmp/orstatus.9051 CONNECTRESET
+```
+
+which gives something like:
+
+``console
+      1 CONNECTREFUSED
+  25882 CONNECTRESET
+  13157 DONE
+  57806 IOERROR
+    129 NOROUTE
+   3286 TIMEOUT
+    295 TLS_ERROR
+ 100556
+
+CONNECTRESET fingerprints
+1 631
+2 138
+3 91
+...
+683 1
+827 1
+837 1                             
+                   25882 x CONNECTRESET for 1310 fingerprint(s)                
+  1000 +-------------------------------------------------------------------+   
+       o+      +      +       +      +       +      +       +      +      +|   
+       |+                                                                 +|   
+       |+                                                                 +|   
+       |+                                                                 +|   
+       o                                                                   |   
+   100 o-+                                                               +-|   
+       o+                                                                 +|   
+       o+                                                                 +|   
+       |+                                                                 +|   
+       oo                                                                 +|   
+    10 |o+                                                               +-|   
+       |ooo                                                               +|   
+       |oo                                                                +|   
+       |oooooo   o                                                        +|   
+       |+oooooo  oo o  o       o                                          +|   
+       |       +      +       +      +       +      +       +      +       |   
+     1 +-oooooooooooooo-o-oo--oooo----o---ooo--o---oo------o---------oo----+   
+       0      100    200     300    400     500    600     700    800     900  
+                                   CONNECTRESET                                
+```
+
 
 If you do use [Tor offline keys](https://support.torproject.org/relay-operators/offline-ed25519/)
 then [key-expires.py](./key-expires.py) helps you to not miss the key rotation timeline.
