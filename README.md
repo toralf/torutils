@@ -176,7 +176,14 @@ The cron example below (of user _root_) shows how to gather data:
 from which histograms can be plotted, eg.:
 
 ```bash
-sudo ./ipset-stats.sh -p /tmp/ipset4.?.txt
+sudo ./ipset-stats.sh -p /tmp/ipset4.*.txt
+```
+
+To check, how often Tor relays were blocked, run:
+
+```bash
+curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - | jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | xargs -n 1 | sort -u > /tmp/relays
+grep -h -w -f /tmp/relays /tmp/ipset4.*.txt | sort | uniq -c | sort -bn
 ```
 
 [orstatus.py](./orstatus.py) logs the reason of Tor circuit closing events.
