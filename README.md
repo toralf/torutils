@@ -192,7 +192,7 @@ sudo ./orstatus-stats.sh /tmp/orstatus.9051 CONNECTRESET
 
 which gives something like:
 
-``console
+```console
       1 CONNECTREFUSED
   25882 CONNECTRESET
   13157 DONE
