@@ -16,7 +16,7 @@ The data were gathered by [sysstat](http://pagesperso-orange.fr/sebastien.godard
 
 ### Quick start
 The packages [iptables](https://www.netfilter.org/projects/iptables/) and [jq](https://stedolan.github.io/jq/) are needed.
-The call below replaces the previous content of the [filter](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) table of _iptables_ with the [rule set](#rule-set) described below.
+The call below replaces the content of the [filter](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) table of _iptables_ with the [rule set](#rule-set) described below.
 
 ```bash
 wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
@@ -38,28 +38,17 @@ To reset the filter table, run:
 sudo ./ipv4-rules.sh stop
 ```
 
-### Rule Set
-The rules for an inbound connection to the local ORPort are:
+### Rule set
+The rules for an ip connecting to the local ORPort are:
 
 1. trust Tor authorities and snowflake
-2. block the ip for 30 min if > 5 inbound connection attempts per minute are made _[*]_
-3. block the ip for 30 min if > 3 inbound connections are established _[**]_
-4. ignore a connection attempt from an ip hosting only 1 relay if 1 inbound connection is already established _[***]_
-5. ignore a connection attempt if 2 inbound connections are already established
-
-_[*]_ a 3-4 digit number of ips are blocked
-_[**]_ about 50 ips per day do "tunnel" rule 4 and 5
-_[***]_ jq is needed to query for ips where 2 Tor relays are running on it (line [35](ipv4-rules.sh#L35)).
-But the rule set would even work if this ip set is empty.
-However that would affect all pairs Tor relays running at the same ip.
-As soon as one of such a pair established a connection to the local filtered ORPort,
-then all subsequent connection attempts from the other are ignored.
-Instead the other has to wait for the local Tor to open a connection to it.
+2. block the ip for 30 min if > 5 inbound connection attempts per minute are made
+3. block the ip for 30 min if > 3 inbound connections are established
+4. ignore any further connection attempt if the ip is hosting only 1 relay and has already 1 inbound connection established
+5. ignore any further connection attempt if 2 inbound connections are already established
 
 ### Installation and configuration hints
-
-Only the IPv4 case is covered.
-For IPv6 replace "4" with "6" or simply add "6" where needed and adapt the line numbers.
+The instructions are made for the IPv4 script. The IPv6 script can be handled in a similar way.
 
 If the parsing of the torrc (line [145](ipv4-rules.sh#L145)) doesn't work, then:
 1. specify the relays in the environment, eg.:
@@ -101,13 +90,13 @@ net.core.bpf_jit_harden = 2
 
 ## query Tor via its API
 
-[info.py](./info.py) gives a summary of the Tor relay connections, eg.:
+[info.py](./info.py) gives a summary of all  connections, eg.:
 
 ```bash
 sudo ./info.py --address 127.0.0.1 --ctrlport 9051
 ```
 
-gives something like:
+gives here:
 
 ```console
  0.4.8.0-alpha-dev   uptime: 2-08:25:40   flags: Fast, Guard, Running, Stable, V2Dir, Valid
@@ -142,7 +131,7 @@ ControlPort 127.0.0.1:9051
 ControlPort [::1]:9051
 ```
 
-The python library [Stem](https://stem.torproject.org/index.html) is mandatory.
+The [Stem](https://stem.torproject.org/index.html) python library is mandatory.
 The latest version can be derived by eg.:
 
 ```bash
@@ -155,7 +144,7 @@ The package [gnuplot](http://www.gnuplot.info/) is needed to plot graphs.
 
 ## Misc
 
-[ddos-inbound.sh](./ddos-inbound.sh) lists ips having more inbound connections to a local ORPort than a given limit (default: 2).
+[ddos-inbound.sh](./ddos-inbound.sh) lists ips having more inbound connections to a local ORPort than the given upper limit (default: 2).
 It should usually list _snowflake-01_ only:
 
 ```console
