@@ -137,7 +137,9 @@ function getConfiguredRelays4()  {
   for f in /etc/tor/torrc*
   do
     if orport=$(sed 's,\s*#.*,,' $f | grep -m 1 -P "^ORPort\s+.+\s*$"); then
-      if ! grep -Po "^ORPort\s+\d+\.\d+\.\d+\.\d+\:\d+\s*$" <<< $orport; then
+      if grep -q -Po "^ORPort\s+\d+\.\d+\.\d+\.\d+\:\d+\s*$" <<< $orport; then
+        awk '{ print $2 }' <<< $orport
+      else
         if address=$(sed 's,\s*#.*,,' $f | grep -m 1 -P "^Address\s+\d+\.\d+\.\d+\.\d+\s*$"); then
           echo $(awk '{ print $2 }' <<< $address):$(awk '{ print $2 }' <<< $orport)
         fi
