@@ -83,7 +83,10 @@ function addTor() {
 
 
 function addLocalServices() {
-  for service in $ADD_LOCAL_SERVICES
+  local addr
+  local port
+
+  for service in ${ADD_LOCAL_SERVICES:-}
   do
     read -r addr port <<< $(tr ':' ' ' <<< $service)
     iptables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT || echo " addLocalServices(): error for $service"
@@ -105,6 +108,8 @@ function addHetzner() {
 
 
 function clearAll() {
+  local table
+
   iptables -P INPUT  ACCEPT
   iptables -P OUTPUT ACCEPT
 
@@ -118,6 +123,8 @@ function clearAll() {
 
 
 function printFirewall()  {
+  local table
+
   date -R
   echo
   for table in raw mangle nat filter

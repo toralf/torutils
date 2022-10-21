@@ -85,7 +85,10 @@ function addTor() {
 
 
 function addLocalServices() {
-  for service in $ADD_LOCAL_SERVICES6
+  local addr
+  local port
+
+  for service in ${ADD_LOCAL_SERVICES6:-}
   do
     read -r addr port <<< $(sed -e 's,]:, ,' <<< $service | tr '[' ' ')
     ip6tables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT || echo " addLocalServices(): error for $service"
@@ -107,6 +110,8 @@ function addHetzner() {
 
 
 function clearAll() {
+  local table
+
   ip6tables -P INPUT  ACCEPT
   ip6tables -P OUTPUT ACCEPT
 
@@ -120,6 +125,8 @@ function clearAll() {
 
 
 function printFirewall()  {
+  local table
+
   date -R
   echo
   for table in raw mangle nat filter
