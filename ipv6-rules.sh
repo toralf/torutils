@@ -59,7 +59,10 @@ function addTor() {
     read -r orip orport <<< $(sed -e 's,]:, ,' <<< $relay | tr '[' ' ')
 
     # rule 1
-    ip6tables -A INPUT -p tcp --dst $orip --dport $orport -m set --match-set $trustlist src -j ACCEPT
+    if ! ip6tables -A INPUT -p tcp --dst $orip --dport $orport -m set --match-set $trustlist src -j ACCEPT; then
+      echo " addTor(): error for $relay"
+      continue
+    fi
 
     # rule 2
     ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 5/minute --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
@@ -91,7 +94,9 @@ function addLocalServices() {
   for service in ${ADD_LOCAL_SERVICES6:-}
   do
     read -r addr port <<< $(sed -e 's,]:, ,' <<< $service | tr '[' ' ')
-    ip6tables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT || echo " addLocalServices(): error for $service"
+    if ! ip6tables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT; then
+      echo " addLocalServices(): error for $service"
+    fi
   done
 }
 

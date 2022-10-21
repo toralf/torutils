@@ -57,7 +57,10 @@ function addTor() {
     read -r orip orport <<< $(tr ':' ' ' <<< $relay)
 
     # rule 1
-    iptables -A INPUT -p tcp --dst $orip --dport $orport -m set --match-set $trustlist src -j ACCEPT
+    if ! iptables -A INPUT -p tcp --dst $orip --dport $orport -m set --match-set $trustlist src -j ACCEPT; then
+      echo " addTor(): error for $relay"
+      continue
+    fi
 
     # rule 2
     iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 5/minute --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
@@ -89,7 +92,9 @@ function addLocalServices() {
   for service in ${ADD_LOCAL_SERVICES:-}
   do
     read -r addr port <<< $(tr ':' ' ' <<< $service)
-    iptables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT || echo " addLocalServices(): error for $service"
+    if ! iptables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT; then
+      echo " addLocalServices(): error for $service"
+    fi
   done
 }
 
