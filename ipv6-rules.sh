@@ -35,6 +35,11 @@ function __fill_trustlist() {
 
 
 function __fill_multilist() {
+  if ! jq --help &>/dev/null; then
+    { echo " please install package jq to get most of this script" >&2; }
+    return 0
+  fi
+
   curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |
   jq -cr '.relays[].a' | tr '][",' ' ' | sort | uniq -c | grep -v ' 1 ' |
   xargs -n 1 | grep -F ':' |

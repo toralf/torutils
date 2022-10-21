@@ -50,7 +50,7 @@ The rules for an ip connecting to the local ORPort are:
 ### Installation and configuration hints
 The instructions are made for the IPv4 script. The IPv6 script can be handled in a similar way.
 
-If the parsing of the torrc (line [145](ipv4-rules.sh#L145)) doesn't work, then:
+If the parsing of the torrc (line [150](ipv4-rules.sh#L150)) doesn't work, then:
 1. specify the relays in the environment, eg.:
     ```bash
     export CONFIGURED_RELAYS="1.2.3.4:443"
@@ -64,14 +64,14 @@ Allow inbound traffic to additional local network services by:
     export ADD_LOCAL_SERVICES="1.2.3.4:80 1.2.3.4:993"
     export ADD_LOCAL_SERVICES6="[dead:beef]:25"
     ```
-1. -or- hard code them in line [88](ipv4-rules.sh#L88)
+1. -or- hard code them in line [93](ipv4-rules.sh#L93)
 1. -or- edit the default policy in line [6](ipv4-rules.sh#L6) to accept any TCP inbound traffic not matching an iptables rule:
     ```bash
     iptables -P INPUT ACCEPT
     ```
 
 If you do not use Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/), then
-1. remove the _addHetzner()_ code, at least that call in line [172](ipv4-rules.sh#L172)
+1. remove the _addHetzner()_ code, at least that call in line [177](ipv4-rules.sh#L177)
 1. -or- just ignore it
 
 I do have set the _uname_ limit for the Tor process to _60000_.
