@@ -44,31 +44,30 @@ The rules for an inbound connection to the local ORPort are:
 1. trust Tor authorities and snowflake
 2. block the ip for 30 min if > 5 inbound connection attempts per minute are made _[*]_
 3. block the ip for 30 min if > 3 inbound connections are established _[**]_
-4. ignore a connection attempt from an ip hosting < 2 relays if 1 inbound connection is already established _[***]_
+4. ignore a connection attempt from an ip hosting only 1 relay if 1 inbound connection is already established _[***]_
 5. ignore a connection attempt if 2 inbound connections are already established
 
 _[*]_ a 3-4 digit number of ips are blocked
 _[**]_ about 50 ips per day do "tunnel" rule 4 and 5
-_[***]_ jq is needed to gather the ips where >1 Tor relay are running and fill them into an ipset (line [35](ipv4-rules.sh#L35)).
-But the rule set would work with this ip set being empty nevertheless.
-However that would affect Tor relays running at the same ip.
-As soon as the 1st of 2 Tor relays, running at such an ip,
-established a connection to the local filtered ORPort,
-then all subsequent connection attempts from the other Tor relay of that ip are ignored.
-Instead the other Tor relay has to wait for the local Tor relay to open a connection to it.
+_[***]_ jq is needed to query for ips where 2 Tor relays are running on it (line [35](ipv4-rules.sh#L35)).
+But the rule set would even work if this ip set is empty.
+However that would affect all pairs Tor relays running at the same ip.
+As soon as one of such a pair established a connection to the local filtered ORPort,
+then all subsequent connection attempts from the other are ignored.
+Instead the other has to wait for the local Tor to open a connection to it.
 
 ### Installation and configuration hints
 
 Only the IPv4 case is covered.
 For IPv6 replace "4" with "6" or simply add "6" where needed and adapt the line numbers.
 
-If the detection of the local Tor relays doesn't work (line [133](ipv4-rules.sh#L133)), then:
-1. specify them in the environment, eg.:
+If the parsing of the torrc (line [145](ipv4-rules.sh#L145)) doesn't work, then:
+1. specify the relays in the environment, eg.:
     ```bash
     export CONFIGURED_RELAYS="1.2.3.4:443"
     export CONFIGURED_RELAYS6="[cafe::beef]:9001"
     ```
-1. -and/or- create a pull requests to fix it ;)
+1. -and/or- create a pull requests to fix the script ;)
 
 Allow inbound traffic to additional local network services by:
 1. specifying them in the environment, eg.:
@@ -76,14 +75,14 @@ Allow inbound traffic to additional local network services by:
     export ADD_LOCAL_SERVICES="1.2.3.4:80 1.2.3.4:993"
     export ADD_LOCAL_SERVICES6="[dead:beef]:25"
     ```
-1. -or- hard code them in line [85](ipv4-rules.sh#L85)
+1. -or- hard code them in line [88](ipv4-rules.sh#L88)
 1. -or- edit the default policy in line [6](ipv4-rules.sh#L6) to accept any TCP inbound traffic not matching an iptables rule:
     ```bash
     iptables -P INPUT ACCEPT
     ```
 
 If you do not use Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/), then
-1. remove the _addHetzner()_ code, at least that call in line [158](ipv4-rules.sh#L158)
+1. remove the _addHetzner()_ code, at least that call in line [174](ipv4-rules.sh#L174)
 1. -or- just ignore it
 
 I do have set the _uname_ limit for the Tor process to _60000_.
@@ -193,55 +192,11 @@ grep -h -w -f /tmp/relays /tmp/ipset4.*.txt | sort | uniq -c | sort -bn
 sudo ./orstatus.py --ctrlport 9051 --address ::1 >> /tmp/orstatus.9051 &
 ```
 
-After running it for about 3 days run (the reason is optional):
+After running it for a while evaluate the output with (specifying the reason is optional):
 
 ```bash
 sudo ./orstatus-stats.sh /tmp/orstatus.9051 CONNECTRESET
 ```
-
-which gives something like:
-
-```console
-      1 CONNECTREFUSED
-  25882 CONNECTRESET
-  13157 DONE
-  57806 IOERROR
-    129 NOROUTE
-   3286 TIMEOUT
-    295 TLS_ERROR
- 100556
-
-CONNECTRESET fingerprints
-1 631
-2 138
-3 91
-...
-683 1
-827 1
-837 1                             
-                   25882 x CONNECTRESET for 1310 fingerprint(s)                
-  1000 +-------------------------------------------------------------------+   
-       o+      +      +       +      +       +      +       +      +      +|   
-       |+                                                                 +|   
-       |+                                                                 +|   
-       |+                                                                 +|   
-       o                                                                   |   
-   100 o-+                                                               +-|   
-       o+                                                                 +|   
-       o+                                                                 +|   
-       |+                                                                 +|   
-       oo                                                                 +|   
-    10 |o+                                                               +-|   
-       |ooo                                                               +|   
-       |oo                                                                +|   
-       |oooooo   o                                                        +|   
-       |+oooooo  oo o  o       o                                          +|   
-       |       +      +       +      +       +      +       +      +       |   
-     1 +-oooooooooooooo-o-oo--oooo----o---ooo--o---oo------o---------oo----+   
-       0      100    200     300    400     500    600     700    800     900  
-                                   CONNECTRESET                                
-```
-
 
 If you do use [Tor offline keys](https://support.torproject.org/relay-operators/offline-ed25519/)
 then [key-expires.py](./key-expires.py) helps you to not miss the key rotation timeline.
