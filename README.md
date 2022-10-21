@@ -15,8 +15,7 @@ Both [this](./metrics-1.svg) and [this](./metrics-2.svg) metric show the effect.
 The data were gathered by [sysstat](http://pagesperso-orange.fr/sebastien.godard/).
 
 ### Quick start
-The packages [iptables](https://www.netfilter.org/projects/iptables/) and [jq](https://stedolan.github.io/jq/) are needed.
-The call below replaces the content of the [filter](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) table of _iptables_ with the [rule set](#rule-set) described below.
+The call below replaces the content of the [filter](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) table of _iptables_ with [this](#rule-set) rule set.
 
 ```bash
 wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
@@ -32,26 +31,29 @@ sudo watch -t ./ipv4-rules.sh
 ```
 
 The output should look similar to these [IPv4](./iptables-L.txt) and [IPv6](./ip6tables-L.txt) examples.
-To reset the filter table, run:
+To stop filtering, just run:
 
 ```bash
 sudo ./ipv4-rules.sh stop
 ```
 
 ### Rule set
-The rules for an ip connecting to the local ORPort are:
+There 5 rules for an ip connecting to the local ORPort:
 
 1. trust Tor authorities and snowflake
 2. block the ip for 30 min if > 5 inbound connection attempts per minute are made
 3. block the ip for 30 min if > 3 inbound connections are established
-4. ignore any further connection attempt if the ip is hosting only 1 relay and has already 1 inbound connection established
+4. ignore any further connection attempt if the ip is not hosting 2 relays and has 1 inbound connection already established
 5. ignore any further connection attempt if 2 inbound connections are already established
 
 ### Installation and configuration hints
 The instructions are made for the IPv4 script. The IPv6 script can be handled in a similar way.
 
-If the parsing of the torrc (line [150](ipv4-rules.sh#L150)) doesn't work, then:
-1. specify the relays in the environment, eg.:
+The package [iptables](https://www.netfilter.org/projects/iptables/) is needed,
+[jq](https://stedolan.github.io/jq/) is needed in rule 4 to know if and which relays run at the same ip.
+
+If the parsing of Tors config file _torrc_ (line [150](ipv4-rules.sh#L150)) doesn't work, then:
+1. define the relay/s in the environment variable, eg.:
     ```bash
     export CONFIGURED_RELAYS="1.2.3.4:443"
     export CONFIGURED_RELAYS6="[cafe::beef]:9001"
@@ -59,23 +61,26 @@ If the parsing of the torrc (line [150](ipv4-rules.sh#L150)) doesn't work, then:
 1. -and/or- create a pull requests to fix the script ;)
 
 Allow inbound traffic to additional local network services by:
-1. specifying them in the environment, eg.:
+1. define the relay/s in the environment variable, eg.:
     ```bash
     export ADD_LOCAL_SERVICES="1.2.3.4:80 1.2.3.4:993"
     export ADD_LOCAL_SERVICES6="[dead:beef]:25"
     ```
-1. -or- hard code them in line [93](ipv4-rules.sh#L93)
-1. -or- edit the default policy in line [6](ipv4-rules.sh#L6) to accept any TCP inbound traffic not matching an iptables rule:
+1. -or- hard code the relay/s in line [93](ipv4-rules.sh#L93)
+1. -or- edit the default policy in line [6](ipv4-rules.sh#L6) (not recommended):
     ```bash
     iptables -P INPUT ACCEPT
     ```
 
-If you do not use Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/), then
+If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) it not needed,
+then
 1. remove the _addHetzner()_ code, at least that call in line [177](ipv4-rules.sh#L177)
 1. -or- just ignore it
 
-I do have set the _uname_ limit for the Tor process to _60000_.
-Furthermore I do apply this sysctl settings via _/etc/sysctl.d/local.conf_:
+### Sysctl settings
+
+I have set the _uname_ limit for the Tor process to _60000_.
+Furthermore I configured in _/etc/sysctl.d/local.conf_:
 
 ```console
 net.ipv4.ip_local_port_range = 2000 63999
@@ -88,7 +93,7 @@ kernel.unprivileged_bpf_disabled = 1
 net.core.bpf_jit_harden = 2
 ```
 
-## query Tor via its API
+## Query Tor via its API
 
 [info.py](./info.py) gives a summary of all  connections, eg.:
 
