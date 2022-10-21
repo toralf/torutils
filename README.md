@@ -82,7 +82,7 @@ Allow inbound traffic to additional local network services by:
     ```
 
 If you do not use Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/), then
-1. remove the _addHetzner()_ code, at least that call in line [174](ipv4-rules.sh#L174)
+1. remove the _addHetzner()_ code, at least that call in line [172](ipv4-rules.sh#L172)
 1. -or- just ignore it
 
 I do have set the _uname_ limit for the Tor process to _60000_.
