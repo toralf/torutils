@@ -160,7 +160,7 @@ It should usually list _snowflake-01_ only:
 
 ```console
 ip                       193.187.88.42           12
-relay:65.21.94.13:443            ips:1     conns:12   
+relay:65.21.94.13:443            ips:1     conns:12
 ```
 
 The script [ipset-stats.sh](./ipset-stats.sh) (package [gnuplot](http://www.gnuplot.info/) is needed)
@@ -176,6 +176,31 @@ from which histograms can be plotted, eg.:
 
 ```bash
 sudo ./ipset-stats.sh -p /tmp/ipset4.*.txt
+```
+
+which gives currently
+```console
+                       49397 hits of 6565 ips
+       +-----------------------------------------------------+
+       |o   +     +    +     +    +    +     +    +     +    |
+  1024 |-+  oo                                             +-|
+       |   o   o                                             |
+       | oo                                                  |
+   256 |-+      o                    o                     +-|
+       |         o                    o                      |
+       |                                                     |
+    64 |-+                                                 o-|
+       |          o                    o                     |
+       |                                                     |
+       |           o o              o                     o  |
+    16 |-+          o o           oo                       +-|
+       |               oo o  o   o      o   o   o        o   |
+       |                 o      o          o  o      o       |
+     4 |-+                  o  o          o    o  o     o  +-|
+       |    +     +    +     +o   +    +     o    + o  o+    |
+       +-----------------------------------------o-o---------+
+       0    5     10   15    20   25   30    35   40    45   50
+                                 hit
 ```
 
 To check, how often Tor relays were blocked, run:
