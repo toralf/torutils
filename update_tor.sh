@@ -3,9 +3,7 @@
 # set -x
 
 
-# this works under Gentoo Linux only and and only
-# if net-vpn/tor-9999 is unmasked (https://github.com/toralf/tgro/blob/main/net-vpn/tor/)
-# but then: keep Tor service(s) at -git HEAD
+# update Tor under Gentoo Linux
 
 
 #######################################################################
@@ -27,14 +25,14 @@ version=$(tor --version | head -n 1)
 if grep -q 'git' <<< $version; then
   version=$(cut -f2 -d'(' <<< $version | tr -d '(git\-).')
 fi
-head=$(git describe HEAD | sed "s,^.*-g,,g")
+githead=$(git describe HEAD | sed "s,^.*-g,,g")
 
 date
 
-echo -e "update $version..$head\n"
+echo -e "update $version..$githead\n"
 unset GIT_PAGER
 export PAGER=cat
-git log --oneline $version..$head 2>/dev/null && git diff --stat $version..$head
+git log --oneline $version..$githead 2>/dev/null && git diff --stat $version..$githead
 
 emerge -1 net-vpn/tor
 echo -e "\nrestart Tor\n"
