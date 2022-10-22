@@ -1,0 +1,21 @@
+# Tor expiring keys
+@daily      n="$(( $(/opt/torutils/key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert)/86400 ))"; [[ $n -lt 15 ]] && echo "Tor signing key expires in less than $n day(s)"
+
+# Tor metrics
+* * * * *   for p in 9052 29052; do (echo; date -R; wget 127.0.0.1:$p/metrics -q -O - | grep -v -e '^#' -e ' 0$' -e '"success"' -e 'ntor_v3' | sort) >> /tmp/metrics.$p; done
+
+# update to latest Git HEAD
+@hourly     /opt/torutils/update_tor.sh
+
+# Tor DDoS stats
+@reboot       curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - | jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | xargs -n 1 | sort -u > /tmp/relays
+*/30 * * * *  d=$(date +\%H-\%M); /opt/torutils/ipset-stats.sh -d | tee -a /tmp/ipset4.txt > /tmp/ipset4.$d.txt
+*/30 * * * *  d=$(date +\%H-\%M); /opt/torutils/ipset-stats.sh -D | tee -a /tmp/ipset6.txt > /tmp/ipset6.$d.txt
+@hourly       grep -h -w -f /tmp/relays /tmp/ipset4.*.txt | sort | uniq -c | sort -bn > /tmp/blocked_relays
+@hourly       grep -h -w -f /tmp/relays /tmp/ipset6.*.txt | sort | uniq -c | sort -bn > /tmp/blocked_relays6
+#0    * * * *  (/opt/torutils/ipset-stats.sh -a; /opt/torutils/ipset-stats.sh -A) | gpg --yes --output /tmp/fuzzing/ipsets.txt --encrypt --armor --recipient nusenu@riseup.net
+
+# Tor circuit closing reason
+@reboot     export PYTHONPATH=/root/stem; sleep 60; /opt/torutils/orstatus.py --ctrlport  9051 --address ::1 >> /tmp/orstatus.9051
+@reboot     export PYTHONPATH=/root/stem; sleep 60; /opt/torutils/orstatus.py --ctrlport 29051 --address ::1 >> /tmp/orstatus.29051
+

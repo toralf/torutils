@@ -159,14 +159,9 @@ relay:65.21.94.13:443            ips:1     conns:12
 
 The script [ipset-stats.sh](./ipset-stats.sh) (package [gnuplot](http://www.gnuplot.info/) is needed)
 dumps and visualizes the content of an [ipset](https://ipset.netfilter.org).
-The cron example below (of user _root_) shows how to gather data:
 
-```cron
-# Tor DDoS stats
-*/30 * * * *  d=$(date +\%H-\%M); ~/torutils/ipset-stats.sh -d | tee -a /tmp/ipset4.txt > /tmp/ipset4.$d.txt
-```
-
-from which histograms can be plotted, eg.:
+[This](./doc/crontab.txt) crontab example (of user _root_) shows how to gather data,
+from which histograms like the one below can be plotted by:
 
 ```bash
 sudo ./ipset-stats.sh -p /tmp/ipset4.*.txt
@@ -197,7 +192,7 @@ which gives currently
                                  hit
 ```
 
-To check, how often Tor relays were blocked, run:
+The next example shows, how to check if Tor relays were blocked:
 
 ```bash
 curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - | jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | xargs -n 1 | sort -u > /tmp/relays
@@ -208,22 +203,14 @@ grep -h -w -f /tmp/relays /tmp/ipset4.*.txt | sort | uniq -c | sort -bn
 [orstatus-stats.sh](./orstatus-stats.sh) prints and/or plots statistics from the output, eg.:
 
 ```bash
-sudo ./orstatus.py --ctrlport 9051 --address ::1 >> /tmp/orstatus.9051 &
-```
-
-After running it for a while evaluate the output with (specifying the reason is optional):
-
-```bash
-sudo ./orstatus-stats.sh /tmp/orstatus.9051 CONNECTRESET
+sudo ./orstatus-stats.sh /tmp/orstatus.9051 TLS_ERROR
 ```
 
 If you do use [Tor offline keys](https://support.torproject.org/relay-operators/offline-ed25519/)
 then [key-expires.py](./key-expires.py) helps you to not miss the key rotation timeline.
-It returns the seconds before the mid-term signing key expires, a cron job like:
+It returns the seconds before the mid-term signing key expires, eg:
 
-```cron
-# Tor expiring keys
-@daily      n="$(( $(/opt/torutils/key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert)/86400 ))"; [[ $n -lt 23 ]] && echo "Tor signing key expires in less than $n day(s)"
+```bash
+n=$(( $(/opt/torutils/key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert)/86400 ))
+[[ $n -lt 23 ]] && echo "Tor signing key expires in less than $n day(s)"
 ```
-
-helps with that (if a mailer is configured).
