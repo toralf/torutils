@@ -24,7 +24,7 @@ sudo ./ipv4-rules.sh start
 ```
 
 Best is to (re-)start Tor afterwards.
-The live statistics are shown by:
+The live statistics are given by:
 
 ```bash
 sudo watch -t ./ipv4-rules.sh
@@ -38,7 +38,7 @@ sudo ./ipv4-rules.sh stop
 ```
 
 ### Rule set
-It consists of 5 rules for an inbound ip address connecting to the local ORPort:
+Beside common network filter rules here are the 5 Tor specific rules for an inbound ip address connecting to the local ORPort:
 
 1. trust Tor authorities and snowflake
 2. block the ip for 30 min if > 5 inbound connection attempts per minute are made
@@ -50,16 +50,17 @@ It consists of 5 rules for an inbound ip address connecting to the local ORPort:
 The instructions do belong to the IPv4 variant. They are similar for IPv6 script.
 The package [iptables](https://www.netfilter.org/projects/iptables/) is needed,
 [jq](https://stedolan.github.io/jq/) is needed for rule 4 to get the information which relays do run at the same ip.
-If the parsing of Tors config file _torrc_ (line [150](ipv4-rules.sh#L150)) doesn't work, then:
-1. define the relay/s (space separated) in the environment variable, eg.:
+If the parsing of Tors config file _torrc_ doesn't work (line [150](ipv4-rules.sh#L150)), then:
+1. define the relay(s) (space separated) in the environment variable, eg.:
     ```bash
     export CONFIGURED_RELAYS="3.14.159.26:535"
     export CONFIGURED_RELAYS6="[cafe::dead:beef]:4711"
     ```
-1. -and/or- create a pull requests to fix the script ;)
+1. -and/or- create a pull requests to fix the parsing ;)
+before you start the protection.
 
-Allow inbound traffic to additional local network services by:
-1. define the relay/s (space separated) in the environment variable, eg.:
+Same happens for additional local network services:
+1. define them (space separated) in the environment variable, eg.:
     ```bash
     export ADD_LOCAL_SERVICES="2.718.281.828:459"
     export ADD_LOCAL_SERVICES6="[eff:eff::affe:edda:fade]:1984"
@@ -70,15 +71,14 @@ Allow inbound traffic to additional local network services by:
     iptables -P INPUT ACCEPT
     ```
 
-If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) it not needed,
-then
-1. remove the _addHetzner()_ code, at least that call in line [177](ipv4-rules.sh#L177)
+If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't needed, then
+1. remove the _addHetzner()_ code (line [107ff](ipv4-rules.sh#L107)) and its call in line [177](ipv4-rules.sh#L177)
 1. -or- just ignore it
 
 ### Sysctl settings
 
 I have set the _uname_ limit for the Tor process to _60000_.
-Furthermore I configured in _/etc/sysctl.d/local.conf_:
+Furthermore I configured few sysctl values in _/etc/sysctl.d/local.conf_:
 
 ```console
 net.ipv4.ip_local_port_range = 2000 63999
@@ -166,25 +166,25 @@ sudo ./ipset-stats.sh -p /tmp/ipset4.*.txt
 
 which gives currently
 ```console
-                       49397 hits of 6565 ips
+                       97831 hits of 7081 ips
+       +o----------------------------------------------------+
+       |    +     +    +     +    +    +     +    +     +    |
+  1024 |-+                  o                              +-|
+       |                  o  o                               |
+       |                 o                                   |
+   256 |-oooo                 o                            +-|
+       |                o                                    |
+       |     o                 o             o             o |
+    64 |-+             o                      o            +-|
+       |                                       o             |
+       |       o                        o       o o o        |
+       |         oo   o         o           o      o o    o  |
+    16 |-+      o   oo               o o         o      oo +-|
+       |           o             o  o o                o     |
+       |                           o      o                  |
+     4 |-+                        o                        +-|
+       |    +     +    +     +    +    +   o +    +     +    |
        +-----------------------------------------------------+
-       |o   +     +    +     +    +    +     +    +     +    |
-  1024 |-+  oo                                             +-|
-       |   o   o                                             |
-       | oo                                                  |
-   256 |-+      o                    o                     +-|
-       |         o                    o                      |
-       |                                                     |
-    64 |-+                                                 o-|
-       |          o                    o                     |
-       |                                                     |
-       |           o o              o                     o  |
-    16 |-+          o o           oo                       +-|
-       |               oo o  o   o      o   o   o        o   |
-       |                 o      o          o  o      o       |
-     4 |-+                  o  o          o    o  o     o  +-|
-       |    +     +    +     +o   +    +     o    + o  o+    |
-       +-----------------------------------------o-o---------+
        0    5     10   15    20   25   30    35   40    45   50
                                  hit
 ```
