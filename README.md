@@ -9,7 +9,7 @@ Few tools for a Tor relay.
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) were made
 to protect a Tor relay against a DDoS attack at TCP/IP level.
 They do block ip addresses making too much connection (attempts) to the local ORPort.
-[This](./doc/network-metric.svg) metric shows the effect.
+[This](./doc/network-metric.svg) metric shows the effect (protection was active the whole day).
 The data were gathered by [sysstat](http://pagesperso-orange.fr/sebastien.godard/).
 Details are in issue [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393).
