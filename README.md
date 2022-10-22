@@ -155,8 +155,8 @@ ip                       193.187.88.42           12
 relay:65.21.94.13:443            ips:1     conns:12
 ```
 
-The script [ipset-stats.sh](./ipset-stats.sh) (package [gnuplot](http://www.gnuplot.info/) is needed)
-dumps and visualizes the content of an [ipset](https://ipset.netfilter.org).
+The script [ipset-stats.sh](./ipset-stats.sh) (needs package [gnuplot](http://www.gnuplot.info/))
+dumps the content of an [ipset](https://ipset.netfilter.org) and plots those data.
 [This](./doc/crontab.txt) crontab example (of user _root_) shows how to gather data,
 from which histograms like the one below can be plotted by:
 
@@ -166,23 +166,23 @@ sudo ./ipset-stats.sh -p /tmp/ipset4.*.txt
 
 which gives currently
 ```console
-                       97831 hits of 7081 ips
+                       100475 hits of 7079 ips
        +o----------------------------------------------------+
        |    +     +    +     +    +    +     +    +     +    |
-  1024 |-+                  o                              +-|
-       |                  o  o                               |
+  1024 |-+                   o                             +-|
+       |                    o o                              |
+       |   o              o                                  |
+   256 |-oo o                  o                           +-|
        |                 o                                   |
-   256 |-oooo                 o                            +-|
-       |                o                                    |
-       |     o                 o             o             o |
-    64 |-+             o                      o            +-|
-       |                                       o             |
-       |       o                        o       o o o        |
-       |         oo   o         o           o      o o    o  |
-    16 |-+      o   oo               o o         o      oo +-|
-       |           o             o  o o                o     |
-       |                           o      o                  |
-     4 |-+                        o                        +-|
+       |                                     oo            o |
+    64 |-+   o          o       o              o           +-|
+       |                                                     |
+       |       o                        o         o o        |
+       |          o    o                    o      o o    o  |
+    16 |-+      oo oo o          o    oo         o       o +-|
+       |             o            oo o    o            o     |
+       |                            o           o            |
+     4 |-+                                              o  +-|
        |    +     +    +     +    +    +   o +    +     +    |
        +-----------------------------------------------------+
        0    5     10   15    20   25   30    35   40    45   50
