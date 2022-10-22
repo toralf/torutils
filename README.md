@@ -11,7 +11,7 @@ to react on DDoS network attack against a Tor relay
 (issues [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)).
 They do block ips making too much connection (attempts) to the local ORPort.
-Both [this](./metrics-1.svg) and [this](./metrics-2.svg) metric show the effect.
+[This](./doc/network-metric.svg) shows the effect.
 The data were gathered by [sysstat](http://pagesperso-orange.fr/sebastien.godard/).
 
 ### Quick start
@@ -30,7 +30,7 @@ The live statistics of your network rules can be shown by:
 sudo watch -t ./ipv4-rules.sh
 ```
 
-The output should look similar to these [IPv4](./iptables-L.txt) and [IPv6](./ip6tables-L.txt) examples.
+The output should look similar to these [IPv4](./doc/iptables-L.txt) and [IPv6](./doc/ip6tables-L.txt) examples.
 To stop filtering, just run:
 
 ```bash
