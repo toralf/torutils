@@ -43,28 +43,28 @@ There 5 rules for an ip connecting to the local ORPort:
 1. trust Tor authorities and snowflake
 2. block the ip for 30 min if > 5 inbound connection attempts per minute are made
 3. block the ip for 30 min if > 3 inbound connections are established
-4. ignore any further connection attempt if the ip is not hosting 2 relays and has 1 inbound connection already established
+4. ignore any further connection attempt if the ip is hosting 1 relay and has already 1 inbound connection established
 5. ignore any further connection attempt if 2 inbound connections are already established
 
 ### Installation and configuration hints
-The instructions are made for the IPv4 script. The IPv6 script can be handled in a similar way.
+These instructions are for the IPv4 variant. They do apply for IPv6 in a similar way.
 
 The package [iptables](https://www.netfilter.org/projects/iptables/) is needed,
-[jq](https://stedolan.github.io/jq/) is needed in rule 4 to know if and which relays run at the same ip.
+[jq](https://stedolan.github.io/jq/) is needed for rule 4 to get the information which relays do run at the same ip.
 
 If the parsing of Tors config file _torrc_ (line [150](ipv4-rules.sh#L150)) doesn't work, then:
-1. define the relay/s in the environment variable, eg.:
+1. define the relay/s (space separated) in the environment variable, eg.:
     ```bash
-    export CONFIGURED_RELAYS="1.2.3.4:443"
-    export CONFIGURED_RELAYS6="[cafe::beef]:9001"
+    export CONFIGURED_RELAYS="3.14.159.26:535"
+    export CONFIGURED_RELAYS6="[cafe::dead:beef]:4711"
     ```
 1. -and/or- create a pull requests to fix the script ;)
 
 Allow inbound traffic to additional local network services by:
-1. define the relay/s in the environment variable, eg.:
+1. define the relay/s (space separated) in the environment variable, eg.:
     ```bash
-    export ADD_LOCAL_SERVICES="1.2.3.4:80 1.2.3.4:993"
-    export ADD_LOCAL_SERVICES6="[dead:beef]:25"
+    export ADD_LOCAL_SERVICES="2.718.281.828:459"
+    export ADD_LOCAL_SERVICES6="[eff:eff::affe:edda:fade]:1984"
     ```
 1. -or- hard code the relay/s in line [93](ipv4-rules.sh#L93)
 1. -or- edit the default policy in line [6](ipv4-rules.sh#L6) (not recommended):
