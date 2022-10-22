@@ -6,16 +6,16 @@ Few tools for a Tor relay.
 
 ## Block DDoS Traffic
 
-The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) are designed
-to react on DDoS network attack against a Tor relay
-(issues [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
-and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)).
-They do block ips making too much connection (attempts) to the local ORPort.
-[This](./doc/network-metric.svg) shows the effect.
+The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) were made
+to protect a Tor relay against a DDoS attack at TCP/IP level.
+They do block ip addresses making too much connection (attempts) to the local ORPort.
+[This](./doc/network-metric.svg) metric shows the effect.
 The data were gathered by [sysstat](http://pagesperso-orange.fr/sebastien.godard/).
+Details are in issue [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
+and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393).
 
 ### Quick start
-The call below replaces the content of the [filter](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) table of _iptables_ with [this](#rule-set) rule set.
+Run the command below to configure the _filter_  table of [iptables](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) using [this](#rule-set) rule set:
 
 ```bash
 wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
@@ -24,21 +24,21 @@ sudo ./ipv4-rules.sh start
 ```
 
 Best is to (re-)start Tor afterwards.
-The live statistics of your network rules can be shown by:
+The live statistics are shown by:
 
 ```bash
 sudo watch -t ./ipv4-rules.sh
 ```
 
 The output should look similar to these [IPv4](./doc/iptables-L.txt) and [IPv6](./doc/ip6tables-L.txt) examples.
-To stop filtering, just run:
+To stop protection, just run:
 
 ```bash
 sudo ./ipv4-rules.sh stop
 ```
 
 ### Rule set
-There 5 rules for an ip connecting to the local ORPort:
+It consists of 5 rules for an inbound ip address connecting to the local ORPort:
 
 1. trust Tor authorities and snowflake
 2. block the ip for 30 min if > 5 inbound connection attempts per minute are made
@@ -47,11 +47,9 @@ There 5 rules for an ip connecting to the local ORPort:
 5. ignore any further connection attempt if 2 inbound connections are already established
 
 ### Installation and configuration hints
-These instructions are for the IPv4 variant. They do apply for IPv6 in a similar way.
-
+The instructions do belong to the IPv4 variant. They are similar for IPv6 script.
 The package [iptables](https://www.netfilter.org/projects/iptables/) is needed,
 [jq](https://stedolan.github.io/jq/) is needed for rule 4 to get the information which relays do run at the same ip.
-
 If the parsing of Tors config file _torrc_ (line [150](ipv4-rules.sh#L150)) doesn't work, then:
 1. define the relay/s (space separated) in the environment variable, eg.:
     ```bash
@@ -159,7 +157,6 @@ relay:65.21.94.13:443            ips:1     conns:12
 
 The script [ipset-stats.sh](./ipset-stats.sh) (package [gnuplot](http://www.gnuplot.info/) is needed)
 dumps and visualizes the content of an [ipset](https://ipset.netfilter.org).
-
 [This](./doc/crontab.txt) crontab example (of user _root_) shows how to gather data,
 from which histograms like the one below can be plotted by:
 
