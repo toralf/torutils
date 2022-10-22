@@ -32,20 +32,21 @@ if [[ -z $files ]]; then
 fi
 
 # count per reason
-awk '{ print $1 }' $files | sort | uniq -c |
+awk '{ print $2 }' $files | sort | uniq -c |
 perl -wane 'BEGIN { $sum = 0 } { $sum += $F[0]; print } END { printf("%7i\n", $sum) }'
 
 if [[ -n $reason ]]; then
   # plot for given reason
   tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
-  grep -h "^$reason " $files |
-  awk '{ print $2 }' | sort     | uniq -c |
+  grep -h " $reason " $files |
+  awk '{ print $3 }' | sort     | uniq -c |
   awk '{ print $1 }' | sort -bn | uniq -c |
   awk '{ print $2, $1 }' > $tmpfile
 
   echo
   echo "$reason fingerprints"
-  if [[ $(wc -l < $tmpfile) -gt 7 ]]; then
+  lines=$(wc -l < $tmpfile)
+  if [[ $lines -gt 7 ]]; then
     head -n 3 $tmpfile
     echo '...'
     tail -n 3 $tmpfile
@@ -53,18 +54,20 @@ if [[ -n $reason ]]; then
     cat $tmpfile
   fi
 
-  m=$(grep -hc "^$reason " $files)
-  n=$(grep -h  "^$reason " $files | awk '{ print $2 }' | sort -u | wc -l)
+  if [[ $lines -gt 1 ]]; then
+    m=$(grep -hc " $reason " $files)
+    n=$(grep -h  " $reason " $files | awk '{ print $2 }' | sort -u | wc -l)
 
-  gnuplot -e '
-    set terminal dumb;
-    set border back;
-    set title "'"$m x $reason"' for '"$n"' fingerprint(s)";
-    set key noautotitle;
-    set xlabel "'"$reason"'";
-    set logscale y 10;
-    plot "'$tmpfile'" pt "o";
-    '
+    gnuplot -e '
+      set terminal dumb;
+      set border back;
+      set title "'"$m x $reason"' for '"$n"' fingerprint(s)";
+      set key noautotitle;
+      set xlabel "'"$reason"'";
+      set logscale y 10;
+      plot "'$tmpfile'" pt "o";
+      '
+  fi
 
   rm $tmpfile
 fi

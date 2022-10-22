@@ -11,6 +11,7 @@
 import argparse
 import functools
 import time
+from datetime import datetime
 
 # https://github.com/torproject/stem.git
 from stem import ORStatus
@@ -50,10 +51,10 @@ def orconn_event(controller, event):
   if event.status == ORStatus.CLOSED:
     fingerprint = event.endpoint_fingerprint
     if fingerprint:
-      print('%-12s %s' % (event.reason, fingerprint), end='')
+      print('%i %-12s %s' % (time.time(), event.reason, fingerprint), end='')
       if fingerprint in desc_versions:
-        address, or_port, ip, version = desc_versions[fingerprint]
-        print(' %-15s %5i %s %s' % (address, or_port, ip, version), flush=True)
+        address, or_port, ip_version, tor_version = desc_versions[fingerprint]
+        print(' %-15s %5i %s %s' % (address, or_port, ip_version, tor_version), flush=True)
       else:
         print('', flush=True)
 
