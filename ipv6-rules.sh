@@ -14,6 +14,9 @@ function addCommon() {
   ip6tables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
   ip6tables -A INPUT -m conntrack --ctstate INVALID -j DROP
 
+  # do not touch established connections
+  ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+
   # ssh
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config | awk '{ print $2 }')
   local addr=$(grep -m 1 -E "^ListenAddress\s+.+$"  /etc/ssh/sshd_config | awk '{ print $2 }' | grep -F ':')
@@ -34,30 +37,15 @@ function __fill_trustlist() {
 }
 
 
-function __fill_multilist() {
-  if ! jq --help &>/dev/null; then
-    { echo " please install package jq to get most of this script" >&2; }
-    return 0
-  fi
-
-  curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |
-  jq -cr '.relays[].a' | tr '][",' ' ' | sort | uniq -c | grep -v ' 1 ' |
-  xargs -n 1 | grep -F ':' |
-  xargs -r -n 1 -P 20 ipset add -exist $multilist
-}
-
-
 function addTor() {
   local blocklist=tor-ddos6
-  local multilist=tor-multi6  # rule 4
   local trustlist=tor-trust6
 
+
   ipset create -exist $blocklist hash:ip family inet6 timeout 1800
-  ipset create -exist $multilist hash:ip family inet6               # rule 4
   ipset create -exist $trustlist hash:ip family inet6
 
   __fill_trustlist
-  __fill_multilist &  # rule 4
 
   for relay in $*
   do
@@ -70,25 +58,18 @@ function addTor() {
     fi
 
     # rule 2
-    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 5/minute --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist-block --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 5/minute --hashlimit-burst 4 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     ip6tables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
 
     # rule 3
-    ip6tables -A INPUT -p tcp --dst $orip --dport $orport -m connlimit --connlimit-mask 128 --connlimit-above 3 -j SET --add-set $blocklist src --exist
-    ip6tables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
+    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist-drop  --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 1/minute --hashlimit-burst 1 --hashlimit-htable-expire 300000 -j DROP
 
     # rule 4
-    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 1 -m set ! --match-set $multilist src -j DROP
+    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 4 -j DROP
 
     # rule 5
-    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 2 -j DROP
-
-    # accept remaining connections
     ip6tables -A INPUT -p tcp --dst $orip --dport $orport -j ACCEPT
   done
-
-  # initiated locally
-  ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 }
 
 
@@ -107,15 +88,15 @@ function addLocalServices() {
 
 
 function addHetzner() {
-  local monlist=hetzner-monlist6
+  local sysmon=hetzner-sysmon6
 
-  ipset create -exist $monlist hash:ip family inet6
+  ipset create -exist $sysmon hash:ip family inet6
   # getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u | xargs
   for i in 2a01:4f8:0:a101::5:1 2a01:4f8:0:a101::6:1 2a01:4f8:0:a101::6:2 2a01:4f8:0:a101::6:3 2a01:4f8:0:a112::c:1
   do
-    ipset add -exist $monlist $i
+    ipset add -exist $sysmon $i
   done
-  ip6tables -A INPUT -m set --match-set $monlist src -j ACCEPT
+  ip6tables -A INPUT -m set --match-set $sysmon src -j ACCEPT
 }
 
 
@@ -139,7 +120,7 @@ function printFirewall()  {
 
   date -R
   echo
-  for table in raw mangle nat filter
+  for table in filter
   do
     echo "table: $table"
     if ip6tables -nv -L -t $table 2>/dev/null; then
@@ -160,8 +141,7 @@ export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 case ${1:-} in
-  start)  clearAll
-          addCommon
+  start)  addCommon
           addHetzner
           addLocalServices
           addTor ${CONFIGURED_RELAYS6:-$(getConfiguredRelays6)}

@@ -11,13 +11,13 @@ function show() {
   if [[ $relay =~ '[' ]]; then
     v="6"
   fi
+
   local sum=0
   local ips=0
-
   while read -r conns ip
   do
     if [[ $conns -gt $limit ]]; then
-      printf "%-10s %-40s %5i\n" ip$v $ip $conns
+      printf "%-10s %-41s %5i\n" "ip$v" "$ip" "$conns"
       (( ++ips ))
       (( sum += conns ))
     fi
@@ -25,17 +25,17 @@ function show() {
     ss --no-header --tcp -${v:-4} --numeric |
     grep "^ESTAB" |
     grep -F " $relay " |
-    awk '{ print $5 }' | sort | sed 's,:[[:digit:]]*$,,g' | uniq -c
+    awk '{ print $5 }' | sort | sed -E -e 's,:[[:digit:]]+$,,g' | uniq -c
   )
 
   if [[ $ips -gt 0 ]]; then
-    printf "relay:%-42s           ips:%-5i conns:%-5i\n\n" $relay $ips $sum
+    printf "relay:%-42s           ips:%-5i conns:%-5i\n\n" "$relay" "$ips" "$sum"
   fi
 }
 
 
 
-function getConfiguredRelays4()  {
+function getConfiguredRelays()  {
   local orport
   local address
 
@@ -64,8 +64,8 @@ set -eu
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-limit=2
-relays=$(getConfiguredRelays4; getConfiguredRelays6)
+limit=4
+relays=$(getConfiguredRelays; getConfiguredRelays6)
 
 while getopts l:r: opt
 do

@@ -9,73 +9,83 @@ Few tools for a Tor relay.
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) were made
 to protect a Tor relay against a DDoS attack at TCP/IP level.
 They do block ip addresses making too much connection (attempts) to the local ORPort.
-[This](./doc/network-metric.svg) metric shows the effect (protection was active the whole day).
-The data were gathered by [sysstat](http://pagesperso-orange.fr/sebastien.godard/).
+The graphs for the IP sockets in [these](./doc/network-metric.svg) metrics show how well the DDoS attacks can be handled.
 Details are in issue [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
-and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393).
+and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
+of the [Tor project](https://www.torproject.org/).
 
 ### Quick start
-Run the command below to configure the _filter_  table of [iptables](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) using [this](#rule-set) rule set:
+The package [iptables](https://www.netfilter.org/projects/iptables/) is needed.
+If it is installed, run:
 
 ```bash
-wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
-chmod +x ./ipv4-rules.sh
+# wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
+# chmod +x ./ipv4-rules.sh
+git clone https://github.com/toralf/torutils
+cd torutils
 sudo ./ipv4-rules.sh start
 ```
 
-Best is to (re-)start Tor afterwards.
+to configure the _filter_  table of [iptables](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) using the rule set below. Best is to (re-)start Tor afterwards.
 The live statistics are given by:
 
 ```bash
 sudo watch -t ./ipv4-rules.sh
 ```
 
-The output should look similar to these [IPv4](./doc/iptables-L.txt) and [IPv6](./doc/ip6tables-L.txt) examples.
-To stop protection, just run:
+The output should look similar to this [IPv4](./doc/iptables-L.txt) or this [IPv6](./doc/ip6tables-L.txt) example respectively.
+To clear the _filter_ table, run:
 
 ```bash
 sudo ./ipv4-rules.sh stop
 ```
 
 ### Rule set
-Beside common network filter rules here are the 5 Tor specific rules for an inbound ip address connecting to the local ORPort:
+
+Established connections will not be touched.
+Outbounds connections will not be touched.
+Only the inbound connection attempts are controlled.
+Therefore rules for an ip, connecting to the local ORPort, are applied:
 
 1. trust Tor authorities and snowflake
-2. block the ip for 30 min if > 5 inbound connection attempts per minute are made
-3. block the ip for 30 min if > 3 inbound connections are established
-4. ignore any further connection attempt if the ip is hosting 1 relay and has already 1 inbound connection established
-5. ignore any further connection attempt if 2 inbound connections are already established
+1. block for 30 min if it makes > 5 connection attempts per minute
+1. limit connection attempts to 1/min
+1. ignore a connection attempt if > 4 connections are already established
+1. accept remaining connection attempts
 
-### Installation and configuration hints
-The instructions do belong to the IPv4 variant. They are similar for IPv6 script.
-The package [iptables](https://www.netfilter.org/projects/iptables/) is needed,
-[jq](https://stedolan.github.io/jq/) is needed for rule 4 to get the information which relays do run at the same ip.
-If the parsing of Tors config file _torrc_ doesn't work (line [150](ipv4-rules.sh#L150)), then:
-1. define the relay(s) (space separated) in the environment variable, eg.:
+In addition generic rules for local network interfaces, ICMP, ssh and user defined services are applied.
+
+### Configuration
+If the parsing of _torrc_ doesn't work for you (line [130](ipv4-rules.sh#L130)) then:
+1. define the relay(s) space separated in this environment variable before applying the rule set, eg.:
     ```bash
     export CONFIGURED_RELAYS="3.14.159.26:535"
     export CONFIGURED_RELAYS6="[cafe::dead:beef]:4711"
     ```
-1. -and/or- create a pull requests to fix the parsing ;)
-before you start the protection.
+1. -or- create a pull requests to fix the code ;)
+
 
 Same happens for additional local network services:
-1. define them (space separated) in the environment variable, eg.:
+1. define them space separated in this environment variable before applying the rule set, eg.:
     ```bash
     export ADD_LOCAL_SERVICES="2.718.281.828:459"
-    export ADD_LOCAL_SERVICES6="[eff:eff::affe:edda:fade]:1984"
+    export ADD_LOCAL_SERVICES6="[edda:fade:affe:baff:eff:eff]:12345"
     ```
-1. -or- hard code the relay/s in line [93](ipv4-rules.sh#L93)
-1. -or- edit the default policy in line [6](ipv4-rules.sh#L6) (not recommended):
+1. -or- append your iptables rules to the _filter_ table
+1. -or- open the iptables chain _INPUT_ in line [6](ipv4-rules.sh#L6):
     ```bash
     iptables -P INPUT ACCEPT
     ```
+    I won't recommended that however.
 
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't needed, then
-1. remove the _addHetzner()_ code (line [107ff](ipv4-rules.sh#L107)) and its call in line [177](ipv4-rules.sh#L177)
+1. remove the _addHetzner()_ code (line [87ff](ipv4-rules.sh#L87)) and its call in line [156](ipv4-rules.sh#L156)
 1. -or- just ignore it
 
-### Sysctl settings
+The instructions do belong to the IPv4 variant.
+They are similar for IPv6 script.
+
+### Further settings
 
 I have set the _uname_ limit for the Tor process to _60000_.
 Furthermore I configured few sysctl values in _/etc/sysctl.d/local.conf_:
@@ -89,6 +99,37 @@ kernel.yama.ptrace_scope = 1
 user.max_user_namespaces = 0
 kernel.unprivileged_bpf_disabled = 1
 net.core.bpf_jit_harden = 2
+```
+
+### Misc
+
+[ddos-inbound.sh](./ddos-inbound.sh) lists ips having more inbound connections to the local ORPort than a given limit.
+It should usually list _snowflake-01_ only:
+
+```bash
+sudo ./ddos-inbound.sh -l 4
+```
+
+The script [ipset-stats.sh](./ipset-stats.sh) (needs package [gnuplot](http://www.gnuplot.info/))
+dumps the content of an [ipset](https://ipset.netfilter.org) and plots those data.
+[This](./doc/crontab.txt) crontab example (of user _root_) shows how to gather data,
+from which histograms like the one below can be plotted by:
+
+```bash
+sudo ./ipset-stats.sh -p /tmp/ipset4.*.txt
+```
+
+[orstatus.py](./orstatus.py) logs the reason of Tor circuit closing events.
+[orstatus-stats.sh](./orstatus-stats.sh) prints and/or plots statistics from the output, eg.:
+
+```bash
+sudo ./orstatus-stats.sh /tmp/orstatus.9051 TLS_ERROR
+```
+
+A histogram over the timeout values of all ips of an ipset (i.e. `tor-ddos`) is taken by:
+
+```bash
+tmpfile=$(mktemp /tmp/XXXXXX);  ipset list tor-ddos -s | grep ' timeout ' | grep -v ' inet' | awk '{ print $3 }' | sort -bn > $tmpfile; gnuplot -e 'set terminal dumb; set border back; set key noautotitle; set title "ips per timeout"; set xlabel "ips"; plot "'$tmpfile'" pt "o";'; rm $tmpfile
 ```
 
 ## Query Tor via its API
@@ -125,7 +166,6 @@ For a monitoring of _exit_ connections use [ps.py](./ps.py):
 sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
 ```
 
-### Prerequisites
 An open Tor control port is needed to query the Tor process via API.
 Configure it in _torrc_, eg.:
 
@@ -145,69 +185,13 @@ export PYTHONPATH=$PWD/stem
 
 The package [gnuplot](http://www.gnuplot.info/) is needed to plot graphs.
 
-## Misc
-
-[ddos-inbound.sh](./ddos-inbound.sh) lists ips having more inbound connections to a local ORPort than the given upper limit (default: 2).
-It should usually list _snowflake-01_ only:
-
-```console
-ip                       193.187.88.42           12
-relay:65.21.94.13:443            ips:1     conns:12
-```
-
-The script [ipset-stats.sh](./ipset-stats.sh) (needs package [gnuplot](http://www.gnuplot.info/))
-dumps the content of an [ipset](https://ipset.netfilter.org) and plots those data.
-[This](./doc/crontab.txt) crontab example (of user _root_) shows how to gather data,
-from which histograms like the one below can be plotted by:
-
-```bash
-sudo ./ipset-stats.sh -p /tmp/ipset4.*.txt
-```
-
-which gives currently
-```console
-                       100475 hits of 7079 ips
-       +o----------------------------------------------------+
-       |    +     +    +     +    +    +     +    +     +    |
-  1024 |-+                   o                             +-|
-       |                    o o                              |
-       |   o              o                                  |
-   256 |-oo o                  o                           +-|
-       |                 o                                   |
-       |                                     oo            o |
-    64 |-+   o          o       o              o           +-|
-       |                                                     |
-       |       o                        o         o o        |
-       |          o    o                    o      o o    o  |
-    16 |-+      oo oo o          o    oo         o       o +-|
-       |             o            oo o    o            o     |
-       |                            o           o            |
-     4 |-+                                              o  +-|
-       |    +     +    +     +    +    +   o +    +     +    |
-       +-----------------------------------------------------+
-       0    5     10   15    20   25   30    35   40    45   50
-                                 hit
-```
-
-The next example shows, how to check if Tor relays were blocked:
-
-```bash
-curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - | jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | xargs -n 1 | sort -u > /tmp/relays
-grep -h -w -f /tmp/relays /tmp/ipset4.*.txt | sort | uniq -c | sort -bn
-```
-
-[orstatus.py](./orstatus.py) logs the reason of Tor circuit closing events.
-[orstatus-stats.sh](./orstatus-stats.sh) prints and/or plots statistics from the output, eg.:
-
-```bash
-sudo ./orstatus-stats.sh /tmp/orstatus.9051 TLS_ERROR
-```
-
+## Tor offline keys
 If you do use [Tor offline keys](https://support.torproject.org/relay-operators/offline-ed25519/)
 then [key-expires.py](./key-expires.py) helps you to not miss the key rotation timeline.
 It returns the seconds before the mid-term signing key expires, eg:
 
 ```bash
-n=$(( $(/opt/torutils/key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert)/86400 ))
-[[ $n -lt 23 ]] && echo "Tor signing key expires in less than $n day(s)"
+seconds=$(/opt/torutils/key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert)
+days=$(( seconds/86400 ))
+[[ $days -lt 23 ]] && echo "Tor signing key expires in less than $days day(s)"
 ```

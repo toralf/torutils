@@ -13,6 +13,9 @@ function addCommon() {
   iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
   iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
 
+  # do not touch established connections
+  iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+
   # ssh
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config | awk '{ print $2 }')
   local addr=$(grep -m 1 -E "^ListenAddress\s+.+$"  /etc/ssh/sshd_config | awk '{ print $2 }' | grep -F '.')
@@ -32,30 +35,14 @@ function __fill_trustlist() {
 }
 
 
-function __fill_multilist() {
-  if ! jq --help &>/dev/null; then
-    { echo " please install package jq to get most of this script" >&2; }
-    return 0
-  fi
-
-  curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |
-  jq -cr '.relays[].a' | tr '][",' ' ' | sort | uniq -c | grep -v ' 1 ' |
-  xargs -n 1 | grep -F '.' |
-  xargs -r -n 1 -P 20 ipset add -exist $multilist
-}
-
-
 function addTor() {
   local blocklist=tor-ddos
-  local multilist=tor-multi   # rule 4
   local trustlist=tor-trust
 
-  ipset create -exist $blocklist hash:ip timeout 1800
-  ipset create -exist $multilist hash:ip                # rule 4
-  ipset create -exist $trustlist hash:ip
+  ipset create -exist $blocklist hash:ip family inet timeout 1800
+  ipset create -exist $trustlist hash:ip family inet
 
   __fill_trustlist
-  __fill_multilist &  # rule 4
 
   for relay in $*
   do
@@ -68,25 +55,18 @@ function addTor() {
     fi
 
     # rule 2
-    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 5/minute --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist-block --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 5/minute --hashlimit-burst 4 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     iptables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
 
     # rule 3
-    iptables -A INPUT -p tcp --dst $orip --dport $orport -m connlimit --connlimit-mask 32 --connlimit-above 3 -j SET --add-set $blocklist src --exist
-    iptables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
+    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist-drop  --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 1/minute --hashlimit-burst 1 --hashlimit-htable-expire 300000 -j DROP
 
     # rule 4
-    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 1 -m set ! --match-set $multilist src -j DROP
+    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 4 -j DROP
 
     # rule 5
-    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 2 -j DROP
-
-    # accept remaining connections
     iptables -A INPUT -p tcp --dst $orip --dport $orport -j ACCEPT
   done
-
-  # initiated locally
-  iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 }
 
 
@@ -105,15 +85,15 @@ function addLocalServices() {
 
 
 function addHetzner() {
-  local monlist=hetzner-monlist
+  local sysmon=hetzner-sysmon
 
-  ipset create -exist $monlist hash:ip
+  ipset create -exist $sysmon hash:ip
   # getent ahostsv4 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u | xargs
   for i in 188.40.24.211 213.133.113.82 213.133.113.83 213.133.113.84 213.133.113.86
   do
-    ipset add -exist $monlist $i
+    ipset add -exist $sysmon $i
   done
-  iptables -A INPUT -m set --match-set $monlist src -j ACCEPT
+  iptables -A INPUT -m set --match-set $sysmon src -j ACCEPT
 }
 
 
@@ -137,7 +117,7 @@ function printFirewall()  {
 
   date -R
   echo
-  for table in raw mangle nat filter
+  for table in filter
   do
     echo "table: $table"
     if iptables -nv -L -t $table 2>/dev/null; then
@@ -147,7 +127,7 @@ function printFirewall()  {
 }
 
 
-function getConfiguredRelays4()  {
+function getConfiguredRelays()  {
   local orport
   local address
 
@@ -172,11 +152,10 @@ export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 case ${1:-} in
-  start)  clearAll
-          addCommon
+  start)  addCommon
           addHetzner
           addLocalServices
-          addTor ${CONFIGURED_RELAYS:-$(getConfiguredRelays4)}
+          addTor ${CONFIGURED_RELAYS:-$(getConfiguredRelays)}
           ;;
   stop)   clearAll
           ;;

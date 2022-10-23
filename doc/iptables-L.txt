@@ -1,41 +1,32 @@
-Sat, 22 Oct 2022 12:29:29 +0200
+Mon, 24 Oct 2022 20:40:39 +0200
 
-table: raw
-table: mangle
-table: nat
 table: filter
-Chain INPUT (policy DROP 20817 packets, 1047K bytes)
+Chain INPUT (policy DROP 57 packets, 6177 bytes)
  pkts bytes target     prot opt in     out     source               destination         
- 608K  432M ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0            /* Fri, 21 Oct 2022 19:18:48 +0200 */
-36415   22M DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp flags:!0x17/0x02 state NEW
-31679   11M DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate INVALID
-31763 3005K ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:535
- 4808  309K ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8 limit: avg 6/sec burst 5
-   38  1320 DROP       icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8
-  366 15372 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set hetzner-monlist src
-    0     0 ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.49          tcp dpt:31556
-    0     0 ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.49          tcp dpt:31560
-1546K  530M ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 match-set tor-trust src
-2108K  126M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 limit: above 5/min burst 5 mode srcip add-set tor-ddos src exist
-  13M 1050M DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set tor-ddos src
-   29  7616 SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 #conn src/32 > 3 add-set tor-ddos src exist
-   29  7616 DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set tor-ddos src
- 209K   12M DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 #conn src/32 > 1 ! match-set tor-multi src
-   67  3644 DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 #conn src/32 > 2
- 825M  633G ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443
-1396K  401M ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 match-set tor-trust src
-15986  958K SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 limit: above 5/min burst 5 mode srcip add-set tor-ddos src exist
-15873  951K DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set tor-ddos src
-   45 10199 SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 #conn src/32 > 3 add-set tor-ddos src exist
-   46 10259 DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set tor-ddos src
- 338K   20M DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 #conn src/32 > 1 ! match-set tor-multi src
-  166  9152 DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 #conn src/32 > 2
- 885M  541G ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001
-1374M 1407G ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED
+ 1713  933K ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0            /* Mon, 24 Oct 2022 20:38:15 +0200 */
+  129 46273 DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp flags:!0x17/0x02 state NEW
+  703  800K DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate INVALID
+9442K 9611M ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED
+    4   224 ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22
+   10   528 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8 limit: avg 6/sec burst 5
+    0     0 DROP       icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8
+    0     0 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set hetzner-sysmon src
+    0     0 ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 match-set tor-trust src
+ 1837  110K SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 limit: above 5/min burst 4 mode srcip add-set tor-ddos src exist
+23545 1395K DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set tor-ddos src
+  221 12868 DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 limit: above 1/min burst 1 mode srcip htable-expire 300000
+    0     0 DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 #conn src/32 > 4
+  734 40668 ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443
+    3   184 ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 match-set tor-trust src
+   12   704 SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 limit: above 5/min burst 4 mode srcip add-set tor-ddos src exist
+   12   704 DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set tor-ddos src
+  214 12212 DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 limit: above 1/min burst 1 mode srcip htable-expire 300000
+    0     0 DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 #conn src/32 > 4
+  737 40512 ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001
 
 Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
  pkts bytes target     prot opt in     out     source               destination         
 
-Chain OUTPUT (policy ACCEPT 2800M packets, 2681G bytes)
+Chain OUTPUT (policy ACCEPT 8316K packets, 10G bytes)
  pkts bytes target     prot opt in     out     source               destination         
 
