@@ -7,10 +7,14 @@ Few tools for a Tor relay.
 ## Block DDoS Traffic
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) were made
-to protect a Tor relay against a DDoS attack at TCP/IP level.
+to protect a Tor relay against a DDoS attack at TCP/IP level. _[*]_
 They do block ip addresses making too much connection (attempts) to the local ORPort.
-The graphs for the IP sockets in [these](./doc/network-metric.svg) metrics show how well the DDoS attacks can be handled.
-Details are in issue [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
+The data in [these](./doc/network-metric.svg) metrics show how the different DDoS attacks
+were handled in practise (socks) while CPU (green line belongs to
+[these](https://metrics.torproject.org/rs.html#details/509EAB4C5D10C9A9A24B4EA0CE402C047A2D64E6)
+2 Tor processes) and rx/tx seems to operate normal.
+
+_[*]_ Details are in issue [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
 of the [Tor project](https://www.torproject.org/).
 
@@ -56,6 +60,9 @@ Therefore rules for an ip, connecting to the local ORPort, are applied:
 In addition generic rules for local network interfaces, ICMP, ssh and user defined services are applied.
 
 ### Configuration
+The instructions do belong to the IPv4 variant.
+They do apply in a similar way for the IPv6 case.
+
 If the parsing of _torrc_ doesn't work for you (line [130](ipv4-rules.sh#L130)) then:
 1. define the relay(s) space separated in this environment variable before applying the rule set, eg.:
     ```bash
@@ -81,9 +88,6 @@ Same happens for additional local network services:
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't needed, then
 1. remove the _addHetzner()_ code (line [87ff](ipv4-rules.sh#L87)) and its call in line [156](ipv4-rules.sh#L156)
 1. -or- just ignore it
-
-The instructions do belong to the IPv4 variant.
-They are similar for IPv6 script.
 
 ### Further settings
 
