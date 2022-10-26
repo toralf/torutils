@@ -55,7 +55,7 @@ function addTor() {
     fi
 
     # rule 2
-    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist-block --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 5/minute --hashlimit-burst 4 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist-block --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 8/minute --hashlimit-burst 4 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     iptables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
 
     # rule 3

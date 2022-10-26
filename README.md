@@ -52,7 +52,7 @@ Only the inbound connection attempts are controlled.
 Therefore rules for an ip, connecting to the local ORPort, are applied:
 
 1. trust Tor authorities and snowflake
-1. block for 30 min if it makes > 5 connection attempts per minute
+1. block for 30 min if it makes > 8 connection attempts per minute
 1. limit connection attempts to 1/min
 1. ignore a connection attempt if > 4 connections are already established
 1. accept remaining connection attempts
