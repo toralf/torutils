@@ -3,7 +3,7 @@
 # set -x
 
 
-# update Tor under Gentoo Linux
+# update and restart Tor under Gentoo Linux
 
 
 #######################################################################
@@ -17,22 +17,17 @@ if [[ ! -d ~/tor ]]; then
 fi
 cd ~/tor
 
-if git pull 2>&1 | grep -q 'Already up to date.'; then
+updating=$(git pull | grep -e "^Updating .*\.\..*$" | cut -f2 -d' ')
+if [[ -z $updating ]]; then
   exit 0
 fi
 
-version=$(tor --version | head -n 1)
-if grep -q 'git' <<< $version; then
-  version=$(cut -f2 -d'(' <<< $version | tr -d '(git\-).')
-fi
-githead=$(git describe HEAD | sed "s,^.*-g,,g")
-
 date
-
-echo -e "update $version..$githead\n"
+echo -e "update $updating\n"
 unset GIT_PAGER
 export PAGER=cat
-git log --oneline $version..$githead 2>/dev/null && git diff --stat $version..$githead
+git log --oneline $updating
+git diff --stat $updating
 
 emerge -1 net-vpn/tor
 echo -e "\nrestart Tor\n"
@@ -41,4 +36,3 @@ echo -e "\nrestart Tor2\n"
 /sbin/rc-service tor2 restart
 
 date
-
