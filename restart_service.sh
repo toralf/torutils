@@ -1,17 +1,25 @@
 #!/bin/bash
-#set -x
+# SPDX-License-Identifier: GPL-3.0-or-later
+# set -x
 
-# works under Gentoo Linux with OpenRC
+
+# restart a crashed service under Gentoo Linux (OpenRC)
+
+
+#######################################################################
+set -euf
+export LANG=C.utf8
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 while :
 do
-  if [[ "$(/sbin/runlevel)" = "N 3" ]]; then
+  if [[ "$(runlevel)" = "N 3" ]]; then
     for s in ssh tor tor2
     do
-      /sbin/rc-service -qq $s status
+      rc-service -qq $s status
       if [[ $? -eq 32 ]]; then
         echo "$0: restart crashed $s"
-        /sbin/rc-service $s zap start
+        rc-service $s zap start
       fi
     done
   fi
