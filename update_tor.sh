@@ -3,7 +3,7 @@
 # set -x
 
 
-# update and restart Tor under Gentoo Linux
+# update and restart Tor under Gentoo Linux (OpenRC)
 
 
 #######################################################################
@@ -11,8 +11,8 @@ set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-cd ~
 if [[ ! -d ~/tor ]]; then
+  cd ~
   git clone https://git.torproject.org/tor.git
 fi
 cd ~/tor
@@ -31,8 +31,8 @@ git diff --stat $updating
 
 emerge -1 net-vpn/tor
 echo -e "\nrestart Tor\n"
-/sbin/rc-service tor  restart
+rc-service tor restart
 echo -e "\nrestart Tor2\n"
-/sbin/rc-service tor2 restart
+rc-service tor2 restart
 
 date
