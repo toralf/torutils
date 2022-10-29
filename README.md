@@ -46,40 +46,24 @@ The output should look similar to this [IPv4](./doc/iptables-L.txt) or this [IPv
 
 Idea:
 
-Established connections will not be touched.
-Outbounds connections will not be touched.
-Only inbound connection attempts are limited.
+Throttle inbound connection attempts,
+neither touch established connections nor outbounds connections.
 
-Details for a connection attempt of an ip:
+Details:
+
+These rules are applied (in this order) for a connection attempt from an ip:
 
 1. trust Tor authorities and snowflake
-1. block connection attempts for 5 min if rate of connection attempts exceeds 8/min
+1. block any connection attempt for 5 min if the rate exceeded 7/min
 1. limit connection attempts to 1/min
 1. ignore a connection attempt if > 4 connections are established
-1. accept remaining connection attempt
+1. accept an remaining connection attempt
 
 In addition filter rules for local network, ICMP, ssh and (optional) user defined services are applied.
 
-
-### Further settings
-
-The _uname_ limit for the Tor process is set here to _60000_.
-And these sysctl values are set in _/etc/sysctl.d/local.conf_:
-
-```console
-net.ipv4.ip_local_port_range = 2000 63999
-kernel.kptr_restrict = 1
-kernel.perf_event_paranoid = 3
-kernel.kexec_load_disabled = 1
-kernel.yama.ptrace_scope = 1
-user.max_user_namespaces = 0
-kernel.unprivileged_bpf_disabled = 1
-net.core.bpf_jit_harden = 2
-```
 ### Configuration
 The instructions belongs to the IPv4 variant.
 They can be applied in a similar way for the IPv6 script.
-
 If the parsing of _torrc_ doesn't work for you (line [130](ipv4-rules.sh#L130)) then:
 1. define the relay(s) space separated in this environment variable before applying the rule set, eg.:
     ```bash

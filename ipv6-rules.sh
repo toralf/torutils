@@ -58,11 +58,11 @@ function addTor() {
     fi
 
     # rule 2
-    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist-block --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 8/minute --hashlimit-burst 4 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist-block --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 7/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
     ip6tables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
 
     # rule 3
-    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist-drop  --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 1/minute --hashlimit-burst 1 --hashlimit-htable-expire 300000 -j DROP
+    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist-drop  --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 1/minute --hashlimit-burst 1 --hashlimit-htable-expire 60000 -j DROP
 
     # rule 4
     ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 4 -j DROP
