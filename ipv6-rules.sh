@@ -38,13 +38,9 @@ function __fill_trustlist() {
 
 
 function addTor() {
-  local blocklist=tor-ddos6
   local trustlist=tor-trust6
 
-
-  ipset create -exist $blocklist hash:ip family inet6 timeout 300
   ipset create -exist $trustlist hash:ip family inet6
-
   __fill_trustlist
 
   for relay in $*
@@ -52,23 +48,25 @@ function addTor() {
     read -r orip orport <<< $(sed -e 's,]:, ,' <<< $relay | tr '[' ' ')
 
     # rule 1
-    if ! ip6tables -A INPUT -p tcp --dst $orip --dport $orport -m set --match-set $trustlist src -j ACCEPT; then
-      echo " addTor(): error for $relay"
+    if ! ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m set --match-set $trustlist src -j ACCEPT; then
+      echo " $FUNCNAME(): error for $relay"
       continue
     fi
 
     # rule 2
-    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist-block --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 7/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    blocklist="tor-ddos6-$orport"
+    ipset create -exist $blocklist hash:ip family inet6 timeout $(( 30*60 ))
+    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name tor-block-$orport --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-above 5/minute --hashlimit-burst 4 --hashlimit-htable-expire $(( 1000*60*1 )) -j SET --add-set $blocklist src --exist
     ip6tables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
 
     # rule 3
-    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist-drop  --hashlimit-mode srcip --hashlimit-srcmask 128 --hashlimit-above 1/minute --hashlimit-burst 1 --hashlimit-htable-expire 60000 -j DROP
+    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name tor-limit-$orport --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-above 1/minute --hashlimit-burst 1 --hashlimit-htable-expire $(( 1000*60*1 )) -j DROP
 
     # rule 4
     ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 4 -j DROP
 
     # rule 5
-    ip6tables -A INPUT -p tcp --dst $orip --dport $orport -j ACCEPT
+    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -j ACCEPT
   done
 }
 
@@ -101,17 +99,14 @@ function addHetzner() {
 
 
 function clearAll() {
-  local table
+  trap - INT QUIT TERM EXIT
 
   ip6tables -P INPUT  ACCEPT
   ip6tables -P OUTPUT ACCEPT
 
-  for table in filter
-  do
-    ip6tables -F -t $table 2>/dev/null
-    ip6tables -X -t $table 2>/dev/null
-    ip6tables -Z -t $table 2>/dev/null
-  done
+  ip6tables -F -t filter
+  ip6tables -X -t filter
+  ip6tables -Z -t filter
 }
 
 
@@ -120,13 +115,7 @@ function printFirewall()  {
 
   date -R
   echo
-  for table in filter
-  do
-    echo "table: $table"
-    if ip6tables -nv -L -t $table 2>/dev/null; then
-      echo
-    fi
-  done
+  ip6tables -nv -L -t filter
 }
 
 
@@ -140,6 +129,7 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
+trap clearAll INT QUIT TERM EXIT
 case ${1:-} in
   start)  addCommon
           addHetzner
@@ -151,4 +141,4 @@ case ${1:-} in
   *)      printFirewall
           ;;
 esac
-
+trap - INT QUIT TERM EXIT

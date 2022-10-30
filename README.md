@@ -15,18 +15,17 @@ and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#n
 of the [Tor project](https://www.torproject.org/).
 
 ### Quick start
-If the package [iptables](https://www.netfilter.org/projects/iptables/) is installed, just run:
+The package [iptables](https://www.netfilter.org/projects/iptables/) is needed.
+Run:
 
 ```bash
-# wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
-# chmod +x ./ipv4-rules.sh
-git clone https://github.com/toralf/torutils
-cd torutils
+wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
+chmod +x ./ipv4-rules.sh
 sudo ./ipv4-rules.sh start
 ```
 
 to configure the _filter_ table of [iptables](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg)
-using the rule set below. Best is to (re-)start Tor afterwards.
+using the rule set described below. Best is to (re-)start Tor afterwards.
 To clear the _filter_ table, run:
 
 ```bash
@@ -39,33 +38,32 @@ The live statistics are given by:
 sudo watch -t ./ipv4-rules.sh
 ```
 
-The output should look similar to this [IPv4](./doc/iptables-L.txt) or this [IPv6](./doc/ip6tables-L.txt) example respectively.
+The output should look similar to this [IPv4](./doc/iptables-L.txt) and this [IPv6](./doc/ip6tables-L.txt) example respectively.
 
 ### Rule set
 
 Idea:
 
-Throttle inbound connection attempts,
-neither touch established connections nor outbounds connections.
+Filter inbound connection attempts.
+Neither touch established connections nor outbounds connections.
+Up to 4 inbound connections from an ip are allowed, ideally an attacker gets much less.
 
 Details:
 
-These rules are applied (in this order) for a connection attempt from an ip:
+These rules are applied (in this order) for a TCP connection attempt from an ip to the local ORPort:
 
 1. trust Tor authorities and snowflake
-1. block any connection attempt for 5 min if the rate exceeded 7/min
-1. limit connection attempts to 1/min
-1. ignore a connection attempt if > 4 connections are established
-1. accept an remaining connection attempt
+1. block attempts for next 30 min if the rate is > 5/min
+1. limit rate to the ORPort to 1/min
+1. ignore it if 4 connections are already established
+1. accept it
 
-In addition filter rules for local network, ICMP, ssh and (optional) user defined services are applied.
-Ideally an attacker just gets 1 established connections, where usually up to 4 connections per ip are allowed.
-
+In addition generic rules for local network, ICMP, ssh and for user services (if defined) are applied.
 
 ### Configuration
 The instructions belongs to the IPv4 variant.
 They can be applied in a similar way for the IPv6 script.
-If the parsing of _torrc_ doesn't work for you (line [130](ipv4-rules.sh#L130)) then:
+If the parsing of _torrc_ doesn't work for you (line [118](ipv4-rules.sh#L118)) then:
 1. define the relay(s) space separated in this environment variable before applying the rule set, eg.:
     ```bash
     export CONFIGURED_RELAYS="3.14.159.26:535"
@@ -88,36 +86,24 @@ Same happens for additional local network services:
     I won't recommended that however.
 
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't needed, then
-1. remove the _addHetzner()_ code (line [87ff](ipv4-rules.sh#L87)) and its call in line [156](ipv4-rules.sh#L156)
+1. remove the _addHetzner()_ code (line [86ff](ipv4-rules.sh#L86)) and its call in line [145](ipv4-rules.sh#L145)
 1. -or- just ignore it
 
 
 ### Misc
 
-[ddos-inbound.sh](./ddos-inbound.sh) lists ips having more connections from or to the ORPort than a given limit.
-It should usually list only _snowflake-01.torproject.net._ if the rule set is active.
-The script [ipset-stats.sh](./ipset-stats.sh) (needs package [gnuplot](http://www.gnuplot.info/))
-dumps the content of an [ipset](https://ipset.netfilter.org) and plots those data.
-[This](./doc/crontab.txt) crontab example (of user _root_) shows how to gather data,
-from which histograms like [this](./doc/ipset-stats.sh.txt) is plotted by the command:
-
-```bash
-sudo ./ipset-stats.sh -p /tmp/ipset4.*.txt
-```
-
+[ddos-inbound.sh](./ddos-inbound.sh) lists ips having more connections from or to the ORPort than a given limit (4 per default).
 [orstatus.py](./orstatus.py) logs the reason of Tor circuit closing events.
 [orstatus-stats.sh](./orstatus-stats.sh) prints and/or plots statistics like
-[this](./doc/orstatus-stats.sh.txt) from the output, eg. run:
+[this](./doc/orstatus-stats.sh.txt) from that output, eg.:
 
 ```bash
 sudo ./orstatus-stats.sh /tmp/orstatus.9051 TLS_ERROR
 ```
 
-A histogram over the timeout values of all ips of an ipset ([example](./doc/blocked-ip-timeouts.txt)) is taken by:
-
-```bash
-tmpfile=$(mktemp /tmp/XXXXXX);  ipset list tor-ddos -s | grep ' timeout ' | grep -v ' inet' | awk '{ print $3 }' | sort -bn > $tmpfile; gnuplot -e 'set terminal dumb; set border back; set key noautotitle; set title "ips per timeout"; set xlabel "ips"; plot "'$tmpfile'" pt "o";'; rm $tmpfile
-```
+[hash-stats.sh](./hash-stats.sh) plots the timeout values of the ips stored in an iptables hash.
+[ipset-stats.sh](./ipset-stats.sh) does the same for the content of an [ipset](https://ipset.netfilter.org).
+The package [gnuplot](http://www.gnuplot.info/) is needed to plot graphs.
 
 ## Query Tor via its API
 

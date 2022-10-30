@@ -22,6 +22,7 @@ if [[ -z $updating ]]; then
   exit 0
 fi
 
+echo
 date
 echo -e "update $updating\n"
 unset GIT_PAGER
@@ -35,4 +36,5 @@ rc-service tor restart
 echo -e "\nrestart Tor2\n"
 rc-service tor2 restart
 
+echo
 date

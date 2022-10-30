@@ -36,12 +36,9 @@ function __fill_trustlist() {
 
 
 function addTor() {
-  local blocklist=tor-ddos
   local trustlist=tor-trust
 
-  ipset create -exist $blocklist hash:ip family inet timeout 300
   ipset create -exist $trustlist hash:ip family inet
-
   __fill_trustlist
 
   for relay in $*
@@ -49,23 +46,25 @@ function addTor() {
     read -r orip orport <<< $(tr ':' ' ' <<< $relay)
 
     # rule 1
-    if ! iptables -A INPUT -p tcp --dst $orip --dport $orport -m set --match-set $trustlist src -j ACCEPT; then
-      echo " addTor(): error for $relay"
+    if ! iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m set --match-set $trustlist src -j ACCEPT; then
+      echo " $FUNCNAME(): error for $relay"
       continue
     fi
 
     # rule 2
-    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist-block --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 7/minute --hashlimit-burst 6 --hashlimit-htable-expire 60000 -j SET --add-set $blocklist src --exist
+    local blocklist="tor-ddos-$orport"
+    ipset create -exist $blocklist hash:ip family inet timeout $(( 30*60 ))
+    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name tor-block-$orport --hashlimit-mode srcip,dstport --hashlimit-srcmask 32 --hashlimit-above 5/minute --hashlimit-burst 4 --hashlimit-htable-expire $(( 1000*60*1 )) -j SET --add-set $blocklist src --exist
     iptables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
 
     # rule 3
-    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name $blocklist-drop  --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-above 1/minute --hashlimit-burst 1 --hashlimit-htable-expire 60000 -j DROP
+    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name tor-limit-$orport --hashlimit-mode srcip,dstport --hashlimit-srcmask 32 --hashlimit-above 1/minute --hashlimit-burst 1 --hashlimit-htable-expire $(( 1000*60*1 )) -j DROP
 
     # rule 4
     iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 4 -j DROP
 
     # rule 5
-    iptables -A INPUT -p tcp --dst $orip --dport $orport -j ACCEPT
+    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -j ACCEPT
   done
 }
 
@@ -98,32 +97,21 @@ function addHetzner() {
 
 
 function clearAll() {
-  local table
+  trap - INT QUIT TERM EXIT
 
   iptables -P INPUT  ACCEPT
   iptables -P OUTPUT ACCEPT
 
-  for table in filter
-  do
-    iptables -F -t $table 2>/dev/null
-    iptables -X -t $table 2>/dev/null
-    iptables -Z -t $table 2>/dev/null
-  done
+  iptables -F -t filter
+  iptables -X -t filter
+  iptables -Z -t filter
 }
 
 
 function printFirewall()  {
-  local table
-
   date -R
   echo
-  for table in filter
-  do
-    echo "table: $table"
-    if iptables -nv -L -t $table 2>/dev/null; then
-      echo
-    fi
-  done
+  iptables -nv -L -t filter
 }
 
 
@@ -151,6 +139,7 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
+trap clearAll INT QUIT TERM EXIT
 case ${1:-} in
   start)  addCommon
           addHetzner
@@ -162,4 +151,4 @@ case ${1:-} in
   *)      printFirewall
           ;;
 esac
-
+trap - INT QUIT TERM EXIT
