@@ -8,9 +8,8 @@ Few tools for a Tor relay.
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) were made
 to protect a Tor relay against a DDoS attack at TCP/IP level.
-They block too often repeated connection attempts of ip addresses to the local ORPort.
-[These](./doc/network-metric.svg) metrics show how DDoS attacks
-are handled (2 Tor relays at the same ip, green line belongs to CPU).
+
+[These](./doc/network-metric.svg) metrics show how those attacks are handled (2 Tor relays at the same ip, green line belongs to CPU).
 Details are in issue [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
 of the [Tor project](https://www.torproject.org/).
@@ -60,6 +59,8 @@ These rules are applied (in this order) for a connection attempt from an ip:
 1. accept an remaining connection attempt
 
 In addition filter rules for local network, ICMP, ssh and (optional) user defined services are applied.
+Ideally an attacker just gets 1 established connections, where usually up to 4 connections per ip are allowed.
+
 
 ### Configuration
 The instructions belongs to the IPv4 variant.
