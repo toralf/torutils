@@ -44,9 +44,10 @@ function addTor() {
   for relay in $*
   do
     read -r orip orport <<< $(tr ':' ' ' <<< $relay)
+    local cmd="iptables -A INPUT -p tcp --dst $orip --dport $orport --syn"
 
     # rule 1
-    if ! iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m set --match-set $trustlist src -j ACCEPT; then
+    if ! $cmd -m set --match-set $trustlist src -j ACCEPT; then
       echo " $FUNCNAME(): error for $relay"
       continue
     fi
@@ -54,17 +55,17 @@ function addTor() {
     # rule 2
     local blocklist="tor-ddos-$orport"
     ipset create -exist $blocklist hash:ip family inet timeout $(( 30*60 ))
-    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name tor-block-$orport --hashlimit-mode srcip,dstport --hashlimit-srcmask 32 --hashlimit-above 5/minute --hashlimit-burst 4 --hashlimit-htable-expire $(( 1000*60*1 )) -j SET --add-set $blocklist src --exist
-    iptables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
+    $cmd -m hashlimit --hashlimit-name tor-block-$orport --hashlimit-mode srcip,dstport --hashlimit-srcmask 32 --hashlimit-above 5/minute --hashlimit-burst 4 --hashlimit-htable-expire $(( 1000*60*1 )) -j SET --add-set $blocklist src --exist
+    $cmd -m set --match-set $blocklist src -j DROP
 
     # rule 3
-    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name tor-limit-$orport --hashlimit-mode srcip,dstport --hashlimit-srcmask 32 --hashlimit-above 1/minute --hashlimit-burst 1 --hashlimit-htable-expire $(( 1000*60*1 )) -j DROP
+    $cmd -m hashlimit --hashlimit-name tor-limit-$orport --hashlimit-mode srcip,dstport --hashlimit-srcmask 32 --hashlimit-above 1/minute --hashlimit-burst 1 --hashlimit-htable-expire $(( 1000*60*1 )) -j DROP
 
     # rule 4
-    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 32 --connlimit-above 4 -j DROP
+    $cmd -m connlimit --connlimit-mask 32 --connlimit-above 4 -j DROP
 
     # rule 5
-    iptables -A INPUT -p tcp --dst $orip --dport $orport --syn -j ACCEPT
+    $cmd -j ACCEPT
   done
 }
 

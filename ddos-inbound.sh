@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
+
 # count inbound to local ORPort per remote ip address
+
 
 function show() {
   local relay=$1
@@ -70,7 +72,7 @@ relays=$(getConfiguredRelays; getConfiguredRelays6)
 while getopts l:r: opt
 do
   case $opt in
-    l)  limit=$OPTARG ;;
+    l)  limit=$(( OPTARG+0 )) ;;
     r)  relays="$OPTARG" ;;
     *)  echo "unknown parameter '$opt'"; exit 1 ;;
   esac

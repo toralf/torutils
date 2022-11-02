@@ -46,9 +46,10 @@ function addTor() {
   for relay in $*
   do
     read -r orip orport <<< $(sed -e 's,]:, ,' <<< $relay | tr '[' ' ')
+    local cmd="ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn"
 
     # rule 1
-    if ! ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m set --match-set $trustlist src -j ACCEPT; then
+    if ! $cmd -m set --match-set $trustlist src -j ACCEPT; then
       echo " $FUNCNAME(): error for $relay"
       continue
     fi
@@ -56,17 +57,17 @@ function addTor() {
     # rule 2
     blocklist="tor-ddos6-$orport"
     ipset create -exist $blocklist hash:ip family inet6 timeout $(( 30*60 ))
-    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name tor-block-$orport --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-above 5/minute --hashlimit-burst 4 --hashlimit-htable-expire $(( 1000*60*1 )) -j SET --add-set $blocklist src --exist
-    ip6tables -A INPUT -p tcp -m set --match-set $blocklist src -j DROP
+    $cmd -m hashlimit --hashlimit-name tor-block-$orport --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-above 5/minute --hashlimit-burst 4 --hashlimit-htable-expire $(( 1000*60*1 )) -j SET --add-set $blocklist src --exist
+    $cmd -m set --match-set $blocklist src -j DROP
 
     # rule 3
-    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m hashlimit --hashlimit-name tor-limit-$orport --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-above 1/minute --hashlimit-burst 1 --hashlimit-htable-expire $(( 1000*60*1 )) -j DROP
+    $cmd -m hashlimit --hashlimit-name tor-limit-$orport --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-above 1/minute --hashlimit-burst 1 --hashlimit-htable-expire $(( 1000*60*1 )) -j DROP
 
     # rule 4
-    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -m connlimit --connlimit-mask 128 --connlimit-above 4 -j DROP
+    $cmd -m connlimit --connlimit-mask 128 --connlimit-above 4 -j DROP
 
     # rule 5
-    ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn -j ACCEPT
+    $cmd -j ACCEPT
   done
 }
 

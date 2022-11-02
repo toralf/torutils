@@ -3,7 +3,7 @@
 # set -x
 
 
-# plot timeout values of an iptabbles hash
+# plot timeout values of an iptables hash
 
 
 set -euf
@@ -13,7 +13,7 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
-for h in ${@:-/proc/net/ipt_hashlimit/tor-block}
+for h in ${@:-/proc/net/ipt_hashlimit/tor-block-443}
 do
   awk '{ print $1 }' $h | sort -bn > $tmpfile
 
