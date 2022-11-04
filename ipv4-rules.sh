@@ -142,7 +142,8 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 trap clearAll INT QUIT TERM EXIT
 case ${1:-} in
-  start)  addCommon
+  start)  clearAll
+          addCommon
           addHetzner
           addLocalServices
           addTor ${CONFIGURED_RELAYS:-$(getConfiguredRelays)}
