@@ -38,9 +38,9 @@ def parse_consensus(relays, filename):
 
 def main():
   parser = argparse.ArgumentParser()
-  parser.add_argument('--address', type=str, help='default: ::1', default='::1')
-  parser.add_argument('--ctrlport', type=int, help='default: 9051', default=9051)
-  parser.add_argument('--resolver', help='default: autodetect', default='')
+  parser.add_argument('-a', '--address', type=str, help='default: ::1', default='::1')
+  parser.add_argument('-c', '--ctrlport', type=int, help='default: 9051', default=9051)
+  parser.add_argument('-r', '--resolver', help='default: autodetect', default='')
   args = parser.parse_args()
 
   with Controller.from_port(address=args.address, port=args.ctrlport) as controller:

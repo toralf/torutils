@@ -22,8 +22,8 @@ from stem.util.connection import is_valid_ipv4_address
 
 def main():
   parser = argparse.ArgumentParser()
-  parser.add_argument('--address', type=str, help='default: ::1', default='::1')
-  parser.add_argument('--ctrlport', type=int, help='default: 9051', default=9051)
+  parser.add_argument('-a', '--address', type=str, help='default: ::1', default='::1')
+  parser.add_argument('-c', '--ctrlport', type=int, help='default: 9051', default=9051)
   args = parser.parse_args()
 
   try:
