@@ -6,15 +6,22 @@ Few tools for a Tor relay.
 
 ## Block DDoS Traffic
 
-The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) were made
-to protect a Tor relay against a DDoS attack at TCP/IP level.
-The goal is to prevent an malicous ip to open too much TLS connections whilst other should open more than 1.
+The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
+against inbound DDoS attacks at the [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg).
 
-[These](./doc/network-metric.svg) metrics show the time response to those attacks
-(the green line in the most upper graph belongs to the Tor cpu usage,
-the most lower graph shows the blocking behaviour for the socket count).
-Details are in issue [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
-and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
+The goal is more than traffic shaping, the (presumably) intention of the attacker is targeted.
+Therefore, beside traffic control, a transformation of the usual sharp input signal
+(==open few thousands TLS connections within second/s)
+into a more smeared output response which needs minutes to reach the maximum, is achieved.
+This could make it harder for the attacker to measure the result of their action.
+
+[This](./doc/network-metric.svg) bunch of metrics shows the response (last graph)
+to certain DDoS events at a day as well as the cpu usage
+(the green line in that graph belongs to the Tor process, ignore the other colours in that graph).
+The metrics are created using the [sysstat](http://sebastien.godard.pagesperso-orange.fr/) package.
+
+More is in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
+and its follow-up ([40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393))
 of the [Tor project](https://www.torproject.org/).
 
 ### Quick start
@@ -28,8 +35,7 @@ chmod +x ./ipv4-rules.sh
 sudo ./ipv4-rules.sh start
 ```
 
-to replace the _filter_ table of [iptables](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg)
-with the rule set described below. Best is to (re-)start Tor afterwards.
+to replace the _filter_ table with the rule set described below. Best is to (re-)start Tor afterwards.
 To clear the _filter_ table, run:
 
 ```bash
@@ -61,6 +67,8 @@ Then these rules are applied (in this order) for a TCP connection attempt to the
 1. accept it
 
 These rules apply to single IPv4 ips and /80 IPv6 networks respectively.
+For rule 2 an [ipset](https://ipset.netfilter.org) is used, the remaining rules are expressed
+with the _hashlimit_ and _comnnlimit_ module of _iptables_.
 
 ### Configuration
 
@@ -107,23 +115,21 @@ ipset list -t | grep "^Name"
 # ipset destroy <choose one from the list above>
 ```
 
-### Monitoring
+### Fine tuning
+
+Some tools are made to fine tune certain rule set parameters.
+[Feedback](https://github.com/toralf/torutils/issues) about the parameters is highly appreciated.
 
 [ddos-inbound.sh](./ddos-inbound.sh) lists ips having more connections from or to the ORPort than a given limit (4 per default).
 [orstatus.py](./orstatus.py) logs the reason of Tor circuit closing events.
 [orstatus-stats.sh](./orstatus-stats.sh) prints and/or plots statistics like
-[this](./doc/orstatus-stats.sh.txt) from that output, eg.:
-
-```bash
-sudo ./orstatus-stats.sh /tmp/orstatus.9051 TLS_ERROR
-```
-
+[this](./doc/orstatus-stats.sh.txt) from that output.
 [hash-stats.sh](./hash-stats.sh) plots the timeout values of the entries in an iptables hash
-([example](./doc/hash-stats.sh.txt)).
-[ipset-stats.sh](./ipset-stats.sh) does the same for the content of an [ipset](https://ipset.netfilter.org)
+([example](./doc/hash-stats.sh.txt)),
+[ipset-stats.sh](./ipset-stats.sh) does the same for the content of an ipset
 ([example](./doc/ipset-stats.sh.txt)).
-The package [gnuplot](http://www.gnuplot.info/) is needed to plot graphs.
-The metrics mentioned [here](#block-ddos-traffic) are created by the [sysstat](http://sebastien.godard.pagesperso-orange.fr/) package.
+
+The package [gnuplot](http://www.gnuplot.info/) is needed to plot the graphs.
 
 ## Query Tor via its API
 
@@ -169,15 +175,12 @@ ControlPort [::1]:9051
 ```
 
 The [Stem](https://stem.torproject.org/index.html) python library is mandatory.
-The latest version can be derived by eg.:
+The latest version can be derived at:
 
 ```bash
-cd <your favourite path>
 git clone https://github.com/torproject/stem.git
 export PYTHONPATH=$PWD/stem
 ```
-
-The package [gnuplot](http://www.gnuplot.info/) is needed to plot graphs.
 
 ## Tor offline keys
 
