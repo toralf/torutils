@@ -3,7 +3,8 @@
 # set -x
 
 
-# dump and plot hostograms about occurrence of ip addresses in ipset(s)
+# dump ip addresses of ipset(s) -or- plot histograms of that
+# eg.: ./ipset-stats.sh -d > x; ./ipset-stats.sh -p x
 
 
 function dump()  {
