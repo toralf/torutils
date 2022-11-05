@@ -1,0 +1,48 @@
+$> sudo ./hash-stats.sh /proc/net/ipt_hashlimit/tor-block-*
+
+   timeout of 4097 ips in /proc/net/ipt_hashlimit/tor-block-443
+  60 +---------------------------------oooooooooooooooooo----+
+     |     +    oooooooooooooooooooooooo  +      +     +     |
+     |      ooooo                                            |
+  50 |-+  ooo                                              +-|
+     |   oo                                                  |
+     |  oo                                                   |
+  40 |-+o                                                  +-|
+     |  o                                                    |
+  30 |-oo                                                  +-|
+     | o                                                     |
+     | o                                                     |
+  20 |oo                                                   +-|
+     |o                                                      |
+     |o                                                      |
+  10 |o+                                                   +-|
+     oo                                                      |
+     o     +     +      +     +     +     +      +     +     |
+   0 o-------------------------------------------------------+
+     0    500   1000   1500  2000  2500  3000   3500  4000  4500
+                                ip
+
+
+
+
+   timeout of 4082 ips in /proc/net/ipt_hashlimit/tor-block-9001
+  60 +-----------------------------------oooooooooooooooo----+
+     |     +     + ooooooooooooooooooooooo+      +     +     |
+     |       ooooooo                                         |
+  50 |-+   ooo                                             +-|
+     |   ooo                                                 |
+     |   o                                                   |
+  40 |-+oo                                                 +-|
+     |  o                                                    |
+  30 |-oo                                                  +-|
+     | o                                                     |
+     | o                                                     |
+  20 |-o                                                   +-|
+     |oo                                                     |
+     |o                                                      |
+  10 |o+                                                   +-|
+     oo                                                      |
+     o     +     +      +     +     +     +      +     +     |
+   0 o-------------------------------------------------------+
+     0    500   1000   1500  2000  2500  3000   3500  4000  4500
+                                ip

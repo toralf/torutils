@@ -10,7 +10,9 @@ The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh
 to protect a Tor relay against a DDoS attack at TCP/IP level.
 The goal is to prevent an malicous ip to open too much TLS connections whilst other should open more than 1.
 
-[These](./doc/network-metric.svg) metrics show how those attacks are handled (2 Tor relays at the same ip, green line belongs to CPU).
+[These](./doc/network-metric.svg) metrics show the time response to those attacks
+(the green line in the most upper graph belongs to the Tor cpu usage,
+the most lower graph shows the blocking behaviour for the socket count).
 Details are in issue [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
 of the [Tor project](https://www.torproject.org/).
@@ -105,7 +107,7 @@ ipset list -t | grep "^Name"
 # ipset destroy <choose one from the list above>
 ```
 
-### Misc
+### Monitoring
 
 [ddos-inbound.sh](./ddos-inbound.sh) lists ips having more connections from or to the ORPort than a given limit (4 per default).
 [orstatus.py](./orstatus.py) logs the reason of Tor circuit closing events.
@@ -116,9 +118,12 @@ ipset list -t | grep "^Name"
 sudo ./orstatus-stats.sh /tmp/orstatus.9051 TLS_ERROR
 ```
 
-[hash-stats.sh](./hash-stats.sh) plots the timeout values of the ips stored in an iptables hash.
-[ipset-stats.sh](./ipset-stats.sh) does the same for the content of an [ipset](https://ipset.netfilter.org).
+[hash-stats.sh](./hash-stats.sh) plots the timeout values of the entries in an iptables hash
+([example](./doc/hash-stats.sh.txt)).
+[ipset-stats.sh](./ipset-stats.sh) does the same for the content of an [ipset](https://ipset.netfilter.org)
+([example](./doc/ipset-stats.sh.txt)).
 The package [gnuplot](http://www.gnuplot.info/) is needed to plot graphs.
+The metrics mentioned [here](#block-ddos-traffic) are created by the [sysstat](http://sebastien.godard.pagesperso-orange.fr/) package.
 
 ## Query Tor via its API
 

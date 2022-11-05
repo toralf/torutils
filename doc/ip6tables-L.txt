@@ -1,32 +1,32 @@
-Fri, 04 Nov 2022 22:25:16 +0000
+Sat, 05 Nov 2022 14:22:44 +0000
 
-Chain INPUT (policy DROP 17 packets, 1360 bytes)
+Chain INPUT (policy DROP 92 packets, 6808 bytes)
  pkts bytes target     prot opt in     out     source               destination         
- 295K  198M ACCEPT     all      lo     *       ::/0                 ::/0                 /* Fri, 04 Nov 2022 17:33:54 +0000 */
+2091K  966M ACCEPT     all      lo     *       ::/0                 ::/0                 /* Fri, 04 Nov 2022 17:33:54 +0000 */
     0     0 ACCEPT     udp      *      *       fe80::/10            ff02::1             
-  217  202K DROP       tcp      *      *       ::/0                 ::/0                 tcp flags:!0x17/0x02 state NEW
-  668  694K DROP       all      *      *       ::/0                 ::/0                 ctstate INVALID
- 178M  254G ACCEPT     all      *      *       ::/0                 ::/0                 ctstate RELATED,ESTABLISHED
-   26  1664 ACCEPT     tcp      *      *       ::/0                 ::/0                 tcp dpt:22
-   96  9016 ACCEPT     ipv6-icmp    *      *       ::/0                 ::/0                 ipv6-icmptype 128 limit: avg 6/sec burst 5
+ 1009  898K DROP       tcp      *      *       ::/0                 ::/0                 tcp flags:!0x17/0x02 state NEW
+ 1808 1957K DROP       all      *      *       ::/0                 ::/0                 ctstate INVALID
+ 658M  988G ACCEPT     all      *      *       ::/0                 ::/0                 ctstate RELATED,ESTABLISHED
+  111  7104 ACCEPT     tcp      *      *       ::/0                 ::/0                 tcp dpt:22
+  342 32928 ACCEPT     ipv6-icmp    *      *       ::/0                 ::/0                 ipv6-icmptype 128 limit: avg 6/sec burst 5
     0     0 DROP       ipv6-icmp    *      *       ::/0                 ::/0                 ipv6-icmptype 128
     0     0 ACCEPT     ipv6-icmp    *      *       ::/0                 ::/0                
-   52  3328 ACCEPT     all      *      *       ::/0                 ::/0                 match-set hetzner-sysmon6 src
-   82  6616 ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 match-set tor-trust6 src
-    4   320 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 limit: above 5/min burst 4 mode srcip-dstport srcmask 80 add-set tor-ddos6-443 src exist
-   27  2164 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 match-set tor-ddos6-443 src
-   90  6984 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 limit: above 1/min burst 1 mode srcip-dstport srcmask 80
-    7   560 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 #conn src/80 > 4
- 1020 81028 ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02
-   81  6536 ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 match-set tor-trust6 src
-   28  2216 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 limit: above 5/min burst 4 mode srcip-dstport srcmask 80 add-set tor-ddos6-9001 src exist
-  149 11576 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 match-set tor-ddos6-9001 src
-   52  4056 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 limit: above 1/min burst 1 mode srcip-dstport srcmask 80
+  223 14272 ACCEPT     all      *      *       ::/0                 ::/0                 match-set hetzner-sysmon6 src
+  351 28316 ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 match-set tor-trust6 src
+   70  5564 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 limit: above 5/min burst 4 mode srcip-dstport srcmask 80 add-set tor-ddos6-443 src exist
+  428 33668 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 match-set tor-ddos6-443 src
+  331 26164 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 limit: above 1/min burst 1 mode srcip-dstport srcmask 80
+   13  1040 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 #conn src/80 > 4
+ 3292  262K ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02
+  350 28236 ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 match-set tor-trust6 src
+   76  6048 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 limit: above 5/min burst 4 mode srcip-dstport srcmask 80 add-set tor-ddos6-9001 src exist
+  454 35728 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 match-set tor-ddos6-9001 src
+  244 19232 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 limit: above 1/min burst 1 mode srcip-dstport srcmask 80
     0     0 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 #conn src/80 > 4
-  958 76248 ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02
+ 3088  246K ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02
 
 Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
  pkts bytes target     prot opt in     out     source               destination         
 
-Chain OUTPUT (policy ACCEPT 148M packets, 122G bytes)
+Chain OUTPUT (policy ACCEPT 562M packets, 509G bytes)
  pkts bytes target     prot opt in     out     source               destination         
