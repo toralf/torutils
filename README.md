@@ -9,11 +9,12 @@ Few tools for a Tor relay.
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
 against inbound DDoS attacks at the [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg).
 
-The goal is much more than traffic shaping: the (presumably) intention of the attacker is targeted.
-Therefore, beside traffic control, a transformation of the (currently) sharp input signal
+The goal is much more than traffic control:
+The (presumably) intention of the attacker is targeted.
+Therefore, in addition to network filtering a transformation of the (currently) sharp input signal
 (==open few thousands TLS connections within second/s)
 into a more smeared output response (which needs minutes to reach the maximum) is achieved.
-This shall make it harder for the attacker for any time correlation.
+This shall make it harder for an attacker to get reasonable results from a time correlation algorithm.
 
 [This](./doc/network-metric.svg) metrics shows the response (last graph) to certain DDoS events at a day
 as well as the cpu usage (the green line in that graph belongs to the Tor process, ignore the other colours in that graph).
