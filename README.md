@@ -69,8 +69,8 @@ Then these rules are applied (in this order) for a TCP connection attempt to the
 1. accept it
 
 These rules apply to single IPv4 ips and /80 IPv6 networks respectively.
-For rule 2 an [ipset](https://ipset.netfilter.org) is used, the remaining rules are expressed
-with the _hashlimit_ and _comnnlimit_ module of _iptables_.
+For rule 2 an [ipset](https://ipset.netfilter.org) is used, the remaining rules are implemented
+using the _hashlimit_ and _connnlimit_ module of _iptables_.
 
 ### Configuration
 
