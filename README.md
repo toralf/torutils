@@ -7,7 +7,7 @@ Few tools for a Tor relay.
 ## Block DDoS Traffic
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
-against inbound DDoS attacks at the [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg).
+against inbound DDoS attacks at the IPv4/6 [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) respectively.
 
 The goal is much more than traffic control:
 The (presumably) intention of the attacker is targeted.
@@ -22,12 +22,11 @@ And [here](./doc/network-metric-nextday.svg) are the graphs for the next day.
 The metrics are created using the [sysstat](http://sebastien.godard.pagesperso-orange.fr/) package.
 
 Origin discussion is in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
-and ([40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393))
+and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
 of the [Tor project](https://www.torproject.org/).
 
 ### Quick start
 
-The package [iptables](https://www.netfilter.org/projects/iptables/) needs to be installed.
 Run:
 
 ```bash
@@ -52,6 +51,7 @@ sudo watch -t ./ipv4-rules.sh
 
 The output should look similar to the [IPv4](./doc/iptables-L.txt) and the [IPv6](./doc/ip6tables-L.txt) example respectively.
 
+The package [iptables](https://www.netfilter.org/projects/iptables/) needs to be installed before.
 ### Rule set
 
 Filter inbound connection attempts.
