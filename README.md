@@ -96,14 +96,13 @@ Same happens for additional local network services:
     export ADD_LOCAL_SERVICES6="[edda:fade:affe:baff:eff:eff]:12345"
     ```
 
-1. -or- append your iptables rules to the _filter_ table
-1. -or- open the iptables chain _INPUT_ in line [6](ipv4-rules.sh#L6):
+1. -or- append your own iptables rules to the _filter_ table
+
+1. -or- (IMO not recommended) open the iptables chain _INPUT_ in line [6](ipv4-rules.sh#L6):
 
     ```bash
     iptables -P INPUT ACCEPT
     ```
-
-    I won't recommended that however.
 
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't needed, then
 
