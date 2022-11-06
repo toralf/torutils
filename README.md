@@ -9,24 +9,23 @@ Few tools for a Tor relay.
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
 against inbound DDoS attacks at the [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg).
 
-The goal is more than traffic shaping, the (presumably) intention of the attacker is targeted.
-Therefore, beside traffic control, a transformation of the usual sharp input signal
+The goal is much more than traffic shaping: the (presumably) intention of the attacker is targeted.
+Therefore, beside traffic control, a transformation of the (currently) sharp input signal
 (==open few thousands TLS connections within second/s)
-into a more smeared output response which needs minutes to reach the maximum, is achieved.
-This could make it harder for the attacker to measure the result of their action.
+into a more smeared output response (which needs minutes to reach the maximum) is achieved.
+This shall make it harder for the attacker for any time correlation.
 
-[This](./doc/network-metric.svg) bunch of metrics shows the response (last graph)
-to certain DDoS events at a day as well as the cpu usage
-(the green line in that graph belongs to the Tor process, ignore the other colours in that graph).
+[Thse](./doc/network-metric.svg) metrics shows the response (last graph) to certain DDoS events at a day
+as well as the cpu usage (the green line in that graph belongs to the Tor process, ignore the other colours in that graph).
 The metrics are created using the [sysstat](http://sebastien.godard.pagesperso-orange.fr/) package.
 
-More is in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
-and its follow-up ([40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393))
+Origin discussion is in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
+and ([40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393))
 of the [Tor project](https://www.torproject.org/).
 
 ### Quick start
 
-The package [iptables](https://www.netfilter.org/projects/iptables/) is needed.
+The package [iptables](https://www.netfilter.org/projects/iptables/) needs to be installed.
 Run:
 
 ```bash
@@ -35,14 +34,15 @@ chmod +x ./ipv4-rules.sh
 sudo ./ipv4-rules.sh start
 ```
 
-to replace the _filter_ table with the rule set described below. Best is to (re-)start Tor afterwards.
+to replace any current _filter_ table content with the rule set described below.
+Best is to (re-)start Tor afterwards.
 To clear the _filter_ table, run:
 
 ```bash
 sudo ./ipv4-rules.sh stop
 ```
 
-The live statistics are given by:
+The live statistics can be watched by:
 
 ```bash
 sudo watch -t ./ipv4-rules.sh
@@ -117,7 +117,7 @@ ipset list -t | grep "^Name"
 
 ### Fine tuning
 
-Some tools are made to fine tune certain rule set parameters.
+These scripts helped to fine tune certain rule set parameters.
 [Feedback](https://github.com/toralf/torutils/issues) about the parameters is highly appreciated.
 
 [ddos-inbound.sh](./ddos-inbound.sh) lists ips having more connections from or to the ORPort than a given limit (4 per default).
@@ -130,6 +130,26 @@ Some tools are made to fine tune certain rule set parameters.
 ([example](./doc/ipset-stats.sh.txt)).
 
 The package [gnuplot](http://www.gnuplot.info/) is needed to plot the graphs.
+For sysstat use this crontab entry:
+
+```bash
+# crontab root
+
+# sysstat
+@reboot     /usr/lib/sa/sa1 --boot
+* * * * *   /usr/lib/sa/sa1 1 1 -S XALL
+```
+
+and create the graphs by (adapt _args_ for your system):
+
+```bash
+args="-u -n DEV,SOCK --iface=enp8s0"
+svg=/tmp/graph.svg
+TZ=UTC sadf -g -t /var/log/sa/sa${DAY:-`date +%d`} -O skipempty,oneday -- $args > $svg
+h=$(tail -n 2 $svg | head -n 1 | cut -f5 -d' ')  # to fix the SVG code
+sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
+firefox $svg
+```
 
 ## Query Tor via its API
 
