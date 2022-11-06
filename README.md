@@ -15,8 +15,9 @@ Therefore, beside traffic control, a transformation of the (currently) sharp inp
 into a more smeared output response (which needs minutes to reach the maximum) is achieved.
 This shall make it harder for the attacker for any time correlation.
 
-[Thse](./doc/network-metric.svg) metrics shows the response (last graph) to certain DDoS events at a day
+[This](./doc/network-metric.svg) metrics shows the response (last graph) to certain DDoS events at a day
 as well as the cpu usage (the green line in that graph belongs to the Tor process, ignore the other colours in that graph).
+And [here](./doc/network-metric-nextday.svg) are the graphs for the next day.
 The metrics are created using the [sysstat](http://sebastien.godard.pagesperso-orange.fr/) package.
 
 Origin discussion is in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
