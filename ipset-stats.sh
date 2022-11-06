@@ -4,7 +4,16 @@
 
 
 # dump ip addresses of ipset(s) -or- plot histograms of that
-# eg.: ./ipset-stats.sh -d > x; ./ipset-stats.sh -p x
+
+
+# eg. using this crontab entry for 2 local relays running at 443 and 9001:
+#
+# Tor DDoS stats
+# @reboot       curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - | jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | xargs -n 1 | sort -u > /tmp/relays
+# */30 * * * *  for p in 443 9001; do d=$(date +\%H-\%M); /opt/torutils/ipset-stats.sh -d tor-ddos-$p | tee -a /tmp/ipset4-$p.txt  > /tmp/ipset4-$p.$d.txt; done
+# 1,31 * * * *  for p in 443 9001; do sort -u /tmp/ipset4-$p.*.txt > /tmp/x; grep -h -w -f /tmp/x /tmp/relays > /tmp/y; grep -h -w -f /tmp/y /tmp/ipset4-$p.*.txt | sort | uniq -c | sort -bn > /tmp/z; cp /tmp/z /tmp/blocked_relays-$p; done; rm /tmp/{x,y,z}
+#
+# run after some time: ipset-stats.sh -p /tmp/ipset4-9*.*.txt
 
 
 function dump()  {
@@ -20,11 +29,11 @@ function anonymise()  {
 }
 
 
-# 2000::23:42 -> 2000::/64
+# eg. if an /48 net is assigned to a v6 relay then 1:2:3:4:5:6:7:8 -> 0001:0002:0003:0004:0005::/80
 function anonymise6()  {
-  /opt/torutils/expand_v6.py |
-  cut -c1-19 |
-  sed -e "s,$,::/64,"
+  $(basename $0)/expand_v6.py |
+  cut -c1-24 |
+  sed -e "s,$,::/80,"
 }
 
 
@@ -65,8 +74,6 @@ function plot() {
 set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
-
-set -o pipefail
 
 while getopts aAdDp opt
 do

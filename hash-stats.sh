@@ -3,7 +3,7 @@
 # set -x
 
 
-# plot timeout values of an iptables hash
+# plot timeout values of iptables hash(es)
 
 
 set -euf

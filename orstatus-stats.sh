@@ -13,7 +13,7 @@
 #######################################################################
 set -eu
 export LANG=C.utf8
-export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 files=""
 reason=""
@@ -41,10 +41,11 @@ if [[ -n $reason ]]; then
   grep -h " $reason " $files |
   awk '{ print $3 }' | sort     | uniq -c |
   awk '{ print $1 }' | sort -bn | uniq -c |
-  awk '{ print $2, $1 }' > $tmpfile
+  awk '{ print $1, $2 }' |\
+  tac > $tmpfile
 
   echo
-  echo "$reason fingerprints"
+  echo "fingerprint(s) x $reason"
   lines=$(wc -l < $tmpfile)
   if [[ $lines -gt 7 ]]; then
     head -n 3 $tmpfile
@@ -56,15 +57,16 @@ if [[ -n $reason ]]; then
 
   if [[ $lines -gt 1 ]]; then
     m=$(grep -hc " $reason " $files)
-    n=$(grep -h  " $reason " $files | awk '{ print $2 }' | sort -u | wc -l)
+    n=$(grep -h  " $reason " $files | awk '{ print $1 }' | sort -u | wc -l)
 
     gnuplot -e '
       set terminal dumb;
       set border back;
-      set title "'"$m x $reason"' for '"$n"' fingerprint(s)";
+      set title "'"$n"' fingerprint(s) closing '"$m with $reason"'";
       set key noautotitle;
-      set xlabel "'"$reason"'";
-      set logscale y 10;
+      set xlabel "fingerprints";
+      set logscale x 10;
+      set logscale y 2;
       plot "'$tmpfile'" pt "o";
       '
   fi
