@@ -7,18 +7,18 @@ Few tools for a Tor relay.
 ## Block DDoS Traffic
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
-against inbound DDoS attacks at the IPv4/6 [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) respectively.
+against DDoS attacks at the IPv4/v6 [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) respectively.
 
-The goal is much more than traffic shaping:
+The goal is more than traffic shaping:
 The (presumably) intention of the attacker is targeted.
 Therefore, in addition to network filtering, the (currently) sharp input signal
 (== thousands of new TLS connections within second/s, stay over hours, go away)
-is transformed into a smeared output response (which needs minutes to reach the maximum, then falls down)is achieved.
-This shall make it harder for an attacker to get reasonable results using time correlation techniques.
+is transformed into a smeared output response (which needs minutes to reach the maximum, then falls down) is achieved.
+This shall make it harder for an attacker to gather infromation using time correlation techniques.
 
 Metrics from [5th of Nov](./doc/network-metric.svg) and [6th of Nov](./doc/network-metric-nextday.svg)
-show the response (rx/tx packets, sockets) to DDoS events.
-The cpu usage is seen too for completeness (green line in that graph belongs to Tor, the other colours belong
+show both the response (rx/tx packets, sockets) to those DDoS events.
+The cpu usage is plotted too for completeness (only green line in that graph belongs to Tor, the other colours belong
 mainly to the Gentoo Linux [tinderbox](https://zwiebeltoralf.de/tinderbox.html) running at the same machine).
 
 Origin discussion is in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
@@ -35,7 +35,7 @@ chmod +x ./ipv4-rules.sh
 sudo ./ipv4-rules.sh start
 ```
 
-to replace any current _filter_ table content with the rule set described below.
+to replace any current content of the _filter_ table with the rule set described below.
 Best is to (re-)start Tor afterwards.
 To clear the _filter_ table, run:
 
@@ -50,12 +50,16 @@ sudo watch -t ./ipv4-rules.sh
 ```
 
 The output should look similar to the [IPv4](./doc/iptables-L.txt) and the [IPv6](./doc/ip6tables-L.txt) example respectively.
-
 The package [iptables](https://www.netfilter.org/projects/iptables/) needs to be installed before.
+If the script does not work out of the box for you then go to the [installation](#installation) section.
+
 ### Rule set
+
+Idea:
 
 Filter inbound connection attempts.
 Neither touch established connections nor outbounds connections.
+Act on single IPv4 ips and /80 IPv6 networks respectively.
 
 Details:
 
@@ -68,11 +72,10 @@ Then these rules are applied (in this order) for a TCP connection attempt to the
 1. ignore it if 4 connections are already established
 1. accept it
 
-These rules apply to single IPv4 ips and /80 IPv6 networks respectively.
-For rule 2 an [ipset](https://ipset.netfilter.org) is used, the remaining rules are implemented
+For rule 2 an [ipset](https://ipset.netfilter.org) is used, other rules are implemented
 using the _hashlimit_ and _connnlimit_ module of _iptables_.
 
-### Configuration
+### Installation
 
 The instructions belongs to the IPv4 variant.
 They can be applied in a similar way for the IPv6 script.
