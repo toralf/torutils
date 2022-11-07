@@ -9,17 +9,17 @@ Few tools for a Tor relay.
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
 against inbound DDoS attacks at the IPv4/6 [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) respectively.
 
-The goal is much more than traffic control:
+The goal is much more than traffic shaping:
 The (presumably) intention of the attacker is targeted.
-Therefore, in addition to network filtering a transformation of the (currently) sharp input signal
-(==open few thousands TLS connections within second/s)
-into a more smeared output response (which needs minutes to reach the maximum) is achieved.
-This shall make it harder for an attacker to get reasonable results from a time correlation algorithm.
+Therefore, in addition to network filtering, the (currently) sharp input signal
+(== thousands of new TLS connections within second/s, stay over hours, go away)
+is transformed into a smeared output response (which needs minutes to reach the maximum, then falls down)is achieved.
+This shall make it harder for an attacker to get reasonable results using time correlation techniques.
 
-[This](./doc/network-metric.svg) metrics shows the response (last graph) to certain DDoS events at a day
-as well as the cpu usage (the green line in that graph belongs to the Tor process, ignore the other colours in that graph).
-And [here](./doc/network-metric-nextday.svg) are the graphs for the next day.
-The metrics are created using the [sysstat](http://sebastien.godard.pagesperso-orange.fr/) package.
+Metrics from [5th of Nov](./doc/network-metric.svg) and [6th of Nov](./doc/network-metric-nextday.svg)
+show the response (rx/tx packets, sockets) to DDoS events.
+The cpu usage is seen too for completeness (green line in that graph belongs to Tor, the other colours belong
+mainly to the Gentoo Linux [tinderbox](https://zwiebeltoralf.de/tinderbox.html) running at the same machine).
 
 Origin discussion is in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
@@ -109,7 +109,7 @@ If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/sec
 1. remove the _addHetzner()_ code (line [87ff](ipv4-rules.sh#L87)) and its call in line [147](ipv4-rules.sh#L147)
 1. -or- just ignore it
 
-If you run a previous version of this script then probably you need to delete the old ipset/s before:
+If you run an older version of the script then probably you need to delete an existing ipset before:
 
 ```bash
 ipset list -t | grep "^Name"
@@ -118,30 +118,24 @@ ipset list -t | grep "^Name"
 
 ### Fine tuning
 
-These scripts helped to fine tune certain rule set parameters.
-[Feedback](https://github.com/toralf/torutils/issues) about the parameters is highly appreciated.
+Few scripts help to fine tune the rule set parameters.
+[Feedback](https://github.com/toralf/torutils/issues) about the parameters is appreciated.
 
-[ddos-inbound.sh](./ddos-inbound.sh) lists ips having more connections from or to the ORPort than a given limit (4 per default).
-[orstatus.py](./orstatus.py) logs the reason of Tor circuit closing events.
-[orstatus-stats.sh](./orstatus-stats.sh) prints and/or plots statistics like
-[this](./doc/orstatus-stats.sh.txt) from that output.
-[hash-stats.sh](./hash-stats.sh) plots the timeout values of the entries in an iptables hash
-([example](./doc/hash-stats.sh.txt)),
-[ipset-stats.sh](./ipset-stats.sh) does the same for the content of an ipset
-([example](./doc/ipset-stats.sh.txt)).
+[ddos-inbound.sh](./ddos-inbound.sh) lists ips having more inbound connections to the ORPort than a given limit (4 per default).
+[orstatus.py](./orstatus.py) logs the reason of every Tor circuit closing event.
+[orstatus-stats.sh](./orstatus-stats.sh) prints/plots statistics ([example](./doc/orstatus-stats.sh.txt)) from that output.
+[hash-stats.sh](./hash-stats.sh) plots the distribution of timeout values of an iptables hash ([example](./doc/hash-stats.sh.txt)).
+[ipset-stats.sh](./ipset-stats.sh) does the same for ips of subsequent ipset dumps ([example](./doc/ipset-stats.sh.txt)).
 
 The package [gnuplot](http://www.gnuplot.info/) is needed to plot the graphs.
-For sysstat use this crontab entry:
+For [sysstat](http://sebastien.godard.pagesperso-orange.fr/) to create merics this crontab entry for user `root` is used:
 
 ```bash
-# crontab root
-
-# sysstat
 @reboot     /usr/lib/sa/sa1 --boot
 * * * * *   /usr/lib/sa/sa1 1 1 -S XALL
 ```
 
-and create the graphs by (adapt _args_ for your system):
+The graphs are created by:
 
 ```bash
 args="-u -n DEV,SOCK --iface=enp8s0"
@@ -151,6 +145,7 @@ h=$(tail -n 2 $svg | head -n 1 | cut -f5 -d' ')  # to fix the SVG code
 sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
+(adapt _args_ for your system)
 
 ## Query Tor via its API
 
@@ -207,10 +202,10 @@ export PYTHONPATH=$PWD/stem
 
 If you do use [Tor offline keys](https://support.torproject.org/relay-operators/offline-ed25519/)
 then [key-expires.py](./key-expires.py) helps you to not miss the key rotation timeline.
-It returns the seconds before the mid-term signing key expires, eg:
+It returns the time in seconds before the Tor mid-term signing key expires, eg:
 
 ```bash
-seconds=$(/opt/torutils/key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert)
+seconds=$(sudo ./key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert)
 days=$(( seconds/86400 ))
 [[ $days -lt 23 ]] && echo "Tor signing key expires in less than $days day(s)"
 ```
