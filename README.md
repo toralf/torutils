@@ -14,12 +14,11 @@ The (presumably) intention of the attacker is targeted.
 Therefore, in addition to network filtering, the (currently) sharp input signal
 (== thousands of new TLS connections within second/s, stay over hours, go away)
 is transformed into a smeared output response (which needs minutes to reach the maximum, then falls down) is achieved.
-This shall make it harder for an attacker to gather infromation using time correlation techniques.
+This shall make it harder for an attacker to gather information using time correlation techniques.
 
-Metrics from [5th of Nov](./doc/network-metric.svg) and [6th of Nov](./doc/network-metric-nextday.svg)
-show both the response (rx/tx packets, sockets) to those DDoS events.
-The cpu usage is plotted too for completeness (only green line in that graph belongs to Tor, the other colours belong
-mainly to the Gentoo Linux [tinderbox](https://zwiebeltoralf.de/tinderbox.html) running at the same machine).
+Metrics of rx/tx packets, traffic and socket count from [5th of Nov](./doc/network-metric.svg),
+[6th of Nov](./doc/network-metric-nextday.svg) and [7th of Nov](./doc/network-metric-dayaftertomorrow.svg)
+show the results for certain DDoS attacks.
 
 Origin discussion is in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
