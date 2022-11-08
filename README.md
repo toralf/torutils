@@ -14,7 +14,7 @@ The (presumably) intention of the attacker is targeted.
 Therefore, in addition to network filtering, the (currently) sharp input signal
 (== thousands of new TLS connections within second/s, stay over hours, go away)
 is transformed into a smeared output response (which needs minutes to reach the maximum, then falls down) is achieved.
-This shall make it harder for an attacker to gather information using time correlation techniques.
+This should make it harder for an attacker to gather information using time correlation techniques.
 
 Metrics of rx/tx packets, traffic and socket count from [5th of Nov](./doc/network-metric.svg),
 [6th of Nov](./doc/network-metric-nextday.svg) and [7th of Nov](./doc/network-metric-dayaftertomorrow.svg)
@@ -62,7 +62,7 @@ Act on single IPv4 ips and /80 IPv6 networks respectively.
 
 Details:
 
-Generic rules for local network, ICMP, ssh and for user services (if defined) are applied.
+Generic rules for local network, ICMP, ssh and user services (if defined) are applied.
 Then these rules are applied (in this order) for a TCP connection attempt to the local ORPort:
 
 1. trust Tor authorities and snowflake
@@ -78,9 +78,9 @@ using the _hashlimit_ and _connnlimit_ module of _iptables_.
 
 The instructions belongs to the IPv4 variant.
 They can be applied in a similar way for the IPv6 script.
-If the parsing of _torrc_ doesn't work for you (line [119](ipv4-rules.sh#L119)) then:
+If the parsing of _torrc_ (line [119](ipv4-rules.sh#L119)) doesn't work for you then:
 
-1. define the relay(s) space separated in this environment variable before applying the rule set, eg.:
+1. define the relay(s) space separated before starting the script, eg.:
 
     ```bash
     export CONFIGURED_RELAYS="3.14.159.26:535"
@@ -91,31 +91,32 @@ If the parsing of _torrc_ doesn't work for you (line [119](ipv4-rules.sh#L119)) 
 
 Same happens for additional local network services:
 
-1. define them space separated in this environment variable before applying the rule set, eg.:
+1. define them space separated, eg.:
 
     ```bash
     export ADD_LOCAL_SERVICES="2.718.281.828:459"
     export ADD_LOCAL_SERVICES6="[edda:fade:affe:baff:eff:eff]:12345"
     ```
 
-1. -or- append your own iptables rules to the _filter_ table
-
-1. -or- (IMO not recommended) open the iptables chain _INPUT_ in line [6](ipv4-rules.sh#L6):
+1. -or- append your own rules to the existing ones
+1. -or- open the iptables chain _INPUT_ in line [6](ipv4-rules.sh#L6):
 
     ```bash
     iptables -P INPUT ACCEPT
     ```
+
+    (I wouldn't recommended that)
 
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't needed, then
 
 1. remove the _addHetzner()_ code (line [87ff](ipv4-rules.sh#L87)) and its call in line [147](ipv4-rules.sh#L147)
 1. -or- just ignore it
 
-If you run an older version of the script then probably you need to delete an existing ipset before:
+If you run an older version of the script then sometimes you need to delete the old ipset before:
 
 ```bash
 ipset list -t | grep "^Name"
-# ipset destroy <choose one from the list above>
+# ipset destroy <choose the name from the list above>
 ```
 
 ### Fine tuning
@@ -137,7 +138,7 @@ For [sysstat](http://sebastien.godard.pagesperso-orange.fr/) to create merics th
 * * * * *   /usr/lib/sa/sa1 1 1 -S XALL
 ```
 
-The graphs are created by:
+The graphs are created here by:
 
 ```bash
 args="-u -n DEV,SOCK --iface=enp8s0"
@@ -157,7 +158,7 @@ firefox $svg
 sudo ./info.py --address 127.0.0.1 --ctrlport 9051
 ```
 
-gives here:
+gave here:
 
 ```console
  ORport 9051
