@@ -29,11 +29,11 @@ function anonymise()  {
 }
 
 
-# eg. if an /48 net is assigned to a v6 relay then 1:2:3:4:5:6:7:8 -> 0001:0002:0003:0004:0005::/80
+# eg. if an /48 net is assigned to a v6 relay then 1::2 -> 0001:0000:0000:0000:0000:0000:0000:0002:/128
 function anonymise6()  {
   $(basename $0)/expand_v6.py |
   cut -c1-24 |
-  sed -e "s,$,::/80,"
+  sed -e "s,$,::/128,"
 }
 
 

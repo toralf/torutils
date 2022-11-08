@@ -62,7 +62,7 @@ Basics:
 
 Filter inbound connection attempts.
 Neither touch established connections nor outbounds connections.
-Act on single IPv4 ips and /80 IPv6 networks respectively.
+Filter single ips, not networks.
 
 Details:
 
