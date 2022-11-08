@@ -10,18 +10,22 @@ The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh
 against DDoS attacks at the IPv4/v6 [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) respectively.
 
 The goal is more than traffic shaping:
-The (presumably) intention of the attacker is targeted.
-Therefore, in addition to network filtering, the (currently) sharp input signal
-(== thousands of new TLS connections within second/s, stay over hours, go away)
-is transformed into a smeared output response (which needs minutes to reach the maximum, then falls down) is achieved.
-This should make it harder for an attacker to gather information using time correlation techniques.
+The (presumably) intention of the attacker to unveil onion services is targeted.
+Therefore, in addition to network filtering, the (currently) square input signal
+(== open thousands of new TLS connections within second/s, stay for a long time, go away)
+is transformed into a smeared output response (which needs minutes to reach the maximum) is achieved.
+This should make it harder for an attacker to gather information using time correlation techniques and makes the DDoS more expensive.
 
-Metrics of rx/tx packets, traffic and socket count from [5th of Nov](./doc/network-metric.svg),
+To achieve the goal an [ipset](https://ipset.netfilter.org) is used instead to just drop network packets.
+Its _timeout_ feature adds the needed "memory" for the "system function" to continue to block an as malicous considered ip
+when an iptables rule usually doesn't fire (any longer).
+
+Metrics of rx/tx packets, traffic and socket counts from [5th of Nov](./doc/network-metric.svg),
 [6th of Nov](./doc/network-metric-nextday.svg) and [7th of Nov](./doc/network-metric-dayaftertomorrow.svg)
-show the results for certain DDoS attacks.
+show the results for certain DDoS attacks over 3 days.
 
-Origin discussion is in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
-and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
+Start of discussion was in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
+and is continued in [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
 of the [Tor project](https://www.torproject.org/).
 
 ### Quick start
@@ -54,7 +58,7 @@ If the script does not work out of the box for you then go to the [installation]
 
 ### Rule set
 
-Idea:
+Basics:
 
 Filter inbound connection attempts.
 Neither touch established connections nor outbounds connections.
@@ -71,8 +75,11 @@ Then these rules are applied (in this order) for a TCP connection attempt to the
 1. ignore it if 4 connections are already established
 1. accept it
 
-For rule 2 an [ipset](https://ipset.netfilter.org) is used, other rules are implemented
-using the _hashlimit_ and _connnlimit_ module of _iptables_.
+This allows an ip to create a connection with its 1st SYN packet.
+Depending on the rate of subsequent SYNs up to 4 connections, minute by minute, are allowed (rule 3+4).
+But if the rate exceeds a limit (rule 2) then further connection attempts are blocked for next 30 min even if the rate drops down within the next 30 min.
+The rate limit (rule 3) ensures that the _connlimit_ engine of the linux kernel cannot be fooled.
+Rules 1 and 5 are self-explained.
 
 ### Installation
 
