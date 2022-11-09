@@ -10,23 +10,26 @@ The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh
 against DDoS attacks at the IPv4/v6 [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) respectively.
 
 The goal is more than traffic shaping:
-The (presumably) intention of the attacker to unveil onion services is targeted.
-Therefore, in addition to network filtering, the (currently) square input signal
-(== open thousands of new TLS connections within second/s, stay for a long time, go away)
-is transformed into a smeared output response (which needs minutes to reach the maximum) is achieved.
-This should make it harder for an attacker to gather information using time correlation techniques and makes the DDoS more expensive.
+The (presumably) intention of the attacker to unveil onion service/s is targeted.
+Therefore, in addition to network filtering, the usually rectangular input signal [*]
+is transformed into a smeared output response [**].
+This makes it harder for an attacker to gather information using time correlation techniques,
+at least it makes the DDoS more expensive.
 
-To achieve the goal an [ipset](https://ipset.netfilter.org) is used instead to just drop network packets.
-Its _timeout_ feature adds the needed "memory" for the "system function" to continue to block an as malicous considered ip
-when an iptables rule usually doesn't fire (any longer).
+To achieve this goal an [ipset](https://ipset.netfilter.org) is used.
+Its _timeout_ feature adds the needed "memory" for the whole solution to continue to block an as malicous considered ip
+for a much longer time than an single iptables rule usually would do.
 
 Metrics of rx/tx packets, traffic and socket counts from [5th of Nov](./doc/network-metric.svg),
 [6th of Nov](./doc/network-metric-nextday.svg) and [7th of Nov](./doc/network-metric-dayaftertomorrow.svg)
-show the results for certain DDoS attacks over 3 days.
+show the results for few DDoS attacks in a row over 3 days.
 
-Start of discussion was in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
-and is continued in [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
+Discussion was started in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636) and
+continued in [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
 of the [Tor project](https://www.torproject.org/).
+
+[*] thousands of new TLS connections are opened within second/s and stayed for a longer time, then closed altogether
+[**] much longer time is needed before the maximum is reached -and/or- only 1 connection per ip is created
 
 ### Quick start
 
@@ -53,8 +56,9 @@ sudo watch -t ./ipv4-rules.sh
 ```
 
 The output should look similar to the [IPv4](./doc/iptables-L.txt) and the [IPv6](./doc/ip6tables-L.txt) example respectively.
-The package [iptables](https://www.netfilter.org/projects/iptables/) needs to be installed before.
-If the script does not work out of the box for you then go to the [installation](#installation) section.
+The package [iptables](https://www.netfilter.org/projects/iptables/) needs to be installed before,
+the package [jq](https://stedolan.github.io/jq/) is adviced.
+If the script doesn't work out of the box for you then please have a look at the [installation](#installation) section.
 
 ### Rule set
 
@@ -67,7 +71,7 @@ Filter single ips, not networks.
 Details:
 
 Generic rules for local network, ICMP, ssh and user services (if defined) are applied.
-Then these rules are applied (in this order) for a TCP connection attempt to the local ORPort:
+Then these 5 rules are applied (in this order) for every TCP connection attempt to the local ORPort(s):
 
 1. trust Tor authorities and snowflake
 1. block it for 30 min if the rate is > 5/min
@@ -75,17 +79,18 @@ Then these rules are applied (in this order) for a TCP connection attempt to the
 1. ignore it if 4 connections are already established
 1. accept it
 
-This allows an ip to create a connection with its 1st SYN packet.
-Depending on the rate of subsequent SYNs up to 4 connections, minute by minute, are allowed (rule 3+4).
-But if the rate exceeds a limit (rule 2) then further connection attempts are blocked for next 30 min even if the rate drops down within the next 30 min.
-The rate limit (rule 3) ensures that the _connlimit_ engine of the linux kernel cannot be fooled.
+This usually allows an ip to create a connection with its 1st SYN packet.
+Depending on the rate of inbound SYNs up to 4 connections, minute by minute, are allowed (rule 3+4).
+But if the rate exceeds the limit (rule 2) then any further connection attempt is blocked for the next 30 min
+even if the rate drops down below the limit within the timeframe.
+The rate limit (rule 3) ensures that the Linux kernel _conntrack_ engine delivers the correct value value (rule 4).
 Rules 1 and 5 are self-explained.
 
 ### Installation
 
 The instructions belongs to the IPv4 variant.
 They can be applied in a similar way for the IPv6 script.
-If the parsing of _torrc_ (line [119](ipv4-rules.sh#L119)) doesn't work for you then:
+If the parsing of the Tor config (line [124](ipv4-rules.sh#L124)) doesn't work for you then:
 
 1. define the relay(s) space separated before starting the script, eg.:
 
@@ -96,7 +101,7 @@ If the parsing of _torrc_ (line [119](ipv4-rules.sh#L119)) doesn't work for you 
 
 1. -or- create a pull requests to fix the code ;)
 
-Same happens for additional local network services:
+Same happens for ports of additional local network services:
 
 1. define them space separated, eg.:
 
@@ -105,8 +110,8 @@ Same happens for additional local network services:
     export ADD_LOCAL_SERVICES6="[edda:fade:affe:baff:eff:eff]:12345"
     ```
 
-1. -or- append your own rules to the existing ones
-1. -or- open the iptables chain _INPUT_ in line [6](ipv4-rules.sh#L6):
+1. -or- run your own iptables rules
+1. -or- change the default policy of the iptables chain _INPUT_ in line [6](ipv4-rules.sh#L6):
 
     ```bash
     iptables -P INPUT ACCEPT
@@ -116,7 +121,7 @@ Same happens for additional local network services:
 
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't needed, then
 
-1. remove the _addHetzner()_ code (line [87ff](ipv4-rules.sh#L87)) and its call in line [147](ipv4-rules.sh#L147)
+1. remove the _addHetzner()_ code (line [92ff](ipv4-rules.sh#L92)) and its call in line [152](ipv4-rules.sh#L152)
 1. -or- just ignore it
 
 If you run an older version of the script then sometimes you need to delete the old ipset before:
@@ -128,8 +133,7 @@ ipset list -t | grep "^Name"
 
 ### Fine tuning
 
-Few scripts help to fine tune the rule set parameters.
-[Feedback](https://github.com/toralf/torutils/issues) about the parameters is appreciated.
+Few scripts helped to fine tune the rule set parameters.
 
 [ddos-inbound.sh](./ddos-inbound.sh) lists ips having more inbound connections to the ORPort than a given limit (4 per default).
 [orstatus.py](./orstatus.py) logs the reason of every Tor circuit closing event.
