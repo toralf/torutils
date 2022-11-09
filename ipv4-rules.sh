@@ -28,10 +28,15 @@ function addCommon() {
 
 
 function __fill_trustlist() {
-  # getent ahostsv4 snowflake-01.torproject.net. | awk '{ print $1 }' | sort -un | xargs
-  # curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a[0]' | sort -n | xargs
-  echo 193.187.88.42 45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.24 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118 |
-  xargs -r -n 1 -P 20 ipset add -exist $trustlist
+  (
+    echo "193.187.88.42 45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.24 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118"
+    getent ahostsv4 snowflake-01.torproject.net. | awk '{ print $1 }' | sort -un | xargs
+    if jq --help &>/dev/null; then
+      curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a[0]' | sort -n | xargs
+    else
+      { echo "please install package jq to have always the latest ip adddresses of the Tor authorities" >&2 ; }
+    fi
+  ) | xargs -r -n 1 -P 20 ipset add -exist $trustlist
 }
 
 
@@ -39,7 +44,7 @@ function addTor() {
   local trustlist=tor-trust
 
   ipset create -exist $trustlist hash:ip family inet
-  __fill_trustlist
+  __fill_trustlist &
 
   for relay in $*
   do
