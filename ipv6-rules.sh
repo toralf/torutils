@@ -48,31 +48,29 @@ function addTor() {
   ipset create -exist $trustlist hash:ip family inet6
   __fill_trustlist &
 
+  hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-htable-expire $(( 1000*60*1 ))"
   for relay in $*
   do
     read -r orip orport <<< $(sed -e 's,]:, ,' <<< $relay | tr '[' ' ')
-    local cmd="ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn"
+    local synpacket="ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn"
+    local blocklist="tor-ddos6-$orport"
+    ipset create -exist $blocklist hash:ip family inet6 timeout $(( 30*60 )) netmask 128
 
     # rule 1
-    if ! $cmd -m set --match-set $trustlist src -j ACCEPT; then
-      echo " $FUNCNAME(): error for $relay"
-      continue
-    fi
+    $synpacket -m set --match-set $trustlist src -j ACCEPT
 
     # rule 2
-    blocklist="tor-ddos6-$orport"
-    ipset create -exist $blocklist hash:ip family inet6 timeout $(( 30*60 )) netmask 128
-    $cmd -m hashlimit --hashlimit-name tor-block-$orport --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-above 5/minute --hashlimit-burst 4 --hashlimit-htable-expire $(( 1000*60*1 )) -j SET --add-set $blocklist src --exist
-    $cmd -m set --match-set $blocklist src -j DROP
+    $synpacket $hashlimit --hashlimit-name tor-block-$orport --hashlimit-above 5/minute --hashlimit-burst 4 -j SET --add-set $blocklist src --exist
+    $synpacket -m set --match-set $blocklist src -j DROP
 
     # rule 3
-    $cmd -m hashlimit --hashlimit-name tor-limit-$orport --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-above 1/minute --hashlimit-burst 1 --hashlimit-htable-expire $(( 1000*60*1 )) -j DROP
+    $synpacket $hashlimit --hashlimit-name tor-limit-$orport --hashlimit-above 1/minute --hashlimit-burst 1 -j DROP
 
     # rule 4
-    $cmd -m connlimit --connlimit-mask 128 --connlimit-above 4 -j DROP
+    $synpacket -m connlimit --connlimit-mask 128 --connlimit-above 4 -j DROP
 
     # rule 5
-    $cmd -j ACCEPT
+    $synpacket -j ACCEPT
   done
 }
 
@@ -84,9 +82,7 @@ function addLocalServices() {
   for service in ${ADD_LOCAL_SERVICES6:-}
   do
     read -r addr port <<< $(sed -e 's,]:, ,' <<< $service | tr '[' ' ')
-    if ! ip6tables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT; then
-      echo " addLocalServices(): error for $service"
-    fi
+    ip6tables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
   done
 }
 
@@ -105,23 +101,19 @@ function addHetzner() {
 
 
 function clearAll() {
-  trap - INT QUIT TERM EXIT
-
   ip6tables -P INPUT  ACCEPT
   ip6tables -P OUTPUT ACCEPT
 
-  ip6tables -F -t filter
-  ip6tables -X -t filter
-  ip6tables -Z -t filter
+  ip6tables -F
+  ip6tables -X
+  ip6tables -Z
 }
 
 
 function printFirewall()  {
-  local table
-
   date -R
   echo
-  ip6tables -nv -L -t filter
+  ip6tables -nv -L INPUT
 }
 
 
@@ -130,12 +122,21 @@ function getConfiguredRelays6()  {
 }
 
 
+function bailOut()  {
+  trap - INT QUIT TERM EXIT
+
+  echo "Something went wrong, stopping ..."
+  clearAll
+  exit 1
+}
+
+
 #######################################################################
 set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-trap clearAll INT QUIT TERM EXIT
+trap bailOut INT QUIT TERM EXIT
 case ${1:-} in
   start)  clearAll
           addCommon

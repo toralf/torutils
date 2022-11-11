@@ -29,7 +29,7 @@ function addCommon() {
 
 function __fill_trustlist() {
   (
-    echo "193.187.88.42 45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.24 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118"
+    echo "193.187.88.42 45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.39 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118"
     getent ahostsv4 snowflake-01.torproject.net. | awk '{ print $1 }' | sort -un | xargs
     if jq --help &>/dev/null; then
       curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a[0]' | sort -n | xargs
@@ -46,31 +46,29 @@ function addTor() {
   ipset create -exist $trustlist hash:ip family inet
   __fill_trustlist &
 
+  hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 32 --hashlimit-htable-expire $(( 1000*60*1 ))"
   for relay in $*
   do
     read -r orip orport <<< $(tr ':' ' ' <<< $relay)
-    local cmd="iptables -A INPUT -p tcp --dst $orip --dport $orport --syn"
-
-    # rule 1
-    if ! $cmd -m set --match-set $trustlist src -j ACCEPT; then
-      echo " $FUNCNAME(): error for $relay"
-      continue
-    fi
-
-    # rule 2
+    local synpacket="iptables -A INPUT -p tcp --dst $orip --dport $orport --syn"
     local blocklist="tor-ddos-$orport"
     ipset create -exist $blocklist hash:ip family inet timeout $(( 30*60 ))
-    $cmd -m hashlimit --hashlimit-name tor-block-$orport --hashlimit-mode srcip,dstport --hashlimit-srcmask 32 --hashlimit-above 5/minute --hashlimit-burst 4 --hashlimit-htable-expire $(( 1000*60*1 )) -j SET --add-set $blocklist src --exist
-    $cmd -m set --match-set $blocklist src -j DROP
+
+    # rule 1
+    $synpacket -m set --match-set $trustlist src -j ACCEPT
+
+    # rule 2
+    $synpacket $hashlimit --hashlimit-name tor-block-$orport --hashlimit-above 5/minute --hashlimit-burst 4 -j SET --add-set $blocklist src --exist
+    $synpacket -m set --match-set $blocklist src -j DROP
 
     # rule 3
-    $cmd -m hashlimit --hashlimit-name tor-limit-$orport --hashlimit-mode srcip,dstport --hashlimit-srcmask 32 --hashlimit-above 1/minute --hashlimit-burst 1 --hashlimit-htable-expire $(( 1000*60*1 )) -j DROP
+    $synpacket $hashlimit --hashlimit-name tor-limit-$orport --hashlimit-above 1/minute --hashlimit-burst 1 -j DROP
 
     # rule 4
-    $cmd -m connlimit --connlimit-mask 32 --connlimit-above 4 -j DROP
+    $synpacket -m connlimit --connlimit-mask 32 --connlimit-above 4 -j DROP
 
     # rule 5
-    $cmd -j ACCEPT
+    $synpacket -j ACCEPT
   done
 }
 
@@ -82,9 +80,7 @@ function addLocalServices() {
   for service in ${ADD_LOCAL_SERVICES:-}
   do
     read -r addr port <<< $(tr ':' ' ' <<< $service)
-    if ! iptables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT; then
-      echo " addLocalServices(): error for $service"
-    fi
+    iptables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
   done
 }
 
@@ -103,21 +99,19 @@ function addHetzner() {
 
 
 function clearAll() {
-  trap - INT QUIT TERM EXIT
-
   iptables -P INPUT  ACCEPT
   iptables -P OUTPUT ACCEPT
 
-  iptables -F -t filter
-  iptables -X -t filter
-  iptables -Z -t filter
+  iptables -F
+  iptables -X
+  iptables -Z
 }
 
 
 function printFirewall()  {
   date -R
   echo
-  iptables -nv -L -t filter
+  iptables -nv -L INPUT
 }
 
 
@@ -140,12 +134,21 @@ function getConfiguredRelays()  {
 }
 
 
+function bailOut()  {
+  trap - INT QUIT TERM EXIT
+
+  echo "Something went wrong, stopping ..."
+  clearAll
+  exit 1
+}
+
+
 #######################################################################
 set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-trap clearAll INT QUIT TERM EXIT
+trap bailOut INT QUIT TERM EXIT
 case ${1:-} in
   start)  clearAll
           addCommon
