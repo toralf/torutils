@@ -84,7 +84,7 @@ do
     A)  dump ${1:-tor-ddos6-443} | anonymise6 | uniq -c ;;
     d)  dump ${1:-tor-ddos-443}  ;;
     D)  dump ${1:-tor-ddos6-443} ;;
-    p)  [[ $# -gt 0 ]]; N=$(cat "$@" | wc -l); n=$(cat "$@" | sort -u | wc -l); cat "$@"| plot ;;
+    p)  [[ $# -gt 0 ]]; N=$(cat "$@" | wc -l); [[ $N -gt 0 ]]; n=$(cat "$@" | sort -u | wc -l); cat "$@"| plot ;;
     *)  echo "unknown parameter '$opt'"; exit 1 ;;
   esac
 done
