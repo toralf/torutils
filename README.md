@@ -20,9 +20,9 @@ To achieve this goal an [ipset](https://ipset.netfilter.org) is used.
 Its _timeout_ feature adds the needed "memory" for the whole solution to continue to block an as malicous considered ip
 for a much longer time than an single iptables rule usually would do.
 
-Metrics of rx/tx packets, traffic and socket counts from [5th of Nov](./doc/network-metric.svg),
-[6th of Nov](./doc/network-metric-nextday.svg) and [7th of Nov](./doc/network-metric-dayaftertomorrow.svg)
-show the results for few DDoS attacks in a row over 3 days.
+Metrics of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
+[6th](./doc/network-metric-Nov-6th.svg) and [7th of Nov](./doc/network-metric-Nov-7th.svg)
+show the results for few DDoS attacks over 3 days.
 
 Discussion was started in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636) and
 continued in [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
@@ -83,13 +83,13 @@ This usually allows an ip to create a connection with its 1st SYN packet.
 Depending on the rate of inbound SYNs up to 4 connections, minute by minute, are allowed (rule 3+4).
 But if the rate exceeds the limit (rule 2) then any further connection attempt is blocked for the next 30 min
 even if the rate drops down below the limit within the timeframe.
-The rate limit (rule 3) ensures that the Linux kernel _conntrack_ engine delivers the correct value value (rule 4).
 Rules 1 and 5 are self-explained.
 
 ### Installation
 
 The instructions belongs to the IPv4 variant.
 They can be applied in a similar way for the IPv6 script.
+
 If the parsing of the Tor config (line [124](ipv4-rules.sh#L124)) doesn't work for you then:
 
 1. define the relay(s) space separated before starting the script, eg.:
@@ -149,16 +149,17 @@ For [sysstat](http://sebastien.godard.pagesperso-orange.fr/) to create merics th
 * * * * *   /usr/lib/sa/sa1 1 1 -S XALL
 ```
 
-The graphs are created here by:
+The graphs are created by:
 
 ```bash
-args="-u -n DEV,SOCK --iface=enp8s0"
+args="-u -n DEV,SOCK,SOCK6 --iface=enp8s0"
 svg=/tmp/graph.svg
 TZ=UTC sadf -g -t /var/log/sa/sa${DAY:-`date +%d`} -O skipempty,oneday -- $args > $svg
 h=$(tail -n 2 $svg | head -n 1 | cut -f5 -d' ')  # to fix the SVG code
 sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
+
 (adapt _args_ for your system)
 
 ## Query Tor via its API
