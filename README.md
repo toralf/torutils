@@ -59,7 +59,7 @@ sudo watch -t ./ipv4-rules.sh
 The output should look similar to the [IPv4](./doc/iptables-L.txt) and the [IPv6](./doc/ip6tables-L.txt) example respectively.
 The package [iptables](https://www.netfilter.org/projects/iptables/) needs to be installed before,
 the package [jq](https://stedolan.github.io/jq/) is adviced.
-If the script doesn't work out of the box for you then please have a look at the [installation](#installation) section.
+If the script doesn't work out of the box for you then please have a look at the [Installation](#installation) section.
 
 ### Rule set
 
@@ -86,12 +86,23 @@ But if the rate exceeds the limit (rule 2) then any further connection attempt i
 even if the rate drops down below the limit within the timeframe.
 Rules 1 and 5 are self-explained.
 
+There's an ongoing discussion about SYN flood protection.
+My answer is in `/etc/sysctl.d/local.conf`:
+
+```console
+net.ipv4.tcp_syncookies = 1
+net.netfilter.nf_conntrack_buckets = 2097152
+net.netfilter.nf_conntrack_max = 2097152
+```
+
+plus 1M size for ipsets and hashes.
+
 ### Installation
 
 The instructions belongs to the IPv4 variant.
 They can be applied in a similar way for the IPv6 script.
 
-If the parsing of the Tor config (line [124](ipv4-rules.sh#L124)) doesn't work for you then:
+If the parsing of the Tor config (line [118](ipv4-rules.sh#L118)) doesn't work for you then:
 
 1. define the relay(s) space separated before starting the script, eg.:
 
@@ -122,19 +133,14 @@ Same happens for ports of additional local network services:
 
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't needed, then
 
-1. remove the _addHetzner()_ code (line [92ff](ipv4-rules.sh#L92)) and its call in line [152](ipv4-rules.sh#L152)
+1. remove the _addHetzner()_ code (line [88ff](ipv4-rules.sh#L88)) and its call in line [155](ipv4-rules.sh#L155)
 1. -or- just ignore it
 
-If you run an older version of the script then sometimes you need to delete the old ipset before:
-
-```bash
-ipset list -t | grep "^Name"
-# ipset destroy <choose the name from the list above>
-```
+If you run an older version of the script then sometimes you need to delete the (old) ipset before.
 
 ### Fine tuning
 
-Few scripts helped to fine tune the rule set parameters.
+Few scripts are used to fine tune parameters.
 
 [ddos-inbound.sh](./ddos-inbound.sh) lists ips having more inbound connections to the ORPort than a given limit (4 per default).
 [orstatus.py](./orstatus.py) logs the reason of every Tor circuit closing event.
@@ -143,9 +149,9 @@ Few scripts helped to fine tune the rule set parameters.
 [ipset-stats.sh](./ipset-stats.sh) does the same for ips of subsequent ipset dumps ([example](./doc/ipset-stats.sh.txt)).
 
 The package [gnuplot](http://www.gnuplot.info/) is needed to plot the graphs.
-For [sysstat](http://sebastien.godard.pagesperso-orange.fr/) to create merics this crontab entry for user `root` is used:
+To create [sysstat](http://sebastien.godard.pagesperso-orange.fr/) metrics this crontab entry for user `root` is used to gather the data:
 
-```bash
+```console
 @reboot     /usr/lib/sa/sa1 --boot
 * * * * *   /usr/lib/sa/sa1 1 1 -S XALL
 ```
@@ -153,15 +159,21 @@ For [sysstat](http://sebastien.godard.pagesperso-orange.fr/) to create merics th
 The graphs are created by:
 
 ```bash
-args="-u -n DEV,SOCK,SOCK6 --iface=enp8s0"
+args="-u -n DEV,SOCK,SOCK6 --iface=enp8s0" # use -A to display all metrics
 svg=/tmp/graph.svg
 TZ=UTC sadf -g -t /var/log/sa/sa${DAY:-`date +%d`} -O skipempty,oneday -- $args > $svg
-h=$(tail -n 2 $svg | head -n 1 | cut -f5 -d' ')  # to fix the SVG code
+h=$(tail -n 2 $svg | head -n 1 | cut -f5 -d' ')  # fix the SVG canvas size
 sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
 
-(adapt _args_ for your system)
+To display the distribution of the timeout values of an ipset, run (i.e. `tor-ddos-443`):
+
+```bash
+ipset list tor-ddos-443 | awk '$2 == "timeout" { print $3 }' | sort -bn > /tmp/t
+gnuplot -e 'set terminal dumb; set border back; set key noautotitle; plot "/tmp/t" pt "o";'
+rm /tmp/t
+```
 
 ## Query Tor via its API
 
