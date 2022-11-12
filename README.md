@@ -23,6 +23,7 @@ for a much longer time than an single iptables rule usually would do.
 Metrics of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
 [6th](./doc/network-metric-Nov-6th.svg) and [7th of Nov](./doc/network-metric-Nov-7th.svg)
 show the results for few DDoS attacks over 3 days.
+And a much more heavier attack happened at [12th of Nov](./doc/network-metric-Nov-12th.svg).
 
 Discussion was started in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636) and
 continued in [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
