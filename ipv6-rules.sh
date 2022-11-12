@@ -48,13 +48,13 @@ function addTor() {
   ipset create -exist $trustlist hash:ip family inet6
   __fill_trustlist &
 
-  hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-htable-expire $(( 1000*60*1 ))"
+  hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-htable-expire $(( 1000*60*1 )) --hashlimit-htable-size $((2**20)) --hashlimit-htable-max $((2**20))"
   for relay in $*
   do
     read -r orip orport <<< $(sed -e 's,]:, ,' <<< $relay | tr '[' ' ')
     local synpacket="ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn"
     local blocklist="tor-ddos6-$orport"
-    ipset create -exist $blocklist hash:ip family inet6 timeout $(( 30*60 )) netmask 128
+    ipset create -exist $blocklist hash:ip family inet6 timeout $(( 30*60 )) hashsize $((2**20))
 
     # rule 1
     $synpacket -m set --match-set $trustlist src -j ACCEPT
