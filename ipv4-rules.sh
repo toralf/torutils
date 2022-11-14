@@ -116,16 +116,14 @@ function printFirewall()  {
 
 
 function getConfiguredRelays()  {
-  local orport
-  local address
-
-  for f in /etc/tor/torrc*
+  grep -h -e "^ORPort" -e "^Address" /etc/tor/torrc* | grep -v ' NoListen' |
+  while read -r line
   do
-    if orport=$(sed 's,\s*#.*,,' $f | grep -m 1 -P "^ORPort\s+.+\s*$"); then
-      if grep -q -Po "^ORPort\s+\d+\.\d+\.\d+\.\d+\:\d+\s*$" <<< $orport; then
+    if orport=$(sed 's,\s*#.*,,' <<< $line | grep -m 1 -P "^ORPort\s+.+\s*"); then
+      if grep -q -Po "^ORPort\s+\d+\.\d+\.\d+\.\d+\:\d+\s*" <<< $orport; then
         awk '{ print $2 }' <<< $orport
       else
-        if address=$(sed 's,\s*#.*,,' $f | grep -m 1 -P "^Address\s+\d+\.\d+\.\d+\.\d+\s*$"); then
+        if address=$(sed 's,\s*#.*,,' <<< $line | grep -m 1 -P "^Address\s+\d+\.\d+\.\d+\.\d+\s*"); then
           echo $(awk '{ print $2 }' <<< $address):$(awk '{ print $2 }' <<< $orport)
         fi
       fi
