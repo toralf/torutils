@@ -62,7 +62,7 @@ if [[ -n $reason ]]; then
     gnuplot -e '
       set terminal dumb;
       set border back;
-      set title "'"$n"' fingerprint(s) closing '"$m with $reason"'";
+      set title "'$n' fingerprint(s) closed '$m' x due to '$reason'";
       set key noautotitle;
       set xlabel "fingerprints";
       set logscale x 10;
