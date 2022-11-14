@@ -146,7 +146,7 @@ Few scripts are used to fine tune parameters.
 [orstatus.py](./orstatus.py) logs the reason of every Tor circuit closing event.
 [orstatus-stats.sh](./orstatus-stats.sh) prints/plots statistics ([example](./doc/orstatus-stats.sh.txt)) from that output.
 [hash-stats.sh](./hash-stats.sh) plots the distribution of timeout values of an iptables hash ([example](./doc/hash-stats.sh.txt)).
-[ipset-stats.sh](./ipset-stats.sh) does the same for ips of subsequent ipset dumps ([example](./doc/ipset-stats.sh.txt)).
+[ipset-stats.sh](./ipset-stats.sh) plots data got from ipset(s) ([example](./doc/ipset-stats.sh.txt)).
 
 The package [gnuplot](http://www.gnuplot.info/) is needed to plot the graphs.
 To create [sysstat](http://sebastien.godard.pagesperso-orange.fr/) metrics this crontab entry for user `root` is used to gather the data:
@@ -167,13 +167,21 @@ sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
 
-To display the distribution of the timeout values of an ipset, run (i.e. `tor-ddos-443`):
+Outlook
+
+Currently I do play with a job runnign once in a minute minute,
+which mangles the remaining block time for arbitrarily chosen ip addresses being in the block list:
 
 ```bash
-ipset list tor-ddos-443 | awk '$2 == "timeout" { print $3 }' | sort -bn > /tmp/t
-gnuplot -e 'set terminal dumb; set border back; set key noautotitle; plot "/tmp/t" pt "o";'
-rm /tmp/t
+for p in 443 9001
+do
+  /opt/torutils/ipset-stats.sh -d tor-ddos-$p |
+  awk '{ if (rand() < 0.01) { print $1 } }' |
+  xargs -r -n 1 -P 20 /usr/sbin/ipset add -exist tor-ddos-$p
+done
 ```
+
+The goal is to more smear the output response.
 
 ## Query Tor via its API
 
