@@ -167,10 +167,10 @@ sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
 
-Outlook
+### Outlook
 
-Currently I do play with a job runnign once in a minute minute,
-which mangles the remaining block time for arbitrarily chosen ip addresses being in the block list:
+Currently I do play with a job, running once in a minute,
+which resets the timeout value a fraction of arbitrarily chosen ip addresses of the block list:
 
 ```bash
 for p in 443 9001
