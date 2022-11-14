@@ -29,11 +29,15 @@ function anonymise6()  {
 }
 
 
-# plot a histogram about ip address occurrences within dump files (at least are needed)
+# plot a histogram about ip address occurrences of dump files
 function plot_ip_occurrences() {
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
+  local files=$*
 
-  awk '{ print $1 }' | sort | uniq -c | sort -bn | awk '{ print $1 }' | uniq -c | awk '{ print $2, $1 }' > $tmpfile
+  local N=$(wc -l < <(cat $files))
+  local n=$(awk '{ print $1 }' $files | sort -u | wc -l)
+
+  awk '{ print $1 }' $files | sort | uniq -c | sort -bn | awk '{ print $1 }' | uniq -c | awk '{ print $2, $1 }' > $tmpfile
 
   echo "hits ips"
   if [[ $(wc -l < $tmpfile) -gt 7 ]]; then
@@ -98,7 +102,7 @@ do
     A)  dump ${1:-tor-ddos6-443} | anonymise6 ;;
     d)  dump ${1:-tor-ddos-443}  ;;
     D)  dump ${1:-tor-ddos6-443} ;;
-    p)  [[ $# -gt 0 ]]; N=$(cat "$@" | wc -l); [[ $N -gt 0 ]]; n=$(cat "$@" | sort -u | wc -l); cat "$@"| plot_ip_occurrences ;;
+    p)  plot_ip_occurrences $@ ;;
     t)  plot_timeout ${1:-tor-ddos-443} ;;
     T)  plot_timeout ${1:-tor-ddos6-443} ;;
     *)  echo "unknown parameter '$opt'"; exit 1 ;;
