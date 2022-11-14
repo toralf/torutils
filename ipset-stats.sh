@@ -6,42 +6,34 @@
 # dump ip addresses of ipset(s) -or- plot histograms of that
 
 
-# eg. using this crontab entry for 2 local relays running at 443 and 9001:
-#
-# Tor DDoS stats
-# @reboot       curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - | jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | xargs -n 1 | sort -u > /tmp/relays
-# */30 * * * *  for p in 443 9001; do d=$(date +\%H-\%M); /opt/torutils/ipset-stats.sh -d tor-ddos-$p | tee -a /tmp/ipset4-$p.txt  > /tmp/ipset4-$p.$d.txt; done
-# 1,31 * * * *  for p in 443 9001; do sort -u /tmp/ipset4-$p.*.txt > /tmp/x; grep -h -w -f /tmp/x /tmp/relays > /tmp/y; grep -h -w -f /tmp/y /tmp/ipset4-$p.*.txt | sort | uniq -c | sort -bn > /tmp/z; cp /tmp/z /tmp/blocked_relays-$p; done; rm /tmp/{x,y,z}
-#
-# run after some time: ipset-stats.sh -p /tmp/ipset4-9*.*.txt
-
-
+# kick off the header of the ipset
 function dump()  {
   ipset list -s $1 |
-  sed -e '1,8d' |
-  awk '{ print $1 }'
+  sed -e '1,8d'
 }
 
 
 # 1.2.3.4 -> 1.2.3.0/24
 function anonymise()  {
+  awk '{ print $1 }' |
   sed -e "s,\.[0-9]*$,.0/24,"
 }
 
 
-# eg. if an /48 net is assigned to a v6 relay then 1::2 -> 0001:0000:0000:0000:0000:0000:0000:0002:/128
+# eg. 1:2:3:4:5:6:7:8 -> 0001:0002:0003:0004:0005:0000:0000:0000/80
 function anonymise6()  {
-  $(basename $0)/expand_v6.py |
-  cut -c1-24 |
-  sed -e "s,$,::/128,"
+  awk '{ print $1 }' |
+  $(dirname $0)/expand_v6.py |
+  cut -f1-5 -d ':' |
+  sed -e "s,$,::/80,"
 }
 
 
-# plot a histogram (if enough lines are available)
-function plot() {
+# plot a histogram about ip address occurrences within dump files (at least are needed)
+function plot_ip_occurrences() {
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
-  sort | uniq -c | sort -bn | awk '{ print $1 }' | uniq -c | awk '{ print $2, $1 }' > $tmpfile
+  awk '{ print $1 }' | sort | uniq -c | sort -bn | awk '{ print $1 }' | uniq -c | awk '{ print $2, $1 }' > $tmpfile
 
   echo "hits ips"
   if [[ $(wc -l < $tmpfile) -gt 7 ]]; then
@@ -54,16 +46,39 @@ function plot() {
 
   if [[ $(wc -l < $tmpfile) -gt 1 ]]; then
     gnuplot -e '
-      set terminal dumb 65 24;
-      set border back;
-      set title "'"$N"' hits of '"$n"' ips";
-      set key noautotitle;
-      set xlabel "hit";
-      set logscale y 2;
-      plot "'$tmpfile'" pt "o";
+        set terminal dumb 65 24;
+        set border back;
+        set title "'"$N"' hits of '"$n"' ips";
+        set key noautotitle;
+        set xlabel "hit";
+        set logscale y 2;
+        plot "'$tmpfile'" pt "o";
     '
   else
     echo
+  fi
+
+  rm $tmpfile
+}
+
+
+function plot_timeout()  {
+  local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
+
+  dump $1 |
+  awk '$2 == "timeout" { print $3 }' |
+  sort -bn > $tmpfile
+  N=$(wc -l < $tmpfile)
+
+  if [[ $N -gt 7 ]]; then
+    gnuplot -e '
+        set terminal dumb 65 24;
+        set border back;
+        set title "'$N' timeout values in '$1'";
+        set key noautotitle;
+        plot "'$tmpfile'" pt "o";'
+  else
+    cat $tmpfile
   fi
 
   rm $tmpfile
@@ -75,16 +90,17 @@ set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-while getopts aAdDp opt
+while getopts aAdDptT opt
 do
-  # $2 -if set- is the ipset name
-  shift
+  shift   # only one opts allowd
   case $opt in
-    a)  dump ${1:-tor-ddos-443}  | anonymise  | uniq -c ;;
-    A)  dump ${1:-tor-ddos6-443} | anonymise6 | uniq -c ;;
+    a)  dump ${1:-tor-ddos-443}  | anonymise  ;;
+    A)  dump ${1:-tor-ddos6-443} | anonymise6 ;;
     d)  dump ${1:-tor-ddos-443}  ;;
     D)  dump ${1:-tor-ddos6-443} ;;
-    p)  [[ $# -gt 0 ]]; N=$(cat "$@" | wc -l); [[ $N -gt 0 ]]; n=$(cat "$@" | sort -u | wc -l); cat "$@"| plot ;;
+    p)  [[ $# -gt 0 ]]; N=$(cat "$@" | wc -l); [[ $N -gt 0 ]]; n=$(cat "$@" | sort -u | wc -l); cat "$@"| plot_ip_occurrences ;;
+    t)  plot_timeout ${1:-tor-ddos-443} ;;
+    T)  plot_timeout ${1:-tor-ddos6-443} ;;
     *)  echo "unknown parameter '$opt'"; exit 1 ;;
   esac
 done
