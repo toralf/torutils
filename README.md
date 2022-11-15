@@ -133,7 +133,7 @@ Same happens for ports of additional local network services:
 
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't needed, then
 
-1. remove the _addHetzner()_ code (line [88ff](ipv4-rules.sh#L88)) and its call in line [153](ipv4-rules.sh#L153)
+1. remove the _addHetzner()_ code (line [88ff](ipv4-rules.sh#L88)) and its call in line [152](ipv4-rules.sh#L152)
 1. -or- just ignore it
 
 If you run an older version of the script then sometimes you need to delete the (old) ipset before.
