@@ -38,14 +38,13 @@ function show() {
 
 
 function getConfiguredRelays()  {
-  grep -h -e "^ORPort" -e "^Address" /etc/tor/torrc* | grep -v ' NoListen' |
-  while read -r line
+  for f in /etc/tor/torrc*
   do
-    if orport=$(sed 's,\s*#.*,,' <<< $line | grep -m 1 -P "^ORPort\s+.+\s*"); then
+    if orport=$(grep "^ORPort *" $f | grep -v -F -e ' NoListen' -e '[' | grep -P "^ORPort\s+.+\s*"); then
       if grep -q -Po "^ORPort\s+\d+\.\d+\.\d+\.\d+\:\d+\s*" <<< $orport; then
         awk '{ print $2 }' <<< $orport
       else
-        if address=$(sed 's,\s*#.*,,' <<< $line | grep -m 1 -P "^Address\s+\d+\.\d+\.\d+\.\d+\s*"); then
+        if address=$(grep -P "^Address\s+\d+\.\d+\.\d+\.\d+\s*" $f); then
           echo $(awk '{ print $2 }' <<< $address):$(awk '{ print $2 }' <<< $orport)
         fi
       fi
@@ -55,7 +54,7 @@ function getConfiguredRelays()  {
 
 
 function getConfiguredRelays6()  {
-  grep -h -e "^ORPort" -e "^Address" /etc/tor/torrc* | grep -v ' NoListen' |
+  grep -h -e "^ORPort *" /etc/tor/torrc* | grep -v ' NoListen' |
   grep -P "^ORPort\s+[0-9a-f:\[\]]+:\d+\s*" |
   awk '{ print $2 }'
 }
