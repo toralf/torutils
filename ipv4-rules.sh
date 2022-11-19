@@ -65,7 +65,8 @@ function addTor() {
     $synpacket $hashlimit --hashlimit-name tor-limit-$orport --hashlimit-above 1/minute --hashlimit-burst 1 -j DROP
 
     # rule 4
-    $synpacket -m connlimit --connlimit-mask 32 --connlimit-above 4 -j DROP
+    $synpacket -m connlimit --connlimit-mask 32 --connlimit-above 4 -j SET --add-set $blocklist src --exist
+    $synpacket -m set --match-set $blocklist src -j DROP
 
     # rule 5
     $synpacket -j ACCEPT
