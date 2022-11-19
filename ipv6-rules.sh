@@ -56,6 +56,10 @@ function addTor() {
     local blocklist="tor-ddos6-$orport"
     ipset create -exist $blocklist hash:ip family inet6 timeout $(( 30*60 )) hashsize $((2**20))
 
+    if [[ $orip = "[::]" ]]; then
+      orip+="/0"
+      echo " please consider to set CONFIGURED_RELAYS6"
+    fi
     local synpacket="ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn"
 
     # rule 1
@@ -85,6 +89,9 @@ function addLocalServices() {
   for service in ${ADD_LOCAL_SERVICES6:-}
   do
     read -r addr port <<< $(sed -e 's,]:, ,' <<< $service | tr '[' ' ')
+    if [[ $addr = "[::]" ]]; then
+      addr+="/0"
+    fi
     ip6tables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
   done
 }
@@ -122,7 +129,7 @@ function printFirewall()  {
 
 function getConfiguredRelays6()  {
   grep -h -e "^ORPort *" /etc/tor/torrc* | grep -v ' NoListen' |
-  grep -P "^ORPort\s+[0-9a-f:\[\]]+:\d+\s*" |
+  grep -P "^ORPort\s+\[[0-9a-f]*:[0-9a-f:]*:[0-9a-f]*\]:\d+\s*" |
   awk '{ print $2 }'
 }
 
