@@ -76,7 +76,7 @@ Then these 5 rules are applied (in this order) for every TCP connection attempt 
 
 1. trust Tor authorities and snowflake
 1. block it for 30 min if the rate is > 5/min
-1. limit rate to 1/min
+1. limit rate to 30/hour
 1. block it for 30 min if 4 connections are already established
 1. accept it
 
@@ -102,7 +102,7 @@ and a size of 1M for an ipset or an hash.
 The instructions belongs to the IPv4 variant.
 They can be applied in a similar way for the IPv6 script.
 
-If the parsing of the Tor config (line [119](ipv4-rules.sh#L119)) doesn't work for you then:
+If the parsing of the Tor config (line [121](ipv4-rules.sh#L121)) doesn't work for you then:
 
 1. define the relay(s) space separated before starting the script, eg.:
 
@@ -133,7 +133,7 @@ Same happens for ports of additional local network services:
 
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't needed, then
 
-1. remove the _addHetzner()_ code (line [89ff](ipv4-rules.sh#L89)) and its call in line [153](ipv4-rules.sh#L153)
+1. remove the _addHetzner()_ code (line [91ff](ipv4-rules.sh#L91)) and its call in line [155](ipv4-rules.sh#L155)
 1. -or- just ignore it
 
 If you run an older version of the script then sometimes you need to delete the (old) ipset before.
