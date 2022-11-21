@@ -32,9 +32,9 @@ function addCommon() {
 function __fill_trustlist() {
   (
     echo "2a0c:dd40:1:b::42 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2001:858:2:2:aabb:0:563b:1526 2607:8500:154::3 2610:1c0:0:5::131 2620:13:4000:6000::1000:118"
-    getent ahostsv6 snowflake-01.torproject.net. | awk '{ print $1 }' | sort -un | xargs
+    getent ahostsv6 snowflake-01.torproject.net. | awk '{ print $1 }' | sort -u | xargs
     if jq --help &>/dev/null; then
-      curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a | select(length > 1) | .[1]' | tr -d '][' | sort -n | xargs
+      curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a | select(length > 1) | .[1]' | tr -d '][' | sort -u | xargs
     else
       { echo "please install package jq to have always the latest ip adddresses of the Tor authorities" >&2 ; }
     fi
