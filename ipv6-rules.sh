@@ -56,7 +56,7 @@ function addTor() {
     local blocklist="tor-ddos6-$orport"
     ipset create -exist $blocklist hash:ip family inet6 timeout $(( 30*60 )) hashsize $((2**20))
 
-    if [[ $orip = "[::]" ]]; then
+    if [[ $orip = "::" ]]; then
       orip+="/0"
       echo " please consider to set CONFIGURED_RELAYS6"
     fi
@@ -89,7 +89,7 @@ function addLocalServices() {
   for service in ${ADD_LOCAL_SERVICES6:-}
   do
     read -r addr port <<< $(sed -e 's,]:, ,' <<< $service | tr '[' ' ')
-    if [[ $addr = "[::]" ]]; then
+    if [[ $addr = "::" ]]; then
       addr+="/0"
     fi
     ip6tables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
