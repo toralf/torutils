@@ -129,6 +129,7 @@ def main(args=None):
   print(DIV)
   print(COLUMN % ('Total', i2str(total_ipv4), i2str(total_ipv6)))
   print(DIV)
+  print(' relays', len(categories[INBOUND_ORPORT]) + len(categories[OUTBOUND_ORPORT]))
 
   if exit_connections:
     print('')
