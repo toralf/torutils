@@ -46,7 +46,7 @@ function addTor() {
   ipset create -exist $trustlist hash:ip family inet
   __fill_trustlist &
 
-  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-htable-size $((2**20)) --hashlimit-htable-max $((2**20))"
+  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 32 --hashlimit-htable-size $((2**20)) --hashlimit-htable-max $((2**20))"
   for relay in $*
   do
     read -r orip orport <<< $(tr ':' ' ' <<< $relay)
@@ -60,20 +60,17 @@ function addTor() {
     $synpacket -m set --match-set $trustlist src -j ACCEPT
 
     # rule 2
-    $synpacket $hashlimit --hashlimit-srcmask 32 --hashlimit-htable-expire $(( 1*60*1000 )) --hashlimit-name tor-rule2-$orport --hashlimit-above 5/minute --hashlimit-burst 4 -j SET --add-set $blocklist src --exist
+    $synpacket $hashlimit --hashlimit-htable-expire $(( 1*60*1000 )) --hashlimit-name tor-block-$orport --hashlimit-above 5/minute --hashlimit-burst 4 -j SET --add-set $blocklist src --exist
     $synpacket -m set --match-set $blocklist src -j DROP
 
     # rule 3
-    $synpacket $hashlimit --hashlimit-srcmask 16 --hashlimit-htable-expire $(( 1*60*1000 )) --hashlimit-name tor-rule3-$orport --hashlimit-above 20/minute --hashlimit-burst 19 -j DROP
+    $synpacket $hashlimit --hashlimit-htable-expire $(( 2*60*1000 )) --hashlimit-name tor-limit-$orport --hashlimit-above 30/hour --hashlimit-burst 1 -j DROP
 
     # rule 4
-    $synpacket $hashlimit --hashlimit-srcmask 32 --hashlimit-htable-expire $(( 2*60*1000 )) --hashlimit-name tor-rule4-$orport --hashlimit-above 30/hour --hashlimit-burst 1 -j DROP
-
-    # rule 5
     $synpacket -m connlimit --connlimit-mask 32 --connlimit-above 4 -j SET --add-set $blocklist src --exist
     $synpacket -m set --match-set $blocklist src -j DROP
 
-    # rule 6
+    # rule 5
     $synpacket -j ACCEPT
   done
 }
