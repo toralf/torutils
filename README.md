@@ -77,7 +77,7 @@ Then these 5 rules are applied (in this order) for every TCP connection attempt 
 1. trust Tor authorities and snowflake
 1. block it for 30 min if the rate is > 5/min
 1. limit rate to 30/hour
-1. block it for 30 min if 4 connections are already established
+1. allow max 3 connections (1 connection, if rule 2 or 4 was violated within last 24 hours)
 1. accept it
 
 This usually allows an ip to create a connection with its 1st SYN packet.
@@ -87,7 +87,11 @@ even if the rate drops down below the limit within the timeframe.
 Rules 1 and 5 are self-explained.
 
 There's an ongoing discussion about SYN flood protection.
-My answer is in `/etc/sysctl.d/local.conf`:
+A dropped SYN packet does not even create a conntrack entry,
+stated in [this](https://blog.cloudflare.com/conntrack-tales-one-thousand-and-one-flows/) Cloudflare blog.
+
+The remaining SYN flood attack vectors are (hopefully) handled by the size of 1M for the used ipsets and hashes
+and these values in `/etc/sysctl.d/local.conf`:
 
 ```console
 net.ipv4.tcp_syncookies = 1
@@ -95,14 +99,12 @@ net.netfilter.nf_conntrack_buckets = 2097152
 net.netfilter.nf_conntrack_max = 2097152
 ```
 
-and a size of 1M for an ipset or an hash.
-
 ### Installation
 
 The instructions belongs to the IPv4 variant.
 They can be applied in a similar way for the IPv6 script.
 
-If the parsing of the Tor config (line [121](ipv4-rules.sh#L121)) doesn't work for you then:
+If the parsing of the Tor config (line [139](ipv4-rules.sh#L139)) doesn't work for you then:
 
 1. define the relay(s) space separated before starting the script, eg.:
 
@@ -133,7 +135,7 @@ Same happens for ports of additional local network services:
 
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't needed, then
 
-1. remove the _addHetzner()_ code (line [91ff](ipv4-rules.sh#L91)) and its call in line [155](ipv4-rules.sh#L155)
+1. remove the _addHetzner()_ code (line [109ff](ipv4-rules.sh#L109)) and its call in line [173](ipv4-rules.sh#L173)
 1. -or- just ignore it
 
 If you run an older version of the script then sometimes you need to delete the (old) ipset before.
@@ -166,22 +168,6 @@ h=$(tail -n 2 $svg | head -n 1 | cut -f5 -d' ')  # fix the SVG canvas size
 sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
-
-### Outlook
-
-Currently I do play with a job, running once in a minute,
-which resets the timeout value a fraction of arbitrarily chosen ip addresses of the block list:
-
-```bash
-for p in 443 9001
-do
-  /opt/torutils/ipset-stats.sh -d tor-ddos-$p |
-  awk '{ if (rand() < 0.01) { print $1 } }' |
-  xargs -r -n 1 -P 20 /usr/sbin/ipset add -exist tor-ddos-$p
-done
-```
-
-The goal is to more smear the output response.
 
 ## Query Tor via its API
 

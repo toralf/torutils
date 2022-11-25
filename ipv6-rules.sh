@@ -55,6 +55,8 @@ function addTor() {
 
     local blocklist="tor-ddos6-$orport"
     ipset create -exist $blocklist hash:ip family inet6 timeout $(( 30*60 )) hashsize $((2**20))
+    local connlist="tor-conn6-$orport"
+    ipset create -exist $connlist hash:ip family inet6 timeout $(( 24*60*60 )) hashsize $((2**20))
 
     if [[ $orip = "::" ]]; then
       orip+="/0"
@@ -66,15 +68,16 @@ function addTor() {
     $synpacket -m set --match-set $trustlist src -j ACCEPT
 
     # rule 2
-    $synpacket $hashlimit --hashlimit-htable-expire $(( 1*60*1000 )) --hashlimit-name tor-block-$orport --hashlimit-above 5/minute --hashlimit-burst 4 -j SET --add-set $blocklist src --exist
+    $synpacket $hashlimit --hashlimit-htable-expire $(( 60*1000 )) --hashlimit-name tor-block-$orport --hashlimit-above 5/minute --hashlimit-burst 4 -j SET --add-set $blocklist src --exist
     $synpacket -m set --match-set $blocklist src -j DROP
 
     # rule 3
-    $synpacket $hashlimit --hashlimit-htable-expire $(( 2*60*1000 )) --hashlimit-name tor-limit-$orport --hashlimit-above 30/hour --hashlimit-burst 1 -j DROP
+    $synpacket $hashlimit --hashlimit-htable-expire $(( 120*1000 )) --hashlimit-name tor-limit-$orport --hashlimit-above 30/hour --hashlimit-burst 1 -j DROP
 
     # rule 4
-    $synpacket -m connlimit --connlimit-mask 128 --connlimit-above 4 -j SET --add-set $blocklist src --exist
-    $synpacket -m set --match-set $blocklist src -j DROP
+    $synpacket -m connlimit --connlimit-mask 128 --connlimit-above 3                                  -j SET --add-set $connlist src --exist
+    $synpacket -m connlimit --connlimit-mask 128 --connlimit-above 2                                  -j DROP
+    $synpacket -m connlimit --connlimit-mask 128 --connlimit-above 0 -m set --match-set $connlist src -j DROP
 
     # rule 5
     $synpacket -j ACCEPT
