@@ -83,6 +83,9 @@ function addLocalServices() {
   for service in ${ADD_LOCAL_SERVICES:-}
   do
     read -r addr port <<< $(tr ':' ' ' <<< $service)
+    if [[ $addr = "0.0.0.0" ]]; then
+      addr+="/0"
+    fi
     iptables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
   done
 }
