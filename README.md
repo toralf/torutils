@@ -67,24 +67,24 @@ Basics:
 
 Filter inbound connection attempts.
 Neither touch established connections nor outbounds connections.
-Filter single ips, not networks.
 
 Details:
 
 Generic rules for local network, ICMP, ssh and user services (if defined) are applied.
 Then these 5 rules are applied (in this order) for every TCP connection attempt to the local ORPort(s):
 
-1. trust Tor authorities and snowflake
-1. block it for 30 min if the rate is > 5/min
-1. limit rate to 30/hour
-1. block it for 30 min if 4 connections are already established
+1. trust Tor authorities and snowflake (single ip)
+1. block it for 30 min if the rate is > 5/min (single ip)
+1. limit rate to 20/min (for /16 IPv4 and /64 IPv6)
+1. limit rate to 30/hour (single ip)
+1. block it for 30 min if 4 connections are already established (single ip)
 1. accept it
 
 This usually allows an ip to create a connection with its 1st SYN packet.
-Depending on the rate of inbound SYNs up to 4 connections, minute by minute, are allowed (rule 3+4).
-But if the rate exceeds the limit (rule 2) then any further connection attempt is blocked for the next 30 min
-even if the rate drops down below the limit within the timeframe.
-Rules 1 and 5 are self-explained.
+Depending on the rate of inbound SYNs up to 4 connections are allowed (rule 3+4).
+But if a blocking rule is violated then any further connection attempt is rejected for the next 30 min
+even if the rate drops down immediately.
+This makes the difference to a solely network filter solution.
 
 There's an ongoing discussion about SYN flood protection.
 My answer is in `/etc/sysctl.d/local.conf`:
@@ -102,7 +102,7 @@ and a size of 1M for an ipset or an hash.
 The instructions belongs to the IPv4 variant.
 They can be applied in a similar way for the IPv6 script.
 
-If the parsing of the Tor config (line [121](ipv4-rules.sh#L121)) doesn't work for you then:
+If the parsing of the Tor config (line [124](ipv4-rules.sh#L124)) doesn't work for you then:
 
 1. define the relay(s) space separated before starting the script, eg.:
 
@@ -129,11 +129,11 @@ Same happens for ports of additional local network services:
     iptables -P INPUT ACCEPT
     ```
 
-    (I wouldn't recommended that)
+    (I wouldn't recommended that.)
 
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't needed, then
 
-1. remove the _addHetzner()_ code (line [91ff](ipv4-rules.sh#L91)) and its call in line [155](ipv4-rules.sh#L155)
+1. remove the _addHetzner()_ code (line [94ff](ipv4-rules.sh#L94)) and its call in line [158](ipv4-rules.sh#L158)
 1. -or- just ignore it
 
 If you run an older version of the script then sometimes you need to delete the (old) ipset before.
@@ -166,22 +166,6 @@ h=$(tail -n 2 $svg | head -n 1 | cut -f5 -d' ')  # fix the SVG canvas size
 sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
-
-### Outlook
-
-Currently I do play with a job, running once in a minute,
-which resets the timeout value a fraction of arbitrarily chosen ip addresses of the block list:
-
-```bash
-for p in 443 9001
-do
-  /opt/torutils/ipset-stats.sh -d tor-ddos-$p |
-  awk '{ if (rand() < 0.01) { print $1 } }' |
-  xargs -r -n 1 -P 20 /usr/sbin/ipset add -exist tor-ddos-$p
-done
-```
-
-The goal is to more smear the output response.
 
 ## Query Tor via its API
 
