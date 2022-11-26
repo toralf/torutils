@@ -63,10 +63,10 @@ function addTor() {
   do
     read -r orip orport <<< $(tr ':' ' ' <<< $relay)
 
-    local blocklist="tor-ddos-$orport"
+    local ddoslist="tor-ddos-$orport"
     local connlist="tor-conn-$orport"
-    __create_ipset $blocklist 30
-    __create_ipset $connlist  1440
+    __create_ipset $ddoslist   30
+    __create_ipset $connlist 1440
 
     local synpacket="iptables -A INPUT -p tcp --dst $orip --dport $orport --syn"
 
@@ -74,9 +74,9 @@ function addTor() {
     $synpacket -m set --match-set $trustlist src -j ACCEPT
 
     # rule 2
-    $synpacket $hashlimit --hashlimit-htable-expire $(( 60*1000 )) --hashlimit-name tor-block-$orport --hashlimit-above 5/minute --hashlimit-burst 4 -j SET --add-set $blocklist src --exist
-    $synpacket -m set --match-set $blocklist src -j SET --add-set $connlist src --exist
-    $synpacket -m set --match-set $blocklist src -j DROP
+    $synpacket $hashlimit --hashlimit-htable-expire $(( 60*1000 )) --hashlimit-name tor-ddos-$orport --hashlimit-above 5/minute --hashlimit-burst 4 -j SET --add-set $ddoslist src --exist
+    $synpacket -m set --match-set $ddoslist src -j SET --add-set $connlist src --exist
+    $synpacket -m set --match-set $ddoslist src -j DROP
 
     # rule 3
     $synpacket $hashlimit --hashlimit-htable-expire $(( 120*1000 )) --hashlimit-name tor-limit-$orport --hashlimit-above 30/hour --hashlimit-burst 1 -j DROP
@@ -108,9 +108,9 @@ function addLocalServices() {
 
 
 function addHetzner() {
-  local sysmon=hetzner-sysmon
+  local sysmon="hetzner-sysmon"
 
-  ipset create -exist $sysmon hash:ip
+  ipset create -exist $sysmon hash:ip family inet
   # getent ahostsv4 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u | xargs
   for i in 188.40.24.211 213.133.113.82 213.133.113.83 213.133.113.84 213.133.113.86
   do
