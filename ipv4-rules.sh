@@ -40,8 +40,20 @@ function __fill_trustlist() {
 }
 
 
+function __create_ipset() {
+  local name=$1
+  local minutes=$2
+
+  local cmd="ipset create -exist $name hash:ip family inet timeout $(( minutes*60 )) hashsize $((2**20))"
+  if ! $cmd 2>/dev/null; then
+    ipset destroy $name
+    $cmd
+  fi
+}
+
+
 function addTor() {
-  local trustlist=tor-trust
+  local trustlist="tor-trust"
 
   ipset create -exist $trustlist hash:ip family inet
   __fill_trustlist &
@@ -52,9 +64,9 @@ function addTor() {
     read -r orip orport <<< $(tr ':' ' ' <<< $relay)
 
     local blocklist="tor-ddos-$orport"
-    ipset create -exist $blocklist hash:ip family inet timeout $(( 30*60 )) hashsize $((2**20))
     local connlist="tor-conn-$orport"
-    ipset create -exist $connlist hash:ip family inet timeout $(( 24*60*60 )) hashsize $((2**20))
+    __create_ipset $blocklist 30
+    __create_ipset $connlist  1440
 
     local synpacket="iptables -A INPUT -p tcp --dst $orip --dport $orport --syn"
 

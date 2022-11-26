@@ -42,8 +42,20 @@ function __fill_trustlist() {
 }
 
 
+function __create_ipset() {
+  local name=$1
+  local minutes=$2
+
+  local cmd="ipset create -exist $name hash:ip family inet6 timeout $(( minutes*60 )) hashsize $((2**20))"
+  if ! $cmd 2>/dev/null; then
+    ipset destroy $name
+    $cmd
+  fi
+}
+
+
 function addTor() {
-  local trustlist=tor-trust6
+  local trustlist="tor-trust6"
 
   ipset create -exist $trustlist hash:ip family inet6
   __fill_trustlist &
@@ -54,9 +66,9 @@ function addTor() {
     read -r orip orport <<< $(sed -e 's,]:, ,' <<< $relay | tr '[' ' ')
 
     local blocklist="tor-ddos6-$orport"
-    ipset create -exist $blocklist hash:ip family inet6 timeout $(( 30*60 )) hashsize $((2**20))
     local connlist="tor-conn6-$orport"
-    ipset create -exist $connlist hash:ip family inet6 timeout $(( 24*60*60 )) hashsize $((2**20))
+    __create_ipset $blocklist 30
+    __create_ipset $connlist  1440
 
     if [[ $orip = "::" ]]; then
       orip+="/0"
@@ -69,6 +81,7 @@ function addTor() {
 
     # rule 2
     $synpacket $hashlimit --hashlimit-htable-expire $(( 60*1000 )) --hashlimit-name tor-block-$orport --hashlimit-above 5/minute --hashlimit-burst 4 -j SET --add-set $blocklist src --exist
+    $synpacket -m set --match-set $blocklist src -j SET --add-set $connlist src --exist
     $synpacket -m set --match-set $blocklist src -j DROP
 
     # rule 3
