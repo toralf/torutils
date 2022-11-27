@@ -27,7 +27,7 @@ function show() {
     ss --no-header --tcp -${v:-4} --numeric |
     grep "^ESTAB" |
     grep -F " $relay " |
-    awk '{ print $5 }' | sort | sed -E -e 's,:[[:digit:]]+$,,g' | uniq -c
+    awk '{ print $5 }' | sort -n | sed -E -e 's,:[[:digit:]]+$,,g' | uniq -c
   )
 
   if [[ $ips -gt 0 ]]; then
