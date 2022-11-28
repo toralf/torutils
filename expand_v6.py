@@ -7,4 +7,3 @@ import ipaddress
 
 for address in fileinput.input():
   print(ipaddress.IPv6Address(address.strip()).exploded)
-
