@@ -70,7 +70,7 @@ function plot_timeout()  {
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
   dump $1 |
-  awk '$2 == "timeout" { print $3 }' |
+  awk '{ print $3 }' |
   sort -bn > $tmpfile
   N=$(wc -l < $tmpfile)
 
@@ -96,7 +96,7 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 while getopts aAdDptT opt
 do
-  shift   # only one opts allowd
+  shift   # only 1 opt allowed at a time
   case $opt in
     a)  dump ${1:-tor-ddos-443}  | anonymise  ;;
     A)  dump ${1:-tor-ddos6-443} | anonymise6 ;;
