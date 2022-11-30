@@ -65,8 +65,8 @@ function addTor() {
 
     local ddoslist="tor-ddos-$orport"
     local connlist="tor-conn-$orport"
-    __create_ipset $ddoslist   30
-    __create_ipset $connlist 1440
+    __create_ipset $ddoslist 30
+    __create_ipset $connlist 24*60
 
     local synpacket="iptables -A INPUT -p tcp --dst $orip --dport $orport --syn"
 
@@ -176,6 +176,7 @@ case ${1:-} in
           addTor ${CONFIGURED_RELAYS:-$(getConfiguredRelays)}
           ;;
   stop)   clearAll
+          ipset list -t | grep -P "^Name: tor-(conn|ddos)-\d+$" | cut -f2 -d' ' | xargs -r -n 1 ipset flush 2>/dev/null
           ;;
   *)      printFirewall
           ;;
