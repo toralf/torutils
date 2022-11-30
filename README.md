@@ -72,19 +72,19 @@ Filter single ips, not networks.
 Details:
 
 Generic rules for local network, ICMP, ssh and user services (if defined) are applied.
-Then these 5 rules are applied (in this order) for every TCP connection attempt to the local ORPort(s):
+Then these 5 rules are applied (in this order) for an TCP connection attempt to the local ORPort:
 
 1. trust Tor authorities and snowflake
-1. block it for 30 min if the rate is > 5/min
-1. limit rate to 30/hour
-1. allow max 3 connections (1 connection, if rule 2 or 4 was violated within last 24 hours)
+1. block it for 30 min if the rate is > 6/min
+1. limit rate to 1/minute
+1. block it if 3 connections are already open (1, if rule 2 or 4 was violated within last 24 hours)
 1. accept it
 
 This usually allows an ip to create a connection with its 1st SYN packet.
-Depending on the rate of inbound SYNs up to 4 connections, minute by minute, are allowed (rule 3+4).
-But if the rate exceeds the limit (rule 2) then any further connection attempt is blocked for the next 30 min
+Depending on the rate of inbound SYNs, subesquently few more connections are allowed (rule 3+4).
+But if the rate exceeds the limit (of rule 2) then any further connection attempt is blocked for the next 30 min
 even if the rate drops down below the limit within the timeframe.
-Rules 1 and 5 are self-explained.
+The long time frame of rule 4 addresses ips bypassing the connlimit barrier otherwise.
 
 There's an ongoing discussion about SYN flood protection.
 A dropped SYN packet does not even create a conntrack entry,
