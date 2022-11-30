@@ -32,9 +32,9 @@ function __fill_trustlist() {
     echo "193.187.88.42 45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.39 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118"
     getent ahostsv4 snowflake-01.torproject.net. | awk '{ print $1 }' | sort -u | xargs
     if jq --help &>/dev/null; then
-      curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a[0]' | sort -u | xargs
+      curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a[0]' | sort -u
     else
-      { echo "please install package jq to have always the latest ip adddresses of the Tor authorities" >&2 ; }
+      { echo "please install package jq to fetch the latest Tor authority ips" >&2 ; }
     fi
   ) | xargs -r -n 1 -P 20 ipset add -exist $trustlist
 }
