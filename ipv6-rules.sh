@@ -46,7 +46,7 @@ function __create_ipset() {
   local name=$1
   local minutes=$2
 
-  local cmd="ipset create -exist $name hash:ip family inet6 timeout $(( minutes*60 )) hashsize $((2**20))"
+  local cmd="ipset create -exist $name hash:ip family inet6 timeout $(( minutes*60 )) maxelem $((2**20))"
   if ! $cmd 2>/dev/null; then
     ipset destroy $name
     $cmd
