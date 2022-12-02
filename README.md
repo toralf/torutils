@@ -7,7 +7,7 @@ Few tools for a Tor relay.
 ## Block DDoS Traffic
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
-against DDoS attacks at the IPv4/v6 [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) respectively.
+against DDoS attacks at the IP [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg).
 
 The goal is more than traffic shaping:
 The (presumably) intention of the attacker to unveil onion service/s is targeted.
@@ -34,6 +34,12 @@ of the [Tor project](https://www.torproject.org/).
 
 ### Quick start
 
+Install the dependencies, eg. for Ubuntu 22.04 systems, this is required:
+
+```bash
+sudo apt install iptables ipset jq
+```
+
 Run:
 
 ```bash
@@ -42,7 +48,7 @@ chmod +x ./ipv4-rules.sh
 sudo ./ipv4-rules.sh start
 ```
 
-to replace any current content of the _filter_ table with the rule set described below.
+to replace any current content of the iptables _filter_ table with the rule set described below.
 Best is to (re-)start Tor afterwards.
 To clear the _filter_ table, run:
 
@@ -66,7 +72,7 @@ If the script doesn't work out of the box for you then please have a look at the
 Basics:
 
 Filter inbound connection attempts.
-Neither touch established connections nor outbounds connections.
+Neither touch established nor outbounds connections.
 Filter single ips, not networks.
 
 Details:
@@ -86,14 +92,14 @@ But if the rate exceeds the limit (of rule 2) then any further connection attemp
 even if the rate drops down below the limit within the timeframe.
 The long time frame of rule 4 addresses ips bypassing the connlimit barrier otherwise.
 
-There's an ongoing discussion about SYN flood protection.
-A dropped SYN packet does not even create a conntrack entry,
-stated in [this](https://blog.cloudflare.com/conntrack-tales-one-thousand-and-one-flows/) Cloudflare blog.
+There's an ongoing discussion about SYN flood protection and short comings of the conntrack engine.
+A lot of them were already addressed by the linux kernel devs over the past years.
+Nowadays a dropped SYN packet does not even create a conntrack entry -
+see [this](https://blog.cloudflare.com/conntrack-tales-one-thousand-and-one-flows/) Cloudflare blog.
+The remaining SYN flood attack vectors should be mitigated by the size of 1M for ipsets and hashes
+and these settings in `/etc/sysctl.d/local.conf`:
 
-The remaining SYN flood attack vectors are (hopefully) handled by the size of 1M for the used ipsets and hashes
-and these values in `/etc/sysctl.d/local.conf`:
-
-```console
+```text
 net.ipv4.tcp_syncookies = 1
 net.netfilter.nf_conntrack_buckets = 2097152
 net.netfilter.nf_conntrack_max = 2097152
@@ -102,7 +108,7 @@ net.netfilter.nf_conntrack_max = 2097152
 ### Installation
 
 The instructions belongs to the IPv4 variant.
-They can be applied in a similar way for the IPv6 script.
+They can be applied in a similar way for the IPv6 script
 
 If the parsing of the Tor config (line [139](ipv4-rules.sh#L139)) doesn't work for you then:
 
