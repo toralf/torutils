@@ -7,7 +7,6 @@ Chain INPUT (policy DROP 7 packets, 448 bytes)
    12 11234 DROP       tcp      *      *       ::/0                 ::/0                 tcp flags:!0x17/0x02 state NEW
   212  242K DROP       all      *      *       ::/0                 ::/0                 ctstate INVALID
   27M   36G ACCEPT     all      *      *       ::/0                 ::/0                 ctstate RELATED,ESTABLISHED
-   11   704 ACCEPT     tcp      *      *       ::/0                 ::/0                 tcp dpt:535
    25  2600 ACCEPT     ipv6-icmp    *      *       ::/0                 ::/0                 ipv6-icmptype 128 limit: avg 6/sec burst 5
     0     0 DROP       ipv6-icmp    *      *       ::/0                 ::/0                 ipv6-icmptype 128
     0     0 ACCEPT     ipv6-icmp    *      *       ::/0                 ::/0                
@@ -17,7 +16,6 @@ Chain INPUT (policy DROP 7 packets, 448 bytes)
     0     0 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 match-set tor-ddos6-443 src add-set tor-conn6-443 src exist
     0     0 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 match-set tor-ddos6-443 src
     5   400 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 limit: above 1/min burst 1 mode srcip-dstport htable-size 1048576 htable-max 1048576
-    0     0 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 #conn src/128 > 3 add-set tor-conn6-443 src exist
     0     0 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 #conn src/128 > 2
     0     0 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 #conn src/128 > 0 match-set tor-conn6-443 src
    98  7828 ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02
@@ -26,7 +24,6 @@ Chain INPUT (policy DROP 7 packets, 448 bytes)
     0     0 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 match-set tor-ddos6-9001 src add-set tor-conn6-9001 src exist
     0     0 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 match-set tor-ddos6-9001 src
     0     0 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 limit: above 1/min burst 1 mode srcip-dstport htable-size 1048576 htable-max 1048576
-    0     0 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 #conn src/128 > 3 add-set tor-conn6-9001 src exist
     0     0 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 #conn src/128 > 2
     0     0 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 #conn src/128 > 0 match-set tor-conn6-9001 src
   102  8140 ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02
