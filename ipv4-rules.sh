@@ -54,17 +54,18 @@ function __create_ipset() {
 
 function addTor() {
   local trustlist="tor-trust"
+  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 32 --hashlimit-htable-size $((2**20)) --hashlimit-htable-max $((2**20))"
 
   ipset create -exist $trustlist hash:ip family inet
   __fill_trustlist &
 
-  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 32 --hashlimit-htable-size $((2**20)) --hashlimit-htable-max $((2**20))"
   for relay in $*
   do
     read -r orip orport <<< $(tr ':' ' ' <<< $relay)
 
     local ddoslist="tor-ddos-$orport"
     local connlist="tor-conn-$orport"
+
     __create_ipset $ddoslist 30
     __create_ipset $connlist 24*60
 
@@ -82,7 +83,6 @@ function addTor() {
     $synpacket $hashlimit --hashlimit-htable-expire $(( 60*1000 )) --hashlimit-name tor-limit-$orport --hashlimit-above 1/minute --hashlimit-burst 1 -j DROP
 
     # rule 4
-    $synpacket -m connlimit --connlimit-mask 32 --connlimit-above 3                                  -j SET --add-set $connlist src --exist
     $synpacket -m connlimit --connlimit-mask 32 --connlimit-above 2                                  -j DROP
     $synpacket -m connlimit --connlimit-mask 32 --connlimit-above 0 -m set --match-set $connlist src -j DROP
 
@@ -111,12 +111,13 @@ function addHetzner() {
   local sysmon="hetzner-sysmon"
 
   ipset create -exist $sysmon hash:ip family inet
-  # getent ahostsv4 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u | xargs
-  for i in 188.40.24.211 213.133.113.82 213.133.113.83 213.133.113.84 213.133.113.86
-  do
-    ipset add -exist $sysmon $i
-  done
   iptables -A INPUT -m set --match-set $sysmon src -j ACCEPT
+  {
+    (
+      getent ahostsv4 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u
+      echo "188.40.24.211 213.133.113.82 213.133.113.83 213.133.113.84 213.133.113.86"
+    ) | xargs -r -n 1 -P 20 ipset add -exist $sysmon
+  } &
 }
 
 
