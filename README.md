@@ -77,7 +77,7 @@ Then these 5 rules are applied (in this order) for an TCP connection attempt to 
 1. trust Tor authorities and snowflake
 1. block it for 30 min if the rate is > 6/min
 1. limit rate to 1/minute
-1. block it if 3 connections are already open (1, if rule 2 or 4 was violated within last 24 hours)
+1. reject it if 3 (but only 1, if rule 2 was violated within last 24 hours) connections are already open
 1. accept it
 
 This usually allows an ip to create a connection with its 1st SYN packet.
@@ -109,11 +109,12 @@ If the parsing of the Tor config (line [139](ipv4-rules.sh#L139)) doesn't work f
 1. define the relay(s) space separated before starting the script, eg.:
 
     ```bash
-    export CONFIGURED_RELAYS="3.14.159.26:535"
+    export CONFIGURED_RELAYS="3.14.159.26:535 1.41.42.13:562"
     export CONFIGURED_RELAYS6="[cafe::dead:beef]:4711"
     ```
 
-1. -or- create a pull requests to fix the code ;)
+1. open an [issue](https://github.com/toralf/torutils/issues) for that
+    -or- create a pull requests with a fix ;)
 
 Same happens for ports of additional local network services:
 
@@ -135,7 +136,7 @@ Same happens for ports of additional local network services:
 
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't needed, then
 
-1. remove the _addHetzner()_ code (line [109ff](ipv4-rules.sh#L109)) and its call in line [173](ipv4-rules.sh#L173)
+1. remove the _addHetzner()_ code (line [110ff](ipv4-rules.sh#L110)) and its call in line [173](ipv4-rules.sh#L173)
 1. -or- just ignore it
 
 If you run an older version of the script then sometimes you need to delete the (old) ipset before.
