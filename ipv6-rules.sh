@@ -46,7 +46,7 @@ function __create_ipset() {
   local name=$1
   local minutes=$2
 
-  local cmd="ipset create -exist $name hash:ip family inet6 timeout $(( minutes*60 )) maxelem $((2**20))"
+  local cmd="ipset create -exist $name hash:ip family inet6 timeout $(( minutes*60 )) maxelem $(( 2**20 ))"
   if ! $cmd 2>/dev/null; then
     ipset destroy $name
     $cmd
@@ -56,7 +56,7 @@ function __create_ipset() {
 
 function addTor() {
   local trustlist="tor-trust6"
-  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-htable-size $((2**20)) --hashlimit-htable-max $((2**20))"
+  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-htable-size $(( 2**20 )) --hashlimit-htable-max $(( 2**20 ))"
 
   ipset create -exist $trustlist hash:ip family inet6
   __fill_trustlist &
@@ -68,8 +68,8 @@ function addTor() {
     local ddoslist="tor-ddos6-$orport"
     local connlist="tor-conn6-$orport"
 
-    __create_ipset $ddoslist 30
-    __create_ipset $connlist 24*60
+    __create_ipset $ddoslist "30"
+    __create_ipset $connlist "2*24*60"
 
     if [[ $orip = "::" ]]; then
       orip+="/0"
