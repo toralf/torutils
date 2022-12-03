@@ -29,10 +29,10 @@ function addCommon() {
 
 function __fill_trustlist() {
   (
-    echo "193.187.88.42 193.187.88.43 193.187.88.44 193.187.88.45 193.187.88.46"
+    echo "193.187.88.42 193.187.88.43 193.187.88.44 193.187.88.45 193.187.88.46 141.212.118.18"
     echo "45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.39 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118"
 
-    getent ahostsv4 snowflake-01.torproject.net. | awk '{ print $1 }' | sort -u
+    getent ahostsv4 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }' | sort -u
     if jq --help &>/dev/null; then
       curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a[0]' | sort -u
     else
