@@ -110,7 +110,7 @@ net.netfilter.nf_conntrack_max = 2097152
 The instructions belongs to the IPv4 variant.
 They can be applied in a similar way for the IPv6 script
 
-If the parsing of the Tor config (line [139](ipv4-rules.sh#L139)) doesn't work for you then:
+If the parsing of the Tor config (line [143](ipv4-rules.sh#L143)) doesn't work for you then:
 
 1. define the relay(s) space separated before starting the script, eg.:
 
@@ -142,7 +142,7 @@ Same happens for ports of additional local network services:
 
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't needed, then
 
-1. remove the _addHetzner()_ code (line [110ff](ipv4-rules.sh#L110)) and its call in line [173](ipv4-rules.sh#L173)
+1. remove the _addHetzner()_ code (line [112ff](ipv4-rules.sh#L112)) and its call in line [177](ipv4-rules.sh#L177)
 1. -or- just ignore it
 
 If you run an older version of the script then sometimes you need to delete the (old) ipset before.
