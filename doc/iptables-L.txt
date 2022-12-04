@@ -1,28 +1,25 @@
-Wed, 30 Nov 2022 21:11:33 +0000
+Sun, 04 Dec 2022 18:15:29 +0000
 
-Chain INPUT (policy DROP 1969 packets, 93431 bytes)
+Chain INPUT (policy DROP 3348 packets, 159K bytes)
  pkts bytes target     prot opt in     out     source               destination         
-97596   60M ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0            /* Wed, 30 Nov 2022 19:54:05 +0000 */
- 4132 2519K DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp flags:!0x17/0x02 state NEW
- 4120 1453K DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate INVALID
- 222M  190G ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED
-  187 12288 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8 limit: avg 6/sec burst 5
+ 107K   70M ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0            /* Sun, 04 Dec 2022 15:28:42 +0000 */
+10577 7530K DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp flags:!0x17/0x02 state NEW
+ 9351 4606K DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate INVALID
+ 494M  508G ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED
+   56  2720 ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22
+ 1140 77170 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8 limit: avg 6/sec burst 5
     0     0 DROP       icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8
-   56  2464 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set hetzner-sysmon src
-   33  1992 ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 match-set tor-trust src
-1356K   81M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 limit: above 6/min burst 5 mode srcip-dstport htable-size 1048576 htable-max 1048576 add-set tor-ddos-443 src exist
-2237K  134M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 match-set tor-ddos-443 src add-set tor-conn-443 src exist
-2237K  134M DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 match-set tor-ddos-443 src
-13549  802K DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 limit: above 1/min burst 1 mode srcip-dstport htable-size 1048576 htable-max 1048576
-  135  7876 DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 #conn src/32 > 2
- 2244  134K DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 #conn src/32 > 0 match-set tor-conn-443 src
-25024 1417K ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02
-   35  2112 ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 match-set tor-trust src
-1311K   79M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 limit: above 6/min burst 5 mode srcip-dstport htable-size 1048576 htable-max 1048576 add-set tor-ddos-9001 src exist
-2185K  131M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 match-set tor-ddos-9001 src add-set tor-conn-9001 src exist
-2185K  131M DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 match-set tor-ddos-9001 src
-10137  597K DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 limit: above 1/min burst 1 mode srcip-dstport htable-size 1048576 htable-max 1048576
-  143  8284 DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 #conn src/32 > 2
- 1776  105K DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 #conn src/32 > 0 match-set tor-conn-9001 src
-24758 1399K ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02
+  119  5236 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set hetzner-sysmon src
+   87  5252 ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 match-set tor-trust src
+2189K  131M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 limit: above 6/min burst 5 mode srcip-dstport htable-size 1048576 htable-max 1048576 add-set tor-ddos-443 src exist
+3250K  195M DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 match-set tor-ddos-443 src
+ 121K 7190K DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 limit: above 1/hour burst 1 mode srcip-dstport htable-size 1048576 htable-max 1048576 htable-expire 120000
+ 1584 94100 DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 #conn src/32 > 2
+65526 3661K ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02
+   83  5016 ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 match-set tor-trust src
+2328K  140M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 limit: above 6/min burst 5 mode srcip-dstport htable-size 1048576 htable-max 1048576 add-set tor-ddos-9001 src exist
+3406K  204M DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 match-set tor-ddos-9001 src
+ 115K 6873K DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 limit: above 1/hour burst 1 mode srcip-dstport htable-size 1048576 htable-max 1048576 htable-expire 120000
+ 1296 76844 DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 #conn src/32 > 2
+65512 3652K ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02
 

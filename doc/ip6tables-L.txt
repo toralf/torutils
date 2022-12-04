@@ -1,30 +1,27 @@
-Wed, 30 Nov 2022 21:11:56 +0000
+Sun, 04 Dec 2022 18:16:05 +0000
 
-Chain INPUT (policy DROP 7 packets, 448 bytes)
+Chain INPUT (policy DROP 22 packets, 1536 bytes)
  pkts bytes target     prot opt in     out     source               destination         
- 9352 6015K ACCEPT     all      lo     *       ::/0                 ::/0                 /* Wed, 30 Nov 2022 20:22:09 +0000 */
+ 4024 2555K ACCEPT     all      lo     *       ::/0                 ::/0                 /* Sun, 04 Dec 2022 15:28:42 +0000 */
     0     0 ACCEPT     udp      *      *       fe80::/10            ff02::1             
-   12 11234 DROP       tcp      *      *       ::/0                 ::/0                 tcp flags:!0x17/0x02 state NEW
-  212  242K DROP       all      *      *       ::/0                 ::/0                 ctstate INVALID
-  27M   36G ACCEPT     all      *      *       ::/0                 ::/0                 ctstate RELATED,ESTABLISHED
-   25  2600 ACCEPT     ipv6-icmp    *      *       ::/0                 ::/0                 ipv6-icmptype 128 limit: avg 6/sec burst 5
+  204  227K DROP       tcp      *      *       ::/0                 ::/0                 tcp flags:!0x17/0x02 state NEW
+  640  668K DROP       all      *      *       ::/0                 ::/0                 ctstate INVALID
+ 120M  146G ACCEPT     all      *      *       ::/0                 ::/0                 ctstate RELATED,ESTABLISHED
+   41  2624 ACCEPT     tcp      *      *       ::/0                 ::/0                 tcp dpt:22
+   96  9676 ACCEPT     ipv6-icmp    *      *       ::/0                 ::/0                 ipv6-icmptype 128 limit: avg 6/sec burst 5
     0     0 DROP       ipv6-icmp    *      *       ::/0                 ::/0                 ipv6-icmptype 128
     0     0 ACCEPT     ipv6-icmp    *      *       ::/0                 ::/0                
-   24  1536 ACCEPT     all      *      *       ::/0                 ::/0                 match-set hetzner-sysmon6 src
-   14  1128 ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 match-set tor-trust6 src
-    0     0 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 limit: above 6/min burst 5 mode srcip-dstport htable-size 1048576 htable-max 1048576 add-set tor-ddos6-443 src exist
-    0     0 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 match-set tor-ddos6-443 src add-set tor-conn6-443 src exist
-    0     0 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 match-set tor-ddos6-443 src
-    5   400 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 limit: above 1/min burst 1 mode srcip-dstport htable-size 1048576 htable-max 1048576
-    0     0 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 #conn src/128 > 2
-    0     0 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 #conn src/128 > 0 match-set tor-conn6-443 src
-   98  7828 ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02
-   16  1288 ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 match-set tor-trust6 src
-    0     0 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 limit: above 6/min burst 5 mode srcip-dstport htable-size 1048576 htable-max 1048576 add-set tor-ddos6-9001 src exist
-    0     0 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 match-set tor-ddos6-9001 src add-set tor-conn6-9001 src exist
-    0     0 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 match-set tor-ddos6-9001 src
-    0     0 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 limit: above 1/min burst 1 mode srcip-dstport htable-size 1048576 htable-max 1048576
+   77  4928 ACCEPT     all      *      *       ::/0                 ::/0                 match-set hetzner-sysmon6 src
+   49  3952 ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 match-set tor-trust6 src
+   86  6784 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 limit: above 6/min burst 5 mode srcip-dstport htable-size 1048576 htable-max 1048576 add-set tor-ddos6-443 src exist
+  390 30296 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 match-set tor-ddos6-443 src
+ 1870  147K DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 limit: above 1/hour burst 1 mode srcip-dstport htable-size 1048576 htable-max 1048576 htable-expire 120000
+    1    80 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02 #conn src/128 > 2
+ 2210  175K ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:443 flags:0x17/0x02
+   46  3712 ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 match-set tor-trust6 src
+   53  4240 SET        tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 limit: above 6/min burst 5 mode srcip-dstport htable-size 1048576 htable-max 1048576 add-set tor-ddos6-9001 src exist
+  194 15520 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 match-set tor-ddos6-9001 src
+  925 73056 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 limit: above 1/hour burst 1 mode srcip-dstport htable-size 1048576 htable-max 1048576 htable-expire 120000
     0     0 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 #conn src/128 > 2
-    0     0 DROP       tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02 #conn src/128 > 0 match-set tor-conn6-9001 src
-  102  8140 ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02
+ 1744  139K ACCEPT     tcp      *      *       ::/0                 2a01:4f9:3b:468e::13  tcp dpt:9001 flags:0x17/0x02
 

@@ -7,34 +7,36 @@ Few tools for a Tor relay.
 ## Block DDoS Traffic
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
-against DDoS attacks at the IP [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg).
+against DDoS attacks ¹ at the IP [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg).
 
 The goal is more than traffic shaping:
 The (presumably) intention of the attacker to unveil onion service/s is targeted.
-Therefore, in addition to network filtering, the usually rectangular input signal [*]
-is transformed into a smeared output response [**].
+Therefore, in addition to network filtering, the usually rectangular input signal²
+is transformed into a smeared output response³.
 This makes it harder for an attacker to gather information using time correlation techniques,
 at least it makes the DDoS more expensive.
 
 To achieve this goal an [ipset](https://ipset.netfilter.org) is used.
 Its _timeout_ feature adds the needed "memory" for the whole solution to continue to block an as malicous considered ip
 for a much longer time than an single iptables rule usually would do.
-
 Metrics of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
 [6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov
 show the results for few DDoS attacks over 3 days.
 And a much more heavier attack happened at [12th](./doc/network-metric-Nov-12th.svg) of Nov.
+With the current rule set a periodic drop down of the socket count vanishes over time as seen at
+[5th](./doc/network-metric-Dec-05th.svg) of Dec.
 
-Discussion was started in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636) and
+¹ Discussion was started in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636) and
 continued in [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
 of the [Tor project](https://www.torproject.org/).
 
-[*] thousands of new TLS connections are opened within second/s and stayed for a longer time, then closed altogether
-[**] much longer time is needed before the maximum is reached -and/or- only 1 connection per ip is created
+² thousands of new TLS connections are opened within second/s and stayed for a longer time, then closed altogether
+
+³ much longer time is needed before the maximum is reached -and/or- only 1 connection per ip is created
 
 ### Quick start
 
-Install the dependencies, eg. for Ubuntu 22.04 systems, this is required:
+Install dependencies, eg. for Ubuntu 22.04, this is required:
 
 ```bash
 sudo apt install iptables ipset jq
@@ -48,13 +50,10 @@ chmod +x ./ipv4-rules.sh
 sudo ./ipv4-rules.sh start
 ```
 
-to replace any current content of the iptables _filter_ table with the rule set described below.
+This replaces any current content of the iptables _filter_ table with the rule set described below.
 Best is to (re-)start Tor afterwards.
-To clear the _filter_ table, run:
+If the script doesn't work out of the box for you then please have a look at the [Installation](#installation) section.
 
-```bash
-sudo ./ipv4-rules.sh stop
-```
 
 The live statistics can be watched by:
 
@@ -63,15 +62,17 @@ sudo watch -t ./ipv4-rules.sh
 ```
 
 The output should look similar to the [IPv4](./doc/iptables-L.txt) and the [IPv6](./doc/ip6tables-L.txt) example respectively.
-The package [iptables](https://www.netfilter.org/projects/iptables/) needs to be installed before,
-the package [jq](https://stedolan.github.io/jq/) is adviced.
-If the script doesn't work out of the box for you then please have a look at the [Installation](#installation) section.
+
+To clear the _filter_ table, run:
+
+```bash
+sudo ./ipv4-rules.sh stop
+```
 
 ### Rule set
 
-Basics:
+Objectives:
 
-Filter inbound connection attempts.
 Neither touch established nor outbounds connections.
 Filter single ips, not networks.
 
@@ -81,23 +82,21 @@ Generic rules for local network, ICMP, ssh and user services (if defined) are ap
 Then these 5 rules are applied (in this order) for an TCP connection attempt to the local ORPort:
 
 1. trust Tor authorities and snowflake
-1. block it for 30 min if the rate is > 6/min
-1. limit rate to 1/minute
-1. reject it if 3 (but only 1, if rule 2 was violated within last 24 hours) connections are already open
+1. block it for 1 day if the rate is > 6/min
+1. limit rate to 0.5/minute
+1. allow not more than 2 connections
 1. accept it
 
 This usually allows an ip to create a connection with its 1st SYN packet.
-Depending on the rate of inbound SYNs, subesquently few more connections are allowed (rule 3+4).
-But if the rate exceeds the limit (of rule 2) then any further connection attempt is blocked for the next 30 min
-even if the rate drops down below the limit within the timeframe.
-The long time frame of rule 4 addresses ips bypassing the connlimit barrier otherwise.
+Depending on the rate of inbound SYNs, subesquently more connections are allowed (rule 3+4).
+But if the rate exceeds the limit (of rule 2) then any further connection attempt is blocked for a given time
+even if the rate drops down below the limit within this time.
 
 There's an ongoing discussion about SYN flood protection and short comings of the conntrack engine.
 A lot of them were already addressed by the linux kernel devs over the past years.
 Nowadays a dropped SYN packet does not even create a conntrack entry -
 see [this](https://blog.cloudflare.com/conntrack-tales-one-thousand-and-one-flows/) Cloudflare blog.
-The remaining SYN flood attack vectors should be mitigated by the size of 1M for ipsets and hashes
-and these settings in `/etc/sysctl.d/local.conf`:
+The remaining SYN flood risk is lowered by the size of 1M for ipsets and hashes and these settings in `/etc/sysctl.d/local.conf`:
 
 ```text
 net.ipv4.tcp_syncookies = 1
