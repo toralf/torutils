@@ -36,7 +36,7 @@ function __fill_trustlist() {
     if jq --help &>/dev/null; then
       curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a[0]' | sort -u
     else
-      { echo "please install package jq to fetch the latest Tor authority ips" >&2 ; }
+      { echo " please install package jq to fetch the latest Tor authority ips" >&2 ; }
     fi
   ) | xargs -r -n 1 -P 20 ipset add -exist $trustlist
 }
@@ -44,11 +44,14 @@ function __fill_trustlist() {
 
 function __create_ipset() {
   local name=$1
-  local minutes=$2
+  local seconds=$2
 
-  local cmd="ipset create -exist $name hash:ip family inet timeout $(( minutes*60 )) maxelem $(( 2**20 ))"
+  local cmd="ipset create -exist $name hash:ip family inet timeout $(( seconds)) maxelem $(( 2**20 ))"
   if ! $cmd 2>/dev/null; then
-    ipset destroy $name
+    if ! ipset destroy $name; then
+      { echo " ipset does not work, cannot continue" >&2 ; }
+      exit 1
+    fi
     $cmd
   fi
 }
@@ -65,28 +68,22 @@ function addTor() {
   do
     read -r orip orport <<< $(tr ':' ' ' <<< $relay)
 
-    local ddoslist="tor-ddos-$orport"
-    local connlist="tor-conn-$orport"
-
-    __create_ipset $ddoslist "30"
-    __create_ipset $connlist "2*24*60"
-
     local synpacket="iptables -A INPUT -p tcp --dst $orip --dport $orport --syn"
+    local ddoslist="tor-ddos-$orport"
+    __create_ipset $ddoslist "24*60*60"
 
     # rule 1
     $synpacket -m set --match-set $trustlist src -j ACCEPT
 
     # rule 2
     $synpacket $hashlimit --hashlimit-htable-expire $(( 60*1000 )) --hashlimit-name tor-ddos-$orport --hashlimit-above 6/minute --hashlimit-burst 5 -j SET --add-set $ddoslist src --exist
-    $synpacket -m set --match-set $ddoslist src -j SET --add-set $connlist src --exist
     $synpacket -m set --match-set $ddoslist src -j DROP
 
     # rule 3
-    $synpacket $hashlimit --hashlimit-htable-expire $(( 60*1000 )) --hashlimit-name tor-rate-$orport --hashlimit-above 1/minute --hashlimit-burst 1 -j DROP
+    $synpacket $hashlimit --hashlimit-htable-expire $(( 120*1000 )) --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 -j DROP
 
     # rule 4
-    $synpacket -m connlimit --connlimit-mask 32 --connlimit-above 2                                  -j DROP
-    $synpacket -m connlimit --connlimit-mask 32 --connlimit-above 0 -m set --match-set $connlist src -j DROP
+    $synpacket -m connlimit --connlimit-mask 32 --connlimit-above 2 -j DROP
 
     # rule 5
     $synpacket -j ACCEPT
@@ -113,13 +110,13 @@ function addHetzner() {
   local sysmon="hetzner-sysmon"
 
   ipset create -exist $sysmon hash:ip family inet
-  iptables -A INPUT -m set --match-set $sysmon src -j ACCEPT
   {
     (
       getent ahostsv4 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u
       echo "188.40.24.211 213.133.113.82 213.133.113.83 213.133.113.84 213.133.113.86"
     ) | xargs -r -n 1 -P 20 ipset add -exist $sysmon
   } &
+  iptables -A INPUT -m set --match-set $sysmon src -j ACCEPT
 }
 
 
