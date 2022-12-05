@@ -84,7 +84,7 @@ Then these 5 rules are applied (in this order) for an TCP connection attempt to 
 1. trust Tor authorities and snowflake
 1. block it for 1 day if the rate is > 6/min
 1. limit rate to 0.5/minute
-1. allow not more than 2 connections
+1. allow not more than 3 connections
 1. accept it
 
 This usually allows an ip to create a connection with its 1st SYN packet.
