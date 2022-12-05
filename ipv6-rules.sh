@@ -50,11 +50,13 @@ function __create_ipset() {
 
   local cmd="ipset create -exist $name hash:ip family inet6 timeout $(( seconds )) maxelem $(( 2**20 ))"
   if ! $cmd 2>/dev/null; then
+    content=$(ipset list -s $name | sed -e '1,8d')
     if ! ipset destroy $name; then
       { echo " ipset does not work, cannot continue" >&2 ; }
       exit 1
     fi
     $cmd
+    { echo $content | xargs -r -n 3 -P 20 ipset add -exist $name ; } &
   fi
 }
 
