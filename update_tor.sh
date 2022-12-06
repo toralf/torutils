@@ -31,10 +31,14 @@ git log --oneline $updating
 git diff --stat $updating
 
 emerge -1 net-vpn/tor
+
 echo -e "\nrestart Tor\n"
-rc-service tor restart
+rc-service tor restart &
 echo -e "\nrestart Tor2\n"
 rc-service tor2 restart
+
+iptables -Z
+ip6tables -Z
 
 echo
 date
