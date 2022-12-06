@@ -155,7 +155,7 @@ function getConfiguredRelays6()  {
 function bailOut()  {
   trap - INT QUIT TERM EXIT
 
-  echo "Something went wrong, stopping ..."
+  { echo "Something went wrong, stopping ..." >&2 ; }
   clearAll
   exit 1
 }

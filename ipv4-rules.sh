@@ -122,6 +122,13 @@ function addHetzner() {
 }
 
 
+function setSysctlValues() {
+  sysctl -w net.ipv4.tcp_syncookies=1
+  sysctl -w net.netfilter.nf_conntrack_buckets=$(( 2**21 ))
+  sysctl -w net.netfilter.nf_conntrack_max=$(( 2**21 ))
+}
+
+
 function clearAll() {
   iptables -P INPUT  ACCEPT
   iptables -P OUTPUT ACCEPT
@@ -158,7 +165,7 @@ function getConfiguredRelays()  {
 function bailOut()  {
   trap - INT QUIT TERM EXIT
 
-  echo "Something went wrong, stopping ..."
+  { echo "Something went wrong, stopping ..." >&2 ; }
   clearAll
   exit 1
 }
@@ -176,6 +183,7 @@ case ${1:-} in
           addHetzner
           addLocalServices
           addTor ${CONFIGURED_RELAYS:-$(getConfiguredRelays)}
+          setSysctlValues 1>/dev/null || { echo "couldn't set sysctl values" >&2 ; }
           ;;
   stop)   clearAll
           ipset list -t | grep -P "^Name: tor-(conn|ddos)-\d+$" | cut -f2 -d' ' | xargs -r -n 1 ipset flush 2>/dev/null
