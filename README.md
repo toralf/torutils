@@ -52,8 +52,7 @@ sudo ./ipv4-rules.sh start
 
 This replaces any current content of the iptables _filter_ table with the rule set described below.
 Best is to (re-)start Tor afterwards.
-If the script doesn't work out of the box for you then please have a look at the [Installation](#installation) section.
-
+If the script doesn't work for you out of the box then please proceed with the [Installation](#installation) section.
 
 The live statistics can be watched by:
 
@@ -87,29 +86,16 @@ Then these 5 rules are applied (in this order) for an TCP connection attempt to 
 1. allow not more than 3 connections
 1. accept it
 
-This usually allows an ip to create a connection with its 1st SYN packet.
-Depending on the rate of inbound SYNs, subesquently more connections are allowed (rule 3+4).
-But if the rate exceeds the limit (of rule 2) then any further connection attempt is blocked for a given time
-even if the rate drops down below the limit within this time.
-
-There's an ongoing discussion about SYN flood protection and short comings of the conntrack engine.
-A lot of them were already addressed by the linux kernel devs over the past years.
-Nowadays a dropped SYN packet does not even create a conntrack entry -
-see [this](https://blog.cloudflare.com/conntrack-tales-one-thousand-and-one-flows/) Cloudflare blog.
-The remaining SYN flood risk is lowered by the size of 1M for ipsets and hashes and these settings in `/etc/sysctl.d/local.conf`:
-
-```text
-net.ipv4.tcp_syncookies = 1
-net.netfilter.nf_conntrack_buckets = 2097152
-net.netfilter.nf_conntrack_max = 2097152
-```
+This usually allows an ip to create its 1st connection with its 1st SYN packet.
+If the rate exceeds the limit (rule 2) then any further connection attempt is blocked for a given time.
+Otherwise subsquently (rule 3) more connections are allowed up to a given limit (rule 4).
 
 ### Installation
 
 The instructions belongs to the IPv4 variant.
 They can be applied in a similar way for the IPv6 script
 
-If the parsing of the Tor config (line [143](ipv4-rules.sh#L143)) doesn't work for you then:
+If the parsing of the Tor config (line [149](ipv4-rules.sh#L149)) doesn't work for you then:
 
 1. define the relay(s) space separated before starting the script, eg.:
 
@@ -141,7 +127,7 @@ Same happens for ports of additional local network services:
 
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't needed, then
 
-1. remove the _addHetzner()_ code (line [112ff](ipv4-rules.sh#L112)) and its call in line [177](ipv4-rules.sh#L177)
+1. remove the _addHetzner()_ code (line [111ff](ipv4-rules.sh#L111)) and its call in line [183](ipv4-rules.sh#L183)
 1. -or- just ignore it
 
 If you run an older version of the script then sometimes you need to delete the (old) ipset before.
@@ -157,20 +143,22 @@ Few scripts are used to fine tune parameters.
 [ipset-stats.sh](./ipset-stats.sh) plots data got from ipset(s) ([example](./doc/ipset-stats.sh.txt)).
 
 The package [gnuplot](http://www.gnuplot.info/) is needed to plot the graphs.
-To create [sysstat](http://sebastien.godard.pagesperso-orange.fr/) metrics this crontab entry for user `root` is used to gather the data:
+The crontab entry below is used to create [sysstat](http://sebastien.godard.pagesperso-orange.fr/) metrics:
 
 ```console
+# crontab for user root
+
 @reboot     /usr/lib/sa/sa1 --boot
 * * * * *   /usr/lib/sa/sa1 1 1 -S XALL
 ```
 
-The graphs are created by:
+The metric graphs are created by:
 
 ```bash
-args="-u -n DEV,SOCK,SOCK6 --iface=enp8s0" # use -A to display all metrics
+args="-n DEV,SOCK,SOCK6 --iface=enp8s0"   # -A displays all metrics
 svg=/tmp/graph.svg
 TZ=UTC sadf -g -t /var/log/sa/sa${DAY:-`date +%d`} -O skipempty,oneday -- $args > $svg
-h=$(tail -n 2 $svg | head -n 1 | cut -f5 -d' ')  # fix the SVG canvas size
+h=$(tail -n 2 $svg | head -n 1 | cut -f5 -d' ')   # fix the SVG canvas size
 sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
