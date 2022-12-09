@@ -91,7 +91,7 @@ function addTor() {
     $synpacket $hashlimit --hashlimit-htable-expire $(( 120*1000 )) --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 -j DROP
 
     # rule 4
-    $synpacket -m connlimit --connlimit-mask 128 --connlimit-above 3 -j DROP
+    $synpacket -m connlimit --connlimit-mask 128 --connlimit-above 2 -j DROP
 
     # rule 5
     $synpacket -j ACCEPT
