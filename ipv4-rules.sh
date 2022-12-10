@@ -36,7 +36,7 @@ function __fill_trustlist() {
     if jq --help &>/dev/null; then
       curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a[0]' | sort -u
     else
-      { echo " please install package jq to fetch the latest Tor authority ips" >&2 ; }
+      echo " please install package jq to fetch the latest Tor authority ips" >&2
     fi
   ) | xargs -r -n 1 -P 20 ipset add -exist $trustlist
 }
@@ -46,11 +46,11 @@ function __create_ipset() {
   local name=$1
   local seconds=$2
 
-  local cmd="ipset create -exist $name hash:ip family inet timeout $(( seconds)) maxelem $(( 2**20 ))"
+  local cmd="ipset create -exist $name hash:ip family inet timeout $(( seconds )) maxelem $(( 2**20 ))"
   if ! $cmd 2>/dev/null; then
     content=$(ipset list -s $name | sed -e '1,8d')
     if ! ipset destroy $name; then
-      { echo " ipset does not work, cannot continue" >&2 ; }
+      echo " ipset does not work, cannot continue" >&2
       exit 1
     fi
     $cmd
@@ -165,7 +165,7 @@ function getConfiguredRelays()  {
 function bailOut()  {
   trap - INT QUIT TERM EXIT
 
-  { echo "Something went wrong, stopping ..." >&2 ; }
+  echo "Something went wrong, stopping ..." >&2
   clearAll
   exit 1
 }
@@ -183,7 +183,7 @@ case ${1:-} in
           addHetzner
           addLocalServices
           addTor ${CONFIGURED_RELAYS:-$(getConfiguredRelays)}
-          setSysctlValues 1>/dev/null || { echo "couldn't set sysctl values" >&2 ; }
+          setSysctlValues 1>/dev/null || echo "couldn't set sysctl values" >&2
           ;;
   stop)   clearAll
           ipset list -t | grep -P "^Name: tor-(conn|ddos)-\d+$" | cut -f2 -d' ' | xargs -r -n 1 ipset flush 2>/dev/null

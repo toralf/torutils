@@ -38,7 +38,7 @@ function __fill_trustlist() {
     if jq --help &>/dev/null; then
       curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a | select(length > 1) | .[1]' | tr -d '][' | sort -u
     else
-      { echo " please install package jq to fetch the latest Tor authority ips" >&2 ; }
+      echo " please install package jq to fetch the latest Tor authority ips" >&2
     fi
   ) | xargs -r -n 1 -P 20 ipset add -exist $trustlist
 }
@@ -52,7 +52,7 @@ function __create_ipset() {
   if ! $cmd 2>/dev/null; then
     content=$(ipset list -s $name | sed -e '1,8d')
     if ! ipset destroy $name; then
-      { echo " ipset does not work, cannot continue" >&2 ; }
+      echo " ipset does not work, cannot continue" >&2
       exit 1
     fi
     $cmd
@@ -73,7 +73,7 @@ function addTor() {
     read -r orip orport <<< $(sed -e 's,]:, ,' <<< $relay | tr '[' ' ')
     if [[ $orip = "::" ]]; then
       orip+="/0"
-      { echo " please consider to set CONFIGURED_RELAYS6" >&2 ; }
+      echo " please consider to set CONFIGURED_RELAYS6" >&2
     fi
 
     local synpacket="ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn"
@@ -155,7 +155,7 @@ function getConfiguredRelays6()  {
 function bailOut()  {
   trap - INT QUIT TERM EXIT
 
-  { echo "Something went wrong, stopping ..." >&2 ; }
+  echo "Something went wrong, stopping ..." >&2
   clearAll
   exit 1
 }
