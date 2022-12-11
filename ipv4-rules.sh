@@ -188,7 +188,6 @@ case ${1:-} in
           setSysctlValues 1>/dev/null || echo "couldn't set sysctl values" >&2
           ;;
   stop)   clearAll
-          ipset list -t | grep -P "^Name: tor-(conn|ddos)-\d+$" | cut -f2 -d' ' | xargs -r -n 1 ipset flush 2>/dev/null
           ;;
   *)      printFirewall
           ;;

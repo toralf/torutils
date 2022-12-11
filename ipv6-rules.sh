@@ -177,7 +177,6 @@ case ${1:-} in
           addTor ${CONFIGURED_RELAYS6:-$(getConfiguredRelays6)}
           ;;
   stop)   clearAll
-          ipset list -t | grep -P "^Name: tor-(conn|ddos)6-\d+$" | cut -f2 -d' ' | xargs -r -n 1 ipset flush 2>/dev/null
           ;;
   *)      printFirewall
           ;;
