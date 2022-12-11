@@ -14,8 +14,8 @@ function show() {
     v="6"
   fi
 
-  local sum=0
   local ips=0
+  local sum=0
   while read -r conns ip
   do
     if [[ $conns -gt $limit ]]; then

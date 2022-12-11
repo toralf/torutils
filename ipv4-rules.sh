@@ -32,13 +32,14 @@ function __fill_trustlist() {
     echo "193.187.88.42 193.187.88.43 193.187.88.44 193.187.88.45 193.187.88.46 141.212.118.18"
     echo "45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.39 131.188.40.189 154.35.175.225 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118"
 
-    getent ahostsv4 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }' | sort -u
+    getent ahostsv4 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }'
     if jq --help &>/dev/null; then
-      curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a[0]' | sort -u
+      curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a[0]'
     else
       echo " please install package jq to fetch the latest Tor authority ips" >&2
     fi
-  ) | xargs -r -n 1 -P 20 ipset add -exist $trustlist
+  ) | sort -u |
+  xargs -r -n 1 -P 20 ipset add -exist $trustlist
 }
 
 
@@ -48,7 +49,7 @@ function __create_ipset() {
 
   local cmd="ipset create -exist $name hash:ip family inet timeout $(( seconds )) maxelem $(( 2**20 ))"
   if ! $cmd 2>/dev/null; then
-    content=$(ipset list -s $name | sed -e '1,8d')
+    local content=$(ipset list -s $name | sed -e '1,8d')
     if ! ipset destroy $name; then
       echo " ipset does not work, cannot continue" >&2
       exit 1
@@ -114,9 +115,10 @@ function addHetzner() {
   ipset create -exist $sysmon hash:ip family inet
   {
     (
-      getent ahostsv4 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u
+      getent ahostsv4 pool.sysmon.hetzner.com | awk '{ print $1 }'
       echo "188.40.24.211 213.133.113.82 213.133.113.83 213.133.113.84 213.133.113.86"
-    ) | xargs -r -n 1 -P 20 ipset add -exist $sysmon
+    ) | sort -u |
+    xargs -r -n 1 -P 20 ipset add -exist $sysmon
   } &
   iptables -A INPUT -m set --match-set $sysmon src -j ACCEPT
 }
