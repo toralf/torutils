@@ -146,7 +146,8 @@ function printFirewall()  {
 
 
 function getConfiguredRelays6()  {
-  grep -h -e "^ORPort *" /etc/tor/torrc* | grep -v ' NoListen' |
+  grep -h -e "^ORPort *" /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null |
+  grep -v ' NoListen' |
   grep -P "^ORPort\s+\[[0-9a-f]*:[0-9a-f:]*:[0-9a-f]*\]:\d+\s*" |
   awk '{ print $2 }'
 }

@@ -38,7 +38,7 @@ function show() {
 
 
 function getConfiguredRelays()  {
-  for f in /etc/tor/torrc*
+  for f in $(ls /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null)
   do
     if orport=$(grep "^ORPort *" $f | grep -v -F -e ' NoListen' -e '[' | grep -P "^ORPort\s+.+\s*"); then
       if grep -q -Po "^ORPort\s+\d+\.\d+\.\d+\.\d+\:\d+\s*" <<< $orport; then
@@ -54,7 +54,8 @@ function getConfiguredRelays()  {
 
 
 function getConfiguredRelays6()  {
-  grep -h -e "^ORPort *" /etc/tor/torrc* | grep -v ' NoListen' |
+  grep -h -e "^ORPort *" /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null |
+  grep -v ' NoListen' |
   grep -P "^ORPort\s+\[[0-9a-f]*:[0-9a-f:]*:[0-9a-f]*\]:\d+\s*" |
   awk '{ print $2 }'
 }
