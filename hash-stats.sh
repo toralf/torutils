@@ -24,6 +24,7 @@ do
     set title "timeout of '$n' ips in '$h'";
     set key noautotitle;
     set xlabel "ip";
+    set yrange [0:*];
     plot "'$tmpfile'" pt "o";
   '
 done

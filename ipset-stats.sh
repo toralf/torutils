@@ -80,6 +80,7 @@ function plot_timeout()  {
         set border back;
         set title "'$N' timeout values in '$1'";
         set key noautotitle;
+        set yrange [0:*];
         plot "'$tmpfile'" pt "o";'
   else
     cat $tmpfile
