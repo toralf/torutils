@@ -7,32 +7,32 @@ Few tools for a Tor relay.
 ## Block DDoS Traffic
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
-against DDoS attacks ¹ at the IP [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg).
+against DDoS attacks¹ at the IP [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg).
 
 The goal is more than traffic shaping:
 The (presumably) intention of the attacker to unveil onion service/s is targeted.
-Therefore, in addition to network filtering, the usually rectangular input signal²
-is transformed into a smeared output response³.
+Therefore, in addition to network filtering, the usually rectangular input signal of the DDoS²
+is achieved to be transformed into a more smeared output response³.
 This makes it harder for an attacker to gather information using time correlation techniques,
 at least it makes the DDoS more expensive.
 
-To achieve this goal an [ipset](https://ipset.netfilter.org) is used.
-Its _timeout_ feature adds the needed "memory" for the whole solution to continue to block an as malicous considered ip
-for a much longer time than an single iptables rule usually would do.
+Therefore [ipsets](https://ipset.netfilter.org) are used.
+Its _timeout_ feature adds the needed "memory" to continue blocking an as malicous considered ip
+for a much longer time than an single iptables rule usually could do.
 Metrics of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
 [6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov
 show the results for few DDoS attacks over 3 days.
-And a much more heavier attack happened at [12th](./doc/network-metric-Nov-12th.svg) of Nov.
-With the current rule set a periodic drop down of the socket count vanishes over time as seen at
-[5th](./doc/network-metric-Dec-05th.svg) of Dec.
+A there was a more heavier attack from [12th](./doc/network-metric-Nov-12th.svg) of Nov.
+Currently periodic drop down of the socket count, vanishing over time as seen at
+[5th](./doc/network-metric-Dec-05th.svg) of Dec, happened with the current rule set.
 
-¹ Discussion was started in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636) and
+¹Discussion was started in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636) and
 continued in [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
 of the [Tor project](https://www.torproject.org/).
 
-² thousands of new TLS connections are opened within second/s and stayed for a longer time, then closed altogether
+²Thousands of new TLS connections are opened within second/s and stayed for a longer time, then closed altogether.
 
-³ much longer time is needed before the maximum is reached -and/or- only 1 connection per ip is created
+³Much longer time is needed before the maximum is reached -and/or- only 1 connection per ip is created.
 
 ### Quick start
 
@@ -50,8 +50,9 @@ chmod +x ./ipv4-rules.sh
 sudo ./ipv4-rules.sh start
 ```
 
-This replaces any current content of the iptables _filter_ table with the rule set described below.
+This **replaces** any current content of the iptables _filter_ table with the rule set described below.
 Best is to (re-)start Tor afterwards.
+Make a backup of the current tables before if needed.
 If the script doesn't work for you out of the box then please proceed with the [Installation](#installation) section.
 
 The live statistics can be watched by:
@@ -83,19 +84,19 @@ Then these 5 rules are applied (in this order) for an TCP connection attempt to 
 1. trust Tor authorities and snowflake
 1. block it for 1 day if the rate is > 6/min
 1. limit rate to 0.5/minute
-1. allow not more than 3 connections
+1. allow not more than 2 connections
 1. accept it
 
-This usually allows an ip to create its 1st connection with its 1st SYN packet.
-If the rate exceeds the limit (rule 2) then any further connection attempt is blocked for a given time.
-Otherwise subsquently (rule 3) more connections are allowed up to a given limit (rule 4).
+This usually allows an ip to connect to the ORPort with its 1st SYN packet.
+If the rate exceeds a given limit (rule 2) then any further connection attempt is blocked for a given time.
+Otherwise subsquently (rule 3) more connections are allowed up to a maximum number (rule 4).
 
 ### Installation
 
 The instructions belongs to the IPv4 variant.
 They can be applied in a similar way for the IPv6 script
 
-If the parsing of the Tor config (line [149](ipv4-rules.sh#L149)) doesn't work for you then:
+If the parsing of the Tor config (line [151](ipv4-rules.sh#L151)) doesn't work for you then:
 
 1. define the relay(s) space separated before starting the script, eg.:
 
@@ -104,43 +105,39 @@ If the parsing of the Tor config (line [149](ipv4-rules.sh#L149)) doesn't work f
     export CONFIGURED_RELAYS6="[cafe::dead:beef]:4711"
     ```
 
-1. open an [issue](https://github.com/toralf/torutils/issues) for that
-    -or- create a pull requests with a fix ;)
+1. -or- open an [issue](https://github.com/toralf/torutils/issues) for that
 
-Same happens for ports of additional local network services:
+1. -or- create a GitHub PR with a fix ;)
 
-1. define them space separated, eg.:
+To allow access to additional local network services (the default input policy is `DROP`), either:
+
+1. define all of them space separated, eg.:
 
     ```bash
     export ADD_LOCAL_SERVICES="2.718.281.828:459"
-    export ADD_LOCAL_SERVICES6="[edda:fade:affe:baff:eff:eff]:12345"
+    export ADD_LOCAL_SERVICES6="[edda:fade:baff:192::/112]:80"
     ```
 
-1. -or- run your own iptables rules
-1. -or- change the default policy of the iptables chain _INPUT_ in line [6](ipv4-rules.sh#L6):
+1. -or- change the default filter policy for incoming packets:
 
     ```bash
-    iptables -P INPUT ACCEPT
+    export DEFAULT_POLICY_INPUT="ACCEPT"
     ```
 
-    (I wouldn't recommended that)
+    (I wouldn't recommended the later.)
 
-If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't needed, then
+If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
+then either ignore that single rule or comment out its function call (line [185](ipv4-rules.sh#L185)).
 
-1. remove the _addHetzner()_ code (line [111ff](ipv4-rules.sh#L111)) and its call in line [183](ipv4-rules.sh#L183)
-1. -or- just ignore it
+### misc
 
-If you run an older version of the script then sometimes you need to delete the (old) ipset before.
+Few scripts were made to fine tune the parameters or the rules:
 
-### Fine tuning
-
-Few scripts are used to fine tune parameters.
-
-[ddos-inbound.sh](./ddos-inbound.sh) lists ips having more inbound connections to the ORPort than a given limit (4 per default).
-[orstatus.py](./orstatus.py) logs the reason of every Tor circuit closing event.
+[ddos-inbound.sh](./ddos-inbound.sh) lists ips having more inbound connections to the ORPort than a given limit.
+[orstatus.py](./orstatus.py) logs the reason of Tor circuit closing events,
 [orstatus-stats.sh](./orstatus-stats.sh) prints/plots statistics ([example](./doc/orstatus-stats.sh.txt)) from that output.
 [hash-stats.sh](./hash-stats.sh) plots the distribution of timeout values of an iptables hash ([example](./doc/hash-stats.sh.txt)).
-[ipset-stats.sh](./ipset-stats.sh) plots data got from ipset(s) ([example](./doc/ipset-stats.sh.txt)).
+[ipset-stats.sh](./ipset-stats.sh) plots distribution of ip occurrencies in subsequent ipset output files ([example](./doc/ipset-stats.sh.txt)).
 
 The package [gnuplot](http://www.gnuplot.info/) is needed to plot the graphs.
 The crontab entry below is used to create [sysstat](http://sebastien.godard.pagesperso-orange.fr/) metrics:
@@ -155,10 +152,10 @@ The crontab entry below is used to create [sysstat](http://sebastien.godard.page
 The metric graphs are created by:
 
 ```bash
-args="-n DEV,SOCK,SOCK6 --iface=enp8s0"   # -A displays all metrics
+args="-n DEV,SOCK,SOCK6 --iface=enp8s0"   # "-A" to display all metrics
 svg=/tmp/graph.svg
-TZ=UTC sadf -g -t /var/log/sa/sa${DAY:-`date +%d`} -O skipempty,oneday -- $args > $svg
-h=$(tail -n 2 $svg | head -n 1 | cut -f5 -d' ')   # fix the SVG canvas size
+TZ=UTC sadf -g -T /var/log/sa/sa${DAY:-`date +%d`} -O skipempty,oneday -- $args > $svg
+h=$(tail -n 2 $svg | head -n 1 | cut -f5 -d' ')   # fix othe SVG canvas size
 sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```

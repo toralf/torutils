@@ -3,7 +3,7 @@
 
 
 function addCommon() {
-  iptables -P INPUT  DROP
+  iptables -P INPUT  ${DEFAULT_POLICY_INPUT:-DROP}
   iptables -P OUTPUT ACCEPT
 
   # allow loopback

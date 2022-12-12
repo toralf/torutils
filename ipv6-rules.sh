@@ -3,7 +3,7 @@
 
 
 function addCommon() {
-  ip6tables -P INPUT  DROP
+  ip6tables -P INPUT  ${DEFAULT_POLICY_INPUT:-DROP}
   ip6tables -P OUTPUT ACCEPT
 
   # allow loopback
