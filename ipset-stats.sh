@@ -20,7 +20,7 @@ function anonymise()  {
 }
 
 
-# eg. 1:2:3:4:5:6:7:8 -> 0001:0002:0003:0004:0005:0000:0000:0000/80
+# 1:2:3:4:5:6:7:8 -> 0001:0002:0003:0004:0005::/80
 function anonymise6()  {
   awk '{ print $1 }' |
   $(dirname $0)/expand_v6.py |
@@ -29,7 +29,7 @@ function anonymise6()  {
 }
 
 
-# plot a histogram about ip address occurrences of dump files
+# plot a histogram about ip address occurrences of ipset dump files
 function plot_ip_occurrences() {
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
   local files=$*
@@ -69,9 +69,7 @@ function plot_ip_occurrences() {
 function plot_timeout()  {
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
-  dump $1 |
-  awk '{ print $3 }' |
-  sort -bn > $tmpfile
+  dump "$1" | awk '{ print $3 }' | sort -bn > $tmpfile
   N=$(wc -l < $tmpfile)
 
   if [[ $N -gt 7 ]]; then
