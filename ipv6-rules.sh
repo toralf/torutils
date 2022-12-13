@@ -47,9 +47,8 @@ function __fill_trustlist() {
 
 function __create_ipset() {
   local name=$1
-  local seconds=$2
+  local cmd="ipset create -exist $name hash:ip family inet6 ${2:-}"
 
-  local cmd="ipset create -exist $name hash:ip family inet6 timeout $(( seconds )) maxelem $(( 2**20 ))"
   if ! $cmd 2>/dev/null; then
     local content=$(ipset list $name | sed -e '1,8d')
     if ! ipset destroy $name; then
@@ -64,22 +63,22 @@ function __create_ipset() {
 
 function addTor() {
   local trustlist="tor-trust6"
-  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-htable-size $(( 2**20 )) --hashlimit-htable-max $(( 2**20 ))"
-
-  ipset create -exist $trustlist hash:ip family inet6
+  __create_ipset $trustlist
   __fill_trustlist &
 
+  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-htable-size $(( 2**20 )) --hashlimit-htable-max $(( 2**20 ))"
   for relay in $*
   do
     read -r orip orport <<< $(sed -e 's,]:, ,' <<< $relay | tr '[' ' ')
+
+    local synpacket="ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn"
+    local ddoslist="tor-ddos6-$orport"
+    __create_ipset $ddoslist "timeout $(( 24*60*60 )) maxelem $(( 2**20 ))"
+
     if [[ $orip = "::" ]]; then
       orip+="/0"
       echo " please consider to set CONFIGURED_RELAYS6" >&2
     fi
-
-    local synpacket="ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn"
-    local ddoslist="tor-ddos6-$orport"
-    __create_ipset $ddoslist "24*60*60"
 
     # rule 1
     $synpacket -m set --match-set $trustlist src -j ACCEPT
@@ -118,7 +117,7 @@ function addLocalServices() {
 function addHetzner() {
   local sysmon="hetzner-sysmon6"
 
-  ipset create -exist $sysmon hash:ip family inet6
+  __create_ipset $sysmon
   {
     (
       getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }'
