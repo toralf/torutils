@@ -51,7 +51,7 @@ function __create_ipset() {
 
   local cmd="ipset create -exist $name hash:ip family inet6 timeout $(( seconds )) maxelem $(( 2**20 ))"
   if ! $cmd 2>/dev/null; then
-    local content=$(ipset list -s $name | sed -e '1,8d')
+    local content=$(ipset list $name | sed -e '1,8d')
     if ! ipset destroy $name; then
       echo " ipset does not work, cannot continue" >&2
       exit 1
@@ -121,7 +121,7 @@ function addHetzner() {
   ipset create -exist $sysmon hash:ip family inet6
   {
     (
-      getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u
+      getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }'
       echo "2a01:4f8:0:a101::5:1 2a01:4f8:0:a101::6:1 2a01:4f8:0:a101::6:2 2a01:4f8:0:a101::6:3 2a01:4f8:0:a112::c:1"
     ) | xargs -r -n 1 -P 20 ipset add -exist $sysmon
   } &

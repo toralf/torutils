@@ -49,7 +49,7 @@ function __create_ipset() {
 
   local cmd="ipset create -exist $name hash:ip family inet timeout $(( seconds )) maxelem $(( 2**20 ))"
   if ! $cmd 2>/dev/null; then
-    local content=$(ipset list -s $name | sed -e '1,8d')
+    local content=$(ipset list $name | sed -e '1,8d')
     if ! ipset destroy $name; then
       echo " ipset does not work, cannot continue" >&2
       exit 1
