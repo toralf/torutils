@@ -4,7 +4,7 @@
 
 Few tools for a Tor relay.
 
-## Block DDoS Traffic
+## Block DDoS
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
 against DDoS attacks¹ at the IP [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg).
@@ -17,26 +17,29 @@ This makes it harder for an attacker to gather information using time correlatio
 at least it makes the DDoS more expensive.
 
 Therefore [ipsets](https://ipset.netfilter.org) are used.
-Its _timeout_ feature adds the needed "memory" to continue blocking an as malicous considered ip
-for a much longer time than an single iptables rule usually could do.
+Its _timeout_ feature provides the long term memory for the propsed solution
+Given that, an ip is still blocked when a plain iptables rule would already stopped to fire.
+This is seen in the counters of line 14 and 15 of the [IPv4](./doc/iptables-L.txt#L14)
+and line 16 and 17 of the [IPv6](./doc/ip6tables-L.txt#L16) example respectively.
+
 Metrics of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
 [6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov
 show the results for few DDoS attacks over 3 days.
 A there was a more heavier attack from [12th](./doc/network-metric-Nov-12th.svg) of Nov.
-Currently periodic drop down of the socket count, vanishing over time as seen at
-[5th](./doc/network-metric-Dec-05th.svg) of Dec, happened with the current rule set.
+IN the meanwhile, a periodic drop down of the socket count, vanishing over time as seen at
+[5th](./doc/network-metric-Dec-05th.svg) of Dec, were measured too.
 
 ¹Discussion was started in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636) and
 continued in [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
 of the [Tor project](https://www.torproject.org/).
 
-²Thousands of new TLS connections are opened within second/s and stayed for a longer time, then closed altogether.
+²Thousands of new TLS connections are opened within second/s, stayed for about hours, then closed suddenly.
 
-³Much longer time is needed before the maximum is reached -and/or- only 1 connection per ip is created.
+³Much longer rampup time before the maximum is reached.
 
 ### Quick start
 
-Install dependencies, eg. for Ubuntu 22.04, this is required:
+Install the dependencies, eg. for Ubuntu 22.04, this is required:
 
 ```bash
 sudo apt install iptables ipset jq
@@ -51,9 +54,9 @@ sudo ./ipv4-rules.sh start
 ```
 
 This **replaces** any current content of the iptables _filter_ table with the rule set described below.
-Best is to (re-)start Tor afterwards.
 Make a backup of the current tables before if needed.
-If the script doesn't work for you out of the box then please proceed with the [Installation](#installation) section.
+Best is to (re-)start Tor after the ddos prevention script.
+If the script doesn't work out of the box then please proceed with the [Installation](#installation) section.
 
 The live statistics can be watched by:
 
@@ -61,9 +64,7 @@ The live statistics can be watched by:
 sudo watch -t ./ipv4-rules.sh
 ```
 
-The output should look similar to the [IPv4](./doc/iptables-L.txt) and the [IPv6](./doc/ip6tables-L.txt) example respectively.
-
-To clear the _filter_ table, run:
+To stop ddos prevention and clear the _filter_ table, run:
 
 ```bash
 sudo ./ipv4-rules.sh stop
@@ -73,8 +74,8 @@ sudo ./ipv4-rules.sh stop
 
 Objectives:
 
-Neither touch established nor outbounds connections.
-Filter single ips, not networks.
+Neither touch established nor outbound connections.
+Filter ips, not networks.
 
 Details:
 
@@ -83,20 +84,20 @@ Then these 5 rules are applied (in this order) for an TCP connection attempt to 
 
 1. trust Tor authorities and snowflake
 1. block it for 1 day if the rate is > 6/min
-1. limit rate to 0.5/minute
+1. defer next new connection by a rate limit of 0.5/minute
 1. allow not more than 2 connections
 1. accept it
 
 This usually allows an ip to connect to the ORPort with its 1st SYN packet.
-If the rate exceeds a given limit (rule 2) then any further connection attempt is blocked for a given time.
-Otherwise subsquently (rule 3) more connections are allowed up to a maximum number (rule 4).
+But if the rate exceeds a given limit (rule 2) then any further connection attempt is blocked for a given time.
+Otherwise subsquently (rule 3) few more connections are allowed up to a given maximum (rule 4).
 
 ### Installation
 
 The instructions belongs to the IPv4 variant.
 They can be applied in a similar way for the IPv6 script
 
-If the parsing of the Tor config (line [151](ipv4-rules.sh#L151)) doesn't work for you then:
+If the parsing of the Tor config (line [149](ipv4-rules.sh#L149)) doesn't work for you then:
 
 1. define the relay(s) space separated before starting the script, eg.:
 
@@ -127,29 +128,18 @@ To allow access to additional local network services (the default input policy i
     (I wouldn't recommended the later.)
 
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then either ignore that single rule or comment out its function call (line [185](ipv4-rules.sh#L185)).
+then either ignore that single rule or comment out its function call (line [183](ipv4-rules.sh#L183)).
 
-### misc
+### Helpers
 
 Few scripts were made to fine tune the parameters or the rules:
 
 [ddos-inbound.sh](./ddos-inbound.sh) lists ips having more inbound connections to the ORPort than a given limit.
-[orstatus.py](./orstatus.py) logs the reason of Tor circuit closing events,
-[orstatus-stats.sh](./orstatus-stats.sh) prints/plots statistics ([example](./doc/orstatus-stats.sh.txt)) from that output.
 [hash-stats.sh](./hash-stats.sh) plots the distribution of timeout values of an iptables hash ([example](./doc/hash-stats.sh.txt)).
 [ipset-stats.sh](./ipset-stats.sh) plots distribution of ip occurrencies in subsequent ipset output files ([example](./doc/ipset-stats.sh.txt)).
+The package [gnuplot](http://www.gnuplot.info/) is needed to plot the dgraphs.
 
-The package [gnuplot](http://www.gnuplot.info/) is needed to plot the graphs.
-The crontab entry below is used to create [sysstat](http://sebastien.godard.pagesperso-orange.fr/) metrics:
-
-```console
-# crontab for user root
-
-@reboot     /usr/lib/sa/sa1 --boot
-* * * * *   /usr/lib/sa/sa1 1 1 -S XALL
-```
-
-The metric graphs are created by:
+The metrics shown in the first chapter are created by using the [sysstat]((http://sebastien.godard.pagesperso-orange.fr/)) package:
 
 ```bash
 args="-n DEV,SOCK,SOCK6 --iface=enp8s0"   # "-A" to display all metrics
@@ -160,7 +150,17 @@ sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
 
+This crontab entry is used to gather the data:
+
+```console
+# crontab for user root
+@reboot     /usr/lib/sa/sa1 --boot
+* * * * *   /usr/lib/sa/sa1 1 1 -S XALL
+```
+
 ## Query Tor via its API
+
+### Relay summary
 
 [info.py](./info.py) gives a summary of all connections, eg.:
 
@@ -168,7 +168,7 @@ firefox $svg
 sudo ./info.py --address 127.0.0.1 --ctrlport 9051
 ```
 
-gave here:
+gives something like:
 
 ```console
  ORport 9051
@@ -189,13 +189,39 @@ gave here:
 +------------------------------+-------+-------+
 ```
 
-For a monitoring of _exit_ connections use [ps.py](./ps.py):
+### Tor exit connections
+
+[ps.py](./ps.py) gives a live statistics of them:
 
 ```bash
 sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
 ```
 
-An open Tor control port is needed to query the Tor process via API.
+### Tor circuit
+
+[orstatus.py](./orstatus.py) logs their reason.
+[orstatus-stats.sh](./orstatus-stats.sh) prints/plots statistics ([example](./doc/orstatus-stats.sh.txt)) from that output.
+
+```bash
+orstatus.py --ctrlport 9051 --address ::1 >> /tmp/orstatus &
+sleep 3600
+orstatus-stats.sh /tmp/orstatus
+```
+
+### Tor offline keys
+
+If you do use [Tor offline keys](https://support.torproject.org/relay-operators/offline-ed25519/)
+then [key-expires.py](./key-expires.py) returns the time in seconds before the Tor mid-term signing key expires, eg:
+
+```bash
+seconds=$(sudo ./key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert)
+days=$(( seconds/86400 ))
+[[ $days -lt 23 ]] && echo "Tor signing key expires in less than $days day(s)"
+```
+
+### Prerequisites
+
+An open Tor control port is needed for all of the scripts above to query the Tor process via API.
 Configure it in _torrc_, eg.:
 
 ```console
@@ -203,22 +229,10 @@ ControlPort 127.0.0.1:9051
 ControlPort [::1]:9051
 ```
 
-The [Stem](https://stem.torproject.org/index.html) python library is mandatory.
-The latest version can be derived at:
+The [Stem](https://stem.torproject.org/index.html) python library is needed too.
+The latest version can be installed by:
 
 ```bash
 git clone https://github.com/torproject/stem.git
 export PYTHONPATH=$PWD/stem
-```
-
-## Tor offline keys
-
-If you do use [Tor offline keys](https://support.torproject.org/relay-operators/offline-ed25519/)
-then [key-expires.py](./key-expires.py) helps you to not miss the key rotation timeline.
-It returns the time in seconds before the Tor mid-term signing key expires, eg:
-
-```bash
-seconds=$(sudo ./key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert)
-days=$(( seconds/86400 ))
-[[ $days -lt 23 ]] && echo "Tor signing key expires in less than $days day(s)"
 ```
