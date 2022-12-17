@@ -39,7 +39,7 @@ function __fill_trustlist() {
       echo " please install package jq to fetch the latest Tor authority ips" >&2
     fi
   ) | sort -u |
-  xargs -r -n 1 -P 20 ipset add -exist $trustlist
+  xargs -r -n 1 -P $(nproc) ipset add -exist $trustlist
 }
 
 
@@ -54,7 +54,7 @@ function __create_ipset() {
       exit 1
     fi
     $cmd
-    { echo $content | xargs -r -n 3 -P 20 ipset add -exist $name ; } &
+    { echo $content | xargs -r -n 3 -P $(nproc) ipset add -exist $name ; } &
   fi
 }
 
@@ -72,6 +72,9 @@ function addTor() {
     local synpacket="iptables -A INPUT -p tcp --dst $orip --dport $orport --syn"
     local ddoslist="tor-ddos-$orport"
     __create_ipset $ddoslist "timeout $(( 24*60*60 )) maxelem $(( 2**20 ))"
+    if [[ -f /var/tmp/$ddoslist ]]; then
+      { cat /var/tmp/$ddoslist | xargs -r -n 3 -P $(nproc) ipset add -exist $ddoslist && rm /var/tmp/$ddoslist ; } &
+    fi
 
     # rule 1
     $synpacket -m set --match-set $trustlist src -j ACCEPT
@@ -116,7 +119,7 @@ function addHetzner() {
       getent ahostsv4 pool.sysmon.hetzner.com | awk '{ print $1 }'
       echo "188.40.24.211 213.133.113.82 213.133.113.83 213.133.113.84 213.133.113.86"
     ) | sort -u |
-    xargs -r -n 1 -P 20 ipset add -exist $sysmon
+    xargs -r -n 1 -P $(nproc) ipset add -exist $sysmon
   } &
   iptables -A INPUT -m set --match-set $sysmon src -j ACCEPT
 }
@@ -171,6 +174,15 @@ function bailOut()  {
 }
 
 
+function saveIpsets() {
+  ipset list -t | grep "^Name: tor-ddos-" | awk '{ print $2 }' |
+  while read name
+  do
+    ipset list $name | sed -e '1,8d' > /var/tmp/$name
+  done
+}
+
+
 #######################################################################
 set -eu
 export LANG=C.utf8
@@ -186,6 +198,7 @@ case ${1:-} in
           setSysctlValues 1>/dev/null || echo "couldn't set sysctl values" >&2
           ;;
   stop)   clearAll
+          saveIpsets
           ;;
   *)      printFirewall
           ;;
