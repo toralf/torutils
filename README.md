@@ -26,8 +26,10 @@ Metrics of rx/tx packets, traffic and socket counts from [5th](./doc/network-met
 [6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov
 show the results for few DDoS attacks over 3 days.
 A there was a more heavier attack from [12th](./doc/network-metric-Nov-12th.svg) of Nov.
-IN the meanwhile, a periodic drop down of the socket count, vanishing over time as seen at
-[5th](./doc/network-metric-Dec-05th.svg) of Dec, were measured too.
+3 weeks later a periodic drop down of the socket count metric, vanishing over time as seen at
+[5th](./doc/network-metric-Dec-05th.svg) of Dec, was observed.
+
+All metrics come from [these](https://metrics.torproject.org/rs.html#search/65.21.94.13) 2 relays.
 
 ¹Discussion was started in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636) and
 continued in [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
@@ -55,9 +57,7 @@ sudo ./ipv4-rules.sh start
 
 This **replaces** any current content of the iptables _filter_ table with the rule set described below.
 Make a backup of the current tables before if needed.
-Best is to (re-)start Tor after the ddos prevention script.
-If the script doesn't work out of the box then please proceed with the [Installation](#installation) section.
-
+Best is to (re-)start Tor afterwards.
 The live statistics can be watched by:
 
 ```bash
@@ -70,12 +70,14 @@ To stop ddos prevention and clear the _filter_ table, run:
 sudo ./ipv4-rules.sh stop
 ```
 
+If the script doesn't work out of the box then please proceed with the [Installation](#installation) section.
+
 ### Rule set
 
 Objectives:
 
 Neither touch established nor outbound connections.
-Filter ips, not networks.
+Filter only ips, no network blocking.
 
 Details:
 
@@ -84,18 +86,18 @@ Then these 5 rules are applied (in this order) for an TCP connection attempt to 
 
 1. trust Tor authorities and snowflake
 1. block it for 1 day if the rate is > 6/min
-1. defer next new connection by a rate limit of 0.5/minute
+1. defer new connection attempts by a rate limit of 0.5/minute
 1. allow not more than 2 connections
 1. accept it
 
 This usually allows an ip to connect to the ORPort with its 1st SYN packet.
-But if the rate exceeds a given limit (rule 2) then any further connection attempt is blocked for a given time.
+If the rate exceeds a given limit (rule 2) then any further connection attempt is blocked for a given time.
 Otherwise subsquently (rule 3) few more connections are allowed up to a given maximum (rule 4).
 
 ### Installation
 
 The instructions belongs to the IPv4 variant.
-They can be applied in a similar way for the IPv6 script
+They can be applied in a similar way for the IPv6 script.
 
 If the parsing of the Tor config (line [149](ipv4-rules.sh#L149)) doesn't work for you then:
 
@@ -110,7 +112,8 @@ If the parsing of the Tor config (line [149](ipv4-rules.sh#L149)) doesn't work f
 
 1. -or- create a GitHub PR with a fix ;)
 
-To allow access to additional local network services (the default input policy is `DROP`), either:
+To allow inbound traffic to any other local service (the default input policy is `DROP`,
+then before starting the script, do:
 
 1. define all of them space separated, eg.:
 
@@ -128,18 +131,26 @@ To allow access to additional local network services (the default input policy i
     (I wouldn't recommended the later.)
 
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then either ignore that single rule or comment out its function call (line [183](ipv4-rules.sh#L183)).
+then either ignore that single rule or comment out its call (line [183](ipv4-rules.sh#L183)).
 
 ### Helpers
 
-Few scripts were made to fine tune the parameters or the rules:
+Few scripts were made to fine tune the parameters of the rule set:
 
 [ddos-inbound.sh](./ddos-inbound.sh) lists ips having more inbound connections to the ORPort than a given limit.
 [hash-stats.sh](./hash-stats.sh) plots the distribution of timeout values of an iptables hash ([example](./doc/hash-stats.sh.txt)).
-[ipset-stats.sh](./ipset-stats.sh) plots distribution of ip occurrencies in subsequent ipset output files ([example](./doc/ipset-stats.sh.txt)).
-The package [gnuplot](http://www.gnuplot.info/) is needed to plot the dgraphs.
+[ipset-stats.sh](./ipset-stats.sh) plots distribution of timeout values of an ipset as well as occurrencies of ip addresses in subsequent ipset output files ([example](./doc/ipset-stats.sh.txt)).
+The package [gnuplot](http://www.gnuplot.info/) is needed to plot graphs.
 
-The metrics shown in the first chapter are created by using the [sysstat]((http://sebastien.godard.pagesperso-orange.fr/)) package:
+The data shown in the [first chapter](#block-ddos) are collecting by [sysstat]((http://sebastien.godard.pagesperso-orange.fr/)).
+This crontab entry is used to sample 1 data point per minute:
+
+```crontab
+@reboot     /usr/lib/sa/sa1 --boot
+* * * * *   /usr/lib/sa/sa1 1 1 -S XALL
+```
+
+The SVG graphs are created by:
 
 ```bash
 args="-n DEV,SOCK,SOCK6 --iface=enp8s0"   # "-A" to display all metrics
@@ -148,14 +159,6 @@ TZ=UTC sadf -g -T /var/log/sa/sa${DAY:-`date +%d`} -O skipempty,oneday -- $args 
 h=$(tail -n 2 $svg | head -n 1 | cut -f5 -d' ')   # fix othe SVG canvas size
 sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
-```
-
-This crontab entry is used to gather the data:
-
-```console
-# crontab for user root
-@reboot     /usr/lib/sa/sa1 --boot
-* * * * *   /usr/lib/sa/sa1 1 1 -S XALL
 ```
 
 ## Query Tor via its API
