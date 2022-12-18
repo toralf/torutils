@@ -13,23 +13,22 @@ The goal is more than traffic shaping:
 The (presumably) intention of the attacker to unveil onion service/s is targeted.
 Therefore, in addition to network filtering, the usually rectangular input signal of the DDoS²
 is achieved to be transformed into a more smeared output response³.
-This makes it harder for an attacker to gather information using time correlation techniques,
-at least it makes the DDoS more expensive.
+This should make it harder for an attacker to gather information using time correlation techniques.
 
 Therefore [ipsets](https://ipset.netfilter.org) are used.
-Its _timeout_ feature provides the long term memory for the propsed solution
-Given that, an ip is still blocked when a plain iptables rule would already stopped to fire.
-This is seen in the counters of line 14 and 15 of the [IPv4](./doc/iptables-L.txt#L14)
+Its _timeout_ feature provides the long term memory for the propsed solution.
+Given that, an ip will still be blocked when a plain iptables rule had already stopped to fire.
+This is eg. seen in the counters of line 14 and 15 of the [IPv4](./doc/iptables-L.txt#L14)
 and line 16 and 17 of the [IPv6](./doc/ip6tables-L.txt#L16) example respectively.
 
 Metrics of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
 [6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov
 show the results for few DDoS attacks over 3 days.
-A there was a more heavier attack from [12th](./doc/network-metric-Nov-12th.svg) of Nov.
-3 weeks later a periodic drop down of the socket count metric, vanishing over time as seen at
+A more heavier attack happened at [12th](./doc/network-metric-Nov-12th.svg) of Nov.
+And 3 weeks later a periodic drop down of the socket count metric, vanishing over time as seen at
 [5th](./doc/network-metric-Dec-05th.svg) of Dec, was observed.
 
-All metrics come from [these](https://metrics.torproject.org/rs.html#search/65.21.94.13) 2 relays.
+All metrics are got from [these](https://metrics.torproject.org/rs.html#search/65.21.94.13) 2 relays.
 
 ¹Discussion was started in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636) and
 continued in [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
@@ -37,7 +36,7 @@ of the [Tor project](https://www.torproject.org/).
 
 ²Thousands of new TLS connections are opened within second/s, stayed for about hours, then closed suddenly.
 
-³Much longer rampup time before the maximum is reached.
+³Much longer ramp-up time before maximum is reached.
 
 ### Quick start
 
@@ -64,7 +63,7 @@ The live statistics can be watched by:
 sudo watch -t ./ipv4-rules.sh
 ```
 
-To stop ddos prevention and clear the _filter_ table, run:
+To stop DDoS prevention and clear the _filter_ table, run:
 
 ```bash
 sudo ./ipv4-rules.sh stop
@@ -99,21 +98,29 @@ Otherwise subsquently (rule 3) few more connections are allowed up to a given ma
 The instructions belongs to the IPv4 variant.
 They can be applied in a similar way for the IPv6 script.
 
-If the parsing of the Tor config (line [149](ipv4-rules.sh#L149)) doesn't work for you then:
+If the parsing of the Tor config (line [154](ipv4-rules.sh#L154)) doesn't work for you then:
 
-1. define the relay(s) space separated before starting the script, eg.:
+1. define the relay(s) space separated at the command line after `start`, eg.:
+
+    ```bash
+    sudo ./ipv4-rules.sh start 1.2.3.4:443 5.6.7.8:9001
+    ```
+
+1. -or- define them within the environment before starting the script, eg.:
 
     ```bash
     export CONFIGURED_RELAYS="3.14.159.26:535 1.41.42.13:562"
     export CONFIGURED_RELAYS6="[cafe::dead:beef]:4711"
     ```
 
+    before you start the script
+
 1. -or- open an [issue](https://github.com/toralf/torutils/issues) for that
 
 1. -or- create a GitHub PR with a fix ;)
 
-To allow inbound traffic to any other local service (the default input policy is `DROP`,
-then before starting the script, do:
+To allow inbound traffic to reach an additional local service (the default input policy is `DROP`),
+then:
 
 1. define all of them space separated, eg.:
 
@@ -130,8 +137,10 @@ then before starting the script, do:
 
     (I wouldn't recommended the later.)
 
+before you start the script.
+
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then either ignore that single rule or comment out its call (line [183](ipv4-rules.sh#L183)).
+then either ignore that rule or comment out its call (line [199](ipv4-rules.sh#L199)).
 
 ### Helpers
 
@@ -142,7 +151,7 @@ Few scripts were made to fine tune the parameters of the rule set:
 [ipset-stats.sh](./ipset-stats.sh) plots distribution of timeout values of an ipset as well as occurrencies of ip addresses in subsequent ipset output files ([example](./doc/ipset-stats.sh.txt)).
 The package [gnuplot](http://www.gnuplot.info/) is needed to plot graphs.
 
-The data shown in the [first chapter](#block-ddos) are collecting by [sysstat]((http://sebastien.godard.pagesperso-orange.fr/)).
+The data shown in the [first chapter](#block-ddos) are collected by [sysstat]((http://sebastien.godard.pagesperso-orange.fr/)).
 This crontab entry is used to sample 1 data point per minute:
 
 ```crontab
@@ -153,10 +162,10 @@ This crontab entry is used to sample 1 data point per minute:
 The SVG graphs are created by:
 
 ```bash
-args="-n DEV,SOCK,SOCK6 --iface=enp8s0"   # "-A" to display all metrics
+args="-n DEV,SOCK,SOCK6 --iface=enp8s0"   # set it to "-A" to display all collected metrics
 svg=/tmp/graph.svg
 TZ=UTC sadf -g -T /var/log/sa/sa${DAY:-`date +%d`} -O skipempty,oneday -- $args > $svg
-h=$(tail -n 2 $svg | head -n 1 | cut -f5 -d' ')   # fix othe SVG canvas size
+h=$(tail -n 2 $svg | head -n 1 | cut -f5 -d' ')   # fix the SVG canvas size
 sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
@@ -200,10 +209,10 @@ gives something like:
 sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
 ```
 
-### Tor circuit
+### Tor circuit closings
 
-[orstatus.py](./orstatus.py) logs their reason.
-[orstatus-stats.sh](./orstatus-stats.sh) prints/plots statistics ([example](./doc/orstatus-stats.sh.txt)) from that output.
+[orstatus.py](./orstatus.py) prints the reason.
+[orstatus-stats.sh](./orstatus-stats.sh) prints/plots statistics ([example](./doc/orstatus-stats.sh.txt)) from that.
 
 ```bash
 orstatus.py --ctrlport 9051 --address ::1 >> /tmp/orstatus &
