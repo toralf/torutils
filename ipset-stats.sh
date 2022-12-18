@@ -95,7 +95,7 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 while getopts aAdDptT opt
 do
-  shift   # only 1 opt allowed at a time
+  shift || true  # OPTARG is optional
   case $opt in
     a)  dump ${1:-tor-ddos-443}  | anonymise  ;;
     A)  dump ${1:-tor-ddos6-443} | anonymise6 ;;
