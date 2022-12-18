@@ -37,8 +37,6 @@ function __fill_trustlist() {
     getent ahostsv6 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }'
     if jq --help &>/dev/null; then
       curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a | select(length > 1) | .[1]' | tr -d ']['
-    else
-      echo " please install package jq to fetch the latest Tor authority ips" >&2
     fi
   ) | sort -u |
   xargs -r -n 1 -P $(nproc) ipset add -exist $trustlist
