@@ -189,12 +189,14 @@ export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 trap bailOut INT QUIT TERM EXIT
-case ${1:-} in
+action=${1:-}
+shift || true
+case $action in
   start)  clearAll
           addCommon
           addHetzner
           addLocalServices
-          addTor ${CONFIGURED_RELAYS:-$(getConfiguredRelays)}
+          addTor ${CONFIGURED_RELAYS:-${*:-$(getConfiguredRelays)}}
           setSysctlValues 1>/dev/null || echo "couldn't set sysctl values" >&2
           ;;
   stop)   clearAll
