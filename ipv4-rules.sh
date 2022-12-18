@@ -67,6 +67,10 @@ function addTor() {
   local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 32 --hashlimit-htable-size $(( 2**20 )) --hashlimit-htable-max $(( 2**20 ))"
   for relay in $*
   do
+    if [[ $relay =~ '[' || $relay =~ ']' || ! $relay =~ '.' || ! $relay =~ ':' ]]; then
+      echo " relay '$relay' cannot be parsed" >&2
+      return 1
+    fi
     read -r orip orport <<< $(tr ':' ' ' <<< $relay)
 
     local synpacket="iptables -A INPUT -p tcp --dst $orip --dport $orport --syn"
@@ -168,7 +172,7 @@ function getConfiguredRelays()  {
 function bailOut()  {
   trap - INT QUIT TERM EXIT
 
-  echo "Something went wrong, stopping ..." >&2
+  echo -e "\n Something went wrong, stopping ...\n" >&2
   clearAll
   exit 1
 }

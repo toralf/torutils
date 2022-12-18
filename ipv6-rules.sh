@@ -69,6 +69,10 @@ function addTor() {
   local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-htable-size $(( 2**20 )) --hashlimit-htable-max $(( 2**20 ))"
   for relay in $*
   do
+    if [[ ! $relay =~ '[' || ! $relay =~ ']' || $relay =~ '.' || ! $relay =~ ':' ]]; then
+      echo " relay '$relay' cannot be parsed" >&2
+      return 1
+    fi
     read -r orip orport <<< $(sed -e 's,]:, ,' <<< $relay | tr '[' ' ')
 
     local synpacket="ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn"
@@ -80,7 +84,7 @@ function addTor() {
 
     if [[ $orip = "::" ]]; then
       orip+="/0"
-      echo " please consider to set CONFIGURED_RELAYS6" >&2
+      echo " notice: using global unicast IPv6 address [::]" >&2
     fi
 
     # rule 1
@@ -159,7 +163,7 @@ function getConfiguredRelays6()  {
 function bailOut()  {
   trap - INT QUIT TERM EXIT
 
-  echo "Something went wrong, stopping ..." >&2
+  echo -e "\n Something went wrong, stopping ...\n" >&2
   clearAll
   exit 1
 }
