@@ -93,20 +93,24 @@ This usually allows an ip to connect to the ORPort with its 1st SYN packet.
 If the rate exceeds a given limit (rule 2) then any further connection attempt is blocked for a given time.
 Otherwise subsquently (rule 3) few more connections are allowed up to a given maximum (rule 4).
 
+The limit _N_ of rule 4 is always a trade off of the likelihood of blocking
+_x-N_ Tor clients (_x_ > _N_) behind the same router connecting to the same Guard at the same time
+and the _N_ possible TLS connections for a DDoS attacker.
+
 ### Installation
 
 The instructions belongs to the IPv4 variant.
 They can be applied in a similar way for the IPv6 script.
 
-If the parsing of the Tor config (line [154](ipv4-rules.sh#L154)) doesn't work for you then:
+If the parsing of the Tor config (line [158](ipv4-rules.sh#L158)) doesn't work for you then:
 
-1. define the relay(s) space separated at the command line after `start`, eg.:
+1. define the relay(s) space separated at the command line after the keyword `start`, eg.:
 
     ```bash
     sudo ./ipv4-rules.sh start 1.2.3.4:443 5.6.7.8:9001
     ```
 
-1. -or- define them within the environment before starting the script, eg.:
+1. -or- define them within the environment, eg.:
 
     ```bash
     export CONFIGURED_RELAYS="3.14.159.26:535 1.41.42.13:562"
@@ -119,7 +123,7 @@ If the parsing of the Tor config (line [154](ipv4-rules.sh#L154)) doesn't work f
 
 1. -or- create a GitHub PR with a fix ;)
 
-To allow inbound traffic to reach an additional local service (the default input policy is `DROP`),
+To allow inbound traffic to additional local service(s) (the default input policy is `DROP`),
 then:
 
 1. define all of them space separated, eg.:
@@ -139,8 +143,12 @@ then:
 
 before you start the script.
 
+If you want to **append** the rules of this script onto your rules (instead clearing all existing rules by this script)
+then comment out the `clearAll` call (line [197](ipv4-rules.sh#L197)).
+
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then either ignore that rule or comment out its call (line [199](ipv4-rules.sh#L199)).
+then either ignore that rule or comment out the `addHetzner` call (line [203](ipv4-rules.sh#L203)).
+
 
 ### Helpers
 
@@ -148,7 +156,7 @@ Few scripts were made to fine tune the parameters of the rule set:
 
 [ddos-inbound.sh](./ddos-inbound.sh) lists ips having more inbound connections to the ORPort than a given limit.
 [hash-stats.sh](./hash-stats.sh) plots the distribution of timeout values of an iptables hash ([example](./doc/hash-stats.sh.txt)).
-[ipset-stats.sh](./ipset-stats.sh) plots distribution of timeout values of an ipset as well as occurrencies of ip addresses in subsequent ipset output files ([example](./doc/ipset-stats.sh.txt)).
+[ipset-stats.sh](./ipset-stats.sh) plots distribution of timeout values of an ipset as well as occurrences of ip addresses in subsequent ipset output files ([example](./doc/ipset-stats.sh.txt)).
 The package [gnuplot](http://www.gnuplot.info/) is needed to plot graphs.
 
 The data shown in the [first chapter](#block-ddos) are collected by [sysstat]((http://sebastien.godard.pagesperso-orange.fr/)).
@@ -203,7 +211,7 @@ gives something like:
 
 ### Tor exit connections
 
-[ps.py](./ps.py) gives a live statistics of them:
+[ps.py](./ps.py) gives live statistics:
 
 ```bash
 sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
@@ -211,7 +219,7 @@ sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
 
 ### Tor circuit closings
 
-[orstatus.py](./orstatus.py) prints the reason.
+[orstatus.py](./orstatus.py) prints the reason to stdout.
 [orstatus-stats.sh](./orstatus-stats.sh) prints/plots statistics ([example](./doc/orstatus-stats.sh.txt)) from that.
 
 ```bash
@@ -222,14 +230,15 @@ orstatus-stats.sh /tmp/orstatus
 
 ### Tor offline keys
 
-If you do use [Tor offline keys](https://support.torproject.org/relay-operators/offline-ed25519/)
-then [key-expires.py](./key-expires.py) returns the time in seconds before the Tor mid-term signing key expires, eg:
+[key-expires.py](./key-expires.py) returns the time in seconds before the Tor mid-term signing key expires, eg:
 
 ```bash
 seconds=$(sudo ./key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert)
 days=$(( seconds/86400 ))
 [[ $days -lt 23 ]] && echo "Tor signing key expires in less than $days day(s)"
 ```
+
+This is helpfful if you use [Tor offline keys](https://support.torproject.org/relay-operators/offline-ed25519/).
 
 ### Prerequisites
 
@@ -242,7 +251,7 @@ ControlPort [::1]:9051
 ```
 
 The [Stem](https://stem.torproject.org/index.html) python library is needed too.
-The latest version can be installed by:
+Install it by your package manager -or- use the Git version, eg.:
 
 ```bash
 git clone https://github.com/torproject/stem.git
