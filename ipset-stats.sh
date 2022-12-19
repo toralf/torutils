@@ -29,12 +29,16 @@ function anonymise6()  {
 }
 
 
-# plot a histogram about ip address occurrences of ipset dump files
+# plot a histogram about ip address occurrences within ipset dumps
 function plot_ip_occurrences() {
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
   local files=$*
 
   local N=$(wc -l < <(cat $files))
+  if [[ $? -ne 0 || $N -eq 0 ]]; then
+    echo " no input data " >&2
+    return 1
+  fi
   local n=$(awk '{ print $1 }' $files | sort -u | wc -l)
 
   awk '{ print $1 }' $files | sort | uniq -c | sort -bn | awk '{ print $1 }' | uniq -c | awk '{ print $2, $1 }' > $tmpfile
