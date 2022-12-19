@@ -131,6 +131,10 @@ function setSysctlValues() {
   sysctl -w net.ipv4.tcp_syncookies=1
   sysctl -w net.netfilter.nf_conntrack_buckets=$(( 2**21 ))
   sysctl -w net.netfilter.nf_conntrack_max=$(( 2**21 ))
+
+  # was non-empty: conntrack -S | grep -v insert_failed=0
+  sysctl -w net.ipv4.tcp_max_syn_backlog=$(( 2**16 ))
+  sysctl -w net.core.somaxconn=$(( 2**16 ))
 }
 
 
