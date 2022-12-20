@@ -40,5 +40,10 @@ rc-service tor2 restart
 iptables -Z
 ip6tables -Z
 
+if pkill -f /opt/torutils/orstatus.py; then
+  export PYTHONPATH=/root/stem
+  /opt/torutils/orstatus.py --ctrlport  9051 --address ::1 >> /tmp/orstatus-9051 &
+  /opt/torutils/orstatus.py --ctrlport 29051 --address ::1 >> /tmp/orstatus-29051 &
+fi
 echo
 date
