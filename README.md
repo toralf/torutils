@@ -8,17 +8,11 @@ Few tools for a Tor relay.
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
 against DDoS attacks¹ at the IP [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg).
+The goal is to target the (presumably) intention of the attacker to unveil onion services.
 
-The goal is more than traffic shaping:
-The (presumably) intention of the attacker to unveil onion service/s is targeted.
-Therefore, in addition to network filtering, the usually rectangular input signal of the DDoS²
-is achieved to be transformed into a more smeared output response³.
-This should make it harder for an attacker to gather information using time correlation techniques.
-
-Therefore [ipsets](https://ipset.netfilter.org) are used.
-Its _timeout_ feature provides the long term memory for the propsed solution.
-Given that, an ip will still be blocked when a plain iptables rule had already stopped to fire.
-This is eg. seen in the counters of line 14 and 15 of the [IPv4](./doc/iptables-L.txt#L14)
+This DDoS solution uses [ipsets](https://ipset.netfilter.org) are used.
+Its _timeout_ feature provides a long term memory to still block an ip where plain iptables rules would (no longer) fire.
+Look at the counters of line 14 and 15 of the [IPv4](./doc/iptables-L.txt#L14)
 and line 16 and 17 of the [IPv6](./doc/ip6tables-L.txt#L16) example respectively.
 
 Metrics of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
@@ -27,26 +21,21 @@ show the results for few DDoS attacks over 3 days.
 A more heavier attack happened at [12th](./doc/network-metric-Nov-12th.svg) of Nov.
 And 3 weeks later a periodic drop down of the socket count metric, vanishing over time as seen at
 [5th](./doc/network-metric-Dec-05th.svg) of Dec, was observed.
+All metric data were taken from [these](https://nusenu.github.io/OrNetStats/zwiebeltoralf.de.html) 2 relays.
 
-All metrics are got from [these](https://metrics.torproject.org/rs.html#search/65.21.94.13) 2 relays.
-
-¹Discussion was started in [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636) and
-continued in [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
+¹ Discussion was started in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636) and
+continued in ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093#note_2841393)
 of the [Tor project](https://www.torproject.org/).
-
-²Thousands of new TLS connections are opened within second/s, stayed for about hours, then closed suddenly.
-
-³Much longer ramp-up time before maximum is reached.
 
 ### Quick start
 
-Install the dependencies, eg. for Ubuntu 22.04, this is required:
+Install the dependencies, eg. for Ubuntu 22.04:
 
 ```bash
 sudo apt install iptables ipset jq
 ```
 
-Run:
+Then run:
 
 ```bash
 wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
@@ -54,7 +43,7 @@ chmod +x ./ipv4-rules.sh
 sudo ./ipv4-rules.sh start
 ```
 
-This **replaces** any current content of the iptables _filter_ table with the rule set described below.
+This replaces any current content of the iptables _filter_ table with the rule set described below.
 Make a backup of the current tables before if needed.
 Best is to (re-)start Tor afterwards.
 The live statistics can be watched by:
@@ -73,38 +62,35 @@ If the script doesn't work out of the box then please proceed with the [Installa
 
 ### Rule set
 
-Objectives:
+#### Objectives
 
 Neither touch established nor outbound connections.
 Filter only ips, no network blocking.
 
-Details:
+#### Details
 
 Generic rules for local network, ICMP, ssh and user services (if defined) are applied.
-Then these 5 rules are applied (in this order) for an TCP connection attempt to the local ORPort:
+Then these rules are applied (in this order) for a connection attempt to the local ORPort:
 
 1. trust Tor authorities and snowflake
-1. block it for 1 day if the rate is > 6/min
-1. defer new connection attempts by a rate limit of 0.5/minute
-1. allow not more than 2 connections
-1. accept it
+1. block ip for 1 day if the rate is > 6/min
+1. allow if the ip is known to host 2 relays and the current connection count from there is below 2
+1. rate limit new connection attempts by 0.5/minute
+1. allow not more than 2 connections²
+1. accept the connection attempt
 
-This usually allows an ip to connect to the ORPort with its 1st SYN packet.
-If the rate exceeds a given limit (rule 2) then any further connection attempt is blocked for a given time.
-Otherwise subsquently (rule 3) few more connections are allowed up to a given maximum (rule 4).
-
-The limit _N_ of rule 4 is always a trade off of the likelihood of blocking
-_x-N_ Tor clients (_x_ > _N_) behind the same router connecting to the same Guard at the same time
-and the _N_ possible TLS connections for a DDoS attacker.
+² The connection limit sounds rigid.
+But how likely is it that more than 2 Tor clients behind the same ip address do connect to the same guard at the same time?
+Does that rule for the sizing of a DDoS solution?
 
 ### Installation
 
 The instructions belongs to the IPv4 variant.
-They can be applied in a similar way for the IPv6 script.
+They can be applied in a similar way for the IPv6 variant of the script.
 
-If the parsing of the Tor config (line [158](ipv4-rules.sh#L158)) doesn't work for you then:
+If the parsing of the Tor config (line [187](ipv4-rules.sh#L187)) doesn't work for you then:
 
-1. define the relay(s) space separated at the command line after the keyword `start`, eg.:
+1. define the local running relay(s) space separated at the command line after the keyword `start`, eg.:
 
     ```bash
     sudo ./ipv4-rules.sh start 1.2.3.4:443 5.6.7.8:9001
@@ -117,16 +103,17 @@ If the parsing of the Tor config (line [158](ipv4-rules.sh#L158)) doesn't work f
     export CONFIGURED_RELAYS6="[cafe::dead:beef]:4711"
     ```
 
-    before you start the script
+    before you start the script (command line overrules environment).
 
-1. -or- open an [issue](https://github.com/toralf/torutils/issues) for that
+Furthermore
+
+1. open an [issue](https://github.com/toralf/torutils/issues) for the parsing issue
 
 1. -or- create a GitHub PR with a fix ;)
 
-To allow inbound traffic to additional local service(s) (the default input policy is `DROP`),
-then:
+To allow inbound traffic to local service(s) (because the default input policy is `DROP`), do:
 
-1. define all of them space separated, eg.:
+1. define all of them in the environment space separated, eg.:
 
     ```bash
     export ADD_LOCAL_SERVICES="2.718.281.828:459"
@@ -139,16 +126,16 @@ then:
     export DEFAULT_POLICY_INPUT="ACCEPT"
     ```
 
-    (I wouldn't recommended the later.)
-
 before you start the script.
 
-If you want to **append** the rules of this script onto your rules (instead clearing all existing rules by this script)
-then comment out the `clearAll` call (line [197](ipv4-rules.sh#L197)).
+To **append** the rules of this script onto the local _iptables_ rules (instead **overwrite** existing rules)
+comment out the `clearAll` call (line [230](ipv4-rules.sh#L230)).
+
+The script sets few _sysctl_ values (line [231](ipv4-rules.sh#L231)).
+Preferred is however to set those configs under _/etc/sysctl.d/_ outsite of the script.
 
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then either ignore that rule or comment out the `addHetzner` call (line [203](ipv4-rules.sh#L203)).
-
+then comment out the `addHetzner` call (line [233](ipv4-rules.sh#L233)).
 
 ### Helpers
 
@@ -159,14 +146,6 @@ Few scripts were made to fine tune the parameters of the rule set:
 [ipset-stats.sh](./ipset-stats.sh) plots distribution of timeout values of an ipset as well as occurrences of ip addresses in subsequent ipset output files ([example](./doc/ipset-stats.sh.txt)).
 The package [gnuplot](http://www.gnuplot.info/) is needed to plot graphs.
 
-The data shown in the [first chapter](#block-ddos) are collected by [sysstat]((http://sebastien.godard.pagesperso-orange.fr/)).
-This crontab entry is used to sample 1 data point per minute:
-
-```crontab
-@reboot     /usr/lib/sa/sa1 --boot
-* * * * *   /usr/lib/sa/sa1 1 1 -S XALL
-```
-
 The SVG graphs are created by:
 
 ```bash
@@ -176,6 +155,14 @@ TZ=UTC sadf -g -T /var/log/sa/sa${DAY:-`date +%d`} -O skipempty,oneday -- $args 
 h=$(tail -n 2 $svg | head -n 1 | cut -f5 -d' ')   # fix the SVG canvas size
 sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
+```
+
+The data shown in the [first chapter](#block-ddos) are collected by [sysstat]((http://sebastien.godard.pagesperso-orange.fr/)).
+This crontab entry is used to sample 1 data point per minute:
+
+```crontab
+@reboot     /usr/lib/sa/sa1 --boot
+* * * * *   /usr/lib/sa/sa1 1 1 -S XALL
 ```
 
 ## Query Tor via its API

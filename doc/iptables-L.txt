@@ -1,19 +1,20 @@
-Sun, 04 Dec 2022 18:15:29 +0000
+Mon, 02 Jan 2023 18:54:34 +0000
 
-Chain INPUT (policy DROP 3348 packets, 159K bytes)
+Chain INPUT (policy DROP 585 packets, 28163 bytes)
  pkts bytes target     prot opt in     out     source               destination         
- 107K   70M ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0            /* Sun, 04 Dec 2022 15:28:42 +0000 */
-10577 7530K DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp flags:!0x17/0x02 state NEW
- 9351 4606K DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate INVALID
- 494M  508G ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED
-   56  2720 ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22
- 1140 77170 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8 limit: avg 6/sec burst 5
+ 9899 5738K ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0            /* Mon, 02 Jan 2023 18:25:12 +0000 */
+ 1335  950K DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp flags:!0x17/0x02 state NEW
+  913  403K DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate INVALID
+  60M   51G ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED
+   10   488 ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22
+  283 12004 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8 limit: avg 6/sec burst 5
     0     0 DROP       icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8
-  119  5236 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set hetzner-sysmon src
-   83  5016 ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 match-set tor-trust src
-2328K  140M SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 limit: above 6/min burst 5 mode srcip-dstport htable-size 1048576 htable-max 1048576 add-set tor-ddos-9001 src exist
-3406K  204M DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 match-set tor-ddos-9001 src
- 115K 6873K DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 limit: above 1/hour burst 1 mode srcip-dstport htable-size 1048576 htable-max 1048576 htable-expire 120000
- 1296 76844 DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02 #conn src/32 > 3
-65512 3652K ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:9001 flags:0x17/0x02
+   22   968 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set hetzner-sysmon src
+   28  1688 ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 match-set tor-trust src
+  487 28616 ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 match-set tor-multi src #conn src/32 <= 1
+11238  676K SET        tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 limit: above 6/min burst 5 mode srcip-dstport htable-size 1048576 htable-max 1048576 htable-expire 86400000 add-set tor-ddos-443 src exist
+34163 2051K DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 match-set tor-ddos-443 src
+25898 1549K DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 limit: above 1/hour burst 1 mode srcip-dstport htable-size 1048576 htable-max 1048576 htable-expire 120000
+   21  1244 DROP       tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02 #conn src/32 > 2
+ 9221  535K ACCEPT     tcp  --  *      *       0.0.0.0/0            65.21.94.13          tcp dpt:443 flags:0x17/0x02
 
