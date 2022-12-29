@@ -159,7 +159,7 @@ def main(args=None):
   for label, connections in categories.items():
     inbound4 = {}
     inbound6 = {}
-    limit = 50
+    limit = 2
 
     for conn in connections:
       if conn.is_ipv6:
