@@ -4,6 +4,7 @@
 
 import argparse
 import collections
+import sys
 import time
 import ipaddress
 
@@ -54,10 +55,14 @@ def main(args=None):
 
   controller = connect(control_port=(args.address, args.ctrlport))
   if not controller:
-    return
+    sys.exit(1)
 
-  desc = controller.get_network_status(default=None)
-  pid = controller.get_pid()
+  try:
+    desc = controller.get_network_status(default=None)
+    pid = controller.get_pid()
+  except Exception as Exc:
+    print(Exc)
+    sys.exit(1)
 
   print(HEADER_LINE.format(
     version=str(controller.get_version()).split()[0],
@@ -65,19 +70,19 @@ def main(args=None):
     flags=', '.join(desc.flags if desc else ['none']),
   ))
 
-  policy = controller.get_exit_policy()
+  try:
+    policy = controller.get_exit_policy()
+  except Exception as Exc:
+    print(Exc)
+    pass
+
   relays = {}  # address => [orports...]
   try:
     relays = parse_consensus(relays, '/var/lib/tor/data/cached-consensus')
-  except Exception as Exc:
-    pass
-
-  try:
     relays = parse_consensus(relays, '/var/lib/tor/data2/cached-consensus')
   except Exception as Exc:
+    print(Exc)
     pass
-
-  # categorize our connections
 
   categories = collections.OrderedDict((
     (INBOUND_ORPORT, []),
@@ -92,27 +97,31 @@ def main(args=None):
   exit_connections = {}               # port => [connections]
   port_or = controller.get_listeners(Listener.OR)[0][1]
 
-  for conn in get_connections(resolver=args.resolver, process_pid=pid):
-    if conn.protocol == 'udp':
-      continue
+  try:
+    for conn in get_connections(resolver=args.resolver, process_pid=pid):
+      if conn.protocol == 'udp':
+        continue
 
-    if conn.local_port == port_or:
-      if conn.remote_address in relays:
-        categories[INBOUND_ORPORT].append(conn)
+      if conn.local_port == port_or:
+        if conn.remote_address in relays:
+          categories[INBOUND_ORPORT].append(conn)
+        else:
+          categories[INBOUND_ORPORT_OTHER].append(conn)
+      elif conn.local_port == args.ctrlport:
+        categories[INBOUND_CONTROLPORT].append(conn)
+      elif conn.remote_address in relays:
+        if conn.remote_port in relays.get(conn.remote_address, []):
+          categories[OUTBOUND_ORPORT].append(conn)
+        else:
+          categories[OUTBOUND_ANOTHER].append(conn)
+      elif policy.can_exit_to(conn.remote_address, conn.remote_port):
+        categories[OUTBOUND_EXIT].append(conn)
+        exit_connections.setdefault(conn.remote_port, []).append(conn)
       else:
-        categories[INBOUND_ORPORT_OTHER].append(conn)
-    elif conn.local_port == args.ctrlport:
-      categories[INBOUND_CONTROLPORT].append(conn)
-    elif conn.remote_address in relays:
-      if conn.remote_port in relays.get(conn.remote_address, []):
-        categories[OUTBOUND_ORPORT].append(conn)
-      else:
-        categories[OUTBOUND_ANOTHER].append(conn)
-    elif policy.can_exit_to(conn.remote_address, conn.remote_port):
-      categories[OUTBOUND_EXIT].append(conn)
-      exit_connections.setdefault(conn.remote_port, []).append(conn)
-    else:
-      categories[OUTBOUND_UNKNOWN].append(conn)
+        categories[OUTBOUND_UNKNOWN].append(conn)
+  except Exception as Exc:
+    print(Exc)
+    sys.exit(1)
 
   print(DIV)
   print(COLUMN % ('Type', 'IPv4', 'IPv6'))
@@ -174,11 +183,11 @@ def main(args=None):
 
     ddos4 = [address for address in inbound4 if len(inbound4[address]) > limit]
     if ddos4:
-      print('%5i v4 %s with > %2i conns' % (len(ddos4), label, limit))
+      print('%5i v4 %s with > %i conns' % (len(ddos4), label, limit))
 
     ddos6 = [address for address in inbound6 if len(inbound6[address]) > limit]
     if ddos6:
-      print('%5i v6 %s with > %2i conns' % (len(ddos6), label, limit))
+      print('%5i v6 %s with > %i conns' % (len(ddos6), label, limit))
 
 
 if __name__ == '__main__':
