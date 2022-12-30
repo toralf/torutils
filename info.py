@@ -16,7 +16,7 @@ from stem.control import Listener
 from stem.descriptor import parse_file
 from stem.util.connection import get_connections, port_usage
 
-HEADER_LINE = ' {version}   uptime: {uptime}   flags: {flags}\n'
+HEADER_LINE = ' {version}   uptime: {uptime}   flags: {flags}'
 
 DIV = '+%s+%s+%s+' % ('-' * 30, '-' * 7, '-' * 7)
 COLUMN = '| %-28s | %5s | %5s |'
@@ -129,7 +129,10 @@ def main(args=None):
   print(DIV)
   print(COLUMN % ('Total', i2str(total_ipv4), i2str(total_ipv6)))
   print(DIV)
-  print(' relays', len(categories[INBOUND_ORPORT]) + len(categories[OUTBOUND_ORPORT]))
+  connections = [conn for conn in categories[INBOUND_ORPORT] + categories[OUTBOUND_ORPORT]]
+  print(' OR connections %5i' % len(connections))
+  addresses = [conn.remote_address for conn in connections]
+  print(' OR ips         %5i' % len(set(addresses)))
 
   if exit_connections:
     print('')
