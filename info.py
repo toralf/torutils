@@ -183,11 +183,11 @@ def main(args=None):
 
     ddos4 = [address for address in inbound4 if len(inbound4[address]) > limit]
     if ddos4:
-      print('%5i v4 %s with > %i conns' % (len(ddos4), label, limit))
+      print('%5i v4 ip address(es) "%s" having > %i conns' % (len(ddos4), label, limit))
 
     ddos6 = [address for address in inbound6 if len(inbound6[address]) > limit]
     if ddos6:
-      print('%5i v6 %s with > %i conns' % (len(ddos6), label, limit))
+      print('%5i v6 ip address(es) "%s" having > %i conns' % (len(ddos6), label, limit))
 
 
 if __name__ == '__main__':
