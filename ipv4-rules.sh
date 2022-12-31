@@ -199,11 +199,11 @@ action=${1:-}
 shift || true
 case $action in
   start)  clearAll
+          setSysctlValues 1>/dev/null || echo "couldn't set sysctl values" >&2
           addCommon
           addHetzner
           addLocalServices
           addTor ${CONFIGURED_RELAYS:-${*:-$(getConfiguredRelays)}}
-          setSysctlValues 1>/dev/null || echo "couldn't set sysctl values" >&2
           ;;
   stop)   clearAll
           saveIpsets
