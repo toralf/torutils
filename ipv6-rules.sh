@@ -100,16 +100,15 @@ function addTor() {
       return 1
     fi
     read -r orip orport <<< $(sed -e 's,]:, ,' <<< $relay | tr '[' ' ')
+    if [[ $orip = "::" ]]; then
+      orip+="/0"
+      echo " notice: using global unicast IPv6 address [::]" >&2
+    fi
     local synpacket="ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn"
 
     # this holds ips classified as DDoS'ing the local OR port
     local ddoslist="tor-ddos6-$orport"
     __fill_ddoslist &
-
-    if [[ $orip = "::" ]]; then
-      orip+="/0"
-      echo " notice: using global unicast IPv6 address [::]" >&2
-    fi
 
     # rule 1
     $synpacket -m set --match-set $trustlist src -j ACCEPT
