@@ -29,20 +29,6 @@ function addCommon() {
 }
 
 
-function __fill_trustlist() {
-  (
-    echo "2a0c:dd40:1:b::42 2a0c:dd40:1:b::43 2a0c:dd40:1:b::44 2a0c:dd40:1:b::45 2a0c:dd40:1:b::46 2607:f018:600:8:be30:5bff:fef1:c6fa"
-    echo "2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2001:858:2:2:aabb:0:563b:1526 2610:1c0:0:5::131 2620:13:4000:6000::1000:118"
-
-    getent ahostsv6 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }'
-    if jq --help &>/dev/null; then
-      curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a | select(length > 1) | .[1]' | tr -d ']['
-    fi
-  ) | sort -u |
-  xargs -r -n 1 -P $(nproc) ipset add -exist $trustlist
-}
-
-
 function __create_ipset() {
   local name=$1
   local cmd="ipset create -exist $name hash:ip family inet6 ${2:-}"
@@ -59,10 +45,52 @@ function __create_ipset() {
 }
 
 
-function addTor() {
-  local trustlist="tor-trust6"
+function __fill_trustlist() {
   __create_ipset $trustlist
+  (
+    echo "2a0c:dd40:1:b::42 2a0c:dd40:1:b::43 2a0c:dd40:1:b::44 2a0c:dd40:1:b::45 2a0c:dd40:1:b::46 2607:f018:600:8:be30:5bff:fef1:c6fa"
+    echo "2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2001:858:2:2:aabb:0:563b:1526 2610:1c0:0:5::131 2620:13:4000:6000::1000:118"
+
+    getent ahostsv6 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }'
+    curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a | select(length > 1) | .[1]' | tr -d '][' | grep ':'
+  ) |
+  xargs -r -n 1 -P $(nproc) ipset add -exist $trustlist
+}
+
+
+function __fill_multilist() {
+  __create_ipset $multilist
+  (
+    if [[ -s /var/tmp/$multilist ]]; then
+      cat /var/tmp/$multilist
+    fi
+    curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |
+    jq -cr '.relays[].a | select(length > 1) | .[1]' | tr -d '][' | grep ':' | sort | uniq -c | grep -v ' 1 ' | awk '{ print $2 }' |
+    tee /var/tmp/$multilist.new
+    if [[ -s /var/tmp/$multilist.new ]]; then
+      mv /var/tmp/$multilist.new /var/tmp/$multilist
+    fi
+  ) |
+  xargs -r -n 1 -P $(nproc) ipset add -exist $multilist
+}
+
+
+function __fill_ddoslist() {
+  __create_ipset $ddoslist "timeout $(( 24*60*60 )) maxelem $(( 2**20 ))"
+  if [[ -f /var/tmp/$ddoslist ]]; then
+    cat /var/tmp/$ddoslist |
+    xargs -r -n 3 -P $(nproc) ipset add -exist $ddoslist
+    rm /var/tmp/$ddoslist
+  fi
+}
+
+
+function addTor() {
+  local trustlist="tor-trust6"    # Tor authorities and snowflake
   __fill_trustlist &
+
+  local multilist="tor-multi6"    # Tor relay ip addresses with 2 relays
+  __fill_multilist &
 
   local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-htable-size $(( 2**20 )) --hashlimit-htable-max $(( 2**20 ))"
   for relay in $*
@@ -72,13 +100,11 @@ function addTor() {
       return 1
     fi
     read -r orip orport <<< $(sed -e 's,]:, ,' <<< $relay | tr '[' ' ')
-
     local synpacket="ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn"
+
+    # this holds ips classified as DDoS'ing the local OR port
     local ddoslist="tor-ddos6-$orport"
-    __create_ipset $ddoslist "timeout $(( 24*60*60 )) maxelem $(( 2**20 ))"
-    if [[ -f /var/tmp/$ddoslist ]]; then
-      { cat /var/tmp/$ddoslist | xargs -r -n 3 -P $(nproc) ipset add -exist $ddoslist && rm /var/tmp/$ddoslist ; } &
-    fi
+    __fill_ddoslist &
 
     if [[ $orip = "::" ]]; then
       orip+="/0"
@@ -93,12 +119,15 @@ function addTor() {
     $synpacket -m set --match-set $ddoslist src -j DROP
 
     # rule 3
-    $synpacket $hashlimit --hashlimit-htable-expire $(( 120*1000 )) --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 -j DROP
+    $synpacket -m set --match-set $multilist src -m connlimit --connlimit-mask 128 --connlimit-upto 1 -j ACCEPT
 
     # rule 4
-    $synpacket -m connlimit --connlimit-mask 128 --connlimit-above 2 -j DROP
+    $synpacket $hashlimit --hashlimit-htable-expire $(( 120*1000 )) --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 -j DROP
 
     # rule 5
+    $synpacket -m connlimit --connlimit-mask 128 --connlimit-above 2 -j DROP
+
+    # rule 6
     $synpacket -j ACCEPT
   done
 }
@@ -189,7 +218,7 @@ case $action in
           addCommon
           addHetzner
           addLocalServices
-          addTor ${CONFIGURED_RELAYS6:-${*:-$(getConfiguredRelays6)}}
+          addTor ${*:-${CONFIGURED_RELAYS6:-$(getConfiguredRelays6)}}
           ;;
   stop)   clearAll
           saveIpsets

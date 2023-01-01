@@ -27,20 +27,6 @@ function addCommon() {
 }
 
 
-function __fill_trustlist() {
-  (
-    echo "193.187.88.42 193.187.88.43 193.187.88.44 193.187.88.45 193.187.88.46 141.212.118.18"
-    echo "45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.39 131.188.40.189 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118"
-
-    getent ahostsv4 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }'
-    if jq --help &>/dev/null; then
-      curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a[0]'
-    fi
-  ) | sort -u |
-  xargs -r -n 1 -P $(nproc) ipset add -exist $trustlist
-}
-
-
 function __create_ipset() {
   local name=$1
   local cmd="ipset create -exist $name hash:ip family inet ${2:-}"
@@ -57,10 +43,52 @@ function __create_ipset() {
 }
 
 
-function addTor() {
-  local trustlist="tor-trust"
+function __fill_trustlist() {
   __create_ipset $trustlist
+  (
+    echo "193.187.88.42 193.187.88.43 193.187.88.44 193.187.88.45 193.187.88.46 141.212.118.18"
+    echo "45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.39 131.188.40.189 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118"
+
+    getent ahostsv4 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }'
+    curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a[0]'
+  ) |
+  xargs -r -n 1 -P $(nproc) ipset add -exist $trustlist
+}
+
+
+function __fill_multilist() {
+  __create_ipset $multilist
+  (
+    if [[ -s /var/tmp/$multilist ]]; then
+      cat /var/tmp/$multilist
+    fi
+    curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |
+    jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | sort | uniq -c | grep -v ' 1 ' | awk '{ print $2 }' |
+    tee /var/tmp/$multilist.new
+    if [[ -s /var/tmp/$multilist.new ]]; then
+      mv /var/tmp/$multilist.new /var/tmp/$multilist
+    fi
+  ) |
+  xargs -r -n 1 -P $(nproc) ipset add -exist $multilist
+}
+
+
+function __fill_ddoslist() {
+  __create_ipset $ddoslist "timeout $(( 24*60*60 )) maxelem $(( 2**20 ))"
+  if [[ -f /var/tmp/$ddoslist ]]; then
+    cat /var/tmp/$ddoslist |
+    xargs -r -n 3 -P $(nproc) ipset add -exist $ddoslist
+    rm /var/tmp/$ddoslist
+  fi
+}
+
+
+function addTor() {
+  local trustlist="tor-trust"     # Tor authorities and snowflake
   __fill_trustlist &
+
+  local multilist="tor-multi"     # Tor relay ip addresses with 2 relays
+  __fill_multilist &
 
   local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 32 --hashlimit-htable-size $(( 2**20 )) --hashlimit-htable-max $(( 2**20 ))"
   for relay in $*
@@ -70,13 +98,11 @@ function addTor() {
       return 1
     fi
     read -r orip orport <<< $(tr ':' ' ' <<< $relay)
-
     local synpacket="iptables -A INPUT -p tcp --dst $orip --dport $orport --syn"
+
+    # this holds ips classified as DDoS'ing the local OR port
     local ddoslist="tor-ddos-$orport"
-    __create_ipset $ddoslist "timeout $(( 24*60*60 )) maxelem $(( 2**20 ))"
-    if [[ -f /var/tmp/$ddoslist ]]; then
-      { cat /var/tmp/$ddoslist | xargs -r -n 3 -P $(nproc) ipset add -exist $ddoslist && rm /var/tmp/$ddoslist ; } &
-    fi
+    __fill_ddoslist &
 
     # rule 1
     $synpacket -m set --match-set $trustlist src -j ACCEPT
@@ -86,12 +112,15 @@ function addTor() {
     $synpacket -m set --match-set $ddoslist src -j DROP
 
     # rule 3
-    $synpacket $hashlimit --hashlimit-htable-expire $(( 120*1000 )) --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 -j DROP
+    $synpacket -m set --match-set $multilist src -m connlimit --connlimit-mask 32 --connlimit-upto 1 -j ACCEPT
 
     # rule 4
-    $synpacket -m connlimit --connlimit-mask 32 --connlimit-above 2 -j DROP
+    $synpacket $hashlimit --hashlimit-htable-expire $(( 120*1000 )) --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 -j DROP
 
     # rule 5
+    $synpacket -m connlimit --connlimit-mask 32 --connlimit-above 2 -j DROP
+
+    # rule 6
     $synpacket -j ACCEPT
   done
 }
@@ -203,7 +232,7 @@ case $action in
           addCommon
           addHetzner
           addLocalServices
-          addTor ${CONFIGURED_RELAYS:-${*:-$(getConfiguredRelays)}}
+          addTor ${*:-${CONFIGURED_RELAYS:-$(getConfiguredRelays)}}
           ;;
   stop)   clearAll
           saveIpsets
