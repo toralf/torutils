@@ -97,6 +97,7 @@ def main(args=None):
   exit_connections = {}               # port => [connections]
   port_or = controller.get_listeners(Listener.OR)[0][1]
 
+  # classify connections
   try:
     for conn in get_connections(resolver=args.resolver, process_pid=pid):
       if conn.protocol == 'udp':
@@ -123,6 +124,7 @@ def main(args=None):
     print(Exc)
     sys.exit(1)
 
+  # prettify statistic output
   print(DIV)
   print(COLUMN % ('Type', 'IPv4', 'IPv6'))
   print(DIV)
@@ -139,10 +141,11 @@ def main(args=None):
   print(COLUMN % ('Total', i2str(total_ipv4), i2str(total_ipv6)))
   print(DIV)
   connections = [conn for conn in categories[INBOUND_ORPORT] + categories[OUTBOUND_ORPORT]]
-  print(' OR connections %5i' % len(connections))
+  print(' relay OR connections %5i' % len(connections))
   addresses = [conn.remote_address for conn in connections]
-  print(' OR ips         %5i' % len(set(addresses)))
+  print(' relay OR ips         %5i' % len(set(addresses)))
 
+  # separate statistics for exit connections
   if exit_connections:
     print('')
     print(DIV)
@@ -168,26 +171,25 @@ def main(args=None):
     print(DIV)
 
   # check for DDoS
-  for label, connections in categories.items():
-    inbound4 = {}
-    inbound6 = {}
-    limit = 2
+  ipv4 = {}
+  ipv6 = {}
+  for conn in categories[INBOUND_ORPORT]+categories[INBOUND_ORPORT_OTHER]:
+    address = conn.remote_address
+    if conn.is_ipv6:
+      address = ipaddress.IPv6Address(address).compressed
+      ipv6.setdefault(address, []).append(conn.remote_port)
+    else:
+      ipv4.setdefault(address, []).append(conn.remote_port)
 
-    for conn in connections:
-      if conn.is_ipv6:
-        address = ipaddress.IPv6Address(conn.remote_address).exploded
-        inbound6.setdefault(address, []).append(conn.remote_port)
-      else:
-        address = conn.remote_address
-        inbound4.setdefault(address, []).append(conn.remote_port)
-
-    ddos4 = [address for address in inbound4 if len(inbound4[address]) > limit]
-    if ddos4:
-      print('%5i v4 ip address(es) "%s" having > %i conns' % (len(ddos4), label, limit))
-
-    ddos6 = [address for address in inbound6 if len(inbound6[address]) > limit]
-    if ddos6:
-      print('%5i v6 ip address(es) "%s" having > %i conns' % (len(ddos6), label, limit))
+  limit = 2
+  ddos4 = [address for address in ipv4 if len(ipv4[address]) > limit]
+  ddos6 = [address for address in ipv6 if len(ipv6[address]) > limit]
+  if ddos4:
+    print('%5i inbound v4 with > %i connections each' % (len(ddos4), limit))
+    # print(ddos4)
+  if ddos6:
+    print('%5i inbound v6 with > %i connections each' % (len(ddos6), limit))
+    # print(ddos6)
 
 
 if __name__ == '__main__':
