@@ -114,7 +114,7 @@ function addTor() {
     $synpacket -m set --match-set $trustlist src -j ACCEPT
 
     # rule 2
-    $synpacket $hashlimit --hashlimit-htable-expire $(( 24*60*60*1000 )) --hashlimit-name tor-ddos-$orport --hashlimit-above 6/minute --hashlimit-burst 5 -j SET --add-set $ddoslist src --exist
+    $synpacket $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 6/minute --hashlimit-burst 5 --hashlimit-htable-expire $(( 24*60*60*1000 )) -j SET --add-set $ddoslist src --exist
     $synpacket -m set --match-set $ddoslist src -j DROP
 
     # rule 3
@@ -124,7 +124,7 @@ function addTor() {
     $synpacket -m connlimit --connlimit-mask 128 --connlimit-above 2 -j DROP
 
     # rule 5
-    $synpacket $hashlimit --hashlimit-htable-expire $(( 120*1000 )) --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 -j DROP
+    $synpacket $hashlimit --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 --hashlimit-htable-expire $(( 120*1000 )) -j DROP
 
     # rule 6
     $synpacket -j ACCEPT
@@ -138,7 +138,7 @@ function addLocalServices() {
 
   for service in ${ADD_LOCAL_SERVICES6:-}
   do
-    read -r addr port <<< $(sed -e 's,]:, ,' <<< $service | tr '[' ' ')
+    read -r addr port <<< $(sed -e 's,]:, ,' -e 's,\[, ,' <<< $service)
     if [[ $addr = "::" ]]; then
       addr+="/0"
     fi
