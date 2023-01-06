@@ -99,7 +99,7 @@ function addTor() {
       echo " relay '$relay' cannot be parsed" >&2
       return 1
     fi
-    read -r orip orport <<< $(sed -e 's,]:, ,' <<< $relay | tr '[' ' ')
+    read -r orip orport <<< $(sed -e 's,]:, ,' -e 's,\[, ,' <<< $relay)
     if [[ $orip = "::" ]]; then
       orip+="/0"
       echo " notice: using global unicast IPv6 address [::]" >&2
