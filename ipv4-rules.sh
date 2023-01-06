@@ -100,8 +100,7 @@ function addTor() {
     read -r orip orport <<< $(tr ':' ' ' <<< $relay)
     local synpacket="iptables -A INPUT -p tcp --dst $orip --dport $orport --syn"
 
-    # this holds ips classified as DDoS'ing the local OR port
-    local ddoslist="tor-ddos-$orport"
+    local ddoslist="tor-ddos-$orport"     # this holds ips classified as DDoS'ing the local OR port
     __fill_ddoslist &
 
     # rule 1

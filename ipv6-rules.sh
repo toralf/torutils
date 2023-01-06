@@ -106,8 +106,7 @@ function addTor() {
     fi
     local synpacket="ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn"
 
-    # this holds ips classified as DDoS'ing the local OR port
-    local ddoslist="tor-ddos6-$orport"
+    local ddoslist="tor-ddos6-$orport"    # this holds ips classified as DDoS'ing the local OR port
     __fill_ddoslist &
 
     # rule 1
