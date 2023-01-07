@@ -14,10 +14,12 @@ if [[ ! -x "$(command -v conntrack)" ]]; then
 fi
 
 tmpfile=/tmp/conntrack.txt
+if [[ ! -f $tmpfile.old ]]; then
+  touch $tmpfile.old
+fi
 
 conntrack -S | grep -v ' insert_failed=0 drop=0 ' | awk '{ print $1, $5, $6 }' | cut -f2- -d':' > $tmpfile
-if ! diff -q $tmpfile{,.old} 2>/dev/null; then
-  echo
-  tail -v $tmpfile{,.old} 2>/dev/null || true
+if ! diff -q $tmpfile{,.old}; then
+  tail -v $tmpfile{,.old}
   cp $tmpfile $tmpfile.old
 fi
