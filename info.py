@@ -22,13 +22,13 @@ HEADER_LINE = ' {version}   uptime: {uptime}   flags: {flags}'
 DIV = '+%s+%s+%s+' % ('-' * 30, '-' * 7, '-' * 7)
 COLUMN = '| %-28s | %5s | %5s |'
 
-INBOUND_ORPORT = 'Inbound to our OR from relay'
-INBOUND_ORPORT_OTHER = 'Inbound to our OR from other'
-INBOUND_CONTROLPORT = 'Inbound to our ControlPort'
+INBOUND_OR_FROM_RELAY = 'Inbound to OR from relay'
+INBOUND_OR_FROM_NONRELAY = 'Inbound to OR from non-relay'
+INBOUND_CONTROLPORT = 'Inbound to ControlPort'
 
-OUTBOUND_ORPORT = 'Outbound to relay OR'
-OUTBOUND_ANOTHER = 'Outbound to relay non-OR'
-OUTBOUND_EXIT = 'Outbound exit traffic'
+OUTBOUND_RELAY_OR = 'Outbound to relay OR'
+OUTBOUND_RELAY_NONOR = 'Outbound to relay non-OR'
+OUTBOUND_AS_EXIT = 'Outbound as Exit'
 OUTBOUND_UNKNOWN = 'Outbound unknown'
 
 
@@ -74,7 +74,6 @@ def main(args=None):
     policy = controller.get_exit_policy()
   except Exception as Exc:
     print(Exc)
-    pass
 
   relays = {}  # address => [orports...]
   try:
@@ -82,19 +81,18 @@ def main(args=None):
     relays = parse_consensus(relays, '/var/lib/tor/data2/cached-consensus')
   except Exception as Exc:
     print(Exc)
-    pass
 
   categories = collections.OrderedDict((
-    (INBOUND_ORPORT, []),
-    (INBOUND_ORPORT_OTHER, []),
+    (INBOUND_OR_FROM_RELAY, []),
+    (INBOUND_OR_FROM_NONRELAY, []),
     (INBOUND_CONTROLPORT, []),
-    (OUTBOUND_ORPORT, []),
-    (OUTBOUND_ANOTHER, []),
-    (OUTBOUND_EXIT, []),
+    (OUTBOUND_RELAY_OR, []),
+    (OUTBOUND_RELAY_NONOR, []),
+    (OUTBOUND_AS_EXIT, []),
     (OUTBOUND_UNKNOWN, []),
   ))
 
-  exit_connections = {}               # port => [connections]
+  exit_connections = {}               # count connections per remote port
   port_or = controller.get_listeners(Listener.OR)[0][1]
 
   # classify connections
@@ -105,18 +103,18 @@ def main(args=None):
 
       if conn.local_port == port_or:
         if conn.remote_address in relays:
-          categories[INBOUND_ORPORT].append(conn)
+          categories[INBOUND_OR_FROM_RELAY].append(conn)
         else:
-          categories[INBOUND_ORPORT_OTHER].append(conn)
+          categories[INBOUND_OR_FROM_NONRELAY].append(conn)
       elif conn.local_port == args.ctrlport:
         categories[INBOUND_CONTROLPORT].append(conn)
       elif conn.remote_address in relays:
         if conn.remote_port in relays.get(conn.remote_address, []):
-          categories[OUTBOUND_ORPORT].append(conn)
+          categories[OUTBOUND_RELAY_OR].append(conn)
         else:
-          categories[OUTBOUND_ANOTHER].append(conn)
+          categories[OUTBOUND_RELAY_NONOR].append(conn)
       elif policy.can_exit_to(conn.remote_address, conn.remote_port):
-        categories[OUTBOUND_EXIT].append(conn)
+        categories[OUTBOUND_AS_EXIT].append(conn)
         exit_connections.setdefault(conn.remote_port, []).append(conn)
       else:
         categories[OUTBOUND_UNKNOWN].append(conn)
@@ -140,12 +138,14 @@ def main(args=None):
   print(DIV)
   print(COLUMN % ('Total', i2str(total_ipv4), i2str(total_ipv6)))
   print(DIV)
-  connections = [conn for conn in categories[INBOUND_ORPORT] + categories[OUTBOUND_ORPORT]]
-  print(' relay OR connections %5i' % len(connections))
-  addresses = [conn.remote_address for conn in connections]
+  addresses = [conn.remote_address for conn in  categories[INBOUND_OR_FROM_RELAY] +
+                                                categories[OUTBOUND_RELAY_OR] +
+                                                categories[OUTBOUND_RELAY_NONOR] +
+                                                categories[OUTBOUND_AS_EXIT]]
+  print(' relay OR connections %5i' % len(addresses))
   print(' relay OR ips         %5i' % len(set(addresses)))
 
-  # separate statistics for exit connections
+  # statistics for exit connections
   if exit_connections:
     print('')
     print(DIV)
@@ -161,6 +161,7 @@ def main(args=None):
       total_ipv4 = total_ipv4 + ipv4_count
       total_ipv6 = total_ipv6 + ipv6_count
 
+      # print description instead port number
       usage = port_usage(port)
       label = '%s (%s)' % (port, usage) if usage else port
 
@@ -170,10 +171,10 @@ def main(args=None):
     print(COLUMN % ('Total', total_ipv4, total_ipv6))
     print(DIV)
 
-  # check for DDoS
+  # check for inbound DDoS
   ipv4 = {}
   ipv6 = {}
-  for conn in categories[INBOUND_ORPORT]+categories[INBOUND_ORPORT_OTHER]:
+  for conn in categories[INBOUND_OR_FROM_RELAY]+categories[INBOUND_OR_FROM_NONRELAY]:
     address = conn.remote_address
     if conn.is_ipv6:
       address = ipaddress.IPv6Address(address).compressed
