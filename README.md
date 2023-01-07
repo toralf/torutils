@@ -64,8 +64,8 @@ If the script doesn't work out of the box then please proceed with the [Installa
 
 #### Objectives
 
-Neither touch established nor outbound connections ¹
-Filter only ips, no network blocking ²
+Neither touch established nor outbound connections. ¹
+Filter only ips, no network blocking. ²
 
 #### Details
 
@@ -81,7 +81,7 @@ Then these rules are applied (in this order) for a connection attempt to the loc
 
 ¹ An attacker capable to spoof ip addresses could easily force those ip address to be blocked at any time after the connection was established.
 
-² An attacker could place 1 malicious ip within a /24 or /16 range and harms all of them at once otherwise
+² An attacker could place 1 malicious ip within a /24 or /16 range and harms all of them at once otherwise.
 
 ³ The connection limit sounds rigid.
 But how likely is it that more than 2 Tor proxies behind the same (NATed) ip address do connect to the same guard/entrynode at the same time?
