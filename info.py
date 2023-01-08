@@ -138,12 +138,18 @@ def main(args=None):
   print(DIV)
   print(COLUMN % ('Total', i2str(total_ipv4), i2str(total_ipv6)))
   print(DIV)
-  addresses = [conn.remote_address for conn in  categories[INBOUND_OR_FROM_RELAY] +
-                                                categories[OUTBOUND_RELAY_OR] +
-                                                categories[OUTBOUND_RELAY_NONOR] +
-                                                categories[OUTBOUND_AS_EXIT]]
-  print(' relay OR connections %5i' % len(addresses))
-  print(' relay OR ips         %5i' % len(set(addresses)))
+  ipv4 = [conn.remote_address for conn in categories[INBOUND_OR_FROM_RELAY] +
+                                          categories[OUTBOUND_RELAY_OR] +
+                                          categories[OUTBOUND_RELAY_NONOR] +
+                                          categories[OUTBOUND_AS_EXIT]
+                                          if not conn.is_ipv6]
+  ipv6 = [conn.remote_address for conn in categories[INBOUND_OR_FROM_RELAY] +
+                                          categories[OUTBOUND_RELAY_OR] +
+                                          categories[OUTBOUND_RELAY_NONOR] +
+                                          categories[OUTBOUND_AS_EXIT]
+                                          if conn.is_ipv6]
+  print(' %-28s    %5i   %5i' % ('relay OR connections ', len(ipv4), len(ipv6)))
+  print(' %-28s    %5i   %5i' % ('         unique ips', len(set(ipv4)), len(set(ipv6))))
 
   # statistics for exit connections
   if exit_connections:
