@@ -160,7 +160,7 @@ function addHetzner() {
 }
 
 
-function clearAll() {
+function clearRules() {
   ip6tables -P INPUT  ACCEPT
   ip6tables -P OUTPUT ACCEPT
 
@@ -170,7 +170,7 @@ function clearAll() {
 }
 
 
-function printFirewall()  {
+function printRuleStatistics()  {
   date -R
   echo
   ip6tables -nv -L INPUT
@@ -189,7 +189,7 @@ function bailOut()  {
   trap - INT QUIT TERM EXIT
 
   echo -e "\n Something went wrong, stopping ...\n" >&2
-  clearAll
+  clearRules
   exit 1
 }
 
@@ -198,7 +198,8 @@ function saveIpsets() {
   ipset list -t | grep "^Name: tor-ddos6-" | awk '{ print $2 }' |
   while read name
   do
-    ipset list $name | sed -e '1,8d' > /var/tmp/$name
+    ipset list $name | sed -e '1,8d' > /var/tmp/$name.new
+    mv /var/tmp/$name.new /var/tmp/$name
   done
 }
 
@@ -212,16 +213,18 @@ trap bailOut INT QUIT TERM EXIT
 action=${1:-}
 shift || true
 case $action in
-  start)  clearAll
+  start)  clearRules
           addCommon
           addHetzner
           addLocalServices
           addTor ${*:-${CONFIGURED_RELAYS6:-$(getConfiguredRelays6)}}
           ;;
-  stop)   clearAll
+  stop)   clearRules
           saveIpsets
           ;;
-  *)      printFirewall
+  save)   saveIpsets
+          ;;
+  *)      printRuleStatistics
           ;;
 esac
 trap - INT QUIT TERM EXIT
