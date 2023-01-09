@@ -10,9 +10,10 @@ The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh
 against DDoS attacks at the IP [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) ¹.
 The goal is to target the (presumably) intention of the attacker to unveil onion services.
 
-This DDoS solution uses [ipsets](https://ipset.netfilter.org) are used.
-Its _timeout_ feature provides a long term memory to still block an ip where plain iptables rules would (no longer) fire.
-Compare the counters for IPv4 of line [14](./doc/iptables-L.txt#L14) and [15](./doc/iptables-L.txt#L15)
+This DDoS solution uses [ipsets](https://ipset.netfilter.org).
+The _timeout_ property of the ipset entries provides the feature to still block an ip
+where plain iptables rules would (no longer) fire.
+Compare for that the counters for IPv4 of line [14](./doc/iptables-L.txt#L14) and [15](./doc/iptables-L.txt#L15)
 and for IPv6 of line [16](./doc/ip6tables-L.txt#L16) and [17](./doc/ip6tables-L.txt#L17) respectively.
 
 Metrics of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
@@ -20,12 +21,12 @@ Metrics of rx/tx packets, traffic and socket counts from [5th](./doc/network-met
 show the results for few DDoS attacks over 3 days
 for [these](https://nusenu.github.io/OrNetStats/zwiebeltoralf.de.html) 2 relays.
 A heavier attack was observed at [12th](./doc/network-metric-Nov-12th.svg) of Nov.
-And, a periodic drop down of the socket count metric, vanishing over time as seen at
-[5th](./doc/network-metric-Dec-05th.svg) of Dec, was observed.
+A periodic drop down of the socket count metric, vanishing over time appeared at
+[5th](./doc/network-metric-Dec-05th.svg) of Dec.
 
-¹ Discussion started in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636),
+¹ Discussion started in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
+of the [Tor project tracker](https://www.torproject.org/) and
 continued in ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093)
-of the [Tor project](https://www.torproject.org/).
 
 ### Quick start
 
@@ -91,7 +92,6 @@ Would that likelihood rule the sizing of a DDoS solution?
 
 The instructions belongs to the IPv4 variant.
 They can be applied in a similar way for the IPv6 variant of the script.
-
 If the parsing of the Tor config (line [186](ipv4-rules.sh#L186)) doesn't work for you then:
 
 1. define the local running relay(s) space separated at the command line after the keyword `start`, eg.:
@@ -113,7 +113,6 @@ If the parsing of the Tor config (line [186](ipv4-rules.sh#L186)) doesn't work f
 Appreciated is
 
 1. to open [here](https://github.com/toralf/torutils/issues) an issue about it
-
 1. -or- to create a GitHub PR with the fix ;)
 
 To allow inbound traffic to other local service(s), either:
@@ -132,7 +131,6 @@ To allow inbound traffic to other local service(s), either:
     ```
 
 before you start the script.
-
 To **append** the rules of this script onto the local _iptables_ rules (instead **overwrite** existing rules)
 comment out the `clearAll` call (line [229](ipv4-rules.sh#L229)).
 The script sets few _sysctl_ values (line [230](ipv4-rules.sh#L230)).
@@ -142,16 +140,14 @@ then comment out the `addHetzner` call (line [232](ipv4-rules.sh#L232)).
 
 ### Helpers
 
-Few scripts were made to fine tune the parameters of the rule set:
-
+Few scripts were made to fine tune the parameters of the rule set.
 [ddos-inbound.sh](./ddos-inbound.sh) lists ips having more inbound connections to the ORPort than a given
 limit ([example](./doc/ddos-inbound.sh.txt)).
 [hash-stats.sh](./hash-stats.sh) plots the distribution of timeout values of an iptables hash
 ([example](./doc/hash-stats.sh.txt)).
 [ipset-stats.sh](./ipset-stats.sh) plots distribution of timeout values of an ipset as well as occurrences
 of ip addresses in subsequent ipset output files ([example](./doc/ipset-stats.sh.txt)).
-The package [gnuplot](http://www.gnuplot.info/) is needed to plot graphs.
-
+For plots the package [gnuplot](http://www.gnuplot.info/) is needed.
 The SVG graphs are created by:
 
 ```bash
@@ -177,7 +173,7 @@ This crontab entry is used to sample 1 data point per minute:
 
 [info.py](./info.py) gives a summary of all connections, eg.:
 
-```bash
+```console
 sudo ./info.py --address 127.0.0.1 --ctrlport 9051
 
  ORport 9051  0.4.8.0-alpha-dev   uptime: 02:58:04   flags: Fast, Guard, Running, Stable, V2Dir, Valid
@@ -228,7 +224,7 @@ days=$(( seconds/86400 ))
 [[ $days -lt 23 ]] && echo "Tor signing key expires in less than $days day(s)"
 ```
 
-This is helpfful if you use [Tor offline keys](https://support.torproject.org/relay-operators/offline-ed25519/).
+This is helpful if you use [Tor offline keys](https://support.torproject.org/relay-operators/offline-ed25519/).
 
 ### Prerequisites
 
