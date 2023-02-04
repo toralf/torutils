@@ -108,7 +108,7 @@ function addTor() {
     $synpacket -m set --match-set $ddoslist src -j DROP
 
     # rule 3
-    $synpacket -m set --match-set $multilist src -m connlimit --connlimit-mask 32 --connlimit-upto 8 -j ACCEPT
+    $synpacket -m set --match-set $multilist src -m connlimit --connlimit-mask 32 --connlimit-upto 4 -j ACCEPT
 
     # rule 4
     $synpacket -m connlimit --connlimit-mask 32 --connlimit-above 3 -j DROP
