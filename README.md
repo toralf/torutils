@@ -92,6 +92,14 @@ Should this probability affects the sizing of a DDoS solution?
 
 The instructions belongs to the IPv4 variant.
 They can be applied in a similar way for the IPv6 variant of the script.
+
+Rule 3 depends on recent data of multi-homed Tor relays.
+Update that data structure regularly eg. via cron :
+
+```bash
+sudo ./ipv4-rules.sh update
+```
+
 If the parsing of the Tor config (line [186](ipv4-rules.sh#L186)) doesn't work for you then:
 
 1. define the local running relay(s) space separated at the command line after the keyword `start`, eg.:
