@@ -86,10 +86,7 @@ function __fill_ddoslist() {
 
 
 function addTor() {
-  local trustlist="tor-trust6"    # Tor authorities and snowflake
   __fill_trustlist &
-
-  local multilist="tor-multi6"    # Tor relay ip addresses with 2 relays
   __fill_multilist &
 
   local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-htable-size $(( 2**20 )) --hashlimit-htable-max $(( 2**20 ))"
@@ -117,10 +114,10 @@ function addTor() {
     $synpacket -m set --match-set $ddoslist src -j DROP
 
     # rule 3
-    $synpacket -m set --match-set $multilist src -m connlimit --connlimit-mask 128 --connlimit-upto 1 -j ACCEPT
+    $synpacket -m set --match-set $multilist src -m connlimit --connlimit-mask 128 --connlimit-upto 4 -j ACCEPT
 
     # rule 4
-    $synpacket -m connlimit --connlimit-mask 128 --connlimit-above 2 -j DROP
+    $synpacket -m connlimit --connlimit-mask 128 --connlimit-above 3 -j DROP
 
     # rule 5
     $synpacket $hashlimit --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 --hashlimit-htable-expire $(( 120*1000 )) -j DROP
@@ -209,6 +206,9 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
+trustlist="tor-trust6"    # Tor authorities and snowflake
+multilist="tor-multi6"    # Tor relay ip addresses with 2 relays
+
 trap bailOut INT QUIT TERM EXIT
 action=${1:-}
 shift || true
@@ -223,6 +223,9 @@ case $action in
           saveIpsets
           ;;
   save)   saveIpsets
+          ;;
+  update) __fill_trustlist
+          __fill_multilist
           ;;
   *)      printRuleStatistics
           ;;
