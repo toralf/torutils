@@ -75,7 +75,7 @@ Then these rules are applied (in this order) for a connection attempt to the loc
 
 1. trust Tor authorities and snowflake
 1. block ip for 1 day if the rate is > 6/min
-1. allow if the ip is known to host multiple relays and the current connection count from there is up to 4
+1. allow if the ip is known to host multiple relays and the current connection count from there is up to 4 (currently maximum of allowed Tor instances at the same ip)
 1. allow not more than 3 connections ³
 1. rate limit new connection attempts by 0.5/minute
 1. accept the connection attempt
@@ -85,8 +85,8 @@ Then these rules are applied (in this order) for a connection attempt to the loc
 ² An attacker could place 1 malicious ip within a /24 or /16 range and harms all of them at once otherwise.
 
 ³ The connection limit sounds rigid.
-But how likely is it that more than the given number of Tor proxies behind the same (NATed) ip address do connect to the same guard/entrynode at the same time?
-Should this probability affects the sizing of a DDoS solution?
+By which likelihood more than the given number of Tor proxies at the same ip address do connect to the same guard at the same time?
+Is that probability big enough to affect the sizing of a DDoS solution?
 
 ### Installation
 
