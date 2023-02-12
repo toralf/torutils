@@ -180,7 +180,7 @@ def main(args=None):
   # check for inbound DDoS
   ipv4 = {}
   ipv6 = {}
-  for conn in categories[INBOUND_OR_FROM_RELAY]+categories[INBOUND_OR_FROM_NONRELAY]:
+  for conn in categories[INBOUND_OR_FROM_NONRELAY]:
     address = conn.remote_address
     if conn.is_ipv6:
       address = ipaddress.IPv6Address(address).compressed
@@ -192,10 +192,10 @@ def main(args=None):
   ddos4 = [address for address in ipv4 if len(ipv4[address]) > limit]
   ddos6 = [address for address in ipv6 if len(ipv6[address]) > limit]
   if ddos4:
-    print('%5i inbound v4 with > %i connections each' % (len(ddos4), limit))
+    print('%5i inbound non-relay v4 with > %i connections' % (len(ddos4), limit))
     # print(ddos4)
   if ddos6:
-    print('%5i inbound v6 with > %i connections each' % (len(ddos6), limit))
+    print('%5i inbound non-relay v6 with > %i connections' % (len(ddos6), limit))
     # print(ddos6)
 
 
