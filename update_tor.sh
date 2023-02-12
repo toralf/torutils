@@ -11,8 +11,6 @@ set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-echo
-date
 if [[ ! -d ~/tor ]]; then
   cd ~
   echo " cloning ..."
@@ -24,10 +22,15 @@ else
   range=$(grep -e "^Updating .*\.\..*$" $tmpfile | cut -f2 -d' ' -s)
   if [[ -n $range ]]; then
     cat $tmpfile
+    echo
+    git log $range
+    echo
     rm $tmpfile
   else
     rm $tmpfile
-    exit 0
+    if [[ $# -eq 0 ]]; then
+      exit 0
+    fi
   fi
 fi
 
@@ -36,20 +39,26 @@ date
 cd ~
 emerge -1 net-vpn/tor
 
+set +e
+
 echo
 date
 echo " restart Tor"
-rc-service tor restart
-echo " restart Tor2"
+rc-service tor  restart
+echo " restart Tor 2"
 rc-service tor2 restart
+echo " restart Tor 3"
+rc-service tor3 restart
 
 echo
 date
 echo " restarting orstatus"
-pkill -ef $(dirname $0)/orstatus.py || true
+pkill -ef $(dirname $0)/orstatus.py
 export PYTHONPATH=/root/stem
-nohup $(dirname $0)/orstatus.py --ctrlport  9051 --address ::1 >> /tmp/orstatus-9051  &
-nohup $(dirname $0)/orstatus.py --ctrlport 29051 --address ::1 >> /tmp/orstatus-29051 &
+for port in 9051 29051 29051
+do
+  $(dirname $0)/orstatus.py --ctrlport $port --address ::1 >> /tmp/orstatus-$port &
+done
 
 echo
 date
