@@ -63,7 +63,7 @@ function __fill_multilist() {
       cat /var/tmp/$multilist
     fi
     curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |
-    jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | sort | uniq -c | grep -v ' 1 ' | awk '{ print $2 }' |
+    jq -cr '.relays[].a' | tr '\[\]" ,' ' ' | awk '{ print $1 }' | sort | uniq -d |
     tee /var/tmp/$multilist.new
     if [[ -s /var/tmp/$multilist.new ]]; then
       mv /var/tmp/$multilist.new /var/tmp/$multilist
