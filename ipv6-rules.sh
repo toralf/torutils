@@ -40,7 +40,7 @@ function __create_ipset() {
       exit 1
     fi
     $cmd
-    { echo $content | xargs -r -n 3 -P $(nproc) ipset add -exist $name ; } &
+    { echo $content | xargs -r -n 3 -P $jobs ipset add -exist $name ; } &
   fi
 }
 
@@ -54,7 +54,7 @@ function __fill_trustlist() {
     getent ahostsv6 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }'
     curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a | select(length > 1) | .[1]' | tr -d '][' | grep ':'
   ) |
-  xargs -r -n 1 -P $(nproc) ipset add -exist $trustlist
+  xargs -r -n 1 -P $jobs ipset add -exist $trustlist
 }
 
 
@@ -71,7 +71,7 @@ function __fill_multilist() {
       mv /var/tmp/$multilist.new /var/tmp/$multilist
     fi
   ) |
-  xargs -r -n 1 -P $(nproc) ipset add -exist $multilist
+  xargs -r -n 1 -P $jobs ipset add -exist $multilist
 }
 
 
@@ -79,7 +79,7 @@ function __fill_ddoslist() {
   __create_ipset $ddoslist "timeout $(( 24*60*60 )) maxelem $(( 2**20 ))"
   if [[ -f /var/tmp/$ddoslist ]]; then
     cat /var/tmp/$ddoslist |
-    xargs -r -n 3 -P $(nproc) ipset add -exist $ddoslist
+    xargs -r -n 3 -P $jobs ipset add -exist $ddoslist
     rm /var/tmp/$ddoslist
   fi
 }
@@ -117,7 +117,7 @@ function addTor() {
     $synpacket -m set --match-set $multilist src -m connlimit --connlimit-mask 128 --connlimit-upto 4 -j ACCEPT
 
     # rule 4
-    $synpacket -m connlimit --connlimit-mask 128 --connlimit-above 3 -j DROP
+    $synpacket -m connlimit --connlimit-mask 128 --connlimit-above 2 -j DROP
 
     # rule 5
     $synpacket $hashlimit --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 --hashlimit-htable-expire $(( 120*1000 )) -j DROP
@@ -151,7 +151,7 @@ function addHetzner() {
     (
       getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }'
       echo "2a01:4f8:0:a101::5:1 2a01:4f8:0:a101::6:1 2a01:4f8:0:a101::6:2 2a01:4f8:0:a101::6:3 2a01:4f8:0:a112::c:1"
-    ) | xargs -r -n 1 -P $(nproc) ipset add -exist $sysmon
+    ) | xargs -r -n 1 -P $jobs ipset add -exist $sysmon
   } &
   ip6tables -A INPUT -m set --match-set $sysmon src -j ACCEPT
 }
@@ -208,6 +208,7 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 trustlist="tor-trust6"    # Tor authorities and snowflake
 multilist="tor-multi6"    # Tor relay ip addresses with 2 relays
+jobs=$(( 1+$(nproc)/2 ))
 
 trap bailOut INT QUIT TERM EXIT
 action=${1:-}
