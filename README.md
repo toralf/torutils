@@ -76,7 +76,7 @@ Then these rules are applied (in this order) for a connection attempt to the loc
 1. trust Tor authorities and snowflake
 1. block ip for 1 day if the rate is > 6/min
 1. allow if the ip is known to host multiple relays and the current connection count from there is up to 4 (currently maximum of allowed Tor instances at the same ip)
-1. allow not more than 3 connections ³
+1. allow not more than 2 connections ³
 1. rate limit new connection attempts by 0.5/minute
 1. accept the connection attempt
 
@@ -85,16 +85,16 @@ Then these rules are applied (in this order) for a connection attempt to the loc
 ² An attacker could place 1 malicious ip within a /24 or /16 range and harms all of them at once otherwise.
 
 ³ The connection limit sounds rigid.
-By which likelihood more than the given number of Tor proxies at the same ip address do connect to the same guard at the same time?
-Is that probability big enough to affect the sizing of a DDoS solution?
+But how likely is it that more than the given number of Tor proxies at the same ip address do connect to the same guard at the same time?
+Is that probability big enough to be considered?
 
 ### Installation
 
 The instructions belongs to the IPv4 variant.
 They can be applied in a similar way for the IPv6 variant of the script.
 
-Rule 3 depends on recent data of multi-homed Tor relays.
-Update that data structure regularly eg. via cron :
+Rule 3 depends on recent data of ip addresses serving more than one Tor relay.
+Therefore run this in regular intervalls (eg. via cron):
 
 ```bash
 sudo ./ipv4-rules.sh update
