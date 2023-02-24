@@ -65,20 +65,20 @@ If the script doesn't work out of the box then please proceed with the [Installa
 
 #### Objectives
 
-Neither touch established nor outbound connections. ¹
-Filter only ips, no network blocking. ²
+Neither touch established nor outbound connections.¹
+Filter only ips, no network blocking.²
 
 #### Details
 
 Generic rules for local network, ICMP, ssh and user services (if defined) are applied.
-Then these rules are applied (in this order) for a connection attempt to the local ORPort:
+Then these rules are applied (in this order) for a connection attempt from an ip to the local ORPort:
 
-1. trust Tor authorities and snowflake
+1. trust ip of Tor authorities and snowflake
 1. block ip for 1 day if the rate is > 6/min
-1. allow if the ip is known to host multiple relays and the current connection count from there is up to 4 (currently maximum of allowed Tor instances at the same ip)
-1. allow not more than 2 connections ³
-1. rate limit new connection attempts by 0.5/minute
-1. accept the connection attempt
+1. allow if the ip is known to host > 1 relay and from there're < 5 connections
+1. drop if > 2 connections³
+1. rate limit new connection attempts at 0.5/minute
+1. accept it
 
 ¹ An attacker capable to spoof ip addresses could easily force those ip address to be blocked at any time after the connection was established.
 
