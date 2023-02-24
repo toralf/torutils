@@ -118,10 +118,10 @@ If the parsing of the Tor config (line [186](ipv4-rules.sh#L186)) doesn't work f
 
     (`CONFIGURED_RELAYS6` for the IPv6 case).
 
-Appreciated is
+In addition I do appreciate
 
-1. to open [here](https://github.com/toralf/torutils/issues) an issue about it
-1. -or- to create a GitHub PR with the fix ;)
+1. an issue request [here](https://github.com/toralf/torutils/issues)
+1. -or- a GitHub PR with a fix ;)
 
 To allow inbound traffic to other local service(s), either:
 
