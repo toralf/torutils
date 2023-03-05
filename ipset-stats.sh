@@ -3,25 +3,25 @@
 # set -x
 
 
-# dump ip addresses of ipset(s) -or- plot histograms of that
+# dumpIpset ip addresses of ipset(s) -or- plot histograms of that
 
 
 # kick off the header of the ipset
-function dump()  {
+function dumpIpset()  {
   ipset list -s $1 |
   sed -e '1,8d'
 }
 
 
 # 1.2.3.4 -> 1.2.3.0/24
-function anonymise()  {
+function anonymiseIp()  {
   awk '{ print $1 }' |
   sed -e "s,\.[0-9]*$,.0/24,"
 }
 
 
 # 1:2:3:4:5:6:7:8 -> 0001:0002:0003:0004:0005::/80
-function anonymise6()  {
+function anonymiseIp6()  {
   awk '{ print $1 }' |
   $(dirname $0)/expand_v6.py |
   cut -f1-5 -d ':' |
@@ -29,9 +29,8 @@ function anonymise6()  {
 }
 
 
-# plot a histogram about ip address occurrences within ipset dumps
-function plot_ip_occurrences() {
-  local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
+# plot a histogram about ip address occurrences within ipset dump
+function plotIpOccurrences() {
   local files=$*
 
   local N=$(wc -l < <(cat $files))
@@ -41,6 +40,7 @@ function plot_ip_occurrences() {
   fi
   local n=$(awk '{ print $1 }' $files | sort -u | wc -l)
 
+  local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
   awk '{ print $1 }' $files | sort | uniq -c | sort -bn | awk '{ print $1 }' | uniq -c | awk '{ print $2, $1 }' > $tmpfile
 
   echo "hits ips"
@@ -70,10 +70,9 @@ function plot_ip_occurrences() {
 }
 
 
-function plot_timeout()  {
+function plotTimeoutValues()  {
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
-
-  dump "$1" | awk '{ print $3 }' | sort -bn > $tmpfile
+  dumpIpset "$1" | awk '{ print $3 }' | sort -bn > $tmpfile
   N=$(wc -l < $tmpfile)
 
   if [[ $N -gt 7 ]]; then
@@ -101,13 +100,13 @@ while getopts aAdDptT opt
 do
   shift || true  # OPTARG is optional
   case $opt in
-    a)  dump ${1:-tor-ddos-443}  | anonymise  ;;
-    A)  dump ${1:-tor-ddos6-443} | anonymise6 ;;
-    d)  dump ${1:-tor-ddos-443}  ;;
-    D)  dump ${1:-tor-ddos6-443} ;;
-    p)  plot_ip_occurrences $@ ;;
-    t)  plot_timeout ${1:-tor-ddos-443} ;;
-    T)  plot_timeout ${1:-tor-ddos6-443} ;;
+    a)  dumpIpset ${1:-tor-ddos-443}  | anonymiseIp  ;;
+    A)  dumpIpset ${1:-tor-ddos6-443} | anonymiseIp6 ;;
+    d)  dumpIpset ${1:-tor-ddos-443}  ;;
+    D)  dumpIpset ${1:-tor-ddos6-443} ;;
+    p)  plotIpOccurrences $@ ;;
+    t)  plotTimeoutValues ${1:-tor-ddos-443} ;;
+    T)  plotTimeoutValues ${1:-tor-ddos6-443} ;;
     *)  echo "unknown parameter '$opt'"; exit 1 ;;
   esac
 done
