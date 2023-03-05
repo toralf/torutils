@@ -6,6 +6,14 @@
 # update and restart Tor under Gentoo Linux (OpenRC)
 
 
+
+function rebuild()   {
+  echo
+  date
+  emerge -1 net-vpn/tor
+}
+
+
 #######################################################################
 set -euf
 export LANG=C.utf8
@@ -13,8 +21,7 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 if [[ ! -d ~/tor ]]; then
   cd ~
-  echo " cloning ..."
-  git clone -q https://git.torproject.org/tor.git
+  git clone https://git.torproject.org/tor.git
 else
   cd ~/tor
   tmpfile=$(mktemp /tmp/$(basename $0).XXXXXX)
@@ -25,40 +32,26 @@ else
     echo
     git log $range
     echo
+
     rm $tmpfile
+    rebuild
+
+    for i in tor tor2 tor3
+    do
+      echo
+      date
+      echo " restart $i"
+      rc-service $i restart || true
+    done
   else
     rm $tmpfile
-    if [[ $# -eq 0 ]]; then
+    # force a rebuild if eg. libevent was updated and tor would fail at next start
+    if tor --version 1>/dev/null; then
       exit 0
     fi
+    rebuild
   fi
 fi
-
-echo
-date
-cd ~
-emerge -1 net-vpn/tor
-
-set +e
-
-echo
-date
-echo " restart Tor"
-rc-service tor  restart
-echo " restart Tor 2"
-rc-service tor2 restart
-echo " restart Tor 3"
-rc-service tor3 restart
-
-echo
-date
-echo " restarting orstatus"
-pkill -ef $(dirname $0)/orstatus.py
-export PYTHONPATH=/root/stem
-for port in 9051 29051 29051
-do
-  $(dirname $0)/orstatus.py --ctrlport $port --address ::1 >> /tmp/orstatus-$port &
-done
 
 echo
 date
