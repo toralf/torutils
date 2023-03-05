@@ -56,14 +56,16 @@ def main():
         else:
           ORPort6 = port
 
-    except Exception as Exc:
+    except:
       print('Woops, control ports aren\'t configured')
-      print(Exc)
       return
 
     relays = {}  # address => [orports...]
     relays = parse_consensus(relays, '/var/lib/tor/data/cached-consensus')
-    relays = parse_consensus(relays, '/var/lib/tor/data2/cached-consensus')
+    try:
+      relays = parse_consensus(relays, '/var/lib/tor/data2/cached-consensus')
+    except:
+      pass
 
     MaxOpened = {}  # hold the maximum amount of opened  ports
     MaxClosed = {}  # hold the maximum amount of closed  ports

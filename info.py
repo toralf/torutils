@@ -17,6 +17,7 @@ from stem.control import Listener
 from stem.descriptor import parse_file
 from stem.util.connection import get_connections, port_usage
 
+
 HEADER_LINE = ' {version}   uptime: {uptime}   flags: {flags}'
 
 DIV = '+%s+%s+%s+' % ('-' * 30, '-' * 7, '-' * 7)
@@ -53,15 +54,17 @@ def main(args=None):
   parser.add_argument('-r', '--resolver', help='default: autodetected', default='')
   args = parser.parse_args()
 
-  controller = connect(control_port=(args.address, args.ctrlport))
-  if not controller:
+  try:
+    controller = connect(control_port=(args.address, args.ctrlport))
+  except:
+    print('Woops, controller connect failed')
     sys.exit(1)
 
   try:
     desc = controller.get_network_status(default=None)
     pid = controller.get_pid()
-  except Exception as Exc:
-    print(Exc)
+  except:
+    print('Woops, controller network status failed')
     sys.exit(1)
 
   print(HEADER_LINE.format(
@@ -72,15 +75,15 @@ def main(args=None):
 
   try:
     policy = controller.get_exit_policy()
-  except Exception as Exc:
-    print(Exc)
+  except:
+    print('Woops, controller exit policy failed')
 
   relays = {}  # address => [orports...]
+  relays = parse_consensus(relays, '/var/lib/tor/data/cached-consensus')
   try:
-    relays = parse_consensus(relays, '/var/lib/tor/data/cached-consensus')
     relays = parse_consensus(relays, '/var/lib/tor/data2/cached-consensus')
-  except Exception as Exc:
-    print(Exc)
+  except:
+    pass
 
   categories = collections.OrderedDict((
     (INBOUND_OR_FROM_RELAY, []),
@@ -118,8 +121,8 @@ def main(args=None):
         exit_connections.setdefault(conn.remote_port, []).append(conn)
       else:
         categories[OUTBOUND_UNKNOWN].append(conn)
-  except Exception as Exc:
-    print(Exc)
+  except:
+    print('Woops, get connections failed')
     sys.exit(1)
 
   # prettify statistic output
