@@ -14,6 +14,29 @@ function rebuild()   {
 }
 
 
+function restart()  {
+  for i in tor tor2 tor3
+  do
+    echo
+    date
+    echo " restart $i"
+    if ! rc-service $i restart; then
+      if pid=$(cat /run/tor/$i.pid); then
+        echo " get roughly with pid $pid"
+        if kill -9 $pid; then
+          sleep 1
+          rc-service $i zap start
+        else
+          echo " can't kill $pid ?!"
+        fi
+      else
+        echo " no pid ?!"
+      fi
+    fi
+  done
+}
+
+
 #######################################################################
 set -euf
 export LANG=C.utf8
@@ -34,24 +57,17 @@ else
     echo
 
     rm $tmpfile
-    rebuild
-
-    for i in tor tor2 tor3
-    do
-      echo
-      date
-      echo " restart $i"
-      rc-service $i restart || true
-    done
   else
     rm $tmpfile
-    # force a rebuild if eg. libevent was updated and tor would fail at next start
+    # pass to rebuild if eg. libevent was updated and tor would fail at next start
     if tor --version 1>/dev/null; then
       exit 0
     fi
-    rebuild
   fi
 fi
+
+rebuild
+restart
 
 echo
 date
