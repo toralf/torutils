@@ -24,6 +24,10 @@ A heavier attack was observed at [12th](./doc/network-metric-Nov-12th.svg) of No
 A periodic drop down of the socket count metric, vanishing over time appeared at
 [5th](./doc/network-metric-Dec-05th.svg) of Dec.
 
+The rules set seems to still cover well the current attacks as seen in the graphs for
+[7th](./doc/network-metric-Mar-7th.svg) of March.
+The CPU spikes correlates to the spikes of the inbound packets counter.
+
 ¹ Discussion started in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 of the [Tor project tracker](https://www.torproject.org/) and
 continued in ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093)
