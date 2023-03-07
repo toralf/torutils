@@ -14,7 +14,7 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 while :
 do
   if [[ "$(runlevel)" = "N 3" ]]; then
-    for s in ssh tor tor2 tor3
+    for s in ssh tor tor2 tor3 unbound
     do
       rc-service -qq $s status
       if [[ $? -eq 32 ]]; then
