@@ -74,7 +74,7 @@ function __fill_multilist() {
 
 
 function __fill_ddoslist() {
-  __create_ipset $ddoslist "timeout $(( 24*60*60 )) maxelem $(( 2**20 ))"
+  __create_ipset $ddoslist "timeout $(( 24*3600 )) maxelem $(( 2**20 ))"
   if [[ -f /var/tmp/$ddoslist ]]; then
     cat /var/tmp/$ddoslist |
     xargs -r -n 3 -P $jobs ipset add -exist $ddoslist
@@ -104,7 +104,7 @@ function addTor() {
     $synpacket -m set --match-set $trustlist src -j ACCEPT
 
     # rule 2
-    $synpacket $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 6/minute --hashlimit-burst 5 --hashlimit-htable-expire $(( 24*60*60*1000 )) -j SET --add-set $ddoslist src --exist
+    $synpacket $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 6/minute --hashlimit-burst 5 --hashlimit-htable-expire $(( 24*3600*1000 )) -j SET --add-set $ddoslist src --exist
     $synpacket -m set --match-set $ddoslist src -j DROP
 
     # rule 3
