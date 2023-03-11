@@ -62,10 +62,11 @@ def main(args=None):
 
   try:
     desc = controller.get_network_status(default=None)
-    pid = controller.get_pid()
   except:
     print('Woops, controller network status failed')
     sys.exit(1)
+
+  pid = controller.get_pid()
 
   print(HEADER_LINE.format(
     version=str(controller.get_version()).split()[0],
@@ -73,10 +74,7 @@ def main(args=None):
     flags=', '.join(desc.flags if desc else ['none']),
   ))
 
-  try:
-    policy = controller.get_exit_policy()
-  except:
-    print('Woops, controller exit policy failed')
+  policy = controller.get_exit_policy()
 
   relays = {}  # address => [orports...]
   relays = parse_consensus(relays, '/var/lib/tor/data/cached-consensus')
@@ -196,10 +194,10 @@ def main(args=None):
   ddos6 = [address for address in ipv6 if len(ipv6[address]) > limit]
   if ddos4:
     print('%5i inbound non-relay v4 with > %i connections' % (len(ddos4), limit))
-    # print(ddos4)
+    # print(sorted(ddos4))
   if ddos6:
     print('%5i inbound non-relay v6 with > %i connections' % (len(ddos6), limit))
-    # print(ddos6)
+    # print(sorted(ddos6))
 
 
 if __name__ == '__main__':
