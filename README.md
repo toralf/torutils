@@ -32,6 +32,9 @@ The CPU spikes correlates to the spikes of the inbound packets counter.
 of the [Tor project tracker](https://www.torproject.org/) and
 continued in ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093)
 
+The data plots above are created by [sysstat](http://sebastien.godard.pagesperso-orange.fr/).
+And, I do use a Prometheus+Grafana stack and created [this](./doc/grafana-dashboard.json) dashboard for further analysis.
+
 ### Quick start
 
 Install the dependencies, eg. for Ubuntu 22.04:
@@ -171,7 +174,6 @@ sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
 
-The data shown in the [first chapter](#block-ddos) are collected by [sysstat]((http://sebastien.godard.pagesperso-orange.fr/)).
 This crontab entry is used to sample 1 data point per minute:
 
 ```crontab
