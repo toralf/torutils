@@ -33,7 +33,10 @@ of the [Tor project tracker](https://www.torproject.org/) and
 continued in ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093)
 
 The data plots above are created by [sysstat](http://sebastien.godard.pagesperso-orange.fr/).
-And, I do use a Prometheus+Grafana stack and created [this](./doc/grafana-dashboard.json) dashboard for further analysis.
+And, I do use a Prometheus+Grafana stack,
+[node_exporter](https://github.com/prometheus/node_exporter) and
+[iptables_exporter](https://github.com/kbknapp/iptables_exporter)
+to create [this](./doc/grafana-dashboard.json) dashboard for further analysis.
 
 ### Quick start
 
