@@ -35,12 +35,12 @@ function __create_ipset() {
 
   if ! $cmd 2>/dev/null; then
     local content=$(ipset list $name | sed -e '1,8d')
-    if ! ipset destroy $name; then
-      echo " ipset does not work, cannot continue" >&2
-      exit 1
+    if ! ipset destroy $name 2>/dev/null; then
+      echo " ipset $name cannot be re-created, use existing ..." >&2
+    else
+      $cmd
+      { echo $content | xargs -r -n 3 -P $jobs ipset add -exist $name ; } &
     fi
-    $cmd
-    { echo $content | xargs -r -n 3 -P $jobs ipset add -exist $name ; } &
   fi
 }
 
