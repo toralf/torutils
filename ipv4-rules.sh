@@ -158,8 +158,11 @@ function setSysctlValues() {
   sysctl -w net.netfilter.nf_conntrack_max=$(( 2**21 ))
 
   # was non-empty: conntrack -S | grep -v insert_failed=0
-  sysctl -w net.ipv4.tcp_max_syn_backlog=$(( 2**16 ))
-  sysctl -w net.core.somaxconn=$(( 2**16 ))
+  # and ListenDrops should be zero here:
+  # cat /proc/net/netstat | awk '(f==0) { i=1; while ( i<=NF) {n[i] = $i; i++ }; f=1; next} \
+  #  (f==1){ i=2; while ( i<=NF){ printf "%s = %d\n", n[i], $i; i++}; f=0}' | grep 'Drop'
+  sysctl -w net.ipv4.tcp_max_syn_backlog=$(( 2**18 ))
+  sysctl -w net.core.somaxconn=$(( 2**18 ))
 }
 
 
