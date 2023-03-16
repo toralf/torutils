@@ -688,6 +688,30 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
+          "expr": "sum by(table) (rate(iptables_rule_packets_total{chain=\"INPUT\", table=\"filter\", rule=~\"-m conntrack --ctstate INVALID -j DROP|-p tcp -m tcp ! --tcp-flags FIN,SYN,RST,ACK SYN -m state --state NEW -j DROP\"}[$__rate_interval]))",
+          "hide": false,
+          "legendFormat": "state",
+          "range": true,
+          "refId": "F"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "builder",
+          "expr": "sum by(table) (rate(iptables_rule_packets_total{chain=\"INPUT\", table=\"filter\", rule=~\"-m conntrack --ctstate INVALID -j DROP\"}[$__rate_interval]))",
+          "hide": false,
+          "legendFormat": "ctstate",
+          "range": true,
+          "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "builder",
           "expr": "rate(node_netstat_TcpExt_ListenDrops[$__rate_interval])",
           "hide": false,
           "legendFormat": "Drops",
@@ -902,6 +926,6 @@
   "timezone": "utc",
   "title": "Tor",
   "uid": "FgvRNta4k",
-  "version": 90,
+  "version": 92,
   "weekStart": ""
 }
