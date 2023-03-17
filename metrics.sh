@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
 
@@ -11,10 +12,10 @@ export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 
-edir=${1:-/var/lib/node_exporter} # default directory of Gentoo linux
+ne_dir=${1:-/var/lib/node_exporter} # default directory under Gentoo Linux
 
-if [[ ! -d $edir ]]; then
-  echo -e " exporter directory '$edir' does not exist" >&2
+if [[ ! -d $ne_dir ]]; then
+  echo -e " exporter directory '$ne_dir' does not exist" >&2
   exit 1
 fi
 
@@ -72,5 +73,5 @@ do
   done
 done
 
-mv $tmpfile $edir/torutils.prom
-chmod a+r  $edir/torutils.prom
+mv $tmpfile $ne_dir/torutils.prom
+chmod a+r  $ne_dir/torutils.prom
