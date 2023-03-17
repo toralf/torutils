@@ -23,20 +23,16 @@ for [these](https://nusenu.github.io/OrNetStats/zwiebeltoralf.de.html) 2 relays.
 A heavier attack was observed at [12th](./doc/network-metric-Nov-12th.svg) of Nov.
 A periodic drop down of the socket count metric, vanishing over time appeared at
 [5th](./doc/network-metric-Dec-05th.svg) of Dec.
+Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are handled well too.
 
-The rules set seems to still cover well the current attacks as seen in the graphs for
-[7th](./doc/network-metric-Mar-7th.svg) of March.
-The CPU spikes correlates to the spikes of the inbound packets counter.
+All graphs above are created by [sysstat](http://sebastien.godard.pagesperso-orange.fr/).
+For a deeper analysis I do use [this](./grafana-dashboard.json) Grafana dashboard.
+It displays data from [node_exporter](https://github.com/prometheus/node_exporter),
+Tor MetricsPort and [metrics.sh](./metrics.sh).
 
 ¹ Discussion started in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 of the [Tor project tracker](https://www.torproject.org/) and
-continued in ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093)
-
-The data plots above are created by [sysstat](http://sebastien.godard.pagesperso-orange.fr/).
-And, I do use a Prometheus+Grafana stack,
-[node_exporter](https://github.com/prometheus/node_exporter) and
-[iptables_exporter](https://github.com/kbknapp/iptables_exporter)
-to create [this](./doc/grafana-dashboard.json) dashboard for further analysis.
+continued in ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093).
 
 ### Quick start
 
@@ -55,7 +51,6 @@ sudo ./ipv4-rules.sh start
 ```
 
 This replaces any current content of the iptables _filter_ table with the rule set described below.
-Make a backup of the current tables before if needed.
 Best is to (re-)start Tor afterwards.
 The live statistics can be watched by:
 
@@ -70,6 +65,7 @@ sudo ./ipv4-rules.sh stop
 ```
 
 If the script doesn't work out of the box then please proceed with the [Installation](#installation) section.
+Make a backup of the current _filter_ table before if needed.
 
 ### Rule set
 
@@ -177,11 +173,14 @@ sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
 
-This crontab entry is used to sample 1 data point per minute:
+These crontab entries are used to collect stats data:
 
 ```crontab
 @reboot     /usr/lib/sa/sa1 --boot
 * * * * *   /usr/lib/sa/sa1 1 1 -S XALL
+
+# telemetry
+* * * * *   for i in 0 1 2 3; do /opt/torutils/metrics.sh &>/dev/null; [[ $i -lt 3 ]] && sleep 15; done
 ```
 
 ## Query Tor via its API
