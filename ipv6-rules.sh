@@ -36,11 +36,12 @@ function __create_ipset() {
 
   if ! $cmd 2>/dev/null; then
     local content=$(ipset list $name | sed -e '1,8d')
-    if ! ipset destroy $name 2>/dev/null; then
-      echo " ipset $name cannot be re-created, use existing ..." >&2
-    else
+    if ipset destroy $name 2>/dev/null; then
       $cmd
       { echo $content | xargs -r -n 3 -P $jobs ipset add -exist $name ; } &
+    else
+      echo " ipset cannot be changed, use existing:" >&2
+      ipset list -t $name >&2
     fi
   fi
 }
@@ -105,7 +106,7 @@ function addTor() {
     local synpacket="ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn"
 
     local ddoslist="tor-ddos6-$orport"    # this holds ips classified as DDoS'ing the local OR port
-    __fill_ddoslist &
+    __fill_ddoslist
 
     # rule 1
     $synpacket -m set --match-set $trustlist src -j ACCEPT
