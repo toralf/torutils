@@ -33,20 +33,16 @@ function __create_ipset() {
   local cmd="ipset create -exist $name hash:ip family inet ${2:-}"
 
   if ! $cmd 2>/dev/null; then
-    local content=$(ipset list $name | sed -e '1,8d')
-    if ipset destroy $name 2>/dev/null; then
+    if ipset list -t $name &>/dev/null; then
+      saveIpset
+      ipset destroy $name
       $cmd
-      { echo $content | xargs -r -n 3 -P $jobs ipset add -exist $name ; } &
-    else
-      echo " ipset cannot be changed, use existing:" >&2
-      ipset list -t $name >&2
     fi
   fi
 }
 
 
 function __fill_trustlist() {
-  __create_ipset $trustlist
   (
     echo "193.187.88.42 193.187.88.43 193.187.88.44 193.187.88.45 193.187.88.46 141.212.118.18"
     echo "45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.39 131.188.40.189 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118"
@@ -59,7 +55,6 @@ function __fill_trustlist() {
 
 
 function __fill_multilist() {
-  __create_ipset $multilist
   (
     if [[ -s /var/tmp/$multilist ]]; then
       cat /var/tmp/$multilist
@@ -76,7 +71,6 @@ function __fill_multilist() {
 
 
 function __fill_ddoslist() {
-  __create_ipset $ddoslist "timeout $(( 24*3600 )) maxelem $(( 2**20 ))"
   if [[ -f /var/tmp/$ddoslist ]]; then
     cat /var/tmp/$ddoslist |
     xargs -r -n 3 -P $jobs ipset add -exist $ddoslist
@@ -86,7 +80,9 @@ function __fill_ddoslist() {
 
 
 function addTor() {
+  __create_ipset $trustlist
   __fill_trustlist &
+  __create_ipset $multilist
   __fill_multilist &
 
   local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 32 --hashlimit-htable-size $(( 2**20 )) --hashlimit-htable-max $(( 2**20 ))"
@@ -100,7 +96,8 @@ function addTor() {
     local synpacket="iptables -A INPUT -p tcp --dst $orip --dport $orport --syn"
 
     local ddoslist="tor-ddos-$orport"     # this holds ips classified as DDoS'ing the local OR port
-    __fill_ddoslist
+    __create_ipset $ddoslist "timeout $(( 24*3600 )) maxelem $(( 2**20 ))"
+    __fill_ddoslist &
 
     # rule 1
     $synpacket -m set --match-set $trustlist src -j ACCEPT
@@ -210,12 +207,20 @@ function bailOut()  {
 }
 
 
-function saveIpsets() {
+
+function saveIpset() {
+  local name=$1
+
+  ipset list $name | sed -e '1,8d' > /var/tmp/$name.new
+  mv /var/tmp/$name.new /var/tmp/$name
+}
+
+
+function saveAllIpsets() {
   ipset list -t | grep "^Name: tor-ddos-" | awk '{ print $2 }' |
   while read name
   do
-    ipset list $name | sed -e '1,8d' > /var/tmp/$name.new
-    mv /var/tmp/$name.new /var/tmp/$name
+    saveIpset $name
   done
 }
 
@@ -241,9 +246,9 @@ case $action in
           addTor ${*:-${CONFIGURED_RELAYS:-$(getConfiguredRelays)}}
           ;;
   stop)   clearRules
-          saveIpsets
+          saveAllIpsets
           ;;
-  save)   saveIpsets
+  save)   saveAllIpsets
           ;;
   update) __fill_trustlist
           __fill_multilist
