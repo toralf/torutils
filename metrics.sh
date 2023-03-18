@@ -7,6 +7,38 @@
 # https://prometheus.io/docs/instrumenting/exposition_formats/
 
 
+function histogram()  {
+  perl -wane '
+    BEGIN {
+      @arr = (0) x 24;  # 0-23 hour
+      $inf = 0;         # anything above
+      $sum = 0;
+    }
+    {
+      chomp();
+      my $hour = int(($F[0]-1)/3600);
+      if ($hour <= 23)  {
+        $arr[$hour]++;
+      } else {
+        $inf++;
+      }
+      $sum += $hour;
+    }
+
+    END {
+      my $N = 0;
+      for (my $i = 0; $i <= $#arr; $i++) {
+        $N += $arr[$i];
+        print "'${var}'_bucket{ipver=\"'${v:-4}'\",orport=\"'$orport'\",le=\"$i\"} $N\n";
+      }
+      my $count = $N + $inf;
+      print "'${var}'_bucket{ipver=\"'${v:-4}'\",orport=\"'$orport'\",le=\"+Inf\"} $count\n";
+      print "'${var}'_count{ipver=\"'${v:-4}'\",orport=\"'$orport'\"} $count\n";
+      print "'${var}'_sum{ipver=\"'${v:-4}'\",orport=\"'$orport'\"} $sum\n";
+    }'
+}
+
+
 #######################################################################
 set -eu
 export LANG=C.utf8
@@ -18,7 +50,9 @@ if [[ ! -d $datadir ]]; then
   exit 1
 fi
 
-tmpfile=$(mktemp /tmp/$(basename $0).XXXXXX)
+tmpfile=$datadir/torutils.prom.tmp
+echo "# $0   $(date -R)" > $tmpfile
+chmod a+r $tmpfile
 
 # iptables table stats
 var="torutils_packets"
@@ -44,7 +78,6 @@ do
   done
 done
 
-# ipset number of entries
 var="torutils_ipset_total"
 echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge" >> $tmpfile
 for v in "" 6
@@ -57,7 +90,6 @@ do
   done
 done
 
-# ipset timeout histogram
 var="torutils_ipset_timeout"
 echo -e "# HELP $var A histogram of ipset timeout values\n# TYPE $var histogram" >> $tmpfile
 for v in "" 6
@@ -65,47 +97,17 @@ do
   ipset list -t | grep -e "^Name" | awk '/tor-ddos'$v'-/ { print $2 }' |
   while read -r name
   do
-    orport=$(cut -f3 -d'-' <<< $name)
-
-    ipset list -s $name | sed -e '1,8d' |
-    perl -wane '
-      BEGIN {
-        @arr = (0) x 24;  # 0-23 hour
-        $inf = 0;         # anything above
-        $sum = 0;
-      }
-      {
-        chomp();
-        my $hour = int(($F[2]-1)/3600);
-        if ($hour <= 23)  {
-          $arr[$hour]++;
-        } else {
-          $inf++;
-        }
-        $sum += $hour;
-      }
-
-      END {
-        my $N = 0;
-        for (my $i = 0; $i <= $#arr; $i++) {
-          $N += $arr[$i];
-          print "'${var}'_bucket{ipver=\"'${v:-4}'\",orport=\"'$orport'\",le=\"$i\"} $N\n";
-        }
-        my $count = $N + $inf;
-        print "'${var}'_bucket{ipver=\"'${v:-4}'\",orport=\"'$orport'\",le=\"+Inf\"} $count\n";
-        print "'${var}'_count{ipver=\"'${v:-4}'\",orport=\"'$orport'\"} $count\n";
-        print "'${var}'_sum{ipver=\"'${v:-4}'\",orport=\"'$orport'\"} $sum\n";
-      }' >> $tmpfile
+    orport=$(cut -f 3 -d'-' <<< $name)
+    ipset list -s $name | sed -e '1,8d' | cut -f 3 -d ' ' | histogram >> $tmpfile
   done
 done
 
-# iptables module hashlimit
 var="torutils_hashlimit_total"
 echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge" >> $tmpfile
 for v in "" 6
 do
   wc -l /proc/net/ip${v}t_hashlimit/*ddos* |
-  grep -F -e '-ddos-' |
+  grep -v ' total' |
   while read -r count name
   do
     orport=$(cut -f3 -d'-' <<< $name)
@@ -113,5 +115,15 @@ do
   done
 done
 
+var="torutils_hashlimit_timeout"
+echo -e "# HELP $var A histogram of hashlimit timeout values\n# TYPE $var histogram" >> $tmpfile
+for v in "" 6
+do
+  for name in /proc/net/ip${v}t_hashlimit/*ddos*
+  do
+    orport=$(cut -f 3 -d'-' <<< $name)
+    cut -f 1 -d ' ' $name | histogram >> $tmpfile
+  done
+done
+
 mv $tmpfile $datadir/torutils.prom
-chmod a+r  $datadir/torutils.prom
