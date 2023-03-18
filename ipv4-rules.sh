@@ -34,7 +34,7 @@ function __create_ipset() {
 
   if ! $cmd 2>/dev/null; then
     if ipset list -t $name &>/dev/null; then
-      saveIpset
+      saveIpset $name
       ipset destroy $name
       $cmd
     fi
