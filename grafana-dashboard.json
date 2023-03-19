@@ -1458,8 +1458,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
+        "h": 7,
+        "w": 15,
         "x": 0,
         "y": 60
       },
@@ -1527,9 +1527,9 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
+        "h": 7,
+        "w": 7,
+        "x": 15,
         "y": 60
       },
       "id": 44,
@@ -1596,12 +1596,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
+        "h": 7,
+        "w": 15,
         "x": 0,
-        "y": 68
+        "y": 67
       },
-      "id": 45,
+      "id": 52,
       "options": {
         "displayMode": "gradient",
         "minVizHeight": 10,
@@ -1634,7 +1634,7 @@
           "refId": "A"
         }
       ],
-      "title": "ipset  tor-ddos-8443 IPv4",
+      "title": "ipset tor-ddos-8443 IPv4",
       "type": "bargauge"
     },
     {
@@ -1665,12 +1665,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 68
+        "h": 7,
+        "w": 7,
+        "x": 15,
+        "y": 67
       },
-      "id": 42,
+      "id": 54,
       "options": {
         "displayMode": "gradient",
         "minVizHeight": 10,
@@ -1703,7 +1703,7 @@
           "refId": "A"
         }
       ],
-      "title": "ipset  tor-ddos-8443 IPv6",
+      "title": "ipset tor-ddos-8443 IPv6",
       "type": "bargauge"
     },
     {
@@ -1734,12 +1734,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
+        "h": 7,
+        "w": 15,
         "x": 0,
-        "y": 76
+        "y": 74
       },
-      "id": 43,
+      "id": 53,
       "options": {
         "displayMode": "gradient",
         "minVizHeight": 10,
@@ -1772,7 +1772,7 @@
           "refId": "A"
         }
       ],
-      "title": "ipset  tor-ddos-9001 IPv4",
+      "title": "ipset tor-ddos-9001 IPv4",
       "type": "bargauge"
     },
     {
@@ -1803,12 +1803,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 76
+        "h": 7,
+        "w": 7,
+        "x": 15,
+        "y": 74
       },
-      "id": 46,
+      "id": 55,
       "options": {
         "displayMode": "gradient",
         "minVizHeight": 10,
@@ -1841,7 +1841,7 @@
           "refId": "A"
         }
       ],
-      "title": "ipset  tor-ddos-9001 IPv6",
+      "title": "ipset tor-ddos-9001 IPv6",
       "type": "bargauge"
     },
     {
@@ -1850,7 +1850,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 84
+        "y": 81
       },
       "id": 48,
       "panels": [],
@@ -1888,9 +1888,9 @@
         "h": 7,
         "w": 15,
         "x": 0,
-        "y": 85
+        "y": 82
       },
-      "id": 49,
+      "id": 56,
       "options": {
         "displayMode": "gradient",
         "minVizHeight": 10,
@@ -1923,7 +1923,76 @@
           "refId": "A"
         }
       ],
-      "title": "hashlimit  tor-ddos-443 IPv4",
+      "title": "hashlimit tor-ddos-443 IPv4",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 7,
+        "x": 15,
+        "y": 82
+      },
+      "id": 59,
+      "options": {
+        "displayMode": "gradient",
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "text": {
+          "valueSize": 15
+        }
+      },
+      "pluginVersion": "9.3.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "builder",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", orport=\"443\"}",
+          "format": "heatmap",
+          "legendFormat": "{{le}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "hashlimit tor-ddos-443 IPv6",
       "type": "bargauge"
     },
     {
@@ -1957,9 +2026,9 @@
         "h": 7,
         "w": 15,
         "x": 0,
-        "y": 92
+        "y": 89
       },
-      "id": 50,
+      "id": 57,
       "options": {
         "displayMode": "gradient",
         "minVizHeight": 10,
@@ -1992,7 +2061,7 @@
           "refId": "A"
         }
       ],
-      "title": "hashlimit  tor-ddos-8443 IPv4",
+      "title": "hashlimit tor-ddos-8443 IPv4",
       "type": "bargauge"
     },
     {
@@ -2023,12 +2092,81 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 7,
+        "w": 7,
+        "x": 15,
+        "y": 89
+      },
+      "id": 60,
+      "options": {
+        "displayMode": "gradient",
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "text": {
+          "valueSize": 15
+        }
+      },
+      "pluginVersion": "9.3.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "builder",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", orport=\"8443\"}",
+          "format": "heatmap",
+          "legendFormat": "{{le}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "hashlimit tor-ddos-8443 IPv6",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
         "w": 15,
         "x": 0,
-        "y": 99
+        "y": 96
       },
-      "id": 51,
+      "id": 58,
       "options": {
         "displayMode": "gradient",
         "minVizHeight": 10,
@@ -2061,7 +2199,76 @@
           "refId": "A"
         }
       ],
-      "title": "hashlimit  tor-ddos-9001 IPv4",
+      "title": "hashlimit tor-ddos-9001 IPv4",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 7,
+        "x": 15,
+        "y": 96
+      },
+      "id": 61,
+      "options": {
+        "displayMode": "gradient",
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "text": {
+          "valueSize": 15
+        }
+      },
+      "pluginVersion": "9.3.6",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "builder",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", orport=\"9001\"}",
+          "format": "heatmap",
+          "legendFormat": "{{le}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "hashlimit tor-ddos-9001 IPv6",
       "type": "bargauge"
     }
   ],
@@ -2080,6 +2287,6 @@
   "timezone": "utc",
   "title": "Tor",
   "uid": "FgvRNta4k",
-  "version": 123,
+  "version": 125,
   "weekStart": ""
 }
