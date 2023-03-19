@@ -27,8 +27,6 @@ Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are
 
 All graphs above are created by [sysstat](http://sebastien.godard.pagesperso-orange.fr/).
 For a deeper analysis I do use [this](./grafana-dashboard.json) Grafana dashboard.
-It displays data from [node_exporter](https://github.com/prometheus/node_exporter),
-Tor MetricsPort and [metrics.sh](./metrics.sh).
 
 ¹ Discussion started in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 of the [Tor project tracker](https://www.torproject.org/) and
@@ -146,15 +144,16 @@ To allow inbound traffic to other local service(s), either:
 
 before you start the script.
 To **append** the rules of this script onto the local _iptables_ rules (instead **overwrite** existing rules)
-comment out the `clearAll` call (line [229](ipv4-rules.sh#L229)).
+you've to comment out the `clearAll` call (line [229](ipv4-rules.sh#L229)).
 The script sets few _sysctl_ values (line [230](ipv4-rules.sh#L230)).
-Preferred is however to set those configs under _/etc/sysctl.d/_ outsite of the script.
+Those can be set permanently under _/etc/sysctl.d/_ outsite of this script.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
 then comment out the `addHetzner` call (line [232](ipv4-rules.sh#L232)).
 
 ### Helpers
 
-Few scripts were made to fine tune the parameters of the rule set.
+Few scripts helps to fine tune the parameters of the rule set.
+[metrics.sh](./metrics.sh) exports data to Prometheus.
 [ddos-inbound.sh](./ddos-inbound.sh) lists ips having more inbound connections to the ORPort than a given
 limit ([example](./doc/ddos-inbound.sh.txt)).
 [hash-stats.sh](./hash-stats.sh) plots the distribution of timeout values of an iptables hash
@@ -162,7 +161,8 @@ limit ([example](./doc/ddos-inbound.sh.txt)).
 [ipset-stats.sh](./ipset-stats.sh) plots distribution of timeout values of an ipset as well as occurrences
 of ip addresses in subsequent ipset output files ([example](./doc/ipset-stats.sh.txt)).
 For plots the package [gnuplot](http://www.gnuplot.info/) is needed.
-The SVG graphs are created by:
+
+The SVG graphs are created by the sysstat command _sadf_:
 
 ```bash
 args="-n DEV,SOCK,SOCK6 --iface=enp8s0"   # set it to "-A" to display all collected metrics
@@ -173,14 +173,13 @@ sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
 
-These crontab entries are used to collect stats data:
+These crontab entries are used to collect stats data for sysstat and Prometheus repsectively:
 
 ```crontab
 @reboot     /usr/lib/sa/sa1 --boot
 * * * * *   /usr/lib/sa/sa1 1 1 -S XALL
 
-# telemetry
-* * * * *   for i in 0 1 2 3; do /opt/torutils/metrics.sh &>/dev/null; [[ $i -lt 3 ]] && sleep 15; done
+* * * * *   for i in 0 1 2 3; do /opt/torutils/metrics.sh &>/dev/null; [[ $i -lt 3 ]] && sleep 14; done
 ```
 
 ## Query Tor via its API
