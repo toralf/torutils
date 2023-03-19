@@ -276,10 +276,22 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "(sum(rate(node_cpu_seconds_total{mode=\"user\"}[$__rate_interval])) * 100) / on(label) sum by(instance) (rate(node_cpu_seconds_total[$__rate_interval]))",
+          "expr": "(sum(rate(node_cpu_seconds_total{mode=\"user\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total[$__rate_interval]))",
           "legendFormat": "user",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "builder",
+          "expr": "(sum(rate(node_cpu_seconds_total{mode=\"system\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total[$__rate_interval]))",
+          "hide": false,
+          "legendFormat": "system",
+          "range": true,
+          "refId": "B"
         }
       ],
       "title": "CPU",
@@ -1458,8 +1470,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 15,
+        "h": 6,
+        "w": 14,
         "x": 0,
         "y": 60
       },
@@ -1527,9 +1539,9 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 7,
-        "x": 15,
+        "h": 6,
+        "w": 10,
+        "x": 14,
         "y": 60
       },
       "id": 44,
@@ -1596,10 +1608,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 15,
+        "h": 6,
+        "w": 14,
         "x": 0,
-        "y": 67
+        "y": 66
       },
       "id": 52,
       "options": {
@@ -1665,10 +1677,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 7,
-        "x": 15,
-        "y": 67
+        "h": 6,
+        "w": 10,
+        "x": 14,
+        "y": 66
       },
       "id": 54,
       "options": {
@@ -1734,10 +1746,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 15,
+        "h": 6,
+        "w": 14,
         "x": 0,
-        "y": 74
+        "y": 72
       },
       "id": 53,
       "options": {
@@ -1803,10 +1815,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 7,
-        "x": 15,
-        "y": 74
+        "h": 6,
+        "w": 10,
+        "x": 14,
+        "y": 72
       },
       "id": 55,
       "options": {
@@ -1850,7 +1862,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 81
+        "y": 78
       },
       "id": 48,
       "panels": [],
@@ -1885,10 +1897,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 15,
+        "h": 6,
+        "w": 14,
         "x": 0,
-        "y": 82
+        "y": 79
       },
       "id": 56,
       "options": {
@@ -1954,10 +1966,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 7,
-        "x": 15,
-        "y": 82
+        "h": 6,
+        "w": 10,
+        "x": 14,
+        "y": 79
       },
       "id": 59,
       "options": {
@@ -2024,9 +2036,9 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 15,
+        "w": 14,
         "x": 0,
-        "y": 89
+        "y": 85
       },
       "id": 57,
       "options": {
@@ -2093,9 +2105,9 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 7,
-        "x": 15,
-        "y": 89
+        "w": 10,
+        "x": 14,
+        "y": 85
       },
       "id": 60,
       "options": {
@@ -2162,9 +2174,9 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 15,
+        "w": 14,
         "x": 0,
-        "y": 96
+        "y": 92
       },
       "id": 58,
       "options": {
@@ -2231,9 +2243,9 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 7,
-        "x": 15,
-        "y": 96
+        "w": 10,
+        "x": 14,
+        "y": 92
       },
       "id": 61,
       "options": {
@@ -2280,13 +2292,13 @@
     "list": []
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-14h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "utc",
   "title": "Tor",
   "uid": "FgvRNta4k",
-  "version": 125,
+  "version": 129,
   "weekStart": ""
 }
