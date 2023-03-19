@@ -1489,9 +1489,7 @@
           "values": false
         },
         "showUnfilled": true,
-        "text": {
-          "valueSize": 15
-        }
+        "text": {}
       },
       "pluginVersion": "9.3.6",
       "targets": [
@@ -1558,9 +1556,7 @@
           "values": false
         },
         "showUnfilled": true,
-        "text": {
-          "valueSize": 15
-        }
+        "text": {}
       },
       "pluginVersion": "9.3.6",
       "targets": [
@@ -1627,9 +1623,7 @@
           "values": false
         },
         "showUnfilled": true,
-        "text": {
-          "valueSize": 15
-        }
+        "text": {}
       },
       "pluginVersion": "9.3.6",
       "targets": [
@@ -1696,9 +1690,7 @@
           "values": false
         },
         "showUnfilled": true,
-        "text": {
-          "valueSize": 15
-        }
+        "text": {}
       },
       "pluginVersion": "9.3.6",
       "targets": [
@@ -1765,9 +1757,7 @@
           "values": false
         },
         "showUnfilled": true,
-        "text": {
-          "valueSize": 15
-        }
+        "text": {}
       },
       "pluginVersion": "9.3.6",
       "targets": [
@@ -1834,9 +1824,7 @@
           "values": false
         },
         "showUnfilled": true,
-        "text": {
-          "valueSize": 15
-        }
+        "text": {}
       },
       "pluginVersion": "9.3.6",
       "targets": [
@@ -1916,9 +1904,7 @@
           "values": false
         },
         "showUnfilled": true,
-        "text": {
-          "valueSize": 15
-        }
+        "text": {}
       },
       "pluginVersion": "9.3.6",
       "targets": [
@@ -1985,9 +1971,7 @@
           "values": false
         },
         "showUnfilled": true,
-        "text": {
-          "valueSize": 15
-        }
+        "text": {}
       },
       "pluginVersion": "9.3.6",
       "targets": [
@@ -2035,7 +2019,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 6,
         "w": 14,
         "x": 0,
         "y": 85
@@ -2054,9 +2038,7 @@
           "values": false
         },
         "showUnfilled": true,
-        "text": {
-          "valueSize": 15
-        }
+        "text": {}
       },
       "pluginVersion": "9.3.6",
       "targets": [
@@ -2104,7 +2086,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 6,
         "w": 10,
         "x": 14,
         "y": 85
@@ -2123,9 +2105,7 @@
           "values": false
         },
         "showUnfilled": true,
-        "text": {
-          "valueSize": 15
-        }
+        "text": {}
       },
       "pluginVersion": "9.3.6",
       "targets": [
@@ -2173,10 +2153,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 6,
         "w": 14,
         "x": 0,
-        "y": 92
+        "y": 91
       },
       "id": 58,
       "options": {
@@ -2192,9 +2172,7 @@
           "values": false
         },
         "showUnfilled": true,
-        "text": {
-          "valueSize": 15
-        }
+        "text": {}
       },
       "pluginVersion": "9.3.6",
       "targets": [
@@ -2242,10 +2220,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 6,
         "w": 10,
         "x": 14,
-        "y": 92
+        "y": 91
       },
       "id": 61,
       "options": {
@@ -2261,9 +2239,7 @@
           "values": false
         },
         "showUnfilled": true,
-        "text": {
-          "valueSize": 15
-        }
+        "text": {}
       },
       "pluginVersion": "9.3.6",
       "targets": [
@@ -2292,13 +2268,13 @@
     "list": []
   },
   "time": {
-    "from": "now-14h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "utc",
   "title": "Tor",
   "uid": "FgvRNta4k",
-  "version": 129,
+  "version": 132,
   "weekStart": ""
 }
