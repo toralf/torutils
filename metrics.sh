@@ -45,16 +45,16 @@ export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 datadir=${1:-/var/lib/node_exporter} # default directory under Gentoo Linux
-if [[ ! -d $datadir ]]; then
-  echo -e " exporter directory '$datadir' does not exist" >&2
-  exit 1
-fi
+cd $datadir
 
-tmpfile=$datadir/torutils.prom.tmp
+tmpfile=torutils.prom.tmp
 echo "# $0   $(date -R)" > $tmpfile
 chmod a+r $tmpfile
 
-# iptables table stats
+
+###############################
+# DROPed packets
+#
 var="torutils_packets"
 echo -e "# HELP $var Total number of packets\n# TYPE $var gauge" >> $tmpfile
 for v in "" 6
@@ -68,16 +68,19 @@ do
   for table in filter
   do
     ip${v}tables -nvxL -t $table |
-    grep 'DROP' |
-    grep -v -e "^Chain" -e "^  *pkts" -e "^$" |
+    grep 'DROP' | grep -v -e "^Chain" -e "^  *pkts" -e "^$" |
     while read -r $pars
     do
-      dpt=$(grep -Eo "(dpt:[0-9]+)" <<< "$misc" | cut -f2 -d':')
+      dpt=$(grep -Eo "(dpt:[0-9]+)" <<< "$misc" | cut -f 2 -d':')
       echo "$var{ipver=\"${v:-4}\",table=\"$table\",target=\"$target\",prot=\"$prot\",dpt=\"$dpt\",misc=\"$misc\"} $pkts"
     done >> $tmpfile
   done
 done
 
+
+###############################
+# ipset sizes
+#
 var="torutils_ipset_total"
 echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge" >> $tmpfile
 for v in "" 6
@@ -85,11 +88,15 @@ do
   ipset list -t | grep -e "^N" | xargs -n 6 | awk '/tor-ddos'$v'-/ { print $2, $6 }' |
   while read -r name size
   do
-    orport=$(cut -f3 -d'-' <<< $name)
+    orport=$(cut -f 3 -d'-' <<< $name)
     echo "$var{ipver=\"${v:-4}\",orport=\"$orport\"} $size" >> $tmpfile
   done
 done
 
+
+###############################
+# ipset timeout values
+#
 var="torutils_ipset_timeout"
 echo -e "# HELP $var A histogram of ipset timeout values\n# TYPE $var histogram" >> $tmpfile
 for v in "" 6
@@ -102,6 +109,10 @@ do
   done
 done
 
+
+###############################
+# hashlimit sizes
+#
 var="torutils_hashlimit_total"
 echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge" >> $tmpfile
 for v in "" 6
@@ -115,6 +126,10 @@ do
   done
 done
 
+
+###############################
+# hashlimit timeout values
+#
 var="torutils_hashlimit_timeout"
 echo -e "# HELP $var A histogram of hashlimit timeout values\n# TYPE $var histogram" >> $tmpfile
 for v in "" 6
