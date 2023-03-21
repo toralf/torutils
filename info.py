@@ -140,14 +140,10 @@ def main(args=None):
   print(COLUMN % ('Total', i2str(total_ipv4), i2str(total_ipv6)))
   print(DIV)
   ipv4 = [conn.remote_address for conn in categories[INBOUND_OR_FROM_RELAY] +
-                                          categories[OUTBOUND_RELAY_OR] +
-                                          categories[OUTBOUND_RELAY_NONOR] +
-                                          categories[OUTBOUND_AS_EXIT]
+                                          categories[OUTBOUND_RELAY_OR]
                                           if not conn.is_ipv6]
   ipv6 = [conn.remote_address for conn in categories[INBOUND_OR_FROM_RELAY] +
-                                          categories[OUTBOUND_RELAY_OR] +
-                                          categories[OUTBOUND_RELAY_NONOR] +
-                                          categories[OUTBOUND_AS_EXIT]
+                                          categories[OUTBOUND_RELAY_OR]
                                           if conn.is_ipv6]
   print(' %-28s    %5i   %5i' % ('relay OR connections ', len(ipv4), len(ipv6)))
   print(' %-28s    %5i   %5i' % ('         unique ips', len(set(ipv4)), len(set(ipv6))))
