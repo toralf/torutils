@@ -7,7 +7,7 @@
 # https://prometheus.io/docs/instrumenting/exposition_formats/
 
 
-function histogram()  {
+function _histogram()  {
   perl -wane '
     BEGIN {
       @arr = (0) x 24;  # 0-23 hour
