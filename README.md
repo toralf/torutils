@@ -162,24 +162,26 @@ limit ([example](./doc/ddos-inbound.sh.txt)).
 of ip addresses in subsequent ipset output files ([example](./doc/ipset-stats.sh.txt)).
 For plots the package [gnuplot](http://www.gnuplot.info/) is needed.
 
-The SVG graphs are created by the sysstat command _sadf_:
+The SVG graphs are created by the sysstat command _sadf_, the resulting SVG is fixed for a known bug:
 
 ```bash
 args="-n DEV,SOCK,SOCK6 --iface=enp8s0"   # set it to "-A" to display all collected metrics
 svg=/tmp/graph.svg
-TZ=UTC sadf -g -T /var/log/sa/sa${DAY:-`date +%d`} -O skipempty,oneday -- $args > $svg
-h=$(tail -n 2 $svg | head -n 1 | cut -f5 -d' ')   # fix the SVG canvas size
+sadf -g -t /var/log/sa/sa${DAY:-`date +%d`} -O skipempty,oneday -- $args > $svg
+h=$(tail -n 2 $svg | head -n 1 | cut -f 5 -d ' ')   # fix the SVG canvas size
 sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
 
-These crontab entries are used to collect stats data for sysstat and Prometheus repsectively:
+These crontab entries are used to collect stats data:
 
 ```crontab
+# sysstat
 @reboot     /usr/lib/sa/sa1 --boot
 * * * * *   /usr/lib/sa/sa1 1 1 -S XALL
 
-* * * * *   for i in 0 1 2 3; do /opt/torutils/metrics.sh &>/dev/null; [[ $i -lt 3 ]] && sleep 14; done
+# prometheus
+* * * * *   /opt/torutils/metrics.sh &>/dev/null
 ```
 
 ## Query Tor via its API
@@ -231,15 +233,15 @@ orstatus-stats.sh /tmp/orstatus
 
 ### Tor offline keys
 
-[key-expires.py](./key-expires.py) returns the time in seconds before the Tor mid-term signing key expires, eg:
+[key-expires.py](./key-expires.py) helps to maintain
+[Tor offline keys](https://support.torproject.org/relay-operators/offline-ed25519/).
+It returns the expiration time in seconds of the mid-term signing key, eg:
 
 ```bash
 seconds=$(sudo ./key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert)
 days=$(( seconds/86400 ))
 [[ $days -lt 23 ]] && echo "Tor signing key expires in less than $days day(s)"
 ```
-
-This is helpful if you use [Tor offline keys](https://support.torproject.org/relay-operators/offline-ed25519/).
 
 ### Prerequisites
 
