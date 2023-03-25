@@ -72,6 +72,10 @@ Make a backup of the current _filter_ table before if needed.
 Neither touch established nor outbound connections.¹
 Filter only ips, no network blocking.²
 
+¹ An attacker capable to spoof ip addresses could easily force those ip address to be blocked.
+
+² An attacker could place 1 malicious ip within a /24 or /16 range to harm all other.
+
 #### Details
 
 Generic rules for local network, ICMP, ssh and user services (if defined) are applied.
@@ -79,18 +83,14 @@ Then these rules are applied (in this order) for a connection attempt from an ip
 
 1. trust ip of Tor authorities and snowflake
 1. block ip for 1 day if the rate is > 6/min
-1. allow if the ip is known to host > 1 relay and from there're < 5 connections
-1. drop if > 2 connections³
+1. allow up to 4 connections if the ip is known to host more than 1 relay
+1. drop if there are already 2 established connections from this ip³
 1. rate limit new connection attempts at 0.5/minute
 1. accept it
 
-¹ An attacker capable to spoof ip addresses could easily force those ip address to be blocked at any time after the connection was established.
-
-² An attacker could place 1 malicious ip within a /24 or /16 range and harms all of them at once otherwise.
-
 ³ The connection limit sounds rigid.
 But how likely is it that more than the given number of Tor proxies at the same ip address do connect to the same guard at the same time?
-Is that probability big enough to be considered?
+Is this probability big enough to be considered?
 
 ### Installation
 
