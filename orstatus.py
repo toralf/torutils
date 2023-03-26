@@ -11,7 +11,6 @@
 import argparse
 import functools
 import time
-from datetime import datetime
 
 # https://github.com/torproject/stem.git
 from stem import ORStatus
