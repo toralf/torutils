@@ -82,15 +82,14 @@ Generic rules for local network, ICMP, ssh and user services (if defined) are ap
 Then these rules are applied (in this order) for a connection attempt from an ip to the local ORPort:
 
 1. trust ip of Tor authorities and snowflake
-1. block ip for 1 day if the rate is > 6/min
-1. allow up to 4 connections if the ip is known to host more than 1 relay
-1. drop if there are already 2 established connections from this ip³
+1. block ip for 1 day if the rate is > 6/min¹
+1. allow up to 4 connections from the same ip if the ip is known to host more than 1 relay
+1. drop if there are already 2 established connections from the same ip¹
 1. rate limit new connection attempts at 0.5/minute
 1. accept it
 
-³ The connection limit sounds rigid.
-But how likely is it that more than the given number of Tor proxies at the same ip address do connect to the same guard at the same time?
-Is this probability big enough to be considered?
+¹ The connection limit sounds rigid.
+But how likely do more than the given number of Tor clients at the same ip address do connect to the same guard at the same time?
 
 ### Installation
 
@@ -104,7 +103,7 @@ Therefore run this in regular intervalls (eg. via cron):
 sudo ./ipv4-rules.sh update
 ```
 
-If the parsing of the Tor config (line [186](ipv4-rules.sh#L186)) doesn't work for you then:
+If the parsing of the Tor config (line [183](ipv4-rules.sh#L183)) doesn't work for you then:
 
 1. define the local running relay(s) space separated at the command line after the keyword `start`, eg.:
 
@@ -144,11 +143,11 @@ To allow inbound traffic to other local service(s), either:
 
 before you start the script.
 To **append** the rules of this script onto the local _iptables_ rules (instead **overwrite** existing rules)
-you've to comment out the `clearAll` call (line [229](ipv4-rules.sh#L229)).
-The script sets few _sysctl_ values (line [230](ipv4-rules.sh#L230)).
+you've to comment out the call (line [166](ipv4-rules.sh#L166)).
+The script sets few _sysctl_ values (line [154](ipv4-rules.sh#L154)).
 Those can be set permanently under _/etc/sysctl.d/_ outsite of this script.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then comment out the `addHetzner` call (line [232](ipv4-rules.sh#L232)).
+then comment out the call (line [139](ipv4-rules.sh#L139)).
 
 ### Helpers
 
