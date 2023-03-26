@@ -113,21 +113,6 @@ function printMetrics() {
       echo "$var{ipver=\"${v:-4}\",orport=\"$orport\"} $count"
     done
   done
-
-
-  ###############################
-  # hashlimit timeout values
-  #
-  var="torutils_hashlimit_timeout"
-  echo -e "# HELP $var A histogram of hashlimit timeout values\n# TYPE $var histogram"
-  for v in "" 6
-  do
-    for name in /proc/net/ip${v}t_hashlimit/*ddos*
-    do
-      orport=$(cut -f 3 -d'-' <<< $name)
-      cut -f 1 -d ' ' $name | _histogram
-    done
-  done
 }
 
 
