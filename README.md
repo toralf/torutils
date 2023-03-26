@@ -69,8 +69,8 @@ Make a backup of the current _filter_ table before if needed.
 
 #### Objectives
 
-Neither touch established nor outbound connections.¹
-Filter only ips, no network blocking.²
+- Neither touch established nor outbound connections.¹
+- Filter only ips, no network blocking.²
 
 ¹ An attacker capable to spoof ip addresses could easily force those ip address to be blocked.
 
