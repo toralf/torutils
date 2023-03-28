@@ -7,30 +7,30 @@ Few tools for a Tor relay.
 ## Block DDoS
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
-against DDoS attacks at the IP [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) ¹.
-The goal is to target the (presumably) intention of the attacker to unveil onion services.
+against DDoS attacks¹ at the IP network layer ([graphic](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg)).
 
-This DDoS solution uses [ipsets](https://ipset.netfilter.org).
-The _timeout_ property of the ipset entries provides the feature to still block an ip
-where plain iptables rules would (no longer) fire.
-Compare for that the counters for IPv4 of line [14](./doc/iptables-L.txt#L14) and [15](./doc/iptables-L.txt#L15)
-and for IPv6 of line [16](./doc/ip6tables-L.txt#L16) and [17](./doc/ip6tables-L.txt#L17) respectively.
+The solution uses [ipsets](https://ipset.netfilter.org) because the _timeout_ property of the ipset entries
+provides the ability to block an ip for a much longer time than the timeout of an iptables hashlimit rule would provide.
+Examples are the counter values of line [14](./doc/iptables-L.txt#L14) and [15](./doc/iptables-L.txt#L15) for IPv4
+and line [16](./doc/ip6tables-L.txt#L16) and [17](./doc/ip6tables-L.txt#L17) for IPv6 respectively.
 
-Metrics of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
+Metrics² of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
 [6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov
 show the results for few DDoS attacks over 3 days
 for [these](https://nusenu.github.io/OrNetStats/zwiebeltoralf.de.html) 2 relays.
 A heavier attack was observed at [12th](./doc/network-metric-Nov-12th.svg) of Nov.
 A periodic drop down of the socket count metric, vanishing over time appeared at
 [5th](./doc/network-metric-Dec-05th.svg) of Dec.
-Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are handled well too.
+Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are still handled well.³
 
-All graphs above are created by [sysstat](http://sebastien.godard.pagesperso-orange.fr/).
-For a deeper analysis I do use [this](./grafana-dashboard.json) Grafana dashboard.
-
-¹ Discussion started in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
-of the [Tor project tracker](https://www.torproject.org/) and
+¹ Discussion is e.g. in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
+of the [Tor project tracker](https://www.torproject.org/) and was
 continued in ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093).
+
+² Graphs are created by [sysstat](http://sebastien.godard.pagesperso-orange.fr/).
+Beside that I do use [this](./grafana-dashboard.json) Grafana dashboard and the scritps under [Helpers](#helpers).
+
+³ Interesting to know how long the rule set could be used without modifications.
 
 ### Quick start
 
