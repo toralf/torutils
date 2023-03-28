@@ -21,7 +21,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "9.4.3"
+      "version": "9.4.7"
     },
     {
       "type": "datasource",
@@ -288,7 +288,7 @@
           },
           "editorMode": "builder",
           "expr": "(sum(rate(node_cpu_seconds_total{mode=\"system\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total[$__rate_interval]))",
-          "hide": false,
+          "hide": true,
           "legendFormat": "system",
           "range": true,
           "refId": "B"
@@ -1599,7 +1599,7 @@
         "showUnfilled": true,
         "text": {}
       },
-      "pluginVersion": "9.4.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
           "datasource": {
@@ -1666,7 +1666,7 @@
         "showUnfilled": true,
         "text": {}
       },
-      "pluginVersion": "9.4.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
           "datasource": {
@@ -1733,7 +1733,7 @@
         "showUnfilled": true,
         "text": {}
       },
-      "pluginVersion": "9.4.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
           "datasource": {
@@ -1800,7 +1800,7 @@
         "showUnfilled": true,
         "text": {}
       },
-      "pluginVersion": "9.4.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
           "datasource": {
@@ -1867,7 +1867,7 @@
         "showUnfilled": true,
         "text": {}
       },
-      "pluginVersion": "9.4.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
           "datasource": {
@@ -1934,7 +1934,7 @@
         "showUnfilled": true,
         "text": {}
       },
-      "pluginVersion": "9.4.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
           "datasource": {
@@ -1962,13 +1962,13 @@
     "list": []
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-7d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "utc",
   "title": "Tor",
   "uid": "FgvRNta4k",
-  "version": 141,
+  "version": 147,
   "weekStart": ""
 }
