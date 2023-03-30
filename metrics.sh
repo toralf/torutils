@@ -29,12 +29,12 @@ function _histogram()  {
       my $N = 0;
       for (my $i = 0; $i <= $#arr; $i++) {
         $N += $arr[$i];
-        print "'${var}'_bucket{ipver=\"'${v:-4}'\",orport=\"'$orport'\",le=\"$i\"} $N\n";
+        print "'${var}'_bucket{ipver=\"'${v:-4}'\",orport=\"'$orport'\",mode=\"'$mode'\",le=\"$i\"} $N\n";
       }
       my $count = $N + $inf;
-      print "'${var}'_bucket{ipver=\"'${v:-4}'\",orport=\"'$orport'\",le=\"+Inf\"} $count\n";
-      print "'${var}'_count{ipver=\"'${v:-4}'\",orport=\"'$orport'\"} $count\n";
-      print "'${var}'_sum{ipver=\"'${v:-4}'\",orport=\"'$orport'\"} $sum\n";
+      print "'${var}'_bucket{ipver=\"'${v:-4}'\",orport=\"'$orport'\",mode=\"'$mode'\",le=\"+Inf\"} $count\n";
+      print "'${var}'_count{ipver=\"'${v:-4}'\",orport=\"'$orport'\",mode=\"'$mode'\"} $count\n";
+      print "'${var}'_sum{ipver=\"'${v:-4}'\",orport=\"'$orport'\",mode=\"'$mode'\"} $sum\n";
     }'
 }
 
@@ -73,11 +73,14 @@ function printMetrics() {
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
   for v in "" 6
   do
-    ipset list -t | grep -e "^N" | xargs -n 6 | awk '/tor-ddos'$v'-/ { print $2, $6 }' |
-    while read -r name size
+    for mode in "ddos"
     do
-      orport=$(cut -f 3 -d'-' <<< $name)
-      echo "$var{ipver=\"${v:-4}\",orport=\"$orport\"} $size"
+      ipset list -t | grep -e "^N" | xargs -n 6 | awk '/tor-'$mode''$v'-/ { print $2, $6 }' |
+      while read -r name size
+      do
+        orport=$(cut -f 3 -d'-' <<< $name)
+        echo "$var{ipver=\"${v:-4}\",orport=\"$orport\",mode=\"$mode\"} $size"
+      done
     done
   done
 
@@ -89,11 +92,14 @@ function printMetrics() {
   echo -e "# HELP $var A histogram of ipset timeout values\n# TYPE $var histogram"
   for v in "" 6
   do
-    ipset list -t | grep -e "^Name" | awk '/tor-ddos'$v'-/ { print $2 }' |
-    while read -r name
+    for mode in "ddos"
     do
-      orport=$(cut -f 3 -d'-' <<< $name)
-      ipset list -s $name | sed -e '1,8d' | cut -f 3 -d ' ' | _histogram
+      ipset list -t | grep -e "^Name" | awk '/tor-'$mode''$v'-/ { print $2 }' |
+      while read -r name
+      do
+        orport=$(cut -f 3 -d'-' <<< $name)
+        ipset list -s $name | sed -e '1,8d' | cut -f 3 -d ' ' | _histogram
+      done
     done
   done
 
@@ -105,12 +111,15 @@ function printMetrics() {
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
   for v in "" 6
   do
-    wc -l /proc/net/ip${v}t_hashlimit/*ddos* |
-    grep -v ' total' |
-    while read -r count name
+    for mode in "ddos" "rate"
     do
-      orport=$(cut -f3 -d'-' <<< $name)
-      echo "$var{ipver=\"${v:-4}\",orport=\"$orport\"} $count"
+      wc -l /proc/net/ip${v}t_hashlimit/tor-$mode-* |
+      grep -v ' total' |
+      while read -r count name
+      do
+        orport=$(cut -f3 -d'-' <<< $name)
+        echo "$var{ipver=\"${v:-4}\",orport=\"$orport\",mode=\"$mode\"} $count"
+      done
     done
   done
 }
