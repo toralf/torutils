@@ -3,8 +3,7 @@
 # set -x
 
 
-# use node_exporter's "textfile" feature to pump metrics into Prometheus
-# https://prometheus.io/docs/instrumenting/exposition_formats/
+# use node_exporter's "textfile" feature to send metrics to Prometheus
 
 
 function _histogram()  {
@@ -43,7 +42,7 @@ function printMetrics() {
   ###############################
   # DROPed packets
   #
-  var="torutils_packets"
+  local var="torutils_packets"
   echo -e "# HELP $var Total number of packets\n# TYPE $var gauge"
   for v in "" 6
   do
@@ -59,7 +58,7 @@ function printMetrics() {
       grep 'DROP' | grep -v -e "^Chain" -e "^  *pkts" -e "^$" |
       while read -r $pars
       do
-        dpt=$(grep -Eo "(dpt:[0-9]+)" <<< "$misc" | cut -f 2 -d':')
+        dpt=$(grep -Eo "(dpt:[0-9]+)" <<< "$misc" | cut -f 2 -d ':' -s)
         echo "$var{ipver=\"${v:-4}\",table=\"$table\",target=\"$target\",prot=\"$prot\",dpt=\"$dpt\",misc=\"$misc\"} $pkts"
       done
     done
@@ -78,7 +77,7 @@ function printMetrics() {
       ipset list -t | grep -e "^N" | xargs -n 6 | awk '/tor-'$mode''$v'-/ { print $2, $6 }' |
       while read -r name size
       do
-        orport=$(cut -f 3 -d'-' <<< $name)
+        orport=$(cut -f 3 -d '-' -s <<< $name)
         echo "$var{ipver=\"${v:-4}\",orport=\"$orport\",mode=\"$mode\"} $size"
       done
     done
@@ -97,7 +96,7 @@ function printMetrics() {
       ipset list -t | grep -e "^Name" | awk '/tor-'$mode''$v'-/ { print $2 }' |
       while read -r name
       do
-        orport=$(cut -f 3 -d'-' <<< $name)
+        orport=$(cut -f 3 -d '-' -s <<< $name)
         ipset list -s $name | sed -e '1,8d' | cut -f 3 -d ' ' | _histogram
       done
     done
@@ -117,7 +116,7 @@ function printMetrics() {
       grep -v ' total' |
       while read -r count name
       do
-        orport=$(cut -f3 -d'-' <<< $name)
+        orport=$(cut -f 3 -d '-' -s <<< $name)
         echo "$var{ipver=\"${v:-4}\",orport=\"$orport\",mode=\"$mode\"} $count"
       done
     done
@@ -133,7 +132,7 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 datadir=${1:-/var/lib/node_exporter} # default directory under Gentoo Linux
 cd $datadir
 
-tmpfile=$(mktemp /tmp/metrics_XXXXXX.tmp)
+tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.tmp)
 echo "# $0   $(date -R)" > $tmpfile
 printMetrics >> $tmpfile
 chmod a+r $tmpfile
