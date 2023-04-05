@@ -97,7 +97,7 @@ function printMetrics() {
       while read -r name
       do
         orport=$(cut -f 3 -d '-' -s <<< $name)
-        ipset list -s $name | sed -e '1,8d' | cut -f 3 -d ' ' | _histogram
+        ipset list -s $name | sed -e '1,8d' | cut -f 3 -d ' ' -s | _histogram
       done
     done
   done
