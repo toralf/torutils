@@ -30,7 +30,7 @@ continued in ticket [40093](https://gitlab.torproject.org/tpo/community/support/
 ² Graphs are created by [sysstat](http://sebastien.godard.pagesperso-orange.fr/).
 Beside that I do use [this](./grafana-dashboard.json) Grafana dashboard and the scritps under [Helpers](#helpers).
 
-³ Interesting to know how long the rule set could be used without modifications.
+³ I'm curious how long the current rule set works without bigger modifications.
 
 ### Quick start
 
@@ -72,9 +72,9 @@ Make a backup of the current _filter_ table before if needed.
 - Neither touch established nor outbound connections.¹
 - Filter only ips, no network blocking.²
 
-¹ An attacker capable to spoof ip addresses could easily force those ip address to be blocked.
+¹ An attacker capable to spoof ip addresses could easily force to block ip addresses with an already established connection.
 
-² An attacker could place 1 malicious ip within a /24 or /16 range to harm all other.
+² An attacker could place 1 malicious ip within e.g. a /24 range to harm all other addresses in that segment.
 
 #### Details
 
@@ -82,13 +82,13 @@ Generic rules for local network, ICMP, ssh and user services (if defined) are ap
 Then these rules are applied (in this order) for a connection attempt from an ip to the local ORPort:
 
 1. trust ip of Tor authorities and snowflake
-1. block ip for 1 day if the rate is > 6/min¹
-1. allow up to 4 connections from the same ip if the ip is known to host more than 1 relay
+1. allow up to 4 connections from the same ip if the ip is known to host up to 4 relays
+1. block ip for 1 day if the rate is > 6/min
 1. drop if there are already 2 established connections from the same ip¹
 1. rate limit new connection attempts at 0.5/minute
 1. accept it
 
-¹ The connection limit sounds rigid.
+¹ This connection limit sounds rigid.
 But how likely do more than the given number of Tor clients at the same ip address do connect to the same guard at the same time?
 
 ### Installation
@@ -103,7 +103,7 @@ Therefore run this in regular intervalls (eg. via cron):
 sudo ./ipv4-rules.sh update
 ```
 
-If the parsing of the Tor config (line [183](ipv4-rules.sh#L183)) doesn't work for you then:
+If the parsing of the Tor config (line [181](ipv4-rules.sh#L181)) doesn't work for you then:
 
 1. define the local running relay(s) space separated at the command line after the keyword `start`, eg.:
 
@@ -143,11 +143,11 @@ To allow inbound traffic to other local service(s), either:
 
 before you start the script.
 To **append** the rules of this script onto the local _iptables_ rules (instead **overwrite** existing rules)
-you've to comment out the call (line [166](ipv4-rules.sh#L166)).
-The script sets few _sysctl_ values (line [154](ipv4-rules.sh#L154)).
+you've to comment out the call (line [164](ipv4-rules.sh#L164)).
+The script sets few _sysctl_ values (line [152](ipv4-rules.sh#L152)).
 Those can be set permanently under _/etc/sysctl.d/_ outsite of this script.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then comment out the call (line [139](ipv4-rules.sh#L139)).
+then comment out the call (line [137](ipv4-rules.sh#L137)).
 
 ### Helpers
 
