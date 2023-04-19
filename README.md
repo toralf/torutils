@@ -199,6 +199,13 @@ For the Grafana dashboard I do use this Prometheus config for the 3 different To
           orport: '8443'
 ```
 
+and this crontab entry:
+
+```crontab
+# telemetry
+* * * * *  for i in 0 1 2 3; do /opt/torutils/metrics.sh &>/dev/null; sleep 15; done
+```
+
 ## Query Tor via its API
 
 ### Relay summary
