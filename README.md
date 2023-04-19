@@ -186,7 +186,11 @@ These crontab entries are used to collect stats data:
 For the Grafana dashboard I do use this Prometheus config for the 3 different Tor relay metric ports:
 
 ```yaml
-  - job_name: "Tor"
+   - job_name: "<node_exporter hostname>"
+    static_configs:
+      - targets: ["localhost:9100"]
+  
+   - job_name: "Tor"
     static_configs:
       - targets: ["localhost:9052"]
         labels:
