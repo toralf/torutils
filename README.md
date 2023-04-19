@@ -28,7 +28,7 @@ of the [Tor project tracker](https://www.torproject.org/) and was
 continued in ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093).
 
 ² Graphs are created by [sysstat](http://sebastien.godard.pagesperso-orange.fr/).
-Beside that I do use [this](./grafana-dashboard.json) Grafana dashboard and the scritps under [Helpers](#helpers).
+Beside that I do use [this](./grafana-dashboard.json) Grafana dashboard and the scripts under [Helpers](#helpers).
 
 ³ I'm curious how long the current rule set works without bigger modifications.
 
@@ -181,6 +181,22 @@ These crontab entries are used to collect stats data:
 
 # prometheus
 * * * * *   /opt/torutils/metrics.sh &>/dev/null
+```
+
+For the Grafana dashboard I do use this Prometheus config for the 3 different Tor relay metric ports:
+
+```yaml
+  - job_name: "Tor"
+    static_configs:
+      - targets: ["localhost:9052"]
+        labels:
+          orport: '443'
+      - targets: ["localhost:29052"]
+        labels:
+          orport: '9001'
+      - targets: ["localhost:39052"]
+        labels:
+          orport: '8443'
 ```
 
 ## Query Tor via its API
