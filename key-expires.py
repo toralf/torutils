@@ -11,8 +11,8 @@ import codecs
 import sys
 import time
 
-with open(sys.argv[1], 'rb') as f:
-  cert = f.read()
-  expire = int(codecs.encode(cert[35:38], 'hex'), 16)   # expiration timestamp in hours
-  now = int(time.time())                # current timestamp in seconds
-  print(3600*expire-now)
+with open(sys.argv[1], "rb") as f:
+    cert = f.read()
+    expire = int(codecs.encode(cert[35:38], "hex"), 16)  # expiration timestamp in hours
+    now = int(time.time())  # current timestamp in seconds
+    print(3600 * expire - now)

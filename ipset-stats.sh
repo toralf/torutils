@@ -2,32 +2,27 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-
 # dumpIpset ip addresses of ipset(s) -or- plot histograms of that
 
-
 # kick off the header of the ipset
-function dumpIpset()  {
+function dumpIpset() {
   ipset list -s $1 |
-  sed -e '1,8d'
+    sed -e '1,8d'
 }
-
 
 # 1.2.3.4 -> 1.2.3.0/24
-function anonymiseIp()  {
+function anonymiseIp() {
   awk '{ print $1 }' |
-  sed -e "s,\.[0-9]*$,.0/24,"
+    sed -e "s,\.[0-9]*$,.0/24,"
 }
-
 
 # 1:2:3:4:5:6:7:8 -> 0001:0002:0003:0004:0005::/80
-function anonymiseIp6()  {
+function anonymiseIp6() {
   awk '{ print $1 }' |
-  $(dirname $0)/expand_v6.py |
-  cut -f1-5 -d ':' |
-  sed -e "s,$,::/80,"
+    $(dirname $0)/expand_v6.py |
+    cut -f1-5 -d ':' |
+    sed -e "s,$,::/80,"
 }
-
 
 # plot a histogram about ip address occurrences within ipset dump
 function plotIpOccurrences() {
@@ -41,10 +36,10 @@ function plotIpOccurrences() {
   local n=$(awk '{ print $1 }' $files | sort -u | wc -l)
 
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
-  awk '{ print $1 }' $files | sort | uniq -c | sort -bn | awk '{ print $1 }' | uniq -c | awk '{ print $2, $1 }' > $tmpfile
+  awk '{ print $1 }' $files | sort | uniq -c | sort -bn | awk '{ print $1 }' | uniq -c | awk '{ print $2, $1 }' >$tmpfile
 
   echo "hits ips"
-  if [[ $(wc -l < $tmpfile) -gt 7 ]]; then
+  if [[ $(wc -l <$tmpfile) -gt 7 ]]; then
     head -n 3 $tmpfile
     echo '...'
     tail -n 3 $tmpfile
@@ -52,7 +47,7 @@ function plotIpOccurrences() {
     cat $tmpfile
   fi
 
-  if [[ $(wc -l < $tmpfile) -gt 1 ]]; then
+  if [[ $(wc -l <$tmpfile) -gt 1 ]]; then
     gnuplot -e '
         set terminal dumb 65 24;
         set border back;
@@ -69,11 +64,10 @@ function plotIpOccurrences() {
   rm $tmpfile
 }
 
-
-function plotTimeoutValues()  {
+function plotTimeoutValues() {
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
-  dumpIpset "$1" | awk '{ print $3 }' | sort -bn > $tmpfile
-  N=$(wc -l < $tmpfile)
+  dumpIpset "$1" | awk '{ print $3 }' | sort -bn >$tmpfile
+  N=$(wc -l <$tmpfile)
 
   if [[ $N -gt 7 ]]; then
     gnuplot -e '
@@ -90,23 +84,24 @@ function plotTimeoutValues()  {
   rm $tmpfile
 }
 
-
 #######################################################################
 set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-while getopts aAdDptT opt
-do
-  shift || true  # OPTARG is optional
+while getopts aAdDptT opt; do
+  shift || true # OPTARG is optional
   case $opt in
-    a)  dumpIpset ${1:-tor-ddos-443}  | anonymiseIp  ;;
-    A)  dumpIpset ${1:-tor-ddos6-443} | anonymiseIp6 ;;
-    d)  dumpIpset ${1:-tor-ddos-443}  ;;
-    D)  dumpIpset ${1:-tor-ddos6-443} ;;
-    p)  plotIpOccurrences $@ ;;
-    t)  plotTimeoutValues ${1:-tor-ddos-443} ;;
-    T)  plotTimeoutValues ${1:-tor-ddos6-443} ;;
-    *)  echo "unknown parameter '$opt'"; exit 1 ;;
+  a) dumpIpset ${1:-tor-ddos-443} | anonymiseIp ;;
+  A) dumpIpset ${1:-tor-ddos6-443} | anonymiseIp6 ;;
+  d) dumpIpset ${1:-tor-ddos-443} ;;
+  D) dumpIpset ${1:-tor-ddos6-443} ;;
+  p) plotIpOccurrences $@ ;;
+  t) plotTimeoutValues ${1:-tor-ddos-443} ;;
+  T) plotTimeoutValues ${1:-tor-ddos6-443} ;;
+  *)
+    echo "unknown parameter '$opt'"
+    exit 1
+    ;;
   esac
 done

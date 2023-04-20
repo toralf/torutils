@@ -11,17 +11,16 @@ set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-
 if [[ "$(whoami)" != "root" ]]; then
   echo "you must be root "
   exit 2
 fi
 
 dir=/tmp/onionsvc.d
-mkdir -m 0700     $dir
-chown -R tor:tor  $dir
+mkdir -m 0700 $dir
+chown -R tor:tor $dir
 
-cat << EOF > $dir/torrc
+cat <<EOF >$dir/torrc
 User tor
 
 SandBox 1
@@ -49,8 +48,8 @@ HiddenServicePort 80 ${1:-127.0.0.1}:${2:-1234}
 
 EOF
 
-if [[ "$3" = "non" ]]; then
-  cat << EOF >> $dir/torrc
+if [[ $3 == "non" ]]; then
+  cat <<EOF >>$dir/torrc
 
 HiddenServiceNonAnonymousMode 1
 HiddenServiceSingleHopMode 1
@@ -58,7 +57,7 @@ HiddenServiceSingleHopMode 1
 EOF
 fi
 
-chmod 600     $dir/torrc
+chmod 600 $dir/torrc
 chown tor:tor $dir/torrc
 
 /usr/bin/tor -f $dir/torrc

@@ -2,9 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-
 function addCommon() {
-  ip6tables -P INPUT  ${DEFAULT_POLICY_INPUT:-DROP}
+  ip6tables -P INPUT ${DEFAULT_POLICY_INPUT:-DROP}
   ip6tables -P OUTPUT ACCEPT
 
   # allow loopback
@@ -20,15 +19,14 @@ function addCommon() {
 
   # ssh
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config | awk '{ print $2 }')
-  local addr=$(grep -m 1 -E "^ListenAddress\s+.+$"  /etc/ssh/sshd_config | awk '{ print $2 }' | grep -F ':')
+  local addr=$(grep -m 1 -E "^ListenAddress\s+.+$" /etc/ssh/sshd_config | awk '{ print $2 }' | grep -F ':')
   ip6tables -A INPUT -p tcp --dst ${addr:-"::/0"} --dport ${port:-22} -j ACCEPT
 
   ## ratelimit ICMP echo
   ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -m limit --limit 6/s -j ACCEPT
   ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -j DROP
-  ip6tables -A INPUT -p ipv6-icmp                            -j ACCEPT
+  ip6tables -A INPUT -p ipv6-icmp -j ACCEPT
 }
-
 
 function __create_ipset() {
   local name=$1
@@ -41,7 +39,6 @@ function __create_ipset() {
   fi
 }
 
-
 function __fill_trustlist() {
   (
     echo "2a0c:dd40:1:b::42 2a0c:dd40:1:b::43 2a0c:dd40:1:b::44 2a0c:dd40:1:b::45 2a0c:dd40:1:b::46 2607:f018:600:8:be30:5bff:fef1:c6fa"
@@ -50,9 +47,8 @@ function __fill_trustlist() {
     getent ahostsv6 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }'
     curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a | select(length > 1) | .[1]' | tr -d '][' | grep ':'
   ) |
-  xargs -r -n 1 -P $jobs ipset add -exist $trustlist
+    xargs -r -n 1 -P $jobs ipset add -exist $trustlist
 }
-
 
 function __fill_multilist() {
   (
@@ -60,24 +56,22 @@ function __fill_multilist() {
       cat /var/tmp/$multilist
     fi
     curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |
-    jq -cr '.relays[].a | select(length > 1) | .[1]' | tr -d '][' | grep ':' | sort | uniq -c | grep -v ' 1 ' | awk '{ print $2 }' |
-    tee /var/tmp/$multilist.new
+      jq -cr '.relays[].a | select(length > 1) | .[1]' | tr -d '][' | grep ':' | sort | uniq -c | grep -v ' 1 ' | awk '{ print $2 }' |
+      tee /var/tmp/$multilist.new
     if [[ -s /var/tmp/$multilist.new ]]; then
       mv /var/tmp/$multilist.new /var/tmp/$multilist
     fi
   ) |
-  xargs -r -n 1 -P $jobs ipset add -exist $multilist
+    xargs -r -n 1 -P $jobs ipset add -exist $multilist
 }
-
 
 function __fill_ddoslist() {
   if [[ -f /var/tmp/$ddoslist ]]; then
     cat /var/tmp/$ddoslist |
-    xargs -r -n 3 -P $jobs ipset add -exist $ddoslist
+      xargs -r -n 3 -P $jobs ipset add -exist $ddoslist
     rm /var/tmp/$ddoslist
   fi
 }
-
 
 function addTor() {
   __create_ipset $trustlist
@@ -85,22 +79,21 @@ function addTor() {
   __create_ipset $multilist
   __fill_multilist &
 
-  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-htable-size $(( 2**18 )) --hashlimit-htable-max $(( 2**18 ))"
-  for relay in $*
-  do
+  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 128 --hashlimit-htable-size $((2 ** 18)) --hashlimit-htable-max $((2 ** 18))"
+  for relay in $*; do
     if [[ ! $relay =~ '[' || ! $relay =~ ']' || $relay =~ '.' || ! $relay =~ ':' ]]; then
       echo " relay '$relay' cannot be parsed" >&2
       return 1
     fi
-    read -r orip orport <<< $(sed -e 's,]:, ,' -e 's,\[, ,' <<< $relay)
-    if [[ $orip = "::" ]]; then
+    read -r orip orport <<<$(sed -e 's,]:, ,' -e 's,\[, ,' <<<$relay)
+    if [[ $orip == "::" ]]; then
       orip+="/0"
       echo " notice: using global unicast IPv6 address [::]" >&2
     fi
     local synpacket="ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn"
 
-    local ddoslist="tor-ddos6-$orport"    # this holds ips classified as DDoS'ing the local OR port
-    __create_ipset $ddoslist "timeout $(( 24*3600 )) maxelem $(( 2**18 ))"
+    local ddoslist="tor-ddos6-$orport" # this holds ips classified as DDoS'ing the local OR port
+    __create_ipset $ddoslist "timeout $((24 * 3600)) maxelem $((2 ** 18))"
     __fill_ddoslist &
 
     # rule 1
@@ -110,35 +103,32 @@ function addTor() {
     $synpacket -m set --match-set $multilist src -m connlimit --connlimit-mask 128 --connlimit-upto 4 -j ACCEPT
 
     # rule 3
-    $synpacket $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 6/minute --hashlimit-burst 5 --hashlimit-htable-expire $(( 2*60*1000 )) -j SET --add-set $ddoslist src --exist
+    $synpacket $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 6/minute --hashlimit-burst 5 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
     $synpacket -m set --match-set $ddoslist src -j DROP
 
     # rule 4
     $synpacket -m connlimit --connlimit-mask 128 --connlimit-above 2 -j DROP
 
     # rule 5
-    $synpacket $hashlimit --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 --hashlimit-htable-expire $(( 2*60*1000 )) -j DROP
+    $synpacket $hashlimit --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j DROP
 
     # rule 6
     $synpacket -j ACCEPT
   done
 }
 
-
 function addLocalServices() {
   local addr
   local port
 
-  for service in ${ADD_LOCAL_SERVICES6:-}
-  do
-    read -r addr port <<< $(sed -e 's,]:, ,' -e 's,\[, ,' <<< $service)
-    if [[ $addr = "::" ]]; then
+  for service in ${ADD_LOCAL_SERVICES6:-}; do
+    read -r addr port <<<$(sed -e 's,]:, ,' -e 's,\[, ,' <<<$service)
+    if [[ $addr == "::" ]]; then
       addr+="/0"
     fi
     ip6tables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
   done
 }
-
 
 function addHetzner() {
   local sysmon="hetzner-sysmon6"
@@ -153,9 +143,8 @@ function addHetzner() {
   ip6tables -A INPUT -m set --match-set $sysmon src -j ACCEPT
 }
 
-
 function clearRules() {
-  ip6tables -P INPUT  ACCEPT
+  ip6tables -P INPUT ACCEPT
   ip6tables -P OUTPUT ACCEPT
 
   ip6tables -F
@@ -163,23 +152,20 @@ function clearRules() {
   ip6tables -Z
 }
 
-
-function printRuleStatistics()  {
+function printRuleStatistics() {
   date -R
   echo
   ip6tables -nv -L INPUT
 }
 
-
-function getConfiguredRelays6()  {
+function getConfiguredRelays6() {
   grep -h -e "^ORPort *" /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null |
-  grep -v ' NoListen' |
-  grep -P "^ORPort\s+\[[0-9a-f]*:[0-9a-f:]*:[0-9a-f]*\]:\d+\s*" |
-  awk '{ print $2 }'
+    grep -v ' NoListen' |
+    grep -P "^ORPort\s+\[[0-9a-f]*:[0-9a-f:]*:[0-9a-f]*\]:\d+\s*" |
+    awk '{ print $2 }'
 }
 
-
-function bailOut()  {
+function bailOut() {
   trap - INT QUIT TERM EXIT
 
   echo -e "\n Something went wrong, stopping ...\n" >&2
@@ -187,52 +173,53 @@ function bailOut()  {
   exit 1
 }
 
-
 function saveIpset() {
   local name=$1
 
-  ipset list $name | sed -e '1,8d' > /var/tmp/$name.new
+  ipset list $name | sed -e '1,8d' >/var/tmp/$name.new
   mv /var/tmp/$name.new /var/tmp/$name
 }
 
-
 function saveAllIpsets() {
   ipset list -t | grep "^Name: tor-ddos6-" | awk '{ print $2 }' |
-  while read name
-  do
-    saveIpset $name
-  done
+    while read name; do
+      saveIpset $name
+    done
 }
-
 
 #######################################################################
 set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-trustlist="tor-trust6"    # Tor authorities and snowflake
-multilist="tor-multi6"    # Tor relay ip addresses hosting > 1 relays
-jobs=$(( 1+$(nproc)/2 ))
+trustlist="tor-trust6" # Tor authorities and snowflake
+multilist="tor-multi6" # Tor relay ip addresses hosting > 1 relays
+jobs=$((1 + $(nproc) / 2))
 
 trap bailOut INT QUIT TERM EXIT
 action=${1:-}
 shift || true
 case $action in
-  start)  clearRules
-          addCommon
-          addHetzner
-          addLocalServices
-          addTor ${*:-${CONFIGURED_RELAYS6:-$(getConfiguredRelays6)}}
-          ;;
-  stop)   clearRules
-          saveAllIpsets
-          ;;
-  save)   saveAllIpsets
-          ;;
-  update) __fill_trustlist
-          __fill_multilist
-          ;;
-  *)      printRuleStatistics
-          ;;
+start)
+  clearRules
+  addCommon
+  addHetzner
+  addLocalServices
+  addTor ${*:-${CONFIGURED_RELAYS6:-$(getConfiguredRelays6)}}
+  ;;
+stop)
+  clearRules
+  saveAllIpsets
+  ;;
+save)
+  saveAllIpsets
+  ;;
+update)
+  __fill_trustlist
+  __fill_multilist
+  ;;
+*)
+  printRuleStatistics
+  ;;
 esac
 trap - INT QUIT TERM EXIT

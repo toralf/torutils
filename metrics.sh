@@ -2,11 +2,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-
 # use node_exporter's "textfile" feature to send metrics to Prometheus
 
-
-function _histogram()  {
+function _histogram() {
   perl -wane '
     BEGIN {
       @arr = (0) x 24;  # 0-23 hour
@@ -37,15 +35,13 @@ function _histogram()  {
     }'
 }
 
-
 function printMetrics() {
   ###############################
   # DROPed packets
   #
   local var="torutils_packets"
   echo -e "# HELP $var Total number of packets\n# TYPE $var gauge"
-  for v in "" 6
-  do
+  for v in "" 6; do
     if [[ -z $v ]]; then
       pars="pkts bytes target prot opt in out source destination misc"
     else
@@ -53,82 +49,67 @@ function printMetrics() {
     fi
 
     # shellcheck disable=SC2043
-    for table in filter
-    do
+    for table in filter; do
       # shellcheck disable=SC2229
       ip${v}tables -nvxL -t $table |
-      grep 'DROP' | grep -v -e "^Chain" -e "^  *pkts" -e "^$" |
-      while read -r $pars
-      do
-        # shellcheck disable=SC2154
-        dpt=$(grep -Eo "(dpt:[0-9]+)" <<< "$misc" | cut -f 2 -d ':' -s)
-        # shellcheck disable=SC2154
-        echo "$var{ipver=\"${v:-4}\",table=\"$table\",target=\"$target\",prot=\"$prot\",dpt=\"$dpt\",misc=\"$misc\"} $pkts"
-      done
+        grep 'DROP' | grep -v -e "^Chain" -e "^  *pkts" -e "^$" |
+        while read -r $pars; do
+          # shellcheck disable=SC2154
+          dpt=$(grep -Eo "(dpt:[0-9]+)" <<<"$misc" | cut -f 2 -d ':' -s)
+          # shellcheck disable=SC2154
+          echo "$var{ipver=\"${v:-4}\",table=\"$table\",target=\"$target\",prot=\"$prot\",dpt=\"$dpt\",misc=\"$misc\"} $pkts"
+        done
     done
   done
-
 
   ###############################
   # ipset sizes
   #
   var="torutils_ipset_total"
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
-  for v in "" 6
-  do
+  for v in "" 6; do
     # shellcheck disable=SC2043
-    for mode in "ddos"
-    do
+    for mode in "ddos"; do
       ipset list -t | grep -e "^N" | xargs -n 6 | awk '/tor-'$mode''$v'-/ { print $2, $6 }' |
-      while read -r name size
-      do
-        orport=$(cut -f 3 -d '-' -s <<< $name)
-        echo "$var{ipver=\"${v:-4}\",orport=\"$orport\",mode=\"$mode\"} $size"
-      done
+        while read -r name size; do
+          orport=$(cut -f 3 -d '-' -s <<<$name)
+          echo "$var{ipver=\"${v:-4}\",orport=\"$orport\",mode=\"$mode\"} $size"
+        done
     done
   done
-
 
   ###############################
   # ipset timeout values
   #
   var="torutils_ipset_timeout"
   echo -e "# HELP $var A histogram of ipset timeout values\n# TYPE $var histogram"
-  for v in "" 6
-  do
+  for v in "" 6; do
     # shellcheck disable=SC2043
-    for mode in "ddos"
-    do
+    for mode in "ddos"; do
       ipset list -t | grep -e "^Name" | awk '/tor-'$mode''$v'-/ { print $2 }' |
-      while read -r name
-      do
-        orport=$(cut -f 3 -d '-' -s <<< $name)
-        ipset list -s $name | sed -e '1,8d' | cut -f 3 -d ' ' -s | _histogram
-      done
+        while read -r name; do
+          orport=$(cut -f 3 -d '-' -s <<<$name)
+          ipset list -s $name | sed -e '1,8d' | cut -f 3 -d ' ' -s | _histogram
+        done
     done
   done
-
 
   ###############################
   # hashlimit sizes
   #
   var="torutils_hashlimit_total"
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
-  for v in "" 6
-  do
-    for mode in "ddos" "rate"
-    do
+  for v in "" 6; do
+    for mode in "ddos" "rate"; do
       wc -l /proc/net/ip${v}t_hashlimit/tor-$mode-* |
-      grep -v ' total' |
-      while read -r count name
-      do
-        orport=$(cut -f 3 -d '-' -s <<< $name)
-        echo "$var{ipver=\"${v:-4}\",orport=\"$orport\",mode=\"$mode\"} $count"
-      done
+        grep -v ' total' |
+        while read -r count name; do
+          orport=$(cut -f 3 -d '-' -s <<<$name)
+          echo "$var{ipver=\"${v:-4}\",orport=\"$orport\",mode=\"$mode\"} $count"
+        done
     done
   done
 }
-
 
 #######################################################################
 set -eu
@@ -139,7 +120,7 @@ datadir=${1:-/var/lib/node_exporter} # default directory under Gentoo Linux
 cd $datadir
 
 tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.tmp)
-echo "# $0   $(date -R)" > $tmpfile
-printMetrics >> $tmpfile
+echo "# $0   $(date -R)" >$tmpfile
+printMetrics >>$tmpfile
 chmod a+r $tmpfile
 mv $tmpfile $datadir/torutils.prom

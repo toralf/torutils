@@ -107,19 +107,19 @@ If the parsing of the Tor config (line [181](ipv4-rules.sh#L181)) doesn't work f
 
 1. define the local running relay(s) space separated at the command line after the keyword `start`, eg.:
 
-    ```bash
-    sudo ./ipv4-rules.sh start 1.2.3.4:443 5.6.7.8:9001
-    ```
+   ```bash
+   sudo ./ipv4-rules.sh start 1.2.3.4:443 5.6.7.8:9001
+   ```
 
-    (command line overrules environment)
+   (command line overrules environment)
 
 1. -or- define them within the environment, eg.:
 
-    ```bash
-    sudo CONFIGURED_RELAYS="5.6.7.8:9001 1.2.3.4:443" ./ipv4-rules.sh start
-    ```
+   ```bash
+   sudo CONFIGURED_RELAYS="5.6.7.8:9001 1.2.3.4:443" ./ipv4-rules.sh start
+   ```
 
-    (`CONFIGURED_RELAYS6` for the IPv6 case).
+   (`CONFIGURED_RELAYS6` for the IPv6 case).
 
 In addition I do appreciate
 
@@ -130,16 +130,17 @@ To allow inbound traffic to other local service(s), either:
 
 1. define them in the environment space separated, eg.:
 
-    ```bash
-    ADD_LOCAL_SERVICES="2.718.281.828:459"
-    ```
+   ```bash
+   ADD_LOCAL_SERVICES="2.718.281.828:459"
+   ```
 
-    (`ADD_LOCAL_SERVICES6` respectively)
+   (`ADD_LOCAL_SERVICES6` respectively)
+
 1. -or- change the default filter policy for an incoming packet:
 
-    ```bash
-    DEFAULT_POLICY_INPUT="ACCEPT"
-    ```
+   ```bash
+   DEFAULT_POLICY_INPUT="ACCEPT"
+   ```
 
 before you start the script.
 To **append** the rules of this script onto the local _iptables_ rules (instead **overwrite** existing rules)
@@ -189,7 +190,7 @@ For the Grafana dashboard I do use this Prometheus config for the 3 different To
    - job_name: "<node_exporter hostname>"
     static_configs:
       - targets: ["localhost:9100"]
-  
+
    - job_name: "Tor"
     static_configs:
       - targets: ["localhost:9052"]
