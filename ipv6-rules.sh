@@ -182,7 +182,7 @@ function saveIpset() {
 
 function saveAllIpsets() {
   ipset list -t | grep "^Name: tor-ddos6-" | awk '{ print $2 }' |
-    while read name; do
+    while read -r name; do
       saveIpset $name
     done
 }
