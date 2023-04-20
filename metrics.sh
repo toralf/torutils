@@ -52,13 +52,17 @@ function printMetrics() {
       pars="pkts bytes target prot     in out source destination misc"
     fi
 
+    # shellcheck disable=SC2043
     for table in filter
     do
+      # shellcheck disable=SC2229
       ip${v}tables -nvxL -t $table |
       grep 'DROP' | grep -v -e "^Chain" -e "^  *pkts" -e "^$" |
       while read -r $pars
       do
+        # shellcheck disable=SC2154
         dpt=$(grep -Eo "(dpt:[0-9]+)" <<< "$misc" | cut -f 2 -d ':' -s)
+        # shellcheck disable=SC2154
         echo "$var{ipver=\"${v:-4}\",table=\"$table\",target=\"$target\",prot=\"$prot\",dpt=\"$dpt\",misc=\"$misc\"} $pkts"
       done
     done
@@ -72,6 +76,7 @@ function printMetrics() {
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
   for v in "" 6
   do
+    # shellcheck disable=SC2043
     for mode in "ddos"
     do
       ipset list -t | grep -e "^N" | xargs -n 6 | awk '/tor-'$mode''$v'-/ { print $2, $6 }' |
@@ -91,6 +96,7 @@ function printMetrics() {
   echo -e "# HELP $var A histogram of ipset timeout values\n# TYPE $var histogram"
   for v in "" 6
   do
+    # shellcheck disable=SC2043
     for mode in "ddos"
     do
       ipset list -t | grep -e "^Name" | awk '/tor-'$mode''$v'-/ { print $2 }' |

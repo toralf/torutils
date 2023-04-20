@@ -1,0 +1,7 @@
+disable=SC2046 # Disable quote this to prevent word splitting.
+disable=SC2086 # Disable double quote to prevent globbing and word splitting.
+disable=SC2155 # Declare and assign separately to avoid masking return values.
+disable=SC2068 # Double quote array expansions to avoid re-splitting elements.
+disable=SC2048 # Use "$@" (with quotes) to prevent whitespace problems.
+source-path=SCRIPTDIR
+

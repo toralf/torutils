@@ -10,7 +10,7 @@ function show() {
   local relay=$1
 
   local v=""
-  if [[ $relay =~ '[' ]]; then
+  if [[ $relay =~ [ ]]; then
     v="6"
   fi
 
@@ -38,6 +38,7 @@ function show() {
 
 
 function getConfiguredRelays()  {
+  # shellcheck disable=SC2045
   for f in $(ls /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null)
   do
     if orport=$(grep "^ORPort *" $f | grep -v -F -e ' NoListen' -e '[' | grep -P "^ORPort\s+.+\s*"); then
