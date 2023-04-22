@@ -204,12 +204,14 @@ For the Grafana dashboard I do use this Prometheus config for the 3 different To
           orport: '8443'
 ```
 
-and this crontab entry:
+This crontab entry creates a DDoS specific metric file:
 
 ```crontab
 # telemetry
 * * * * *  for i in 0 1 2 3; do /opt/torutils/metrics.sh &>/dev/null; sleep 15; done
 ```
+
+which is send to prometheus as a payload by [node_exporter](https://github.com/prometheus/node_exporter).
 
 ## Query Tor via its API
 
