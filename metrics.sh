@@ -40,7 +40,7 @@ function printMetrics() {
   # DROPed packets
   #
   local var="torutils_packets"
-  echo -e "# HELP $var Total number of packets\n# TYPE $var gauge"
+  echo -e "# HELP $var Total number of packets\n# TYPE $var counter"
   for v in "" 6; do
     if [[ -z $v ]]; then
       pars="pkts bytes target prot opt in out source destination misc"
@@ -48,50 +48,40 @@ function printMetrics() {
       pars="pkts bytes target prot     in out source destination misc"
     fi
 
-    # shellcheck disable=SC2043
-    for table in filter; do
-      # shellcheck disable=SC2229
-      ip${v}tables -nvxL -t $table |
-        grep 'DROP' | grep -v -e "^Chain" -e "^  *pkts" -e "^$" |
-        while read -r $pars; do
-          # shellcheck disable=SC2154
-          dpt=$(grep -Eo "(dpt:[0-9]+)" <<<"$misc" | cut -f 2 -d ':' -s)
-          # shellcheck disable=SC2154
-          echo "$var{ipver=\"${v:-4}\",table=\"$table\",target=\"$target\",prot=\"$prot\",dpt=\"$dpt\",misc=\"$misc\"} $pkts"
-        done
-    done
+    # shellcheck disable=SC2154
+    ip${v}tables -nvxL -t filter |
+      grep 'DROP' | grep -v -e "^Chain" -e "^  *pkts" -e "^$" |
+      while read -r ${pars?}; do
+        dpt=$(grep -Eo "(dpt:[0-9]+)" <<<"$misc" | cut -f 2 -d ':' -s)
+        echo "$var{ipver=\"${v:-4}\",table=\"filter\",target=\"$target\",prot=\"$prot\",dpt=\"$dpt\",misc=\"$misc\"} $pkts"
+      done
   done
 
   ###############################
-  # ipset sizes
+  # ipset ddos sizes
   #
   var="torutils_ipset_total"
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
   for v in "" 6; do
-    # shellcheck disable=SC2043
-    for mode in "ddos"; do
-      ipset list -t | grep -e "^N" | xargs -n 6 | awk '/tor-'$mode''$v'-/ { print $2, $6 }' |
-        while read -r name size; do
-          orport=$(cut -f 3 -d '-' -s <<<$name)
-          echo "$var{ipver=\"${v:-4}\",orport=\"$orport\",mode=\"$mode\"} $size"
-        done
-    done
+    ipset list -t | grep -e "^N" | xargs -n 6 | awk '/tor-ddos'$v'-/ { print $2, $6 }' |
+      while read -r name size; do
+        orport=$(cut -f 3 -d '-' -s <<<$name)
+        echo "$var{ipver=\"${v:-4}\",orport=\"$orport\",mode=\"ddos\"} $size"
+      done
   done
 
   ###############################
-  # ipset timeout values
+  # ipset ddos timeout values
   #
+  local mode="ddos"
   var="torutils_ipset_timeout"
   echo -e "# HELP $var A histogram of ipset timeout values\n# TYPE $var histogram"
   for v in "" 6; do
-    # shellcheck disable=SC2043
-    for mode in "ddos"; do
-      ipset list -t | grep -e "^Name" | awk '/tor-'$mode''$v'-/ { print $2 }' |
-        while read -r name; do
-          orport=$(cut -f 3 -d '-' -s <<<$name)
-          ipset list -s $name | sed -e '1,8d' | cut -f 3 -d ' ' -s | _histogram
-        done
-    done
+    ipset list -t | grep -e "^Name" | awk '/tor-ddos'$v'-/ { print $2 }' |
+      while read -r name; do
+        orport=$(cut -f 3 -d '-' -s <<<$name)
+        ipset list -s $name | sed -e '1,8d' | cut -f 3 -d ' ' -s | _histogram
+      done
   done
 
   ###############################
