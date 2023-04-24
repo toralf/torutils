@@ -226,9 +226,6 @@ stop)
   clearRules
   saveAllIpsets
   ;;
-save)
-  saveAllIpsets
-  ;;
 update)
   __fill_trustlist
   __fill_multilist
