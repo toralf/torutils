@@ -77,7 +77,7 @@ function addTor() {
   __create_ipset $multilist
   __fill_multilist &
 
-  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 32 --hashlimit-htable-size $((2 ** 18)) --hashlimit-htable-max $((2 ** 18))"
+  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 32 --hashlimit-htable-size $max --hashlimit-htable-max $max"
   for relay in $*; do
     if [[ $relay =~ '[' || $relay =~ ']' || ! $relay =~ '.' || ! $relay =~ ':' ]]; then
       echo " relay '$relay' cannot be parsed" >&2
@@ -87,7 +87,7 @@ function addTor() {
     local synpacket="iptables -A INPUT -p tcp --dst $orip --dport $orport --syn"
 
     local ddoslist="tor-ddos-$orport" # this holds ips classified as DDoS'ing the local OR port
-    __create_ipset $ddoslist "timeout $((24 * 3600)) maxelem $((2 ** 18))"
+    __create_ipset $ddoslist "timeout $((24 * 3600)) maxelem $max"
     __fill_ddoslist &
 
     # rule 1
@@ -140,13 +140,13 @@ function addHetzner() {
 
 function setSysctlValues() {
   sysctl -w net.ipv4.tcp_syncookies=1
-  sysctl -w net.netfilter.nf_conntrack_buckets=$((2 ** 18))
-  sysctl -w net.netfilter.nf_conntrack_max=$((2 ** 18))
+  sysctl -w net.netfilter.nf_conntrack_buckets=$max
+  sysctl -w net.netfilter.nf_conntrack_max=$max
 
   # make it big enough to have ListenDrops being 0 (zero):
   # cat /proc/net/netstat | awk '(f==0) {i=1; while (i<=NF) {n[i] = $i; i++ }; f=1; next} (f==1){i=2; while (i<=NF) {printf "%s = %d\n", n[i], $i; i++}; f=0}' | grep 'Drop'
-  sysctl -w net.ipv4.tcp_max_syn_backlog=$((2 ** 18))
-  sysctl -w net.core.somaxconn=$((2 ** 18))
+  sysctl -w net.ipv4.tcp_max_syn_backlog=$max
+  sysctl -w net.core.somaxconn=$max
 }
 
 function clearRules() {
@@ -208,6 +208,7 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 trustlist="tor-trust" # Tor authorities and snowflake
 multilist="tor-multi" # Tor relay ip addresses hosting > 1 relays
 jobs=$((1 + $(nproc) / 2))
+max=$((2 ** 18))
 
 trap bailOut INT QUIT TERM EXIT
 action=${1:-}
