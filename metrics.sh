@@ -39,16 +39,20 @@ function printMetrics() {
   ###############################
   # packets stats (of table "filter")
   #
-  local var="torutils_packets"
-  echo -e "# HELP $var Total number of packets\n# TYPE $var gauge"
+  local var="torutils_packets_drop"
+  echo -e "# HELP $var Total number of droped packets\n# TYPE $var gauge"
   for v in "" 6; do
     # shellcheck disable=SC2034
     ip${v}tables -nvxL -t filter |
-      grep -v -e "^Chain" -e "^  *pkts" -e "^$" |
+      grep ' DROP ' |
+      grep -v -e "^Chain" |
+      grep -e ' match-set ' -e 'state ' |
       while read -r pkts bytes target prot opt in out source destination misc; do
         state=$(grep -Eo -e "ctstate INVALID" -e "state NEW" <<<"$misc" | cut -f 1 -d ' ')
-        dpt=$(grep -Eo "(dpt:[0-9]+)" <<<"$misc" | cut -f 2 -d ':' -s)
-        echo "$var{ipver=\"${v:-4}\",table=\"filter\",target=\"$target\",prot=\"$prot\",dpt=\"$dpt\",state=\"$state\"} $pkts"
+        dpt=$(grep  ' match-set tor-ddos' <<<"$misc" | grep -Eo "(dpt:[0-9]+)" | cut -f 2 -d ':' -s)
+        if [[ -n $state || -n $dpt ]]; then
+          echo "$var{ipver=\"${v:-4}\",dpt=\"$dpt\",state=\"$state\"} $pkts"
+        fi
       done
   done
 
