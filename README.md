@@ -9,10 +9,11 @@ Few tools for a Tor relay.
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
 against DDoS attacks¹ at the IP network layer ([graphic](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg)).
 
-The solution uses [ipsets](https://ipset.netfilter.org) because the _timeout_ property of the ipset entries
-provides the ability to block an ip for a much longer time than the timeout of an iptables hashlimit rule would provide.
-Examples are the counter values of line [14](./doc/iptables-L.txt#L14) and [15](./doc/iptables-L.txt#L15) for IPv4
-and line [16](./doc/ip6tables-L.txt#L16) and [17](./doc/ip6tables-L.txt#L17) for IPv6 respectively.
+The solution uses [ipsets](https://ipset.netfilter.org).
+Its _timeout_ property provides the ability to block an ip for a much longer time
+than a plain iptables hashlimit rule would do.
+The counter values of line [14](./doc/iptables-L.txt#L14) and [15](./doc/iptables-L.txt#L15) for IPv4
+and line [16](./doc/ip6tables-L.txt#L16) and [17](./doc/ip6tables-L.txt#L17) for IPv6 respectively are examples.
 
 Metrics² of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
 [6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov
@@ -30,7 +31,7 @@ continued in ticket [40093](https://gitlab.torproject.org/tpo/community/support/
 ² Graphs are created by [sysstat](http://sebastien.godard.pagesperso-orange.fr/).
 Beside that I do use [this](./grafana-dashboard.json) Grafana dashboard and the scripts under [Helpers](#helpers).
 
-³ I'm curious how long the current rule set works without bigger modifications.
+³ I do wonder how long the current rule set will work without bigger changes.
 
 ### Quick start
 
@@ -173,7 +174,7 @@ sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
 
-These crontab entries are used to collect stats data:
+These crontab entries are used to collect/create metrics:
 
 ```crontab
 # sysstat
@@ -181,10 +182,10 @@ These crontab entries are used to collect stats data:
 * * * * *   /usr/lib/sa/sa1 1 1 -S XALL
 
 # prometheus
-* * * * *   /opt/torutils/metrics.sh &>/dev/null
+* * * * *   for i in 0 1 2 3; do /opt/torutils/metrics.sh &>/dev/null; sleep 15; done
 ```
 
-For the Grafana dashboard I do use this Prometheus config for the 3 different Tor relay metric ports:
+For scraping of the Tor relay metric I do use Prometheus:
 
 ```yaml
    - job_name: "<node_exporter hostname>"
@@ -199,19 +200,10 @@ For the Grafana dashboard I do use this Prometheus config for the 3 different To
       - targets: ["localhost:29052"]
         labels:
           orport: '9001'
-      - targets: ["localhost:39052"]
-        labels:
-          orport: '8443'
+...
 ```
 
-This crontab entry creates a DDoS specific metric file:
-
-```crontab
-# telemetry
-* * * * *  for i in 0 1 2 3; do /opt/torutils/metrics.sh &>/dev/null; sleep 15; done
-```
-
-which is send to prometheus as a payload by [node_exporter](https://github.com/prometheus/node_exporter).
+The upload to prometheus is made by [node_exporter](https://github.com/prometheus/node_exporter).
 
 ## Query Tor via its API
 

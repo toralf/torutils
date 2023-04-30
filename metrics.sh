@@ -37,23 +37,18 @@ function _histogram() {
 
 function printMetrics() {
   ###############################
-  # DROPed packets
+  # packets stats (of table "filter")
   #
   local var="torutils_packets"
-  echo -e "# HELP $var Total number of packets\n# TYPE $var counter"
+  echo -e "# HELP $var Total number of packets\n# TYPE $var gauge"
   for v in "" 6; do
-    if [[ -z $v ]]; then
-      pars="pkts bytes target prot opt in out source destination misc"
-    else
-      pars="pkts bytes target prot     in out source destination misc"
-    fi
-
-    # shellcheck disable=SC2154
+    # shellcheck disable=SC2034
     ip${v}tables -nvxL -t filter |
-      grep 'DROP' | grep -v -e "^Chain" -e "^  *pkts" -e "^$" |
-      while read -r ${pars?}; do
+      grep -v -e "^Chain" -e "^  *pkts" -e "^$" |
+      while read -r pkts bytes target prot opt in out source destination misc; do
+        state=$(grep -Eo -e "ctstate INVALID" -e "state NEW" <<<"$misc" | cut -f 1 -d ' ')
         dpt=$(grep -Eo "(dpt:[0-9]+)" <<<"$misc" | cut -f 2 -d ':' -s)
-        echo "$var{ipver=\"${v:-4}\",table=\"filter\",target=\"$target\",prot=\"$prot\",dpt=\"$dpt\",misc=\"$misc\"} $pkts"
+        echo "$var{ipver=\"${v:-4}\",table=\"filter\",target=\"$target\",prot=\"$prot\",dpt=\"$dpt\",state=\"$state\"} $pkts"
       done
   done
 
