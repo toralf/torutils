@@ -1,4 +1,41 @@
 {
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "panel",
+      "id": "bargauge",
+      "name": "Bar gauge",
+      "version": ""
+    },
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "9.5.1"
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    }
+  ],
   "annotations": {
     "list": [
       {
@@ -22,7 +59,7 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "XbGvg5aVz"
+          "uid": "${DS_PROMETHEUS}"
         },
         "enable": true,
         "expr": "changes(node_boot_time_seconds[$__rate_interval])",
@@ -34,7 +71,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 4,
+  "id": null,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -54,7 +91,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -135,7 +172,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "rate(node_network_receive_packets_total{device=\"enp8s0\"}[$__rate_interval])",
@@ -146,7 +183,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "rate(node_network_transmit_packets_total{device=\"enp8s0\"}[$__rate_interval])",
@@ -162,7 +199,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -246,7 +283,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "(sum(rate(node_cpu_seconds_total{mode=\"user\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total[$__rate_interval]))",
@@ -257,7 +294,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "(sum(rate(node_cpu_seconds_total{mode=\"system\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total[$__rate_interval]))",
@@ -273,7 +310,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -354,7 +391,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "rate(node_network_receive_bytes_total{device=\"enp8s0\"}[$__rate_interval])",
@@ -365,7 +402,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "rate(node_network_transmit_bytes_total{device=\"enp8s0\"}[$__rate_interval])",
@@ -381,7 +418,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -460,7 +497,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "node_sockstat_TCP_inuse",
@@ -472,7 +509,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "node_sockstat_TCP6_inuse",
@@ -502,7 +539,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -583,7 +620,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "sum by(orport) (rate(tor_relay_traffic_bytes{direction=\"read\"}[$__rate_interval]))",
@@ -598,7 +635,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -677,7 +714,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "max by(orport) (tor_relay_load_socket_total{state=\"opened\"})",
@@ -692,7 +729,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -771,7 +808,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "sum by(orport) (tor_relay_connections{family=\"ipv4\", direction=\"initiated\"})",
@@ -786,7 +823,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -865,7 +902,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "sum by(orport) (tor_relay_connections{family=\"ipv6\", direction=\"initiated\"})",
@@ -880,7 +917,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -959,7 +996,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "sum by(orport) (tor_relay_connections{family=\"ipv4\", direction=\"received\"})",
@@ -974,7 +1011,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1053,7 +1090,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "sum by(orport) (tor_relay_connections{family=\"ipv6\", direction=\"received\"})",
@@ -1068,7 +1105,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1149,7 +1186,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "sum by(orport) (rate(tor_relay_load_onionskins_total{action=\"processed\", type=\"ntor_v3\"}[$__rate_interval]))",
@@ -1164,7 +1201,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1245,7 +1282,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "sum by(orport) (rate(tor_relay_congestion_control[1h]))",
@@ -1260,7 +1297,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1340,7 +1377,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "sum by(orport) (rate(tor_relay_circuits_total[$__rate_interval]))",
@@ -1355,7 +1392,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1435,7 +1472,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "sum by(orport) (rate(tor_relay_dos_total{type=~\"circuit_killed_max_cell|circuit_rejected|circuit_killed_max_cell_outq\"}[$__rate_interval]))",
@@ -1463,7 +1500,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1544,10 +1581,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(dpt) (rate(torutils_packets_drop{ipver=\"4\", state!~\"ctstate|state\"}[$__rate_interval]))",
+          "expr": "sum by(orport) (rate(torutils_syn_packets{ipver=\"4\"}[$__rate_interval]))",
           "hide": false,
           "legendFormat": "{{dpt}}",
           "range": true,
@@ -1560,7 +1597,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1641,10 +1678,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(dpt) (rate(torutils_packets_drop{ipver=\"6\", state!~\"ctstate|state\"}[$__rate_interval]))",
+          "expr": "sum by(orport) (rate(torutils_syn_packets{ipver=\"6\"}[$__rate_interval]))",
           "hide": false,
           "legendFormat": "{{dpt}}",
           "range": true,
@@ -1657,7 +1694,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1738,23 +1775,23 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(state) (rate(torutils_packets_drop{ipver=\"4\", state=~\"ctstate|state\"}[$__rate_interval]))",
+          "expr": "sum by(state) (rate(torutils_state_packets{ipver=\"4\"}[$__rate_interval]))",
           "hide": false,
           "legendFormat": "{{dpt}}",
           "range": true,
           "refId": "D"
         }
       ],
-      "title": "DROP IPv4",
+      "title": "DROP state IPv4",
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1835,23 +1872,23 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(state) (rate(torutils_packets_drop{ipver=\"6\", state=~\"ctstate|state\"}[$__rate_interval]))",
+          "expr": "sum by(state) (rate(torutils_state_packets{ipver=\"6\"}[$__rate_interval]))",
           "hide": false,
           "legendFormat": "{{dpt}}",
           "range": true,
           "refId": "D"
         }
       ],
-      "title": "DROP IPv6",
+      "title": "DROP state Pv6",
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1930,7 +1967,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "torutils_ipset_total{ipver=\"4\", mode=\"ddos\"}",
@@ -1945,7 +1982,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2025,7 +2062,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "torutils_ipset_total{ipver=\"6\", mode=\"ddos\"}",
@@ -2040,7 +2077,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2119,7 +2156,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "torutils_hashlimit_total{ipver=\"4\", mode=\"ddos\"}",
@@ -2134,7 +2171,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2213,7 +2250,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "torutils_hashlimit_total{ipver=\"6\", mode=\"ddos\"}",
@@ -2228,7 +2265,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2307,7 +2344,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "torutils_hashlimit_total{ipver=\"4\", mode=\"rate\"}",
@@ -2322,7 +2359,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2401,7 +2438,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "torutils_hashlimit_total{ipver=\"6\", mode=\"rate\"}",
@@ -2429,7 +2466,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2441,8 +2478,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2454,7 +2490,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 12,
         "x": 0,
         "y": 100
@@ -2481,7 +2517,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", orport=\"443\", mode=\"ddos\"}",
@@ -2497,7 +2533,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2509,8 +2545,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2522,7 +2557,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 12,
         "x": 12,
         "y": 100
@@ -2549,7 +2584,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", orport=\"443\", mode=\"ddos\"}",
@@ -2565,7 +2600,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2577,8 +2612,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2590,10 +2624,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 12,
         "x": 0,
-        "y": 106
+        "y": 105
       },
       "id": 52,
       "options": {
@@ -2617,7 +2651,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", orport=\"8443\", mode=\"ddos\"}",
@@ -2633,7 +2667,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2645,8 +2679,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2658,10 +2691,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 12,
         "x": 12,
-        "y": 106
+        "y": 105
       },
       "id": 54,
       "options": {
@@ -2685,7 +2718,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", orport=\"8443\", mode=\"ddos\"}",
@@ -2701,7 +2734,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2713,8 +2746,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2726,10 +2758,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 12,
         "x": 0,
-        "y": 112
+        "y": 110
       },
       "id": 53,
       "options": {
@@ -2753,7 +2785,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", orport=\"9001\", mode=\"ddos\"}",
@@ -2769,7 +2801,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2781,8 +2813,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2794,10 +2825,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 12,
         "x": 12,
-        "y": 112
+        "y": 110
       },
       "id": 55,
       "options": {
@@ -2821,7 +2852,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", orport=\"9001\", mode=\"ddos\"}",
@@ -2837,7 +2868,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2861,10 +2892,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 12,
         "x": 0,
-        "y": 118
+        "y": 115
       },
       "id": 76,
       "options": {
@@ -2888,7 +2919,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", orport=\"9443\", mode=\"ddos\"}",
@@ -2904,7 +2935,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2928,10 +2959,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 12,
         "x": 12,
-        "y": 118
+        "y": 115
       },
       "id": 77,
       "options": {
@@ -2955,7 +2986,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
           "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", orport=\"9443\", mode=\"ddos\"}",
@@ -2965,7 +2996,7 @@
           "refId": "A"
         }
       ],
-      "title": "etor-ddos-9443 IPv6",
+      "title": "tor-ddos-9443 IPv6",
       "type": "bargauge"
     }
   ],
@@ -2978,13 +3009,13 @@
     "list": []
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-30d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "utc",
   "title": "Tor",
   "uid": "FgvRNta4k",
-  "version": 189,
+  "version": 197,
   "weekStart": ""
 }

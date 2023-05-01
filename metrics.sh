@@ -37,22 +37,27 @@ function _histogram() {
 
 function printMetrics() {
   ###############################
-  # packets stats (of table "filter")
+  # dropped packets stats
   #
-  local var="torutils_packets_drop"
-  echo -e "# HELP $var Total number of droped packets\n# TYPE $var gauge"
+  local var="torutils_state_packets"
+  echo -e "# HELP $var Total number of dropped state packets\n# TYPE $var gauge"
+  for v in "" 6; do
+    ip${v}tables -nvxL -t filter |
+      grep -F ' DROP ' | grep -v -e "^Chain" | grep -F -e " ctstate INVALID" -e " state NEW" | awk '{ print $1, $NF }' |
+      while read -r pkts state; do
+        echo "$var{ipver=\"${v:-4}\",state=\"$state\"} $pkts"
+      done
+  done
+
+  local var="torutils_syn_packets"
+  echo -e "# HELP $var Total number of dropped syn packets\n# TYPE $var gauge"
   for v in "" 6; do
     # shellcheck disable=SC2034
     ip${v}tables -nvxL -t filter |
-      grep ' DROP ' |
-      grep -v -e "^Chain" |
-      grep -e ' match-set ' -e 'state ' |
-      while read -r pkts bytes target prot opt in out source destination misc; do
-        state=$(grep -Eo -e "ctstate INVALID" -e "state NEW" <<<"$misc" | cut -f 1 -d ' ')
-        dpt=$(grep  ' match-set tor-ddos' <<<"$misc" | grep -Eo "(dpt:[0-9]+)" | cut -f 2 -d ':' -s)
-        if [[ -n $state || -n $dpt ]]; then
-          echo "$var{ipver=\"${v:-4}\",dpt=\"$dpt\",state=\"$state\"} $pkts"
-        fi
+      grep -F ' DROP ' | grep -v -e "^Chain" | grep -F ' match-set ' | awk '{ print $1, $14 }' |
+      while read -r pkts name; do
+        orport=$(cut -f 3 -d '-' -s <<<$name)
+        echo "$var{ipver=\"${v:-4}\",orport=\"$orport\"} $pkts"
       done
   done
 
