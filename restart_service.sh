@@ -4,14 +4,14 @@
 
 # restart a crashed service under Gentoo Linux (OpenRC)
 
-#######################################################################
-set -uf # no -e here !
+
+set -u
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 while :; do
   if [[ "$(runlevel)" == "N 3" ]]; then
-    for s in ssh tor tor2 tor3 unbound; do
+    for s in ssh $(ls /etc/init.d/tor{,?} | xargs -n 1 basename) unbound; do
       rc-service -qq $s status
       if [[ $? -eq 32 ]]; then
         echo "$0: restart crashed $s"
