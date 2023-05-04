@@ -22,7 +22,7 @@ for [these](https://nusenu.github.io/OrNetStats/zwiebeltoralf.de.html) 2 relays.
 A heavier attack was observed at [12th](./doc/network-metric-Nov-12th.svg) of Nov.
 A periodic drop down of the socket count metric, vanishing over time appeared at
 [5th](./doc/network-metric-Dec-05th.svg) of Dec.
-Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are still handled well.³
+Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are still handled well.
 
 ¹ Discussion is e.g. in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 of the [Tor project tracker](https://www.torproject.org/) and was
@@ -30,8 +30,6 @@ continued in ticket [40093](https://gitlab.torproject.org/tpo/community/support/
 
 ² Graphs are created by [sysstat](http://sebastien.godard.pagesperso-orange.fr/).
 Beside that I do use [this](./grafana-dashboard.json) Grafana dashboard and the scripts under [Helpers](#helpers).
-
-³ I do wonder how long the current rule set will work without bigger changes.
 
 ### Quick start
 
@@ -104,7 +102,7 @@ Therefore run this in regular intervalls (eg. via cron):
 sudo ./ipv4-rules.sh update
 ```
 
-If the parsing of the Tor config (line [181](ipv4-rules.sh#L181)) doesn't work for you then:
+If the parsing of the Tor config (line [168](ipv4-rules.sh#L168)) doesn't work for you then:
 
 1. define the local running relay(s) space separated at the command line after the keyword `start`, eg.:
 
@@ -145,11 +143,11 @@ To allow inbound traffic to other local service(s), either:
 
 before you start the script.
 To **append** the rules of this script onto the local _iptables_ rules (instead **overwrite** existing rules)
-you've to comment out the call (line [164](ipv4-rules.sh#L164)).
-The script sets few _sysctl_ values (line [152](ipv4-rules.sh#L152)).
+you've to comment out the call _clearRules()_ (line [219](ipv4-rules.sh#L219)).
+The script sets few _sysctl_ values (line [142](ipv4-rules.sh#L142)).
 Those can be set permanently under _/etc/sysctl.d/_ outsite of this script.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then comment out the call (line [137](ipv4-rules.sh#L137)).
+then comment out the call _addHetzner()_ (line [222](ipv4-rules.sh#L222)).
 
 ### Helpers
 
