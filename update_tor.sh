@@ -11,7 +11,7 @@ function rebuild() {
 }
 
 function restart() {
-  for i in tor tor2 tor3; do
+  for i in $(ls /etc/init.d/tor{,?} 2>/dev/null | xargs -n 1 basename); do
     echo
     date
     echo " restart $i"
@@ -36,6 +36,8 @@ set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
+export GIT_PAGER="cat"
+
 if [[ ! -d ~/tor ]]; then
   cd ~
   git clone https://git.torproject.org/tor.git
@@ -53,8 +55,9 @@ else
     rm $tmpfile
   else
     rm $tmpfile
-    # pass to rebuild if eg. libevent was updated and tor would fail at next start
-    if tor --version 1>/dev/null; then
+    # rebuild if eg. libevent was updated because tor would fail at next start otherwise
+    # "       after an update of app-arch/zstd
+    if tor --version 1>/dev/null && ! tac /var/log/tor/notice.log | grep -m 1 -B 1 'We compiled with ' | grep 'Tor was compiled with zstd .*, but'; then
       exit 0
     fi
   fi
