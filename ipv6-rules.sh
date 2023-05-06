@@ -46,7 +46,7 @@ function __fill_trustlist() {
 
     getent ahostsv6 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }'
     curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - |
-      jq -cr '.relays[]' | jq -cr '.a | select(length > 1) | .[1]' | grep ':' | tr -d ']['
+      jq -cr '.relays[] | .a | select(length > 1) | .[1]' | grep ':' | tr -d ']['
   ) |
     xargs -r -n 1 -P $jobs ipset add -exist $trustlist
 }
@@ -57,7 +57,7 @@ function __fill_multilist() {
       cat /var/tmp/$multilist
     fi
     curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |
-      jq -cr '.relays[]' | jq -cr '.a | select(length > 1) | .[1]' | grep ':' | tr -d '][' | sort | uniq -d |
+      jq -cr '.relays[] | .a | select(length > 1) | .[1]' | grep ':' | tr -d '][' | sort | uniq -d |
       tee /var/tmp/$multilist.new
     if [[ -s /var/tmp/$multilist.new ]]; then
       mv /var/tmp/$multilist.new /var/tmp/$multilist
