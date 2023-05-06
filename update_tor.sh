@@ -16,17 +16,13 @@ function restart() {
     date
     echo " restart $i"
     if ! rc-service $i restart; then
-      if pid=$(cat /run/tor/$i.pid); then
-        echo " get roughly with pid $pid"
-        if kill -9 $pid; then
-          sleep 1
-          rc-service $i zap start
-        else
-          echo " can't kill $pid ?!"
-        fi
-      else
-        echo " no pid ?!"
+      pid=$(cat /run/tor/$i.pid)
+      echo " get roughly with pid $pid"
+      if ! kill -9 $pid; then
+        echo " can't kill pid >$pid<"
       fi
+      sleep 1
+      rc-service $i zap start
     fi
   done
 }
@@ -55,9 +51,8 @@ else
     rm $tmpfile
   else
     rm $tmpfile
-    # rebuild if eg. libevent was updated because tor would fail at next start otherwise
-    # "       after an update of app-arch/zstd
-    if tor --version 1>/dev/null && ! tac /var/log/tor/notice.log | grep -m 1 -B 1 'We compiled with ' | grep 'Tor was compiled with zstd .*, but'; then
+    # rebuild if libevent was updated (and tor refuses to start w/o being recompiled against latest libevent)
+    if tor --version 1>/dev/null; then
       exit 0
     fi
   fi
