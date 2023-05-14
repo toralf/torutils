@@ -11,18 +11,25 @@ function rebuild() {
 }
 
 function restart() {
-  for i in $(ls /etc/init.d/tor{,?} 2>/dev/null | xargs -n 1 basename); do
+  export GRACEFUL_TIMEOUT=20
+
+  for i in $(set +f; ls /etc/init.d/tor{,?} 2>/dev/null | xargs -n 1 basename); do
     echo
     date
-    echo " restart $i"
+    echo " restarting $i"
     if ! rc-service $i restart; then
-      pid=$(cat /run/tor/$i.pid)
-      echo " get roughly with pid $pid"
-      if ! kill -9 $pid; then
-        echo " can't kill pid >$pid<"
+      local pid=$(cat /run/tor/$i.pid)
+      if kill -0 $pid; then
+        echo " get roughly with pid $pid"
+        kill -9 $pid
+        sleep 1
+      else
+        rm run/tor/$i.pid
+        echo " $pid for $i was invalid"
       fi
-      sleep 1
-      rc-service $i zap start
+      if ! rc-service $i zap start; then
+        echo "zap failed for $i"
+      fi
     fi
   done
 }
