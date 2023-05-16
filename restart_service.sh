@@ -4,7 +4,6 @@
 
 # restart a crashed service under Gentoo Linux (OpenRC)
 
-
 set -u
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"

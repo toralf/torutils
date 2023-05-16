@@ -13,7 +13,10 @@ function rebuild() {
 function restart() {
   export GRACEFUL_TIMEOUT=20
 
-  for i in $(set +f; ls /etc/init.d/tor{,?} 2>/dev/null | xargs -n 1 basename); do
+  for i in $(
+    set +f
+    ls /etc/init.d/tor{,?} 2>/dev/null | xargs -n 1 basename
+  ); do
     echo
     date
     echo " restarting $i"
