@@ -18,8 +18,8 @@ function addCommon() {
   ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 
   # ssh
-  local port=$(grep -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config | awk '{ print $2 }')
-  local addr=$(grep -E "^ListenAddress\s+.+$" /etc/ssh/sshd_config | awk '{ print $2 }' | grep -F ':')
+  local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf | awk '{ print $2 }')
+  local addr=$(grep -m 1 -E "^ListenAddress\s+.+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf | awk '{ print $2 }' | grep -F ':')
   ip6tables -A INPUT -p tcp --dst ${addr:-"::/0"} --dport ${port:-22} -j ACCEPT
 
   ## ratelimit ICMP echo
