@@ -13,28 +13,29 @@ function rebuild() {
 function restart() {
   export GRACEFUL_TIMEOUT=20
 
-  for i in $(
-    set +f
-    ls /etc/init.d/tor{,?} 2>/dev/null | xargs -n 1 basename
-  ); do
-    echo
-    date
-    echo " restarting $i"
-    if ! rc-service $i restart; then
-      local pid=$(cat /run/tor/$i.pid)
-      if kill -0 $pid; then
-        echo " get roughly with pid $pid"
-        kill -9 $pid
-        sleep 1
-      else
-        rm run/tor/$i.pid
-        echo " $pid for $i was invalid"
+  set +f
+  # shellcheck disable=SC2011
+  ls /etc/init.d/tor{,?} 2>/dev/null |
+    xargs -n 1 basename |
+    while read -r i; do
+      echo
+      date
+      echo " restarting $i"
+      if ! rc-service $i restart; then
+        local pid=$(cat /run/tor/$i.pid)
+        if kill -0 $pid; then
+          echo " get roughly with pid $pid"
+          kill -9 $pid
+          sleep 1
+        else
+          rm run/tor/$i.pid
+          echo " $pid for $i was invalid"
+        fi
+        if ! rc-service $i zap start; then
+          echo "zap failed for $i"
+        fi
       fi
-      if ! rc-service $i zap start; then
-        echo "zap failed for $i"
-      fi
-    fi
-  done
+    done
 }
 
 #######################################################################
