@@ -62,11 +62,10 @@ def main():
             return
 
         relays = {}  # address => [orports...]
-        relays = parse_consensus(relays, "/var/lib/tor/data/cached-consensus")
         try:
-            relays = parse_consensus(relays, "/var/lib/tor/data2/cached-consensus")
+            relays = parse_consensus(relays, "/var/lib/tor/data/cached-consensus")
         except:
-            pass
+            relays = parse_consensus(relays, "/var/lib/tor/data1/cached-consensus")
 
         MaxOpened = {}  # hold the maximum amount of opened  ports
         MaxClosed = {}  # hold the maximum amount of closed  ports
