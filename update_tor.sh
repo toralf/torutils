@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# update and restart Tor under Gentoo Linux (OpenRC)
+# update Tor and restart Tor relay(s) under Gentoo Linux (OpenRC)
 
 function rebuild() {
   echo
@@ -13,29 +13,26 @@ function rebuild() {
 function restart() {
   export GRACEFUL_TIMEOUT=20
 
-  set +f
-  # shellcheck disable=SC2011
-  ls /etc/init.d/tor{,?} 2>/dev/null |
-    xargs -n 1 basename |
-    while read -r i; do
-      echo
-      date
-      echo " restarting $i"
-      if ! rc-service $i restart; then
-        local pid=$(cat /run/tor/$i.pid)
-        if kill -0 $pid; then
-          echo " get roughly with pid $pid"
-          kill -9 $pid
-          sleep 1
-        else
-          rm run/tor/$i.pid
-          echo " $pid for $i was invalid"
-        fi
-        if ! rc-service $i zap start; then
-          echo "zap failed for $i"
-        fi
+  for i in {1..4}; do
+    service=tor$i
+    echo
+    date
+    echo " restarting $service"
+    if ! rc-service $service restart; then
+      local pid=$(cat /run/tor/$service.pid)
+      if kill -0 $pid; then
+        echo " get roughly with pid $pid"
+        kill -9 $pid
+        sleep 1
+      else
+        rm /run/tor/$service.pid
+        echo " $pid for $service was invalid"
       fi
-    done
+      if ! rc-service $service zap start; then
+        echo "zap failed for $service"
+      fi
+    fi
+  done
 }
 
 #######################################################################
