@@ -262,6 +262,12 @@ days=$(( seconds/86400 ))
 [[ $days -lt 23 ]] && echo "Tor signing key expires in less than $days day(s)"
 ```
 
+With Tor metrics enabled get the expiration date in a human readable way by:
+
+```bash
+date -d@$(curl -s localhost:9052/metrics | grep "^tor_relay_signing_cert_expiry_timestamp" | awk '{ print $2 }')
+```
+
 ### Prerequisites
 
 An open Tor control port is needed for all of the scripts above to query the Tor process via API.
