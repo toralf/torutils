@@ -183,7 +183,8 @@ These crontab entries are used to collect/create metrics:
 * * * * *   for i in 0 1 2 3; do /opt/torutils/metrics.sh &>/dev/null; sleep 15; done
 ```
 
-For scraping of the Tor relay metric I do use Prometheus:
+The upload is made by [node_exporter](https://github.com/prometheus/node_exporter).
+To scrape metrics of local Tor relays I configured Prometheus in this way:
 
 ```yaml
    - job_name: "<node_exporter hostname>"
@@ -192,7 +193,7 @@ For scraping of the Tor relay metric I do use Prometheus:
 
    - job_name: "Tor"
     static_configs:
-      - targets: ["localhost:9052"]
+      - targets: ["localhost:19052"]
         labels:
           orport: '443'
       - targets: ["localhost:29052"]
@@ -200,8 +201,6 @@ For scraping of the Tor relay metric I do use Prometheus:
           orport: '9001'
 ...
 ```
-
-The upload to prometheus is made by [node_exporter](https://github.com/prometheus/node_exporter).
 
 ## Query Tor via its API
 
