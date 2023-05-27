@@ -160,8 +160,8 @@ limit ([example](./doc/ddos-inbound.sh.txt)).
 [ipset-stats.sh](./ipset-stats.sh) plots distribution of timeout values of an ipset as well as occurrences
 of ip addresses in subsequent ipset output files ([example](./doc/ipset-stats.sh.txt)).
 For plots the package [gnuplot](http://www.gnuplot.info/) is needed.
-
-The SVG graphs are created by the sysstat command _sadf_, the resulting SVG is fixed for a known bug:
+The SVG graphs are created by the sysstat command _sadf_, the canvas size is fixed for
+an already [reported issue](https://github.com/sysstat/sysstat/issues/286):
 
 ```bash
 args="-n DEV,SOCK,SOCK6 --iface=enp8s0"   # set it to "-A" to display all collected metrics
@@ -184,7 +184,7 @@ These crontab entries are used to collect/create metrics:
 ```
 
 The upload is made by [node_exporter](https://github.com/prometheus/node_exporter).
-To scrape metrics of local Tor relays I configured Prometheus in this way:
+To scrape metrics of Tor relays I configured Prometheus in this way:
 
 ```yaml
    - job_name: "<node_exporter hostname>"
