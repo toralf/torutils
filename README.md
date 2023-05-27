@@ -202,6 +202,8 @@ To scrape metrics of local Tor relays I configured Prometheus in this way:
 ...
 ```
 
+The label _orport_ can be any arbitrary string - I used the value itself.
+
 ## Query Tor via its API
 
 ### Relay summary
