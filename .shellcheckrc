@@ -4,8 +4,7 @@ disable=SC2155 # Declare and assign separately to avoid masking return values.
 disable=SC2068 # Double quote array expansions to avoid re-splitting elements.
 disable=SC2048 # Use "$@" (with quotes) to prevent whitespace problems.
 source-path=SCRIPTDIR
-disable=SC2045 # Iterating over ls output is fragile. Use globs.
-disable=SC2012 # Use find instead of ls to better handle non-alphanumeric filenames.
+disable=SC2012 # low  Use find instead of ls to better handle non-alphanumeric filenames.
 disable=SC2035 # Use ./*glob* or -- *glob* so names with dashes won't become options.
 disable=SC2076 # Remove quotes from right-hand side of =~ to match as a regex rather than literally.
 disable=SC2001 # See if you can use ${variable//search/replace} instead.
