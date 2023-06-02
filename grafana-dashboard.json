@@ -97,7 +97,7 @@
       },
       "id": 82,
       "panels": [],
-      "title": "Tor signing keys",
+      "title": "Global",
       "type": "row"
     },
     {
@@ -111,9 +111,9 @@
           "color": {
             "mode": "thresholds"
           },
-          "decimals": 0,
+          "decimals": 1,
           "mappings": [],
-          "max": 90,
+          "max": 92,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -142,7 +142,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 12,
+        "w": 6,
         "x": 0,
         "y": 1
       },
@@ -189,10 +189,7 @@
           "color": {
             "mode": "thresholds"
           },
-          "decimals": 0,
           "mappings": [],
-          "max": 90,
-          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -201,7 +198,7 @@
                 "value": null
               },
               {
-                "color": "blue",
+                "color": "red",
                 "value": 0
               },
               {
@@ -210,14 +207,88 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "bool_yes_no"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 4,
-        "w": 12,
-        "x": 12,
+        "w": 4,
+        "x": 6,
+        "y": 1
+      },
+      "id": 86,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.5.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "tor_relay_flag{type=\"Running\"}",
+          "instant": true,
+          "legendFormat": "{{orport}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Running",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "transparent",
+                "value": 0
+              },
+              {
+                "color": "blue",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "bool_yes_no"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 14,
+        "x": 10,
         "y": 1
       },
       "id": 84,
@@ -248,7 +319,7 @@
           },
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "tor_relay_flag",
+          "expr": "tor_relay_flag{type!~\"Running\"}",
           "instant": true,
           "legendFormat": "{{orport}} {{type}}",
           "range": false,
@@ -546,7 +617,7 @@
               }
             ]
           },
-          "unit": "bytes"
+          "unit": "binBps"
         },
         "overrides": []
       },
@@ -773,7 +844,7 @@
               }
             ]
           },
-          "unit": "bytes"
+          "unit": "binBps"
         },
         "overrides": []
       },
@@ -2800,6 +2871,6 @@
   "timezone": "utc",
   "title": "Tor",
   "uid": "FgvRNta4k",
-  "version": 225,
+  "version": 237,
   "weekStart": ""
 }
