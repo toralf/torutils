@@ -180,7 +180,7 @@ These crontab entries are used to collect/create metrics:
 * * * * *   /usr/lib/sa/sa1 1 1 -S XALL
 
 # prometheus
-* * * * *   for i in 0 1 2 3; do /opt/torutils/metrics.sh &>/dev/null; sleep 15; done
+* * * * *   for i in {0..3}; do /opt/torutils/metrics.sh &>/dev/null; sleep 15; done
 ```
 
 The upload is made by [node_exporter](https://github.com/prometheus/node_exporter).
