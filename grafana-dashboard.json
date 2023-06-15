@@ -27,7 +27,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "9.5.1"
+      "version": "9.5.3"
     },
     {
       "type": "datasource",
@@ -159,7 +159,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "9.5.1",
+      "pluginVersion": "9.5.3",
       "targets": [
         {
           "datasource": {
@@ -233,7 +233,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.1",
+      "pluginVersion": "9.5.3",
       "targets": [
         {
           "datasource": {
@@ -310,7 +310,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.5.1",
+      "pluginVersion": "9.5.3",
       "targets": [
         {
           "datasource": {
@@ -836,7 +836,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -930,7 +931,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1023,7 +1025,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1116,7 +1119,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2871,6 +2875,6 @@
   "timezone": "utc",
   "title": "Tor",
   "uid": "FgvRNta4k",
-  "version": 237,
+  "version": 240,
   "weekStart": ""
 }

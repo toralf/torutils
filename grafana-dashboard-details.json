@@ -15,7 +15,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "9.5.1"
+      "version": "9.5.3"
     },
     {
       "type": "datasource",
@@ -499,7 +499,7 @@
         "x": 0,
         "y": 16
       },
-      "id": 10,
+      "id": 12,
       "options": {
         "legend": {
           "calcs": [],
@@ -519,13 +519,13 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(type) (rate(tor_relay_dos_total{orport=\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(action) (rate(tor_relay_rend1_total{orport=\"$Orport\"}[$__rate_interval]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "dos / min",
+      "title": "rend1 / min",
       "type": "timeseries"
     },
     {
@@ -667,8 +667,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -685,7 +684,7 @@
         "x": 0,
         "y": 24
       },
-      "id": 13,
+      "id": 10,
       "options": {
         "legend": {
           "calcs": [],
@@ -705,13 +704,13 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(type) (rate(tor_relay_streams_total{orport=\"$Orport\"}[$__rate_interval]))",
-          "legendFormat": "{{type}}",
+          "expr": "sum by(type) (rate(tor_relay_dos_total{orport=\"$Orport\"}[$__rate_interval]))",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "stream / min",
+      "title": "dos / min",
       "type": "timeseries"
     },
     {
@@ -760,8 +759,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -853,8 +851,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -871,7 +868,7 @@
         "x": 0,
         "y": 32
       },
-      "id": 3,
+      "id": 13,
       "options": {
         "legend": {
           "calcs": [],
@@ -891,13 +888,13 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(action) (rate(tor_relay_est_intro_total{orport=\"$Orport\"}[$__rate_interval]))",
-          "legendFormat": "__auto",
+          "expr": "sum by(type) (rate(tor_relay_streams_total{orport=\"$Orport\"}[$__rate_interval]))",
+          "legendFormat": "{{type}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "est intro / min",
+      "title": "stream / min",
       "type": "timeseries"
     },
     {
@@ -946,8 +943,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1040,8 +1036,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1058,7 +1053,7 @@
         "x": 0,
         "y": 40
       },
-      "id": 4,
+      "id": 3,
       "options": {
         "legend": {
           "calcs": [],
@@ -1078,13 +1073,13 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(action) (rate(tor_relay_est_rend_total{orport=\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(action) (rate(tor_relay_est_intro_total{orport=\"$Orport\"}[$__rate_interval]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "est rend / min",
+      "title": "est intro / min",
       "type": "timeseries"
     },
     {
@@ -1133,8 +1128,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1227,8 +1221,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1245,7 +1238,7 @@
         "x": 0,
         "y": 48
       },
-      "id": 12,
+      "id": 4,
       "options": {
         "legend": {
           "calcs": [],
@@ -1265,13 +1258,13 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(action) (rate(tor_relay_rend1_total{orport=\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(action) (rate(tor_relay_est_rend_total{orport=\"$Orport\"}[$__rate_interval]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "rend1 / min",
+      "title": "est rend / min",
       "type": "timeseries"
     },
     {
@@ -1320,8 +1313,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1413,8 +1405,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1506,8 +1497,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1599,8 +1589,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1693,8 +1682,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1786,8 +1774,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1880,8 +1867,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1960,13 +1946,13 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-30d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Tor details",
   "uid": "bb0ac200-1fab-4d04-a3b0-859d35ec9ee6",
-  "version": 43,
+  "version": 45,
   "weekStart": ""
 }
