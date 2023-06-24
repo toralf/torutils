@@ -42,6 +42,7 @@ def main():
         "-c", "--ctrlport", type=int, help="default: 9051", default=9051
     )
     parser.add_argument("-r", "--resolver", help="default: autodetect", default="")
+    parser.add_argument("-s", "--suffix", help="default: empty", default="")
     args = parser.parse_args()
 
     with Controller.from_port(address=args.address, port=args.ctrlport) as controller:
@@ -62,10 +63,9 @@ def main():
             return
 
         relays = {}  # address => [orports...]
-        try:
-            relays = parse_consensus(relays, "/var/lib/tor/data/cached-consensus")
-        except:
-            relays = parse_consensus(relays, "/var/lib/tor/data1/cached-consensus")
+        relays = parse_consensus(
+            relays, "/var/lib/tor/data" + args.suffix + "/cached-consensus"
+        )
 
         MaxOpened = {}  # hold the maximum amount of opened  ports
         MaxClosed = {}  # hold the maximum amount of closed  ports

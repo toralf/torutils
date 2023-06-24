@@ -53,6 +53,7 @@ def main(args=None):
         "-c", "--ctrlport", type=int, help="default: 9051", default=9051
     )
     parser.add_argument("-r", "--resolver", help="default: autodetected", default="")
+    parser.add_argument("-s", "--suffix", help="default: empty", default="")
     args = parser.parse_args()
 
     try:
@@ -80,10 +81,9 @@ def main(args=None):
     policy = controller.get_exit_policy()
 
     relays = {}  # address => [orports...]
-    try:
-        relays = parse_consensus(relays, "/var/lib/tor/data/cached-consensus")
-    except:
-        relays = parse_consensus(relays, "/var/lib/tor/data1/cached-consensus")
+    relays = parse_consensus(
+        relays, "/var/lib/tor/data" + args.suffix + "/cached-consensus"
+    )
 
     categories = collections.OrderedDict(
         (
@@ -195,7 +195,7 @@ def main(args=None):
         else:
             ipv4.setdefault(address, []).append(conn.remote_port)
 
-    limit = 4
+    limit = 8
     ddos4 = [address for address in ipv4 if len(ipv4[address]) > limit]
     ddos6 = [address for address in ipv6 if len(ipv6[address]) > limit]
     if ddos4:

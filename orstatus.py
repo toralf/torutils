@@ -25,40 +25,28 @@ def main():
     parser.add_argument(
         "-c", "--ctrlport", type=int, help="default: 9051", default=9051
     )
+    parser.add_argument("-s", "--suffix", help="default: empty", default="")
     args = parser.parse_args()
 
-    try:
-        with Controller.from_port(
-            address=args.address, port=args.ctrlport
-        ) as controller:
-            controller.authenticate()
+    with Controller.from_port(address=args.address, port=args.ctrlport) as controller:
+        controller.authenticate()
 
-            for desc in parse_file("/var/lib/tor/data/cached-consensus"):
-                ip = "v4" if is_valid_ipv4_address(desc.address) else "v6"
-                desc_versions[desc.fingerprint] = [
-                    desc.address,
-                    desc.or_port,
-                    ip,
-                    desc.version,
-                ]
-            for desc in parse_file("/var/lib/tor/data2/cached-consensus"):
-                ip = "v4" if is_valid_ipv4_address(desc.address) else "v6"
-                desc_versions[desc.fingerprint] = [
-                    desc.address,
-                    desc.or_port,
-                    ip,
-                    desc.version,
-                ]
+        for desc in parse_file("/var/lib/tor/data" + args.suffix + "/cached-consensus"):
+            ip = "v4" if is_valid_ipv4_address(desc.address) else "v6"
+            desc_versions[desc.fingerprint] = [
+                desc.address,
+                desc.or_port,
+                ip,
+                desc.version,
+            ]
 
-            orconn_listener = functools.partial(orconn_event, controller)
-            controller.add_event_listener(orconn_listener, EventType.ORCONN)
-            while True:
-                try:
-                    time.sleep(1)
-                except KeyboardInterrupt:
-                    break
-    except:
-        print("Cannot open %s : %i" % (args.address, args.ctrlport))
+        orconn_listener = functools.partial(orconn_event, controller)
+        controller.add_event_listener(orconn_listener, EventType.ORCONN)
+        while True:
+            try:
+                time.sleep(1)
+            except KeyboardInterrupt:
+                break
 
 
 def orconn_event(controller, event):
