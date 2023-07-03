@@ -12,24 +12,7 @@ against DDoS attacks¹ at the IP network layer ([graphic](https://upload.wikimed
 The solution uses [ipsets](https://ipset.netfilter.org).
 Its _timeout_ property provides the ability to block an ip for a much longer time
 than a plain iptables hashlimit rule would do.
-The counter values of line [14](./doc/iptables-L.txt#L14) and [15](./doc/iptables-L.txt#L15) for IPv4
-and line [16](./doc/ip6tables-L.txt#L16) and [17](./doc/ip6tables-L.txt#L17) for IPv6 respectively are examples.
-
-Metrics² of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
-[6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov
-show the results for few DDoS attacks over 3 days
-for [these](https://nusenu.github.io/OrNetStats/zwiebeltoralf.de.html) 2 relays.
-A heavier attack was observed at [12th](./doc/network-metric-Nov-12th.svg) of Nov.
-A periodic drop down of the socket count metric, vanishing over time appeared at
-[5th](./doc/network-metric-Dec-05th.svg) of Dec.
-Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are still handled well.
-
-¹ Discussion is e.g. in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
-of the [Tor project tracker](https://www.torproject.org/) and was
-continued in ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093).
-
-² Graphs are created by [sysstat](http://sebastien.godard.pagesperso-orange.fr/).
-Beside that I do use [this](./grafana-dashboard.json) Grafana dashboard and the scripts under [Helpers](#helpers).
+[This](./doc/network-metric-July-3rd.jpg) example ([here](#ddos-examples) are more) might illustrate that.
 
 ### Quick start
 
@@ -203,6 +186,27 @@ To scrape metrics of Tor relays I configured Prometheus in this way:
 ```
 
 The label _orport_ can be any arbitrary string - I used the value itself.
+
+### DDoS examples
+
+The counter values of line [14](./doc/iptables-L.txt#L14) and [15](./doc/iptables-L.txt#L15) for IPv4
+and line [16](./doc/ip6tables-L.txt#L16) and [17](./doc/ip6tables-L.txt#L17) for IPv6 respectively are examples.
+
+Metrics² of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
+[6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov
+show the results for few DDoS attacks over 3 days
+for [these](https://nusenu.github.io/OrNetStats/zwiebeltoralf.de.html) 2 relays.
+A heavier attack was observed at [12th](./doc/network-metric-Nov-12th.svg) of Nov.
+A periodic drop down of the socket count metric, vanishing over time appeared at
+[5th](./doc/network-metric-Dec-05th.svg) of Dec.
+Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are still handled well.
+
+¹ Discussion is e.g. in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
+of the [Tor project tracker](https://www.torproject.org/) and was
+continued in ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093).
+
+² Graphs are created by [sysstat](http://sebastien.godard.pagesperso-orange.fr/).
+Beside that I do use [this](./grafana-dashboard.json) Grafana dashboard and the scripts under [Helpers](#helpers).
 
 ## Query Tor via its API
 
