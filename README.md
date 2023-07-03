@@ -7,19 +7,19 @@ Few tools for a Tor relay.
 ## Block DDoS
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
-against DDoS attacks¹ at the IP network layer ([graphic](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg)).
-A recent DDoS attack is seen [here](./doc/network-metric-July-3rd.jpg).
-More example are [here](#ddos-examples).
+against DDoS attacks¹ at the IP [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg).
+A recent blocked DDoS attack is seen [here](./doc/network-metric-July-3rd.jpg).
+More example are [below](#ddos-examples).
 
-The solution uses [ipsets](https://ipset.netfilter.org).
+The solution here uses [ipsets](https://ipset.netfilter.org).
 Its _timeout_ property provides the ability to block an ip for a much longer time
 than a plain iptables hashlimit rule would do.
-The difference of the SET and DROP counters of line [14](./doc/iptables-L.txt#L14) and [15](./doc/iptables-L.txt#L15) for IPv4
-and line [16](./doc/ip6tables-L.txt#L16) and [17](./doc/ip6tables-L.txt#L17) for IPv6 respectively shows that IMO.
+The difference of the SET and DROP counters in the examples in line [14](./doc/iptables-L.txt#L14) and [15](./doc/iptables-L.txt#L15) for IPv4
+and in line [16](./doc/ip6tables-L.txt#L16) and [17](./doc/ip6tables-L.txt#L17) for IPv6 respectively shows that IMO.
 
 ### Quick start
 
-Install the dependencies, eg. for Ubuntu 22.04:
+Install the dependencies, e.g. for Ubuntu 22.04:
 
 ```bash
 sudo apt install iptables ipset jq
@@ -79,10 +79,9 @@ But how likely do more than the given number of Tor clients at the same ip addre
 ### Installation
 
 The instructions belongs to the IPv4 variant.
-They can be applied in a similar way for the IPv6 variant of the script.
 
 Rule 3 depends on recent data of ip addresses serving more than one Tor relay.
-Therefore run this in regular intervalls (eg. via cron):
+To update that data run this in regular intervalls (best: via cron):
 
 ```bash
 sudo ./ipv4-rules.sh update
@@ -116,7 +115,7 @@ To allow inbound traffic to other local service(s), either:
 1. define them in the environment space separated, eg.:
 
    ```bash
-   ADD_LOCAL_SERVICES="27.18.281.828:459"
+   ADD_LOCAL_SERVICES="27.18.281.828:555"
    ```
 
    (`ADD_LOCAL_SERVICES6` respectively)
