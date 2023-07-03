@@ -8,11 +8,14 @@ Few tools for a Tor relay.
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
 against DDoS attacks¹ at the IP network layer ([graphic](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg)).
+A recent DDoS attack is seen [here](./doc/network-metric-July-3rd.jpg).
+More example are [here](#ddos-examples).
 
 The solution uses [ipsets](https://ipset.netfilter.org).
 Its _timeout_ property provides the ability to block an ip for a much longer time
 than a plain iptables hashlimit rule would do.
-[This](./doc/network-metric-July-3rd.jpg) example ([here](#ddos-examples) are more) might illustrate that.
+The difference of the SET and DROP counters of line [14](./doc/iptables-L.txt#L14) and [15](./doc/iptables-L.txt#L15) for IPv4
+and line [16](./doc/ip6tables-L.txt#L16) and [17](./doc/ip6tables-L.txt#L17) for IPv6 respectively shows that IMO.
 
 ### Quick start
 
@@ -188,9 +191,6 @@ To scrape metrics of Tor relays I configured Prometheus in this way:
 The label _orport_ can be any arbitrary string - I used the value itself.
 
 ### DDoS examples
-
-The counter values of line [14](./doc/iptables-L.txt#L14) and [15](./doc/iptables-L.txt#L15) for IPv4
-and line [16](./doc/ip6tables-L.txt#L16) and [17](./doc/ip6tables-L.txt#L17) for IPv6 respectively are examples.
 
 Metrics² of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
 [6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov
