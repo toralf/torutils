@@ -116,7 +116,7 @@ To allow inbound traffic to other local service(s), either:
 1. define them in the environment space separated, eg.:
 
    ```bash
-   ADD_LOCAL_SERVICES="2.718.281.828:459"
+   ADD_LOCAL_SERVICES="27.18.281.828:459"
    ```
 
    (`ADD_LOCAL_SERVICES6` respectively)
