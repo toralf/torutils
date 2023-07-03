@@ -16,8 +16,10 @@ function restart() {
   for i in {1..4}; do
     service=tor$i
     echo
+    echo "----------------------------"
     date
     echo " restarting $service"
+    echo
     if ! rc-service $service restart; then
       local pid=$(cat /run/tor/$service.pid)
       if kill -0 $pid; then
