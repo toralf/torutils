@@ -10,7 +10,7 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 while :; do
   if [[ "$(runlevel)" == "N 3" ]]; then
-    for s in ssh $(ls /etc/init.d/tor{,?} 2>/dev/null | xargs -n 1 basename) unbound; do
+    for s in ssh $(find /etc/init.d -name 'tor*' -print0 | xargs -r -n 1 --null basename) unbound; do
       rc-service -qq $s status
       if [[ $? -eq 32 ]]; then
         echo "$0: restart crashed $s"
