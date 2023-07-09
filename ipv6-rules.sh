@@ -30,7 +30,7 @@ function addCommon() {
 
 function __create_ipset() {
   local name=$1
-  local cmd="ipset create -exist $name hash:ip family inet6 ${2:-}"
+  local cmd="ipset create -exist $name hash:ip family inet6 ${2-}"
 
   if ! $cmd 2>/dev/null; then
     if ! (ipset list -t $name &>/dev/null && saveIpset $name && ipset destroy $name && $cmd); then
@@ -122,7 +122,7 @@ function addLocalServices() {
   local addr
   local port
 
-  for service in ${ADD_LOCAL_SERVICES6:-}; do
+  for service in ${ADD_LOCAL_SERVICES6-}; do
     read -r addr port <<<$(sed -e 's,]:, ,' -e 's,\[, ,' <<<$service)
     if [[ $addr == "::" ]]; then
       addr+="/0"
@@ -199,7 +199,7 @@ jobs=$((1 + $(nproc) / 2))
 max=$((2 ** 18))
 
 trap bailOut INT QUIT TERM EXIT
-action=${1:-}
+action=${1-}
 shift || true
 case $action in
 start)
