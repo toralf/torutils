@@ -10,12 +10,12 @@ function addCommon() {
   ip6tables -A INPUT --in-interface lo -m comment --comment "$(date -R)" -j ACCEPT
   ip6tables -A INPUT -p udp --source fe80::/10 --dst ff02::1 -j ACCEPT
 
+  # do not touch established connections
+  ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+
   # make sure NEW incoming tcp connections are SYN packets
   ip6tables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
   ip6tables -A INPUT -m conntrack --ctstate INVALID -j DROP
-
-  # do not touch established connections
-  ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 
   # ssh
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf | awk '{ print $2 }')
