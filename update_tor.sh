@@ -4,12 +4,6 @@
 
 # update Tor and restart Tor relay(s) under Gentoo Linux (OpenRC)
 
-function rebuild() {
-  echo
-  date
-  emerge -1 net-vpn/tor
-}
-
 function restart() {
   export GRACEFUL_TIMEOUT=20
 
@@ -48,10 +42,10 @@ if [[ ! -d ~/tor ]]; then
   cd ~
   git clone https://git.torproject.org/tor.git
 else
-  cd ~/tor
   tmpfile=$(mktemp /tmp/$(basename $0).XXXXXX)
+  cd ~/tor
   git pull &>$tmpfile
-  range=$(grep -e "^Updating .*\.\..*$" $tmpfile | cut -f2 -d' ' -s)
+  range=$(grep -e "^Updating .*\.\..*$" $tmpfile | cut -f 2 -d ' ' -s)
   if [[ -n $range ]]; then
     cat $tmpfile
     echo
@@ -68,7 +62,10 @@ else
   fi
 fi
 
-rebuild
+echo
+date
+emerge -1 net-vpn/tor
+
 restart
 
 echo
