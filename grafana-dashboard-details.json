@@ -499,7 +499,7 @@
         "x": 0,
         "y": 16
       },
-      "id": 12,
+      "id": 10,
       "options": {
         "legend": {
           "calcs": [],
@@ -519,13 +519,13 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(action) (rate(tor_relay_rend1_total{orport=\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(type) (rate(tor_relay_dos_total{orport=\"$Orport\"}[$__rate_interval]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "rend1 / min",
+      "title": "dos / min",
       "type": "timeseries"
     },
     {
@@ -684,7 +684,7 @@
         "x": 0,
         "y": 24
       },
-      "id": 10,
+      "id": 12,
       "options": {
         "legend": {
           "calcs": [],
@@ -704,13 +704,13 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(type) (rate(tor_relay_dos_total{orport=\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(action) (rate(tor_relay_rend1_total{orport=\"$Orport\"}[$__rate_interval]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "dos / min",
+      "title": "rend1 / min",
       "type": "timeseries"
     },
     {
@@ -1915,7 +1915,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "",
+  "refresh": "15m",
   "schemaVersion": 38,
   "style": "dark",
   "tags": [],
@@ -1946,13 +1946,13 @@
     ]
   },
   "time": {
-    "from": "now-30d",
+    "from": "now-7d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Tor details",
   "uid": "bb0ac200-1fab-4d04-a3b0-859d35ec9ee6",
-  "version": 45,
+  "version": 48,
   "weekStart": ""
 }
