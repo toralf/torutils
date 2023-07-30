@@ -43,8 +43,9 @@ function __fill_trustlist() {
     echo "45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.39 131.188.40.189 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118"
 
     getent ahostsv4 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }'
-    curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - |
-      jq -cr '.relays[] | .a[0]'
+    if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o -); then
+      jq -cr '.relays[] | .a[0]' <<<$relays
+    fi
   ) |
     xargs -r -n 1 -P $jobs ipset add -exist $trustlist
 }
@@ -54,11 +55,12 @@ function __fill_multilist() {
     if [[ -s /var/tmp/$multilist ]]; then
       cat /var/tmp/$multilist
     fi
-    curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o - |
-      jq -cr '.relays[] | .a[0]' | sort | uniq -d |
-      tee /var/tmp/$multilist.new
-    if [[ -s /var/tmp/$multilist.new ]]; then
-      mv /var/tmp/$multilist.new /var/tmp/$multilist
+    if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -); then
+      jq -cr '.relays[] | .a[0]' <<<$relays |
+        sort | uniq -d | tee /var/tmp/$multilist.new
+      if [[ -s /var/tmp/$multilist.new ]]; then
+        mv /var/tmp/$multilist.new /var/tmp/$multilist
+      fi
     fi
   ) |
     xargs -r -n 1 -P $jobs ipset add -exist $multilist
@@ -141,13 +143,13 @@ function addHetzner() {
 
 function setSysctlValues() {
   sysctl -w net.ipv4.tcp_syncookies=1
-  sysctl -w net.netfilter.nf_conntrack_buckets=$max
-  sysctl -w net.netfilter.nf_conntrack_max=$max
-
-  # make it big enough to have ListenDrops being 0 (zero):
+  # make tcp_max_syn_backlog big enough to have ListenDrops being 0:
   # cat /proc/net/netstat | awk '(f==0) {i=1; while (i<=NF) {n[i] = $i; i++ }; f=1; next} (f==1){i=2; while (i<=NF) {printf "%s = %d\n", n[i], $i; i++}; f=0}' | grep 'Drop'
-  sysctl -w net.ipv4.tcp_max_syn_backlog=$max
-  sysctl -w net.core.somaxconn=$max
+  for i in net.netfilter.nf_conntrack_buckets net.netfilter.nf_conntrack_max net.ipv4.tcp_max_syn_backlog net.core.somaxconn; do
+    if [[ $(sysctl -n $i) -lt $max ]]; then
+      sysctl -w $i=$max
+    fi
+  done
 }
 
 function clearRules() {
