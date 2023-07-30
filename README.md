@@ -59,7 +59,7 @@ Make a backup of the current _filter_ table before if needed.
 #### Objectives
 
 - Neither touch established nor outbound connections.¹
-- Filter only ips, no network blocking.²
+- Filter only single ips, no network segments.²
 
 ¹ An attacker capable to spoof ip addresses could easily force to block ip addresses with an already established connection.
 
@@ -67,7 +67,7 @@ Make a backup of the current _filter_ table before if needed.
 
 #### Details
 
-Generic rules for local network, ICMP, ssh and user services (if defined) are applied.
+Generic rules for local network, ICMP, ssh and local user services (if defined) are applied.
 Then these rules are applied (in this order) for a connection attempt from an ip to the local ORPort:
 
 1. trust ip of Tor authorities and snowflake
@@ -91,15 +91,15 @@ To update that data run this in regular intervalls (best: via cron):
 sudo ./ipv4-rules.sh update
 ```
 
-If the parsing of the Tor config (line [168](ipv4-rules.sh#L168)) doesn't work for you then:
+If the parsing of the Tor config (line [170](ipv4-rules.sh#L170)) doesn't work for you then:
 
-1. define the local running relay(s) space separated at the command line after the keyword `start`, eg.:
+1. define the local running relay(s) at the command line after the keyword `start`, e.g.:
 
    ```bash
    sudo ./ipv4-rules.sh start 1.2.3.4:443 5.6.7.8:9001
    ```
 
-   (command line overrules environment)
+   (command line values overwrite environment values)
 
 1. -or- define them within the environment, eg.:
 
@@ -109,14 +109,11 @@ If the parsing of the Tor config (line [168](ipv4-rules.sh#L168)) doesn't work f
 
    (`CONFIGURED_RELAYS6` for the IPv6 case).
 
-In addition I do appreciate
+I do appreciate an issue request [here](https://github.com/toralf/torutils/issues) -or- a GitHub PR with a fix ;)
 
-1. an issue request [here](https://github.com/toralf/torutils/issues)
-1. -or- a GitHub PR with a fix ;)
+To allow inbound traffic to other local service(s), do either:
 
-To allow inbound traffic to other local service(s), either:
-
-1. define them in the environment space separated, eg.:
+1. define them in the environment (space separated), e.g.:
 
    ```bash
    ADD_LOCAL_SERVICES="27.18.281.828:555"
@@ -131,12 +128,13 @@ To allow inbound traffic to other local service(s), either:
    ```
 
 before you start the script.
-To **append** the rules of this script onto the local _iptables_ rules (instead **overwrite** existing rules)
-you've to comment out the call _clearRules()_ (line [219](ipv4-rules.sh#L219)).
-The script sets few _sysctl_ values (line [142](ipv4-rules.sh#L142)).
-Those can be set permanently under _/etc/sysctl.d/_ outsite of this script.
+To **append** the rules of this script onto the local _iptables_ rules (**overwrite** of existing rules is the default)
+you've to comment out the call _clearRules()_ (line [221](ipv4-rules.sh#L221)).
+
+The script sets few _sysctl_ values (line [144](ipv4-rules.sh#L144)).
+As an alternative set them under _/etc/sysctl.d_.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then comment out the call _addHetzner()_ (line [222](ipv4-rules.sh#L222)).
+then comment out the call _addHetzner()_ (line [224](ipv4-rules.sh#L224)).
 
 ### Helpers
 
@@ -161,37 +159,7 @@ sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
 
-These crontab entries are used to collect/create metrics:
-
-```crontab
-# sysstat
-@reboot     /usr/lib/sa/sa1 --boot
-* * * * *   /usr/lib/sa/sa1 1 1 -S XALL
-
-# prometheus
-* * * * *   for i in {0..3}; do /opt/torutils/metrics.sh &>/dev/null; sleep 15; done
-```
-
 The upload is made by [node_exporter](https://github.com/prometheus/node_exporter).
-To scrape metrics of Tor relays I configured Prometheus in this way:
-
-```yaml
-   - job_name: "<node_exporter hostname>"
-    static_configs:
-      - targets: ["localhost:9100"]
-
-   - job_name: "Tor"
-    static_configs:
-      - targets: ["localhost:19052"]
-        labels:
-          orport: '443'
-      - targets: ["localhost:29052"]
-        labels:
-          orport: '9001'
-...
-```
-
-The label _orport_ can be any arbitrary string - I used the value itself.
 
 ### DDoS examples
 
@@ -199,13 +167,13 @@ Metrics¹ of rx/tx packets, traffic and socket counts from [5th](./doc/network-m
 [6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov
 show the results for few DDoS attacks over 3 days
 for [these](https://nusenu.github.io/OrNetStats/zwiebeltoralf.de.html) 2 relays.
-A heavier attack was observed at [12th](./doc/network-metric-Nov-12th.svg) of Nov.
+A more heavier attack was observed at [12th](./doc/network-metric-Nov-12th.svg) of Nov.
 A periodic drop down of the socket count metric, vanishing over time appeared at
 [5th](./doc/network-metric-Dec-05th.svg) of Dec.
 Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are still handled well.
 
 ¹ Graphs are created by [sysstat](http://sebastien.godard.pagesperso-orange.fr/).
-Beside that I do use [this](./grafana-dashboard.json) Grafana dashboard and the scripts under [Helpers](#helpers).
+In the mean while I do use [this](./grafana-dashboard.json) Grafana dashboard and the scripts under [Helpers](#helpers).
 
 ## Query Tor via its API
 
