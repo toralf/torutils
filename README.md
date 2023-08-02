@@ -182,7 +182,7 @@ In the mean while I do use [this](./grafana-dashboard.json) Grafana dashboard an
 [info.py](./info.py) gives a summary of all connections, eg.:
 
 ```console
-sudo ./info.py --address 127.0.0.1 --ctrlport 9051
+sudo ./info.py --address 127.0.0.1 --ctrlport 9051 --suffix data1
 
  ORport 9051  0.4.8.0-alpha-dev   uptime: 02:58:04   flags: Fast, Guard, Running, Stable, V2Dir, Valid
 +------------------------------+-------+-------+
@@ -208,7 +208,7 @@ sudo ./info.py --address 127.0.0.1 --ctrlport 9051
 [ps.py](./ps.py) gives live statistics:
 
 ```bash
-sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
+sudo ./ps.py --address 127.0.0.1 --ctrlport 9051 --suffix data1
 ```
 
 ### Tor circuit closings
@@ -217,7 +217,7 @@ sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
 [orstatus-stats.sh](./orstatus-stats.sh) prints/plots statistics ([example](./doc/orstatus-stats.sh.txt)) from that.
 
 ```bash
-orstatus.py --ctrlport 9051 --address ::1 >> /tmp/orstatus &
+orstatus.py --ctrlport 9051 --address ::1 --suffix data1 >> /tmp/orstatus &
 sleep 3600
 orstatus-stats.sh /tmp/orstatus
 ```

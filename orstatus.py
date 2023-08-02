@@ -31,7 +31,7 @@ def main():
     with Controller.from_port(address=args.address, port=args.ctrlport) as controller:
         controller.authenticate()
 
-        for desc in parse_file("/var/lib/tor/data" + args.suffix + "/cached-consensus"):
+        for desc in parse_file("/var/lib/tor/" + args.suffix + "/cached-consensus"):
             ip = "v4" if is_valid_ipv4_address(desc.address) else "v6"
             desc_versions[desc.fingerprint] = [
                 desc.address,

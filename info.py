@@ -82,7 +82,7 @@ def main(args=None):
 
     relays = {}  # address => [orports...]
     relays = parse_consensus(
-        relays, "/var/lib/tor/data" + args.suffix + "/cached-consensus"
+        relays, "/var/lib/tor/" + args.suffix + "/cached-consensus"
     )
 
     categories = collections.OrderedDict(
