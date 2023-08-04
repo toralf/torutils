@@ -8,18 +8,19 @@ Few tools for a Tor relay.
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
 against DDoS attacks¹ at the IP [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg).
-A recent blocked DDoS attack is seen [here](./doc/network-metric-July-3rd.jpg).
+Another blocked DDoS attack is seen [here](./doc/network-metric-July-3rd.jpg).
 More example are [below](#ddos-examples).
 
-The solution here uses [ipsets](https://ipset.netfilter.org).
-Its _timeout_ property provides the ability to block an ip for a much longer time
+This solution uses [ipsets](https://ipset.netfilter.org).
+The _timeout_ property of an ipset provides the ability to block an ip for a much longer time
 than a plain iptables hashlimit rule would do.
-The difference of the SET and DROP counters in the examples in line [14](./doc/iptables-L.txt#L14) and [15](./doc/iptables-L.txt#L15) for IPv4
-and in line [16](./doc/ip6tables-L.txt#L16) and [17](./doc/ip6tables-L.txt#L17) for IPv6 respectively shows that IMO.
+IMO this is shown in [this](./doc/iptables-L.txt) example by the difference of the SET and DROP counters
+(line [14](./doc/iptables-L.txt#L14) and [15](./doc/iptables-L.txt#L15) for IPv4,
+line [16](./doc/ip6tables-L.txt#L16) and [17](./doc/ip6tables-L.txt#L17) for IPv6).
 
-¹ Discussion is e.g. in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
-of the [Tor project tracker](https://www.torproject.org/) and was
-continued in ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093).
+¹ see ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
+and ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093)
+of the [Tor project](https://www.torproject.org/) tracker.
 
 ### Quick start
 
@@ -29,6 +30,7 @@ Install the dependencies, e.g. for Ubuntu 22.04:
 sudo apt install iptables ipset jq
 ```
 
+Make a backup of the current iptables _filter_ table before if wanted.
 Then run:
 
 ```bash
@@ -39,6 +41,8 @@ sudo ./ipv4-rules.sh start
 
 This replaces any current content of the iptables _filter_ table with the rule set described below.
 Best is to (re-)start Tor afterwards.
+If the script doesn't work out of the box then please proceed with the [Installation](#installation) section.
+
 The live statistics can be watched by:
 
 ```bash
@@ -51,9 +55,6 @@ To stop DDoS prevention and clear the _filter_ table, run:
 sudo ./ipv4-rules.sh stop
 ```
 
-If the script doesn't work out of the box then please proceed with the [Installation](#installation) section.
-Make a backup of the current _filter_ table before if needed.
-
 ### Rule set
 
 #### Objectives
@@ -61,9 +62,9 @@ Make a backup of the current _filter_ table before if needed.
 - Neither touch established nor outbound connections.¹
 - Filter only single ips, no network segments.²
 
-¹ An attacker capable to spoof ip addresses could easily force to block ip addresses with an already established connection.
+¹ An attacker capable to spoof ip addresses could easily force blocking victim ip addresses.
 
-² An attacker could place 1 malicious ip within e.g. a /24 range to harm all other addresses in that segment.
+² An attacker could place 1 malicious ip within a CIDR range to harm all other addresses in the same network block.
 
 #### Details
 
@@ -101,7 +102,7 @@ If the parsing of the Tor config (line [170](ipv4-rules.sh#L170)) doesn't work f
 
    (command line values overwrite environment values)
 
-1. -or- define them within the environment, eg.:
+1. -or- define them within the environment, e.g.:
 
    ```bash
    sudo CONFIGURED_RELAYS="5.6.7.8:9001 1.2.3.4:443" ./ipv4-rules.sh start
@@ -168,7 +169,7 @@ Metrics¹ of rx/tx packets, traffic and socket counts from [5th](./doc/network-m
 show the results for few DDoS attacks over 3 days
 for [these](https://nusenu.github.io/OrNetStats/zwiebeltoralf.de.html) 2 relays.
 A more heavier attack was observed at [12th](./doc/network-metric-Nov-12th.svg) of Nov.
-A periodic drop down of the socket count metric, vanishing over time appeared at
+A periodic drop down of the socket count metric, vanishing over time, appeared at
 [5th](./doc/network-metric-Dec-05th.svg) of Dec.
 Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are still handled well.
 
@@ -179,7 +180,7 @@ In the mean while I do use [this](./grafana-dashboard.json) Grafana dashboard an
 
 ### Relay summary
 
-[info.py](./info.py) gives a summary of all connections, eg.:
+[info.py](./info.py) gives a summary of all connections, e.g.:
 
 ```console
 sudo ./info.py --address 127.0.0.1 --ctrlport 9051
@@ -203,7 +204,7 @@ sudo ./info.py --address 127.0.0.1 --ctrlport 9051
     3 inbound v4 with > 2 connections each
 ```
 
-### Tor Exit connections
+### Watch Tor Exit connections
 
 If your Tor relay is running as an _Exit_ then [ps.py](./ps.py) gives live statistics:
 
@@ -222,19 +223,19 @@ sleep 3600
 orstatus-stats.sh /tmp/orstatus
 ```
 
-### Tor offline keys
+### Check expiration of Tor offline keys
 
 [key-expires.py](./key-expires.py) helps to maintain
 [Tor offline keys](https://support.torproject.org/relay-operators/offline-ed25519/).
-It returns the expiration time in seconds of the mid-term signing key, eg:
+It returns the expiration time in seconds of the mid-term signing key, e.g.:
 
 ```bash
-seconds=$(sudo ./key-expires.py /var/lib/tor/data/keys/ed25519_signing_cert)
+seconds=$(sudo ./key-expires.py /var/lib/tor/keys/ed25519_signing_cert)
 days=$(( seconds/86400 ))
 [[ $days -lt 23 ]] && echo "Tor signing key expires in less than $days day(s)"
 ```
 
-With Tor metrics enabled get the expiration date in a human readable way by:
+If the Tor metrics are enabled then this 1-liner works too (maybe replace `9052` with the actual metrics port):
 
 ```bash
 date -d@$(curl -s localhost:9052/metrics | grep "^tor_relay_signing_cert_expiry_timestamp" | awk '{ print $2 }')
@@ -242,8 +243,8 @@ date -d@$(curl -s localhost:9052/metrics | grep "^tor_relay_signing_cert_expiry_
 
 ### Prerequisites
 
-An open Tor control port is needed for all of the scripts above to query the Tor process via API.
-Configure it in _torrc_, eg.:
+An open Tor control port is needed to query the Tor process via API.
+Configure it in _torrc_, e.g.:
 
 ```console
 ControlPort 127.0.0.1:9051
@@ -251,7 +252,7 @@ ControlPort [::1]:9051
 ```
 
 The [Stem](https://stem.torproject.org/index.html) python library is needed too.
-Install it by your package manager -or- use the Git version, eg.:
+Install it either by your package manager -or- use the git sources, e.g.:
 
 ```bash
 git clone https://github.com/torproject/stem.git
