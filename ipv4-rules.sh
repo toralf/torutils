@@ -208,10 +208,10 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-trustlist="tor-trust" # Tor authorities and snowflake
-multilist="tor-multi" # Tor relay ip addresses hosting > 1 relays
-jobs=$((1 + $(nproc) / 2))
-max=$((2 ** 18))
+trustlist="tor-trust"      # Tor authorities and snowflake
+multilist="tor-multi"      # Tor relay ip addresses hosting > 1 relays
+jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
+max=$((2 ** 18))           # list size
 
 trap bailOut INT QUIT TERM EXIT
 action=${1-}
