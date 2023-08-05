@@ -31,7 +31,7 @@ sudo apt install iptables ipset jq
 ```
 
 Make a backup of the current iptables _filter_ table before if wanted.
-For a dry run set the variable `jump` to `ACCEPT` in line [226](ipv4-rules.sh#L226).
+Set the variable `jump` in line [226](ipv4-rules.sh#L226) to the value `ACCEPT` for a dry run of the Tor ORport rules.
 Then run:
 
 ```bash
@@ -55,6 +55,8 @@ To stop DDoS prevention entirely and clear the _filter_ table, run:
 ```bash
 sudo ./ipv4-rules.sh stop
 ```
+
+If the rules seems to work, then set the `jump` variable back to `DROP`.
 
 ### Rule set
 
