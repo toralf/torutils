@@ -31,6 +31,7 @@ sudo apt install iptables ipset jq
 ```
 
 Make a backup of the current iptables _filter_ table before if wanted.
+For a dry run set the variable `jump` to `ACCEPT` in line [226](ipv4-rules.sh#L226).
 Then run:
 
 ```bash
@@ -39,17 +40,17 @@ chmod +x ./ipv4-rules.sh
 sudo ./ipv4-rules.sh start
 ```
 
-This replaces any current content of the iptables _filter_ table with the rule set described below.
-Best is to (re-)start Tor afterwards.
+Starting the script replaces any current content of the iptables _filter_ table with the rule set described below.
 If the script doesn't work out of the box then please proceed with the [Installation](#installation) section.
 
+Best is to (re-)start Tor afterwards.
 The live statistics can be watched by:
 
 ```bash
 sudo watch -t ./ipv4-rules.sh
 ```
 
-To stop DDoS prevention and clear the _filter_ table, run:
+To stop DDoS prevention entirely and clear the _filter_ table, run:
 
 ```bash
 sudo ./ipv4-rules.sh stop
@@ -59,10 +60,10 @@ sudo ./ipv4-rules.sh stop
 
 #### Objectives
 
-- Neither touch established nor outbound connections.¹
+- Never touch established connections.¹
 - Filter only single ips, no network segments.²
 
-¹ An attacker capable to spoof ip addresses could easily force blocking victim ip addresses.
+¹ An attacker capable to spoof ip addresses would let you block that ip address.
 
 ² An attacker could place 1 malicious ip within a CIDR range to harm all other addresses in the same network block.
 
