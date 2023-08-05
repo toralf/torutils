@@ -54,7 +54,7 @@ function printMetrics() {
   for v in "" 6; do
     # shellcheck disable=SC2034
     ip${v}tables -nvxL -t filter |
-      grep -F ' DROP ' | grep -v -e "^Chain" | grep -F ' match-set tor-ddos-' | awk '{ print $1, $14 }' |
+      grep -F ' DROP ' | grep -v -e "^Chain" | grep -F ' match-set tor-ddos'$v'-' | awk '{ print $1, $14 }' |
       while read -r pkts name; do
         orport=$(cut -f 3 -d '-' -s <<<$name)
         echo "$var{ipver=\"${v:-4}\",orport=\"$orport\"} $pkts"
