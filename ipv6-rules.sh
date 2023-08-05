@@ -109,13 +109,13 @@ function addTor() {
 
     # rule 3
     $synpacket $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 6/minute --hashlimit-burst 5 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
-    $synpacket -m set --match-set $ddoslist src -j DROP
+    $synpacket -m set --match-set $ddoslist src -j $jump
 
     # rule 4
-    $synpacket -m connlimit --connlimit-mask 128 --connlimit-above 2 -j DROP
+    $synpacket -m connlimit --connlimit-mask 128 --connlimit-above 2 -j $jump
 
     # rule 5
-    $synpacket $hashlimit --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j DROP
+    $synpacket $hashlimit --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j $jump
 
     # rule 6
     $synpacket -j ACCEPT
@@ -211,6 +211,7 @@ start)
   addCommon
   addHetzner
   addLocalServices
+  jump="DROP" # "ACCEPT" for a dry run
   addTor ${*:-${CONFIGURED_RELAYS6:-$(getConfiguredRelays6)}}
   ;;
 stop)
