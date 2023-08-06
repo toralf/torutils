@@ -841,6 +841,382 @@
             "mode": "absolute",
             "steps": [
               {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 21
+      },
+      "id": 74,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 80
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "builder",
+          "expr": "sum by(orport) (tor_relay_connections{family=\"ipv4\", direction=\"initiated\"})",
+          "legendFormat": "{{orport}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Connections init IPv4",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisWidth": 80,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 21
+      },
+      "id": 75,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 80
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "builder",
+          "expr": "sum by(orport) (tor_relay_connections{family=\"ipv6\", direction=\"initiated\"})",
+          "legendFormat": "{{orport}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Connections init IPv6",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisWidth": 80,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 28
+      },
+      "id": 73,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 80
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "builder",
+          "expr": "sum by(orport) (tor_relay_connections{family=\"ipv4\", direction=\"received\"})",
+          "legendFormat": "{{orport}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Connections recv IPv4",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisWidth": 80,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 28
+      },
+      "id": 70,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 80
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "builder",
+          "expr": "sum by(orport) (tor_relay_connections{family=\"ipv6\", direction=\"received\"})",
+          "legendFormat": "{{orport}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Connections recv IPv6",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisWidth": 80,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
                 "color": "green"
               },
               {
@@ -857,7 +1233,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 21
+        "y": 35
       },
       "id": 85,
       "options": {
@@ -880,7 +1256,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(orport) (rate(tor_relay_traffic_bytes[$__rate_interval]))",
+          "expr": "sum by(orport) (rate(tor_relay_traffic_bytes{direction=\"read\"}[$__rate_interval]))",
           "legendFormat": "{{orport}}",
           "range": true,
           "refId": "A"
@@ -950,7 +1326,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 21
+        "y": 35
       },
       "id": 2,
       "options": {
@@ -1035,7 +1411,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "binBps"
         },
         "overrides": []
       },
@@ -1043,9 +1420,9 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 28
+        "y": 42
       },
-      "id": 74,
+      "id": 87,
       "options": {
         "legend": {
           "calcs": [],
@@ -1066,292 +1443,13 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(orport) (tor_relay_connections{family=\"ipv4\", direction=\"initiated\"})",
+          "expr": "sum by(orport) (rate(tor_relay_traffic_bytes{direction=\"written\"}[$__rate_interval]))",
           "legendFormat": "{{orport}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Connections init IPv4",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisWidth": 80,
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 28
-      },
-      "id": 75,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "width": 80
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "sum by(orport) (tor_relay_connections{family=\"ipv6\", direction=\"initiated\"})",
-          "legendFormat": "{{orport}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Connections init IPv6",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisWidth": 80,
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 35
-      },
-      "id": 73,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "width": 80
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "sum by(orport) (tor_relay_connections{family=\"ipv4\", direction=\"received\"})",
-          "legendFormat": "{{orport}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Connections recv IPv4",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisWidth": 80,
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 35
-      },
-      "id": 70,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "width": 80
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "sum by(orport) (tor_relay_connections{family=\"ipv6\", direction=\"received\"})",
-          "legendFormat": "{{orport}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Connections recv IPv6",
+      "title": "Traffic written",
       "type": "timeseries"
     },
     {
@@ -1360,7 +1458,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 42
+        "y": 49
       },
       "id": 37,
       "panels": [],
@@ -1430,7 +1528,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 43
+        "y": 50
       },
       "id": 24,
       "options": {
@@ -1526,7 +1624,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 43
+        "y": 50
       },
       "id": 81,
       "options": {
@@ -1622,7 +1720,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 50
+        "y": 57
       },
       "id": 79,
       "options": {
@@ -1718,7 +1816,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 50
+        "y": 57
       },
       "id": 80,
       "options": {
@@ -1812,7 +1910,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 57
+        "y": 64
       },
       "id": 30,
       "options": {
@@ -1906,7 +2004,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 57
+        "y": 64
       },
       "id": 31,
       "options": {
@@ -1999,7 +2097,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 64
+        "y": 71
       },
       "id": 27,
       "options": {
@@ -2092,7 +2190,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 64
+        "y": 71
       },
       "id": 28,
       "options": {
@@ -2185,7 +2283,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 71
+        "y": 78
       },
       "id": 64,
       "options": {
@@ -2278,7 +2376,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 71
+        "y": 78
       },
       "id": 65,
       "options": {
@@ -2316,7 +2414,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 78
+        "y": 85
       },
       "id": 39,
       "panels": [],
@@ -2353,7 +2451,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 79
+        "y": 86
       },
       "id": 41,
       "options": {
@@ -2420,7 +2518,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 79
+        "y": 86
       },
       "id": 44,
       "options": {
@@ -2487,7 +2585,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 84
+        "y": 91
       },
       "id": 52,
       "options": {
@@ -2554,7 +2652,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 84
+        "y": 91
       },
       "id": 54,
       "options": {
@@ -2621,7 +2719,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 89
+        "y": 96
       },
       "id": 53,
       "options": {
@@ -2688,7 +2786,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 89
+        "y": 96
       },
       "id": 55,
       "options": {
@@ -2755,7 +2853,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 94
+        "y": 101
       },
       "id": 76,
       "options": {
@@ -2822,7 +2920,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 94
+        "y": 101
       },
       "id": 77,
       "options": {
@@ -2860,7 +2958,7 @@
       "type": "bargauge"
     }
   ],
-  "refresh": "15m",
+  "refresh": "",
   "revision": 1,
   "schemaVersion": 38,
   "style": "dark",
@@ -2876,6 +2974,6 @@
   "timezone": "utc",
   "title": "Tor",
   "uid": "FgvRNta4k",
-  "version": 247,
+  "version": 249,
   "weekStart": ""
 }
