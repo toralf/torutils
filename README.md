@@ -8,16 +8,13 @@ Few tools for a Tor relay.
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
 against DDoS attacks¹ at the IP [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg).
-AnothAn interestinger blocked DDoS attack is seen [here](./doc/network-metric-July-3rd.jpg).
-The shape of the time series reminds me on acoustic signals used e.g. in seismic exploration techniques.
-[Here](#ddos-examples) are more DDoS examples.
+An interesting DDoS attack is seen [here](./doc/network-metric-July-3rd.jpg).
+The shape of the time series of the amount of blocked packets reminds me on acoustic signals used e.g. in seismic exploration techniques.
+Look [here](#ddos-examples) for more examples.
 
-This solution uses [ipsets](https://ipset.netfilter.org).
-The _timeout_ property of an ipset provides the ability to block an ip for a much longer time
-than a plain iptables hashlimit rule would do.
-IMO this is shown in [this](./doc/iptables-L.txt) example by the difference of the SET and DROP counters
-(line [14](./doc/iptables-L.txt#L14) and [15](./doc/iptables-L.txt#L15) for IPv4,
-line [16](./doc/ip6tables-L.txt#L16) and [17](./doc/ip6tables-L.txt#L17) for IPv6).
+The implemented solution uses [ipsets](https://ipset.netfilter.org).
+The content of an ipset survives easily a reboot.
+Its _timeout_ property provides more flexibility to block an ip than e.g. a plain iptables _hashlimit_ rule would do.
 
 ¹ see ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 and ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093)
@@ -31,7 +28,7 @@ Install the dependencies, e.g. for Ubuntu 22.04:
 sudo apt install iptables ipset jq
 ```
 
-Make a backup of the current iptables _filter_ table before if wanted.
+Make a backup of the current iptables _filter_ table before if needed.
 Set the variable `jump` in line [226](ipv4-rules.sh#L226) to the value `ACCEPT` for a dry run of the Tor ORport rules.
 Then run:
 
