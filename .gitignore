@@ -1,3 +1,4 @@
 *~
 .trunk/
+.prettierignore
 .shellcheckrc
