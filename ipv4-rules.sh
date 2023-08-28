@@ -21,7 +21,7 @@ function addCommon() {
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
   iptables -A INPUT -p tcp --dst ${addr:-"0.0.0.0/0"} --dport ${port:-22} -j ACCEPT
 
-  ## ratelimit ICMP echo
+  # ratelimit ICMP echo
   iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 6/s -j ACCEPT
   iptables -A INPUT -p icmp --icmp-type echo-request -j DROP
 }
@@ -39,10 +39,9 @@ function __create_ipset() {
 
 function __fill_trustlist() {
   (
-    echo "193.187.88.42 193.187.88.43 193.187.88.44 193.187.88.45 193.187.88.46 141.212.118.18"
-    echo "45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.39 131.188.40.189 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118"
-
-    getent ahostsv4 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }'
+    echo 193.187.88.42 193.187.88.43 193.187.88.44 193.187.88.45 193.187.88.46 141.212.118.18
+    echo 45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.39 131.188.40.189 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118
+    getent ahostsv4 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }' | sort -u
     if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o -); then
       jq -cr '.relays[] | .a[0]' <<<$relays
     fi
@@ -133,9 +132,9 @@ function addHetzner() {
   __create_ipset $sysmon
   {
     (
-      getent ahostsv4 pool.sysmon.hetzner.com | awk '{ print $1 }'
-      echo "188.40.24.211 213.133.113.82 213.133.113.83 213.133.113.84 213.133.113.86"
-    ) | sort -u |
+      echo 188.40.24.211 213.133.113.82 213.133.113.83 213.133.113.84 213.133.113.86
+      getent ahostsv4 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u
+    ) |
       xargs -r -n 1 -P $jobs ipset add -exist $sysmon
   } &
   iptables -A INPUT -m set --match-set $sysmon src -j ACCEPT

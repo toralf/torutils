@@ -22,7 +22,7 @@ function addCommon() {
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
   ip6tables -A INPUT -p tcp --dst ${addr:-"::/0"} --dport ${port:-22} -j ACCEPT
 
-  ## ratelimit ICMP echo
+  # ratelimit ICMP echo
   ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -m limit --limit 6/s -j ACCEPT
   ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -j DROP
   ip6tables -A INPUT -p ipv6-icmp -j ACCEPT
@@ -41,12 +41,11 @@ function __create_ipset() {
 
 function __fill_trustlist() {
   (
-    echo "2a0c:dd40:1:b::42 2a0c:dd40:1:b::43 2a0c:dd40:1:b::44 2a0c:dd40:1:b::45 2a0c:dd40:1:b::46 2607:f018:600:8:be30:5bff:fef1:c6fa"
-    echo "2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2001:858:2:2:aabb:0:563b:1526 2610:1c0:0:5::131 2620:13:4000:6000::1000:118"
-
-    getent ahostsv6 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }'
+    echo 2a0c:dd40:1:b::42 2a0c:dd40:1:b::43 2a0c:dd40:1:b::44 2a0c:dd40:1:b::45 2a0c:dd40:1:b::46 2607:f018:600:8:be30:5bff:fef1:c6fa
+    echo 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2001:858:2:2:aabb:0:563b:1526 2610:1c0:0:5::131 2620:13:4000:6000::1000:118
+    getent ahostsv6 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }' | sort -u
     if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o -); then
-      jq -cr '.relays[]  | .a | select(length > 1) | .[1]' <<<$relays |
+      jq -cr '.relays[] | .a | select(length > 1) | .[1]' <<<$relays |
         grep ':' | tr -d ']['
     fi
   ) |
@@ -141,9 +140,10 @@ function addHetzner() {
   __create_ipset $sysmon
   {
     (
-      getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }'
-      echo "2a01:4f8:0:a101::5:1 2a01:4f8:0:a101::6:1 2a01:4f8:0:a101::6:2 2a01:4f8:0:a101::6:3 2a01:4f8:0:a112::c:1"
-    ) | xargs -r -n 1 -P $jobs ipset add -exist $sysmon
+      echo 2a01:4f8:0:a101::5:1 2a01:4f8:0:a101::6:1 2a01:4f8:0:a101::6:2 2a01:4f8:0:a101::6:3 2a01:4f8:0:a112::c:1
+      getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u
+    ) |
+      xargs -r -n 1 -P $jobs ipset add -exist $sysmon
   } &
   ip6tables -A INPUT -m set --match-set $sysmon src -j ACCEPT
 }
