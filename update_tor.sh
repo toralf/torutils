@@ -42,7 +42,7 @@ if [[ ! -d ~/tor ]]; then
   cd ~
   git clone https://git.torproject.org/tor.git
 else
-  tmpfile=$(mktemp /tmp/$(basename $0).XXXXXX)
+  tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
   cd ~/tor
   git pull &>$tmpfile
   range=$(grep -e "^Updating .*\.\..*$" $tmpfile | cut -f 2 -d ' ' -s)
