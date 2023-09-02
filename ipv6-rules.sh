@@ -171,11 +171,17 @@ function getConfiguredRelays6() {
 }
 
 function bailOut() {
+  local rc=$?
+
+  local signal=$((rc - 128))
+  if [[ $signal -eq 13 ]]; then # PIPE
+    return
+  fi
   trap - INT QUIT TERM EXIT
 
   echo -e "\n Something went wrong, stopping ...\n" >&2
   clearRules
-  exit 1
+  exit $rc
 }
 
 function saveIpset() {
@@ -202,17 +208,18 @@ multilist="tor-multi6"     # Tor relay ip addresses hosting > 1 relays
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
 max=$((2 ** 18))           # list size
 
-trap bailOut INT QUIT TERM EXIT
 action=${1-}
-shift || true
+shift || true # expected 0 or more relays
 case $action in
 start)
+  trap bailOut INT QUIT TERM EXIT
   clearRules
   addCommon
   addHetzner
   addLocalServices
   jump="DROP" # "ACCEPT" for a dry run
   addTor ${*:-${CONFIGURED_RELAYS6:-$(getConfiguredRelays6)}}
+  trap - INT QUIT TERM EXIT
   ;;
 stop)
   clearRules
@@ -226,4 +233,3 @@ update)
   printRuleStatistics
   ;;
 esac
-trap - INT QUIT TERM EXIT

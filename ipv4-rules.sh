@@ -167,6 +167,7 @@ function printRuleStatistics() {
 }
 
 function getConfiguredRelays() {
+  # shellcheck disable=SC2045
   for f in $(ls /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null); do
     if orport=$(grep "^ORPort *" $f | grep -v -F -e ' NoListen' -e '[' | grep -P "^ORPort\s+.+\s*"); then
       if grep -q -Po "^ORPort\s+\d+\.\d+\.\d+\.\d+\:\d+\s*" <<<$orport; then
@@ -181,11 +182,17 @@ function getConfiguredRelays() {
 }
 
 function bailOut() {
+  local rc=$?
+
+  local signal=$((rc - 128))
+  if [[ $signal -eq 13 ]]; then # PIPE
+    return
+  fi
   trap - INT QUIT TERM EXIT
 
   echo -e "\n Something went wrong, stopping ...\n" >&2
   clearRules
-  exit 1
+  exit $rc
 }
 
 function saveIpset() {
@@ -212,11 +219,11 @@ multilist="tor-multi"      # Tor relay ip addresses hosting > 1 relays
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
 max=$((2 ** 18))           # list size
 
-trap bailOut INT QUIT TERM EXIT
 action=${1-}
-shift || true
+shift || true # expected 0 or more relays
 case $action in
 start)
+  trap bailOut INT QUIT TERM EXIT
   clearRules
   setSysctlValues 1>/dev/null || echo "couldn't set sysctl values" >&2
   addCommon
@@ -224,6 +231,7 @@ start)
   addLocalServices
   jump="DROP" # "ACCEPT" for a dry run
   addTor ${*:-${CONFIGURED_RELAYS:-$(getConfiguredRelays)}}
+  trap - INT QUIT TERM EXIT
   ;;
 stop)
   clearRules
@@ -237,4 +245,3 @@ update)
   printRuleStatistics
   ;;
 esac
-trap - INT QUIT TERM EXIT
