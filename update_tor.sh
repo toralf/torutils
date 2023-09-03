@@ -7,32 +7,34 @@
 function restart() {
   export GRACEFUL_TIMEOUT=20
 
-  for i in {1..4}; do
-    service=tor$i
-    echo
-    echo "----------------------------"
-    date
-    echo " restarting $service"
-    echo
-    if ! rc-service $service restart; then
-      local pid=$(cat /run/tor/$service.pid)
-      if kill -0 $pid; then
-        echo " get roughly with pid $pid"
-        kill -9 $pid
-        sleep 1
-      else
-        rm /run/tor/$service.pid
-        echo " $pid for $service was invalid"
+  # shellcheck disable=SC2011
+  ls /etc/init.d/tor? |
+    xargs -n 1 basename |
+    while read -r service; do
+      echo
+      echo "----------------------------"
+      date
+      echo " restarting $service"
+      echo
+      if ! rc-service $service restart; then
+        local pid=$(cat /run/tor/$service.pid)
+        if kill -0 $pid; then
+          echo " get roughly with pid $pid"
+          kill -9 $pid
+          sleep 1
+        else
+          rm /run/tor/$service.pid
+          echo " $pid for $service was invalid"
+        fi
+        if ! rc-service $service zap start; then
+          echo "zap failed for $service"
+        fi
       fi
-      if ! rc-service $service zap start; then
-        echo "zap failed for $service"
-      fi
-    fi
-  done
+    done
 }
 
 #######################################################################
-set -euf
+set -eu
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
