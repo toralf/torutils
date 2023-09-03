@@ -27,7 +27,7 @@ Install the dependencies, e.g. for Ubuntu 22.04:
 sudo apt install iptables ipset jq
 ```
 
-Make a backup of the current iptables _filter_ table before if needed.
+Make a backup of the current iptables _filter_ table before if needed (e.g. with _iptables-save_).
 Set the variable `jump` in line [232](ipv4-rules.sh#L232) to the value `ACCEPT` for a dry run of the Tor ORport rules.
 Then run:
 
@@ -47,13 +47,15 @@ The live statistics can be watched by:
 sudo watch -t ./ipv4-rules.sh
 ```
 
-To stop DDoS prevention entirely and clear the _filter_ table, run:
+To stop DDoS prevention entirely by clearing the _filter_ table, run:
 
 ```bash
 sudo ./ipv4-rules.sh stop
 ```
 
-If the rules seems to work, then set the `jump` variable back to `DROP`.
+If the rules works for you, then set the `jump` variable back to `DROP`.
+Start the script and make the rules persistent (e.g. under Debian run _iptables-save_).
+The step to make it persistent is intentionally not part of this script.
 
 ### Rule set
 
