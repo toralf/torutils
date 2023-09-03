@@ -13,10 +13,12 @@ while :; do
     for s in ssh $(find /etc/init.d -name 'tor*' -print0 | xargs -r -n 1 --null basename) unbound; do
       rc-service -qq $s status
       if [[ $? -eq 32 ]]; then
-        echo "$0: restart crashed $s"
+        msg="$0: restart crashed $s"
+        echo "$msg" >&2
+        logger "$msg"
         rc-service $s zap start
       fi
     done
   fi
-  sleep 10
+  sleep 60
 done
