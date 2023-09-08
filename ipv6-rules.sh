@@ -83,7 +83,7 @@ function addTor() {
   __create_ipset $multilist
   __fill_multilist &
 
-  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask $((128 - netmask)) --hashlimit-htable-size $max --hashlimit-htable-max $max"
+  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask $((128 - hostmask)) --hashlimit-htable-size $max --hashlimit-htable-max $max"
   for relay in $*; do
     if [[ ! $relay =~ '[' || ! $relay =~ ']' || $relay =~ '.' || ! $relay =~ ':' ]]; then
       echo " relay '$relay' cannot be parsed" >&2
@@ -97,7 +97,7 @@ function addTor() {
     local synpacket="ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn"
 
     local ddoslist="tor-ddos6-$orport" # this holds ips classified as DDoS'ing the local OR port
-    __create_ipset $ddoslist "timeout $((24 * 3600)) maxelem $max netmask $((128 - netmask))"
+    __create_ipset $ddoslist "timeout $((24 * 3600)) maxelem $max netmask $((128 - hostmask))"
     __fill_ddoslist &
 
     # rule 1
@@ -210,7 +210,7 @@ trustlist="tor-trust6"     # Tor authorities and snowflake
 multilist="tor-multi6"     # Tor relay ip addresses hosting > 1 relays
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
 max=$((2 ** 18))           # hash/ipset size
-netmask=64                 # this CIDR block is considered to be from the same source/owner
+hostmask=0                 # an ipv6 address of this /block is considered to be from the same source/owner
 
 action=${1-}
 shift || true # expected 0 or more relays
