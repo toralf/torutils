@@ -210,7 +210,7 @@ trustlist="tor-trust6"     # Tor authorities and snowflake
 multilist="tor-multi6"     # Tor relay ip addresses hosting > 1 relays
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
 max=$((2 ** 18))           # hash/ipset size
-hostmask=0                 # an ipv6 address of this /block is considered to be from the same source/owner
+hostmask=64                # any ipv6 address within this /cidr is considered to belong from the same source/owner
 
 action=${1-}
 shift || true # expected 0 or more relays
