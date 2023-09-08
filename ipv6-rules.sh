@@ -187,8 +187,11 @@ function bailOut() {
 function saveIpset() {
   local name=$1
 
+  rm -f /var/tmp/$name.new
   ipset list $name | sed -e '1,8d' >/var/tmp/$name.new
-  mv /var/tmp/$name.new /var/tmp/$name
+  if [[ -s /var/tmp/$name.new ]]; then
+    mv /var/tmp/$name.new /var/tmp/$name
+  fi
 }
 
 function saveAllIpsets() {
@@ -228,6 +231,9 @@ stop)
 update)
   __fill_trustlist
   __fill_multilist
+  ;;
+save)
+  saveAllIpsets
   ;;
 *)
   printRuleStatistics
