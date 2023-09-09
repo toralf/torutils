@@ -28,7 +28,7 @@ sudo apt install iptables ipset jq
 ```
 
 Make a backup of the current iptables _filter_ table before if needed (e.g. with _iptables-save_).
-Set the variable `jump` in line [235](ipv4-rules.sh#L235) to the value `ACCEPT` for a dry run of the Tor ORport rules.
+Set the variable `jump` in line [240](ipv4-rules.sh#L240) to the value `ACCEPT` for a dry run of the Tor ORport rules.
 Then run:
 
 ```bash
@@ -132,12 +132,12 @@ To allow inbound traffic to other local service(s), do either:
 
 before you start the script.
 To **append** the rules of this script onto the local _iptables_ rules (**overwrite** of existing rules is the default)
-you've to comment out the call _clearRules()_ (line [230](ipv4-rules.sh#L230)).
+you've to comment out the call _clearRules()_ (line [235](ipv4-rules.sh#L235)).
 
 The script sets few _sysctl_ values (line [143](ipv4-rules.sh#L143)).
 As an alternative set them under _/etc/sysctl.d_.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then comment out the call _addHetzner()_ (line [233](ipv4-rules.sh#L233)).
+then comment out the call _addHetzner()_ (line [238](ipv4-rules.sh#L238)).
 
 ### Helpers
 

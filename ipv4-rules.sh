@@ -220,7 +220,12 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 trustlist="tor-trust"      # Tor authorities and snowflake
 multilist="tor-multi"      # Tor relay ip addresses hosting > 1 relays
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
-max=$((2 ** 18))           # hash/ipset size
+# hash and ipset size
+if [[ $(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo) -gt 2 ]]; then
+  max=$((2 ** 18))
+else
+  max=$((2 ** 16)) # default: 65536
+fi
 
 action=${1-}
 shift || true # expected 0 or more relays
