@@ -237,8 +237,8 @@ start)
   trap - INT QUIT TERM EXIT
   ;;
 stop)
-  clearRules
   saveAllIpsets
+  clearRules
   ;;
 update)
   __fill_trustlist
