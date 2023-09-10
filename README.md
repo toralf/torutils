@@ -160,8 +160,8 @@ Prometheus is configured in this way:
         orport: "8443"
 ```
 
-The label `orport` is referencecd in the Grafana dashboard.
-The upload is made by [node_exporter](https://github.com/prometheus/node_exporter).
+The label `orport` is used as a filter in Grafana.
+The upload is made by the help of [node_exporter](https://github.com/prometheus/node_exporter).
 
 [ddos-inbound.sh](./ddos-inbound.sh) lists ips having more inbound connections to the ORPort than a given
 limit ([example](./doc/ddos-inbound.sh.txt)).
