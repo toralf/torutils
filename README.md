@@ -143,6 +143,26 @@ then comment out the call _addHetzner()_ (line [238](ipv4-rules.sh#L238)).
 
 Few scripts helps to fine tune the parameters of the rule set.
 [metrics.sh](./metrics.sh) exports data to Prometheus.
+Prometheus is configured in this way:
+
+```yaml
+  - job_name: "Tor"
+    static_configs:
+      - targets: ["localhost:19052"]
+        labels:
+          orport: '443'
+      - targets: ["localhost:29052"]
+        labels:
+          orport: '9001'
+      - targets: ["localhost:39052"]
+        labels:
+          orport: '8443'
+...
+```
+
+The label `orport` is referencecd in the Grafana dashboard.
+The upload is made by [node_exporter](https://github.com/prometheus/node_exporter).
+
 [ddos-inbound.sh](./ddos-inbound.sh) lists ips having more inbound connections to the ORPort than a given
 limit ([example](./doc/ddos-inbound.sh.txt)).
 [hash-stats.sh](./hash-stats.sh) plots the distribution of timeout values of an iptables hash
@@ -151,7 +171,7 @@ limit ([example](./doc/ddos-inbound.sh.txt)).
 of ip addresses in subsequent ipset output files ([example](./doc/ipset-stats.sh.txt)).
 For plots the package [gnuplot](http://www.gnuplot.info/) is needed.
 The SVG graphs are created by the sysstat command _sadf_, the canvas size is fixed for
-an already [reported issue](https://github.com/sysstat/sysstat/issues/286):
+an already [reported issue](https://github.com/sysstat/sysstat/issues/286) in this way:
 
 ```bash
 args="-n DEV,SOCK,SOCK6 --iface=enp8s0"   # set it to "-A" to display all collected metrics
@@ -161,8 +181,6 @@ h=$(tail -n 2 $svg | head -n 1 | cut -f 5 -d ' ')   # fix the SVG canvas size
 sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
-
-The upload is made by [node_exporter](https://github.com/prometheus/node_exporter).
 
 ### DDoS examples
 
