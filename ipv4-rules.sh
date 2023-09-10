@@ -3,15 +3,15 @@
 # set -x
 
 function addCommon() {
-  iptables -P INPUT ${DEFAULT_POLICY_INPUT:-DROP}
+  iptables -P INPUT ${DEFAULT_POLICY_INPUT:-$jump}
   iptables -P OUTPUT ACCEPT
 
   # allow loopback
   iptables -A INPUT --in-interface lo -m comment --comment "$(date -R)" -j ACCEPT
 
   # make sure NEW incoming tcp connections are SYN packets
-  iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
-  iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
+  iptables -A INPUT -p tcp ! --syn -m state --state NEW -j $jump
+  iptables -A INPUT -m conntrack --ctstate INVALID -j $jump
 
   # do not touch established connections
   iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
@@ -19,11 +19,11 @@ function addCommon() {
   # ssh
   local addr=$(grep -m 1 -E "^ListenAddress\s+.+\..+\..+\..+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
-  iptables -A INPUT -p tcp --dst ${addr:-"0.0.0.0/0"} --dport ${port:-22} -j ACCEPT
+  iptables -A INPUT -p tcp --dst ${addr:-"0.0.0.0/0"} --dport ${port:-22} --syn -j ACCEPT
 
   # ratelimit ICMP echo
   iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 6/s -j ACCEPT
-  iptables -A INPUT -p icmp --icmp-type echo-request -j DROP
+  iptables -A INPUT -p icmp --icmp-type echo-request -j $jump
 }
 
 function __create_ipset() {
@@ -122,7 +122,7 @@ function addLocalServices() {
     if [[ $addr == "0.0.0.0" ]]; then
       addr+="/0"
     fi
-    iptables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
+    iptables -A INPUT -p tcp --dst $addr --dport $port --syn -j ACCEPT
   done
 }
 
@@ -218,7 +218,7 @@ export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 trustlist="tor-trust"      # Tor authorities and snowflake
-multilist="tor-multi"      # Tor relay ip addresses hosting > 1 relays
+multilist="tor-multi"      # Tor relay ip addresses hosting > 1 relay
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
 # hash and ipset size
 if [[ $(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo) -gt 2 ]]; then
@@ -227,8 +227,9 @@ else
   max=$((2 ** 16)) # default: 65536
 fi
 
+jump="DROP" # "ACCEPT" for a test
 action=${1-}
-shift || true # expected 0 or more relays
+[[ $# -gt 0 ]] && shift
 case $action in
 start)
   trap bailOut INT QUIT TERM EXIT
@@ -237,7 +238,6 @@ start)
   addCommon
   addHetzner
   addLocalServices
-  jump="DROP" # "ACCEPT" for a dry run
   addTor ${*:-${CONFIGURED_RELAYS:-$(getConfiguredRelays)}}
   trap - INT QUIT TERM EXIT
   ;;

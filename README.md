@@ -30,7 +30,7 @@ chmod +x ./ipv4-rules.sh
 ```
 
 Make a backup of the current iptables _filter_ table before if needed (e.g. under Debian run _iptables-save_).
-Set the variable `jump` in line [240](ipv4-rules.sh#L240) to `ACCEPT`.
+Set the variable `jump` in line [230](ipv4-rules.sh#L230) to `ACCEPT` to test the rule set.
 Run:
 
 ```bash
@@ -45,17 +45,17 @@ The iptables live statistics can be watched by:
 sudo watch -t ./ipv4-rules.sh
 ```
 
-To stop DDoS prevention (by clearing the _filter_ table) run:
+If the rules works for you, then set the `jump` variable back to the default value `DROP`.
+Run the script again with `start`.
+Persist the current filter rules, e.g. under Debian run _iptables-save_.
+
+But if the above doesn't work for you then please clear the iptaales filter table:
 
 ```bash
 sudo ./ipv4-rules.sh stop
 ```
 
-If the rules works for you, then set the `jump` variable back to the default value `DROP`.
-Run the script again with `start`.
-Persist the rule , e.g. under Debian run _iptables-save_.
-
-If the above doesn't work out of the box for you then please proceed with the [Installation](#installation) section.
+and proceed with the [Installation](#installation) section.
 
 ### Rule set
 
@@ -113,32 +113,32 @@ If the parsing of the Tor config (line [169](ipv4-rules.sh#L169)) doesn't work f
 
    (`CONFIGURED_RELAYS6` for the IPv6 case).
 
-I do appreciate an issue request [here](https://github.com/toralf/torutils/issues) -or- a GitHub PR with a fix ;)
+In addition I do appreciate any issue request [here](https://github.com/toralf/torutils/issues) -or- a GitHub PR with a fix ;)
 
 To allow inbound traffic to other local service(s), do either:
 
 1. define them in the environment (space separated), e.g.:
 
    ```bash
-   ADD_LOCAL_SERVICES="27.18.281.828:555"
+   export ADD_LOCAL_SERVICES="27.18.281.828:555"
    ```
 
    (`ADD_LOCAL_SERVICES6` respectively)
 
-1. -or- change the default filter policy for an incoming packet:
+1. -or- explicitely accept any incoming packet which is not filtered out otherwise:
 
    ```bash
-   DEFAULT_POLICY_INPUT="ACCEPT"
+   export DEFAULT_POLICY_INPUT="ACCEPT"
    ```
 
 before you start the script.
 To **append** the rules of this script onto the local _iptables_ rules (**overwrite** of existing rules is the default)
-you've to comment out the call _clearRules()_ (line [235](ipv4-rules.sh#L235)).
+you've to comment out the call _clearRules()_ (line [236](ipv4-rules.sh#L236)).
 
 The script sets few _sysctl_ values (line [143](ipv4-rules.sh#L143)).
 As an alternative set them under _/etc/sysctl.d_.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then comment out the call _addHetzner()_ (line [238](ipv4-rules.sh#L238)).
+then comment out the call _addHetzner()_ (line [239](ipv4-rules.sh#L239)).
 
 ### Helpers
 

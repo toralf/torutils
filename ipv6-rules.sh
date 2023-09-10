@@ -3,7 +3,7 @@
 # set -x
 
 function addCommon() {
-  ip6tables -P INPUT ${DEFAULT_POLICY_INPUT:-DROP}
+  ip6tables -P INPUT ${DEFAULT_POLICY_INPUT:-$jump}
   ip6tables -P OUTPUT ACCEPT
 
   # allow loopback
@@ -11,8 +11,8 @@ function addCommon() {
   ip6tables -A INPUT -p udp --source fe80::/10 --dst ff02::1 -j ACCEPT
 
   # make sure NEW incoming tcp connections are SYN packets
-  ip6tables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
-  ip6tables -A INPUT -m conntrack --ctstate INVALID -j DROP
+  ip6tables -A INPUT -p tcp ! --syn -m state --state NEW -j $jump
+  ip6tables -A INPUT -m conntrack --ctstate INVALID -j $jump
 
   # do not touch established connections
   ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
@@ -20,11 +20,11 @@ function addCommon() {
   # ssh
   local addr=$(grep -m 1 -E "^ListenAddress\s+.*:.*:.*$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
-  ip6tables -A INPUT -p tcp --dst ${addr:-"::/0"} --dport ${port:-22} -j ACCEPT
+  ip6tables -A INPUT -p tcp --dst ${addr:-"::/0"} --dport ${port:-22} --syn -j ACCEPT
 
   # ratelimit ICMP echo
   ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -m limit --limit 6/s -j ACCEPT
-  ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -j DROP
+  ip6tables -A INPUT -p ipv6-icmp --icmpv6-type echo-request -j $jump
   ip6tables -A INPUT -p ipv6-icmp -j ACCEPT
 }
 
@@ -130,7 +130,7 @@ function addLocalServices() {
     if [[ $addr == "::" ]]; then
       addr+="/0"
     fi
-    ip6tables -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
+    ip6tables -A INPUT -p tcp --dst $addr --dport $port --syn -j ACCEPT
   done
 }
 
@@ -207,9 +207,9 @@ export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 trustlist="tor-trust6"     # Tor authorities and snowflake
-multilist="tor-multi6"     # Tor relay ip addresses hosting > 1 relays
+multilist="tor-multi6"     # Tor relay ip addresses hosting > 1 relay
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
-hostmask=64                # any ipv6 address within this /cidr is considered to belong from the same source/owner
+hostmask=64                # any ipv6 address of this /cidr block is considered to belong from the same source/owner
 # hash and ipset size
 if [[ $(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo) -gt 2 ]]; then
   max=$((2 ** 18))
@@ -217,8 +217,9 @@ else
   max=$((2 ** 16)) # default: 65536
 fi
 
+jump="DROP" # "ACCEPT" for a test
 action=${1-}
-shift || true # expected 0 or more relays
+[[ $# -gt 0 ]] && shift
 case $action in
 start)
   trap bailOut INT QUIT TERM EXIT
@@ -226,7 +227,6 @@ start)
   addCommon
   addHetzner
   addLocalServices
-  jump="DROP" # "ACCEPT" for a dry run
   addTor ${*:-${CONFIGURED_RELAYS6:-$(getConfiguredRelays6)}}
   trap - INT QUIT TERM EXIT
   ;;
