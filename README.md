@@ -25,48 +25,49 @@ Install the dependencies, e.g. for Ubuntu 22.04:
 
 ```bash
 sudo apt install iptables ipset jq
-```
-
-Make a backup of the current iptables _filter_ table before if needed (e.g. with _iptables-save_).
-Set the variable `jump` in line [240](ipv4-rules.sh#L240) to the value `ACCEPT` for a dry run of the Tor ORport rules.
-Then run:
-
-```bash
 wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
 chmod +x ./ipv4-rules.sh
+```
+
+Make a backup of the current iptables _filter_ table before if needed (e.g. under Debian run _iptables-save_).
+Set the variable `jump` in line [240](ipv4-rules.sh#L240) to `ACCEPT`.
+Run:
+
+```bash
 sudo ./ipv4-rules.sh start
 ```
 
-Starting the script replaces any current content of the iptables _filter_ table with the rule set described below.
-If the script doesn't work out of the box then please proceed with the [Installation](#installation) section.
-
+to replace any current content of the iptables _filter_ table with the rule set described below.
 Best is to (re-)start Tor afterwards.
-The live statistics can be watched by:
+The iptables live statistics can be watched by:
 
 ```bash
 sudo watch -t ./ipv4-rules.sh
 ```
 
-To stop DDoS prevention entirely by clearing the _filter_ table, run:
+To stop DDoS prevention (by clearing the _filter_ table) run:
 
 ```bash
 sudo ./ipv4-rules.sh stop
 ```
 
-If the rules works for you, then set the `jump` variable back to `DROP`.
-Start the script and make the rules persistent (e.g. under Debian run _iptables-save_).
-The step to make it persistent is intentionally not part of this script.
+If the rules works for you, then set the `jump` variable back to the default value `DROP`.
+Run the script again with `start`.
+Persist the rule , e.g. under Debian run _iptables-save_.
+
+If the above doesn't work out of the box for you then please proceed with the [Installation](#installation) section.
 
 ### Rule set
 
 #### Objectives
 
 - Never touch established connections.¹
-- Filter only single ips, no network segments.²
+- Filter single IPv4 ips, not network segments.²
 
 ¹ An attacker capable to spoof ip addresses would let you block that ip address.
 
 ² An attacker could place 1 malicious ip within a CIDR range to harm all other addresses in the same network block.
+For IPv6 however a /64 is assumed to be assigned per system.
 
 #### Details
 
@@ -146,18 +147,17 @@ Few scripts helps to fine tune the parameters of the rule set.
 Prometheus is configured in this way:
 
 ```yaml
-  - job_name: "Tor"
-    static_configs:
-      - targets: ["localhost:19052"]
-        labels:
-          orport: '443'
-      - targets: ["localhost:29052"]
-        labels:
-          orport: '9001'
-      - targets: ["localhost:39052"]
-        labels:
-          orport: '8443'
-...
+- job_name: "Tor"
+  static_configs:
+    - targets: ["localhost:19052"]
+      labels:
+        orport: "443"
+    - targets: ["localhost:29052"]
+      labels:
+        orport: "9001"
+    - targets: ["localhost:39052"]
+      labels:
+        orport: "8443"
 ```
 
 The label `orport` is referencecd in the Grafana dashboard.
