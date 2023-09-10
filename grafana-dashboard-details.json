@@ -15,7 +15,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "9.5.3"
+      "version": "10.1.1"
     },
     {
       "type": "datasource",
@@ -88,6 +88,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -147,7 +148,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(action, type) (rate(tor_relay_load_onionskins_total{orport=\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(action, type) (rate(tor_relay_load_onionskins_total{orport=~\"$Orport\", action=~\"$Action\", type=~\"$Type\"}[$__rate_interval]))",
           "legendFormat": "{{action}} {{type}}",
           "range": true,
           "refId": "A"
@@ -171,6 +172,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
             "drawStyle": "line",
@@ -181,6 +183,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -240,7 +243,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(state) (rate(tor_relay_circuits_total{orport=\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(state) (rate(tor_relay_circuits_total{orport=~\"$Orport\"}[$__rate_interval]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -274,6 +277,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -333,7 +337,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(action) (rate(tor_relay_intro1_total{orport=\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(action) (rate(tor_relay_intro1_total{orport=~\"$Orport\", action=~\"$Action\"}[$__rate_interval]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -357,6 +361,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
             "drawStyle": "line",
@@ -367,6 +372,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -426,7 +432,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(state) (rate(tor_relay_load_socket_total{orport=\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(state) (rate(tor_relay_load_socket_total{orport=~\"$Orport\", state=~\"opened\"}[$__rate_interval]))",
           "legendFormat": "{{state}}",
           "range": true,
           "refId": "A"
@@ -460,6 +466,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -519,7 +526,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(type) (rate(tor_relay_dos_total{orport=\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(type) (rate(tor_relay_dos_total{orport=~\"$Orport\", type=~\"$Type\"}[$__rate_interval]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -553,6 +560,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -612,8 +620,8 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(type, direction, state) (rate(tor_relay_connections{orport=\"$Orport\", family=\"ipv4\"}[$__rate_interval]))",
-          "legendFormat": "{{type}} {{direction}} {{ſtate}}",
+          "expr": "sum by(type, direction, state) (rate(tor_relay_connections{orport=~\"$Orport\", family=\"ipv4\", type=~\"$Type\", state=~\"$State\", direction=~\"$Direction\"}[$__rate_interval]))",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
@@ -646,6 +654,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -704,7 +713,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(action) (rate(tor_relay_rend1_total{orport=\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(action) (rate(tor_relay_rend1_total{orport=~\"$Orport\"}[$__rate_interval]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -738,6 +747,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -796,7 +806,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(type, direction, state) (rate(tor_relay_connections{orport=\"$Orport\", family=\"ipv6\"}[$__rate_interval]))",
+          "expr": "sum by(type, direction, state) (rate(tor_relay_connections{orport=~\"$Orport\", family=\"ipv6\", type=~\"$Type\", state=~\"$State\", direction=~\"$Direction\"}[$__rate_interval]))",
           "legendFormat": "{{type}} {{direction}} {{ſtate}}",
           "range": true,
           "refId": "A"
@@ -830,6 +840,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -888,7 +899,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(type) (rate(tor_relay_streams_total{orport=\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(type) (rate(tor_relay_streams_total{orport=~\"$Orport\", type=~\"$Type\"}[$__rate_interval]))",
           "legendFormat": "{{type}}",
           "range": true,
           "refId": "A"
@@ -922,6 +933,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -981,7 +993,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(type, state, direction) (rate(tor_relay_connections_total{orport=\"$Orport\", family=\"ipv4\"}[$__rate_interval]))",
+          "expr": "sum by(type, state, direction) (rate(tor_relay_connections_total{orport=~\"$Orport\", family=\"ipv4\", type=~\"$Type\", state=~\"$State\", direction=~\"$Direction\"}[$__rate_interval]))",
           "legendFormat": "{{type}} {{state}} {{direction}}",
           "range": true,
           "refId": "A"
@@ -1015,6 +1027,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1073,7 +1086,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(action) (rate(tor_relay_est_intro_total{orport=\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(action) (rate(tor_relay_est_intro_total{orport=~\"$Orport\"}[$__rate_interval]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -1107,6 +1120,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1166,7 +1180,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(type, state, direction) (rate(tor_relay_connections_total{orport=\"$Orport\", family=\"ipv6\"}[$__rate_interval]))",
+          "expr": "sum by(type, state, direction) (rate(tor_relay_connections_total{orport=~\"$Orport\", family=\"ipv6\", type=~\"$Type\", state=~\"$State\", direction=~\"$Direction\"}[$__rate_interval]))",
           "legendFormat": "{{type}} {{state}} {{direction}}",
           "range": true,
           "refId": "A"
@@ -1200,6 +1214,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1258,7 +1273,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(action) (rate(tor_relay_est_rend_total{orport=\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(action) (rate(tor_relay_est_rend_total{orport=~\"$Orport\", action=~\"$Action\"}[$__rate_interval]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -1292,6 +1307,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1350,7 +1366,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(action, state) (rate(tor_relay_congestion_control{orport=\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(action, state) (rate(tor_relay_congestion_control{orport=~\"$Orport\", action=~\"$Action\", state=~\"$State\"}[$__rate_interval]))",
           "legendFormat": "{{action}} {{state}}",
           "range": true,
           "refId": "A"
@@ -1442,7 +1458,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(side) (rate(tor_relay_load_global_rate_limit_reached_total{orport=\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(side) (rate(tor_relay_load_global_rate_limit_reached_total{orport=~\"$Orport\"}[$__rate_interval]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -1534,7 +1550,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(action, state) (rate(tor_relay_congestion_control_total{orport=\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(action, state) (rate(tor_relay_congestion_control_total{orport=~\"$Orport\", action=~\"$Action\", state=~\"$State\"}[$__rate_interval]))",
           "legendFormat": "{{action}} {{state}}",
           "range": true,
           "refId": "A"
@@ -1627,7 +1643,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "tor_relay_exit_dns_query_total{orport=\"$Orport\"}",
+          "expr": "tor_relay_exit_dns_query_total{orport=~\"$Orport\"}",
           "legendFormat": "{{orport}}",
           "range": true,
           "refId": "A"
@@ -1719,7 +1735,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "tor_relay_load_tcp_exhaustion_total{orport=\"$Orport\"}",
+          "expr": "tor_relay_load_tcp_exhaustion_total{orport=~\"$Orport\"}",
           "legendFormat": "{{orport}}",
           "range": true,
           "refId": "A"
@@ -1812,7 +1828,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "tor_relay_exit_dns_error_total{orport=\"$Orport\"}",
+          "expr": "sum by(reason) (rate(tor_relay_exit_dns_error_total{orport=~\"$Orport\"}[$__rate_interval]))",
           "legendFormat": "{{reason}}",
           "range": true,
           "refId": "A"
@@ -1905,7 +1921,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "sum by(subsys, ) (rate(tor_relay_load_oom_bytes_total{orport=\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(subsys) (rate(tor_relay_load_oom_bytes_total{orport=~\"$Orport\"}[$__rate_interval]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -1931,7 +1947,7 @@
         },
         "definition": "label_values(orport)",
         "hide": 0,
-        "includeAll": false,
+        "includeAll": true,
         "multi": false,
         "name": "Orport",
         "options": [],
@@ -1939,7 +1955,7 @@
           "query": "label_values(orport)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
-        "refresh": 1,
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 3,
@@ -1951,21 +1967,90 @@
           "type": "prometheus",
           "uid": "${DS_PROMETHEUS}"
         },
-        "definition": "label_values(job)",
+        "definition": "label_values(type)",
         "hide": 0,
-        "includeAll": false,
-        "label": "Job",
+        "includeAll": true,
+        "label": "Type",
         "multi": false,
-        "name": "job",
+        "name": "Type",
         "options": [],
         "query": {
-          "query": "label_values(job)",
+          "query": "label_values(type)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
-        "refresh": 1,
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(direction)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Direction",
+        "multi": false,
+        "name": "Direction",
+        "options": [],
+        "query": {
+          "query": "label_values(direction)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(state)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "State",
+        "multi": false,
+        "name": "State",
+        "options": [],
+        "query": {
+          "query": "label_values(state)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(action)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Action",
+        "multi": false,
+        "name": "Action",
+        "options": [],
+        "query": {
+          "query": "label_values(action)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
         "type": "query"
       }
     ]
@@ -1978,6 +2063,6 @@
   "timezone": "",
   "title": "Tor details",
   "uid": "bb0ac200-1fab-4d04-a3b0-859d35ec9ee6",
-  "version": 50,
+  "version": 76,
   "weekStart": ""
 }
