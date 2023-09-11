@@ -21,7 +21,9 @@ of the [Tor project](https://www.torproject.org/) tracker.
 
 ### Quick start
 
-Install the dependencies, e.g. for Ubuntu 22.04:
+Hint: If there are additional internet service at the relays (except _ssh_) please go to the [Installation](#installation).
+
+Otherwise install the dependencies, e.g. for Ubuntu 22.04:
 
 ```bash
 sudo apt install iptables ipset jq
@@ -29,7 +31,7 @@ wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O 
 chmod +x ./ipv4-rules.sh
 ```
 
-Make a backup of the current iptables _filter_ table before if needed (e.g. under Debian run _iptables-save_).
+Make a backup of the current iptables _filter_ table (e.g. under Debian run _iptables-save_).
 Run:
 
 ```bash
@@ -45,8 +47,8 @@ Watch the iptables live statistics by:
 sudo watch -t ./ipv4-rules.sh
 ```
 
-If the rules works for you then tun the script again with `start` isntead `test`.
-Persist the current filter rules, e.g. under Debian run _iptables-save_.
+Ifall works fine for you then run the script again with `start` instead `test`.
+Persist the filter rules, e.g. under Debian run _iptables-save_.
 
 If however the above doesn't work for you then please clear the current iptables filter table:
 
