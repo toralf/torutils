@@ -8,16 +8,16 @@ Few tools for a Tor relay.
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
 against DDoS attacks¹ at the IP [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg).
-This solution uses [ipsets](https://ipset.netfilter.org) to collect and block malicious ip addresses.
-An ipset can easily be backuped and restored during a reboot.
-The _timeout_ property of an ipset provides great flexibility and an easy way to release a blocked ip after a given time.
-
+This solution uses [ipsets](https://ipset.netfilter.org)² to collect and block malicious ip addresses.
 The amount of dropped packets over time is seen in [this](./doc/network-metric-July-3rd.jpg) example.
 Look [here](#ddos-examples) for more examples.
 
 ¹ see ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 and ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093)
 of the [Tor project](https://www.torproject.org/) tracker.
+
+² The content of an ipset can easily saved and restored for a reboot.
+And the _timeout_ property of an ipset provides great flexibility and an easy way to release a blocked ip.
 
 ### Quick start
 
@@ -47,16 +47,15 @@ Watch the iptables live statistics by:
 sudo watch -t ./ipv4-rules.sh
 ```
 
-Ifall works fine for you then run the script again with `start` instead `test`.
+If all works fine for you then run the script again with `start` instead `test`.
 Persist the filter rules, e.g. under Debian run _iptables-save_.
-
 If however the above doesn't work for you then please clear the current iptables filter table:
 
 ```bash
 sudo ./ipv4-rules.sh stop
 ```
 
-and proceed with the [Installation](#installation) section.
+and try out the [Installation](#installation) section.
 
 ### Rule set
 
@@ -88,7 +87,6 @@ But how likely do more than the given number of Tor clients at the same ip addre
 ### Installation
 
 The instructions belongs to the IPv4 variant.
-
 If the parsing of the Tor config (line [169](ipv4-rules.sh#L169)) doesn't work for you then:
 
 1. define the local running relay(s) at the command line after the keyword `start`, e.g.:
@@ -97,18 +95,15 @@ If the parsing of the Tor config (line [169](ipv4-rules.sh#L169)) doesn't work f
    sudo ./ipv4-rules.sh start 1.2.3.4:443 5.6.7.8:9001
    ```
 
-   (command line values overwrite environment values)
-
 1. -or- define them within the environment, e.g.:
 
    ```bash
    sudo CONFIGURED_RELAYS="5.6.7.8:9001 1.2.3.4:443" ./ipv4-rules.sh start
    ```
 
-   (`CONFIGURED_RELAYS6` for the IPv6 case).
+   (command line values overwrite environment values, `CONFIGURED_RELAYS6` for the IPv6 case).
 
 In addition I do appreciate any issue request [here](https://github.com/toralf/torutils/issues) -or- a GitHub PR with a fix ;)
-
 To allow inbound traffic to other local service(s), do either:
 
 1. define them in the environment (space separated), e.g.:
@@ -125,15 +120,14 @@ To allow inbound traffic to other local service(s), do either:
    export DEFAULT_POLICY_INPUT="ACCEPT"
    ```
 
-before you start the script.
+before you run the script with `start`.
+
 To **append** the rules of this script onto the local _iptables_ rules (**overwrite** of existing rules is the default)
 you've to comment out the call _clearRules()_ (line [236](ipv4-rules.sh#L236)).
-
 The script sets few _sysctl_ values (line [143](ipv4-rules.sh#L143)).
 As an alternative set them under _/etc/sysctl.d_.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
 then comment out the call _addHetzner()_ (line [239](ipv4-rules.sh#L239)).
-
 Rule 3 depends on recent data of ip addresses serving more than one Tor relay.
 To update that data run this in regular intervalls (best: via cron):
 
