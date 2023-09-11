@@ -217,7 +217,7 @@ else
   max=$((2 ** 16)) # default: 65536
 fi
 
-jump="DROP" # "ACCEPT" for a test
+jump=${RUN_ME_WITH_SAFE_JUMP_TARGET:-DROP}
 action=${1-}
 [[ $# -gt 0 ]] && shift
 case $action in
@@ -233,6 +233,10 @@ start)
 stop)
   saveAllIpsets
   clearRules
+  ;;
+test)
+  export RUN_ME_WITH_SAFE_JUMP_TARGET="ACCEPT"
+  $0 start $*
   ;;
 update)
   __fill_trustlist

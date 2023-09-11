@@ -30,26 +30,25 @@ chmod +x ./ipv4-rules.sh
 ```
 
 Make a backup of the current iptables _filter_ table before if needed (e.g. under Debian run _iptables-save_).
-Set the variable `jump` in line [230](ipv4-rules.sh#L230) to `ACCEPT` to test the rule set.
 Run:
 
 ```bash
-sudo ./ipv4-rules.sh start
+sudo ./ipv4-rules.sh test
 ```
 
-to replace any current content of the iptables _filter_ table with the rule set described below.
+to replace any current content of the iptables _filter_ table with the rule set described below but in a safe mode.
 Best is to (re-)start Tor afterwards.
-The iptables live statistics can be watched by:
+Test in another terminal that you still can ssh into the machine.
+Watch the iptables live statistics by:
 
 ```bash
 sudo watch -t ./ipv4-rules.sh
 ```
 
-If the rules works for you, then set the `jump` variable back to the default value `DROP`.
-Run the script again with `start`.
+If the rules works for you then tun the script again with `start` isntead `test`.
 Persist the current filter rules, e.g. under Debian run _iptables-save_.
 
-But if the above doesn't work for you then please clear the iptaales filter table:
+If however the above doesn't work for you then please clear the current iptables filter table:
 
 ```bash
 sudo ./ipv4-rules.sh stop
@@ -64,9 +63,9 @@ and proceed with the [Installation](#installation) section.
 - Never touch established connections.¹
 - Filter single IPv4 ips, not network segments.²
 
-¹ An attacker capable to spoof ip addresses would let you block that ip address.
+¹ An attacker capable to spoof ip addresses would trick you to block victim ip addresses.
 
-² An attacker could place 1 malicious ip within a CIDR range to harm all other addresses in the same network block.
+² An attacker could place a malicious ip within a CIDR range to harm all other addresses in the same network block.
 For IPv6 however a /64 is assumed to be assigned per system.
 
 #### Details
@@ -87,13 +86,6 @@ But how likely do more than the given number of Tor clients at the same ip addre
 ### Installation
 
 The instructions belongs to the IPv4 variant.
-
-Rule 3 depends on recent data of ip addresses serving more than one Tor relay.
-To update that data run this in regular intervalls (best: via cron):
-
-```bash
-sudo ./ipv4-rules.sh update
-```
 
 If the parsing of the Tor config (line [169](ipv4-rules.sh#L169)) doesn't work for you then:
 
@@ -139,6 +131,13 @@ The script sets few _sysctl_ values (line [143](ipv4-rules.sh#L143)).
 As an alternative set them under _/etc/sysctl.d_.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
 then comment out the call _addHetzner()_ (line [239](ipv4-rules.sh#L239)).
+
+Rule 3 depends on recent data of ip addresses serving more than one Tor relay.
+To update that data run this in regular intervalls (best: via cron):
+
+```bash
+sudo ./ipv4-rules.sh update
+```
 
 ### Helpers
 
