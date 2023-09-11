@@ -8,16 +8,15 @@ Few tools for a Tor relay.
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
 against DDoS attacks¹ at the IP [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg).
-This solution uses [ipsets](https://ipset.netfilter.org)² to collect and block malicious ip addresses.
+This solution uses [ipsets](https://ipset.netfilter.org)² to block malicious ip addresses.
 The amount of dropped packets over time is seen in [this](./doc/network-metric-July-3rd.jpg) example.
 Look [here](#ddos-examples) for more examples.
 
 ¹ see ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 and ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093)
-of the [Tor project](https://www.torproject.org/) tracker.
+of the [Tor project](https://www.torproject.org/).
 
-² The content of an ipset can easily saved and restored for a reboot.
-And the _timeout_ property of an ipset provides great flexibility and an easy way to release a blocked ip.
+² An ipset can be easily edited, saved and restored (e.g. for a reboot) using command line tools.
 
 ### Quick start
 
