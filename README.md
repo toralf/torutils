@@ -103,7 +103,9 @@ If the parsing of the Tor config (line [169](ipv4-rules.sh#L169)) doesn't work f
 
    (command line values overwrite environment values, `CONFIGURED_RELAYS6` for the IPv6 case).
 
-In addition I do appreciate any issue request [here](https://github.com/toralf/torutils/issues) -or- a GitHub PR with a fix ;)
+In addition I do appreciate any issue request [here](https://github.com/toralf/torutils/issues)
+-and/or- a GitHub pull request with the fix [here](https://github.com/toralf/torutils/pulls) ;)
+
 To allow inbound traffic to other local service(s), do either:
 
 1. define them in the environment (space separated), e.g.:
