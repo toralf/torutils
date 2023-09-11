@@ -190,8 +190,8 @@ A periodic drop down of the socket count metric, vanishing over time, appeared a
 [5th](./doc/network-metric-Dec-05th.svg) of Dec.
 Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are still handled well.
 
-¹ Graphs are created by [sysstat](http://sebastien.godard.pagesperso-orange.fr/).
-In the mean while I do use [this](./grafana-dashboard.json) Grafana dashboard and the scripts under [Helpers](#helpers).
+¹ Graphs were created in the past by [sysstat](http://sebastien.godard.pagesperso-orange.fr/).
+Nowadays I do use [this](./grafana-dashboard.json) Grafana dashboard plus the scripts under [Helpers](#helpers).
 
 ## Query Tor via its API
 
