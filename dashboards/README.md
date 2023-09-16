@@ -2,9 +2,8 @@
 
 # Tor Grafana Dashboards
 
-Few dashboards for Tor relay ([here](./tor-relay.json)), Tor Snowflake ([here](./tor-snowflake.json)) and the proposed DDoS solution ([here](./tor-ddos.json)).
-The upload is made by the help of [node_exporter](https://github.com/prometheus/node_exporter).
-Prometheus and Grafana run i n the given example at the same Tor relay where the DDoS solution is implemented.
+Few dashboards for Tor relay, Tor Snowflake and the proposed DDoS solution.
+Prometheus and Grafana run in the given example below at the same Tor relay where the DDoS solution is implemented.
 
 ## Prometheus
 
@@ -17,22 +16,12 @@ Prometheus is configured in this way:
 
 - job_name: "Tor-Bridge-Public"
   static_configs:
-    - targets:
-        [
-          "borstel:9052",
-          "casimir:9052",
-          ....
-        ]
+    - targets: ["borstel:9052", "casimir:9052", ....]
 
 - job_name: "Tor-Snowflake"
   metrics_path: "/internal/metrics"
   static_configs:
-    - targets:
-        [
-          "buddelflink:9999",
-          "drehrumbum:9999",
-          ....
-        ]
+    - targets: ["buddelflink:9999", "drehrumbum:9999", ....]
 
 - job_name: "Tor"
   static_configs:
@@ -55,7 +44,17 @@ Prometheus is configured in this way:
 
 The label `orport` is used as a filter for the DDoS dashboard.
 
-## scraping Snowflake metrics
+## Scraping Tor Relay metrics from localhost
+
+Configure the Tor metrics port, e.g.:
+
+```config
+MetricsPort 127.0.0.1:9052
+MetricsPortPolicy accept 127.0.0.1
+MetricsPortPolicy accept [::1]
+```
+
+## Scraping Snowflake metrics
 
 Snowflake provides metrics under a non-default path and to localhost only.
 To scrape metrics from a remote Prometheus I added 2 iptables rules and set 1 sysctl value as seen in
@@ -63,3 +62,7 @@ To scrape metrics from a remote Prometheus I added 2 iptables rules and set 1 sy
 Ansible role to deploy Tor bridges and Snowflake.
 
 Whilst this solution lacks encryption (as a separate NGinx would provide) this solution is sane IMO if all systems run in the same provider network.
+
+## Scraping DDoS metrics
+
+The upload of the DDoS metrics is made by the help of [node_exporter](https://github.com/prometheus/node_exporter).
