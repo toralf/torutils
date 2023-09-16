@@ -21,15 +21,7 @@ Prometheus is configured in this way:
         [
           "borstel:9052",
           "casimir:9052",
-          "fuchs:9052",
-          "gertrud:9052",
-          "mauz:9052",
-          "rotpelz:9052",
-          "schnatterinchen:9052",
-          "seidenpelz:9052",
-          "struppi:9052",
-          "tim:9052",
-          "uhu:9052",
+          ....
         ]
 
 - job_name: "Tor-Snowflake"
@@ -39,14 +31,7 @@ Prometheus is configured in this way:
         [
           "buddelflink:9999",
           "drehrumbum:9999",
-          "elster2:9999",
-          "hoppel2:9999",
-          "igel:9999",
-          "moppi3:9999",
-          "nickeneck:9999",
-          "pittiplatsch:9999",
-          "putzi:9999",
-          "schwarzrock:9999",
+          ....
         ]
 
 - job_name: "Tor"
