@@ -140,25 +140,7 @@ sudo ./ipv4-rules.sh update
 
 Few scripts helps to fine tune the parameters of the rule set.
 [metrics.sh](./metrics.sh) exports data to Prometheus.
-Prometheus is configured in this way:
-
-```yaml
-- job_name: "Tor"
-  static_configs:
-    - targets: ["localhost:19052"]
-      labels:
-        orport: "443"
-    - targets: ["localhost:29052"]
-      labels:
-        orport: "9001"
-    - targets: ["localhost:39052"]
-      labels:
-        orport: "8443"
-```
-
-The label `orport` is used as a filter in Grafana.
-The upload is made by the help of [node_exporter](https://github.com/prometheus/node_exporter).
-
+For the appropriate dashboards look [here](./dashboards/README.md).
 [ddos-inbound.sh](./ddos-inbound.sh) lists ips having more inbound connections to the ORPort than a given
 limit ([example](./doc/ddos-inbound.sh.txt)).
 [hash-stats.sh](./hash-stats.sh) plots the distribution of timeout values of an iptables hash

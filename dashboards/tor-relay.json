@@ -64,6 +64,333 @@
   "liveNow": false,
   "panels": [
     {
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 22,
+      "title": "Overview",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "axisWidth": 80,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 16,
+        "w": 12,
+        "x": 0,
+        "y": 1
+      },
+      "id": 23,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "tor_relay_connections{instance=~\"$Instance\", family=~\"$Family\", direction=~\"$Dir_conn\", type=~\"$Type_conn\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Connections",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "axisWidth": 80,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 1
+      },
+      "id": 25,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "sum by(instance, state) (rate(tor_relay_load_socket_total{instance=~\"$Instance\", state=~\"$State_sock\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Opened Sockets",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "axisWidth": 80,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 9
+      },
+      "id": 24,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "sum by(instance, direction) (rate(tor_relay_traffic_bytes{instance=~\"$Instance\", direction=~\"$Dir_traf\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Traffic",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 17
+      },
+      "id": 21,
+      "panels": [],
+      "title": "Details",
+      "type": "row"
+    },
+    {
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
@@ -126,7 +453,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 0
+        "y": 18
       },
       "id": 16,
       "options": {
@@ -147,14 +474,18 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(action, type) (rate(tor_relay_load_onionskins_total{orport=~\"$Orport\", action=~\"$Action\", type=~\"$Type\"}[$__rate_interval]))",
-          "legendFormat": "{{action}} {{type}}",
+          "expr": "sum by(action, type, instance) (rate(tor_relay_load_onionskins_total{instance=~\"$Instance\", action=~\"$Action_load\", type=~\"$Type_load\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "load onionskins / min",
+      "title": "load onionskins",
       "type": "timeseries"
     },
     {
@@ -221,7 +552,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 0
+        "y": 18
       },
       "id": 8,
       "options": {
@@ -242,14 +573,18 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(state) (rate(tor_relay_circuits_total{orport=~\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(instance, state) (rate(tor_relay_circuits_total{instance=~\"$Instance\", state=~\"$State_circ\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "circuits / min",
+      "title": "circuits",
       "type": "timeseries"
     },
     {
@@ -299,8 +634,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -315,7 +649,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 8
+        "y": 26
       },
       "id": 1,
       "options": {
@@ -336,14 +670,18 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(action) (rate(tor_relay_intro1_total{orport=~\"$Orport\", action=~\"$Action\"}[$__rate_interval]))",
+          "expr": "sum by(instance, action) (rate(tor_relay_intro1_total{instance=~\"$Instance\", action=~\"$Action_circ\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "intro1 / min",
+      "title": "intro1",
       "type": "timeseries"
     },
     {
@@ -394,8 +732,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -410,7 +747,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 26
       },
       "id": 6,
       "options": {
@@ -431,14 +768,18 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(state) (rate(tor_relay_load_socket_total{orport=~\"$Orport\", state=~\"opened\"}[$__rate_interval]))",
-          "legendFormat": "{{state}}",
+          "expr": "sum by(state, instance) (rate(tor_relay_load_socket_total{instance=~\"$Instance\", state=~\"$State_sock\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "load socket / min",
+      "title": "load socket",
       "type": "timeseries"
     },
     {
@@ -488,8 +829,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -504,7 +844,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 34
       },
       "id": 10,
       "options": {
@@ -525,14 +865,18 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(type) (rate(tor_relay_dos_total{orport=~\"$Orport\", type=~\"$Type\"}[$__rate_interval]))",
+          "expr": "sum by(type, instance) (rate(tor_relay_dos_total{instance=~\"$Instance\", type=~\"$Type_dos\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "dos / min",
+      "title": "dos",
       "type": "timeseries"
     },
     {
@@ -582,8 +926,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -598,7 +941,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 34
       },
       "id": 9,
       "options": {
@@ -619,14 +962,18 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(type, direction, state) (rate(tor_relay_connections{orport=~\"$Orport\", family=\"ipv4\", type=~\"$Type\", state=~\"$State\", direction=~\"$Direction\"}[$__rate_interval]))",
+          "expr": "sum by(type, direction, instance) (rate(tor_relay_connections{family=\"ipv4\", type=~\"$Type_conn\", instance=~\"$Instance\", direction=~\"$Dir_conn\", state=\"opened\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "connections ipv4 / min",
+      "title": "connection",
       "type": "timeseries"
     },
     {
@@ -691,7 +1038,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 24
+        "y": 42
       },
       "id": 12,
       "options": {
@@ -712,200 +1059,18 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(action) (rate(tor_relay_rend1_total{orport=~\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(action, instance) (rate(tor_relay_rend1_total{instance=~\"$Instance\", action=~\"$Action_circ\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "rend1 / min",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisWidth": 80,
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 24
-      },
-      "id": 14,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "sum by(type, direction, state) (rate(tor_relay_connections{orport=~\"$Orport\", family=\"ipv6\", type=~\"$Type\", state=~\"$State\", direction=~\"$Direction\"}[$__rate_interval]))",
-          "legendFormat": "{{type}} {{direction}} {{ſtate}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "connections ipv6 / min",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisWidth": 80,
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 32
-      },
-      "id": 13,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "sum by(type) (rate(tor_relay_streams_total{orport=~\"$Orport\", type=~\"$Type\"}[$__rate_interval]))",
-          "legendFormat": "{{type}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "stream / min",
+      "title": "rend1",
       "type": "timeseries"
     },
     {
@@ -971,7 +1136,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 32
+        "y": 42
       },
       "id": 18,
       "options": {
@@ -992,14 +1157,18 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(type, state, direction) (rate(tor_relay_connections_total{orport=~\"$Orport\", family=\"ipv4\", type=~\"$Type\", state=~\"$State\", direction=~\"$Direction\"}[$__rate_interval]))",
-          "legendFormat": "{{type}} {{state}} {{direction}}",
+          "expr": "sum by(type, direction, instance, family) (rate(tor_relay_connections_total{instance=~\"$Instance\", family=~\"$Family\", type=~\"$Type_conn\", direction=~\"$Dir_conn\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "connections total ipv4 / min",
+      "title": "connections total ",
       "type": "timeseries"
     },
     {
@@ -1064,9 +1233,9 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 40
+        "y": 50
       },
-      "id": 3,
+      "id": 13,
       "options": {
         "legend": {
           "calcs": [],
@@ -1085,201 +1254,18 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(action) (rate(tor_relay_est_intro_total{orport=~\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(type, instance) (rate(tor_relay_streams_total{instance=~\"$Instance\", type=~\"$Type_stre\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "est intro / min",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisWidth": 80,
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 40
-      },
-      "id": 20,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "sum by(type, state, direction) (rate(tor_relay_connections_total{orport=~\"$Orport\", family=\"ipv6\", type=~\"$Type\", state=~\"$State\", direction=~\"$Direction\"}[$__rate_interval]))",
-          "legendFormat": "{{type}} {{state}} {{direction}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "connections total ipv6 / min",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisWidth": 80,
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 48
-      },
-      "id": 4,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "sum by(action) (rate(tor_relay_est_rend_total{orport=~\"$Orport\", action=~\"$Action\"}[$__rate_interval]))",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "est rend / min",
+      "title": "stream",
       "type": "timeseries"
     },
     {
@@ -1344,7 +1330,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 48
+        "y": 50
       },
       "id": 15,
       "options": {
@@ -1365,14 +1351,18 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(action, state) (rate(tor_relay_congestion_control{orport=~\"$Orport\", action=~\"$Action\", state=~\"$State\"}[$__rate_interval]))",
-          "legendFormat": "{{action}} {{state}}",
+          "expr": "sum by(action, state, instance) (rate(tor_relay_congestion_control{instance=~\"$Instance\", state=~\"$State_cong\", action=~\"$Action_cong\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "congestion control / min",
+      "title": "congestion control",
       "type": "timeseries"
     },
     {
@@ -1400,6 +1390,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1436,9 +1427,9 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 56
+        "y": 58
       },
-      "id": 11,
+      "id": 3,
       "options": {
         "legend": {
           "calcs": [],
@@ -1457,14 +1448,18 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(side) (rate(tor_relay_load_global_rate_limit_reached_total{orport=~\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(action, instance) (rate(tor_relay_est_intro_total{instance=~\"$Instance\", action=~\"$Action_circ\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "load global rate limit reached / min",
+      "title": "est intro",
       "type": "timeseries"
     },
     {
@@ -1492,6 +1487,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1528,7 +1524,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 56
+        "y": 58
       },
       "id": 2,
       "options": {
@@ -1549,14 +1545,18 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(action, state) (rate(tor_relay_congestion_control_total{orport=~\"$Orport\", action=~\"$Action\", state=~\"$State\"}[$__rate_interval]))",
-          "legendFormat": "{{action}} {{state}}",
+          "expr": "sum by(action, state, instance) (rate(tor_relay_congestion_control_total{instance=~\"$Instance\", action=~\"$Action_cong_tot\", state=~\"$State_cong_tot\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "congestion control total / min",
+      "title": "congestion control total",
       "type": "timeseries"
     },
     {
@@ -1584,6 +1584,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1612,8 +1613,7 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "none"
+          }
         },
         "overrides": []
       },
@@ -1621,9 +1621,9 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 64
+        "y": 66
       },
-      "id": 19,
+      "id": 4,
       "options": {
         "legend": {
           "calcs": [],
@@ -1642,14 +1642,18 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "tor_relay_exit_dns_query_total{orport=~\"$Orport\"}",
-          "legendFormat": "{{orport}}",
+          "expr": "sum by(action, instance) (rate(tor_relay_est_rend_total{instance=~\"$Instance\", action=~\"$Action_circ\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "exit dns query total",
+      "title": "est rend",
       "type": "timeseries"
     },
     {
@@ -1677,6 +1681,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1713,7 +1718,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 64
+        "y": 66
       },
       "id": 7,
       "options": {
@@ -1734,11 +1739,15 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "tor_relay_load_tcp_exhaustion_total{orport=~\"$Orport\"}",
-          "legendFormat": "{{orport}}",
+          "expr": "tor_relay_load_tcp_exhaustion_total{instance=~\"$Instance\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "load tcp exhaustion",
@@ -1769,6 +1778,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1797,8 +1807,7 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "none"
+          }
         },
         "overrides": []
       },
@@ -1806,9 +1815,9 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 72
+        "y": 74
       },
-      "id": 17,
+      "id": 11,
       "options": {
         "legend": {
           "calcs": [],
@@ -1827,14 +1836,18 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(reason) (rate(tor_relay_exit_dns_error_total{orport=~\"$Orport\"}[$__rate_interval]))",
-          "legendFormat": "{{reason}}",
+          "expr": "sum by(side, instance) (rate(tor_relay_load_global_rate_limit_reached_total{instance=~\"$Instance\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "exit dns error total",
+      "title": "load global rate limit reached",
       "type": "timeseries"
     },
     {
@@ -1862,6 +1875,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1899,7 +1913,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 72
+        "y": 74
       },
       "id": 5,
       "options": {
@@ -1920,23 +1934,221 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(subsys) (rate(tor_relay_load_oom_bytes_total{orport=~\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(subsys, instance) (rate(tor_relay_load_oom_bytes_total{instance=~\"$Instance\", subsys=~\"$Subsys\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "load oombytes",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisWidth": 80,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 82
+      },
+      "id": 19,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "tor_relay_exit_dns_query_total{instance=~\"$Instance\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "exit dns query total",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisWidth": 80,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 82
+      },
+      "id": 17,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "sum by(reason, instance) (rate(tor_relay_exit_dns_error_total{instance=~\"$Instance\", reason=~\"$Reason\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "exit dns error total",
       "type": "timeseries"
     }
   ],
   "refresh": "15m",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": [
-    "tor"
-  ],
+  "tags": [],
   "templating": {
     "list": [
       {
@@ -1945,20 +2157,21 @@
           "type": "prometheus",
           "uid": "${DS_PROMETHEUS}"
         },
-        "definition": "label_values(orport)",
+        "definition": "label_values(instance)",
         "hide": 0,
         "includeAll": true,
+        "label": "Instance",
         "multi": false,
-        "name": "Orport",
+        "name": "Instance",
         "options": [],
         "query": {
-          "query": "label_values(orport)",
+          "query": "label_values(instance)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
-        "regex": "",
+        "regex": "/.*52/",
         "skipUrlSync": false,
-        "sort": 3,
+        "sort": 0,
         "type": "query"
       },
       {
@@ -1967,61 +2180,15 @@
           "type": "prometheus",
           "uid": "${DS_PROMETHEUS}"
         },
-        "definition": "label_values(type)",
+        "definition": "label_values(family)",
         "hide": 0,
         "includeAll": true,
-        "label": "Type",
+        "label": "Family",
         "multi": false,
-        "name": "Type",
+        "name": "Family",
         "options": [],
         "query": {
-          "query": "label_values(type)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 1,
-        "type": "query"
-      },
-      {
-        "current": {},
-        "datasource": {
-          "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
-        },
-        "definition": "label_values(direction)",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Direction",
-        "multi": false,
-        "name": "Direction",
-        "options": [],
-        "query": {
-          "query": "label_values(direction)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 1,
-        "type": "query"
-      },
-      {
-        "current": {},
-        "datasource": {
-          "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
-        },
-        "definition": "label_values(state)",
-        "hide": 0,
-        "includeAll": true,
-        "label": "State",
-        "multi": false,
-        "name": "State",
-        "options": [],
-        "query": {
-          "query": "label_values(state)",
+          "query": "label_values(family)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
@@ -2036,15 +2203,360 @@
           "type": "prometheus",
           "uid": "${DS_PROMETHEUS}"
         },
-        "definition": "label_values(action)",
+        "definition": "label_values(tor_relay_intro1_total,action)",
         "hide": 0,
         "includeAll": true,
-        "label": "Action",
+        "label": "Action_circ",
         "multi": false,
-        "name": "Action",
+        "name": "Action_circ",
         "options": [],
         "query": {
-          "query": "label_values(action)",
+          "query": "label_values(tor_relay_intro1_total,action)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(tor_relay_congestion_control,action)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Action_cong",
+        "multi": false,
+        "name": "Action_cong",
+        "options": [],
+        "query": {
+          "query": "label_values(tor_relay_congestion_control,action)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(tor_relay_congestion_control_total,action)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Action_cong_tot",
+        "multi": false,
+        "name": "Action_cong_tot",
+        "options": [],
+        "query": {
+          "query": "label_values(tor_relay_congestion_control_total,action)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(tor_relay_load_onionskins_total,action)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Action_load",
+        "multi": false,
+        "name": "Action_load",
+        "options": [],
+        "query": {
+          "query": "label_values(tor_relay_load_onionskins_total,action)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(tor_relay_connections,direction)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Dir_Conn",
+        "multi": false,
+        "name": "Dir_conn",
+        "options": [],
+        "query": {
+          "query": "label_values(tor_relay_connections,direction)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(tor_relay_traffic_bytes,direction)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Dir_traf",
+        "multi": false,
+        "name": "Dir_traf",
+        "options": [],
+        "query": {
+          "query": "label_values(tor_relay_traffic_bytes,direction)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(tor_relay_exit_dns_error_total,reason)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Reason",
+        "multi": false,
+        "name": "Reason",
+        "options": [],
+        "query": {
+          "query": "label_values(tor_relay_exit_dns_error_total,reason)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(tor_relay_circuits_total,state)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "State_circ",
+        "multi": false,
+        "name": "State_circ",
+        "options": [],
+        "query": {
+          "query": "label_values(tor_relay_circuits_total,state)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(tor_relay_congestion_control,state)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "State_cong",
+        "multi": false,
+        "name": "State_cong",
+        "options": [],
+        "query": {
+          "query": "label_values(tor_relay_congestion_control,state)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(tor_relay_congestion_control_total,state)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "State_cong_tot",
+        "multi": false,
+        "name": "State_cong_tot",
+        "options": [],
+        "query": {
+          "query": "label_values(tor_relay_congestion_control_total,state)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(tor_relay_load_socket_total,state)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "State_sock",
+        "multi": false,
+        "name": "State_sock",
+        "options": [],
+        "query": {
+          "query": "label_values(tor_relay_load_socket_total,state)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(tor_relay_load_oom_bytes_total,subsys)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Subsys",
+        "multi": false,
+        "name": "Subsys",
+        "options": [],
+        "query": {
+          "query": "label_values(tor_relay_load_oom_bytes_total,subsys)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(tor_relay_connections,type)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Type_conn",
+        "multi": false,
+        "name": "Type_conn",
+        "options": [],
+        "query": {
+          "query": "label_values(tor_relay_connections,type)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(tor_relay_dos_total,type)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Type_dos",
+        "multi": false,
+        "name": "Type_dos",
+        "options": [],
+        "query": {
+          "query": "label_values(tor_relay_dos_total,type)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(tor_relay_load_onionskins_total,type)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Type_load",
+        "multi": false,
+        "name": "Type_load",
+        "options": [],
+        "query": {
+          "query": "label_values(tor_relay_load_onionskins_total,type)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(tor_relay_streams_total,type)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Type_stre",
+        "multi": false,
+        "name": "Type_stre",
+        "options": [],
+        "query": {
+          "query": "label_values(tor_relay_streams_total,type)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
@@ -2056,13 +2568,13 @@
     ]
   },
   "time": {
-    "from": "now-7d",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Tor details",
+  "title": "Tor Relay",
   "uid": "bb0ac200-1fab-4d04-a3b0-859d35ec9ee6",
-  "version": 76,
+  "version": 149,
   "weekStart": ""
 }
