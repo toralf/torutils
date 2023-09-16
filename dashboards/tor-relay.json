@@ -263,7 +263,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "max by(instance) (tor_relay_load_socket_total{instance=~\"$Instance\", state=~\"$State_sock\"})",
+          "expr": "avg by(instance, state) (tor_relay_load_socket_total{instance=~\"$Instance\", state=~\"$State_sock\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "instant": false,
@@ -634,7 +634,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -732,7 +733,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -829,7 +831,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -926,7 +929,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1023,7 +1027,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1120,7 +1125,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1218,7 +1224,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1315,7 +1322,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1412,7 +1420,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1509,7 +1518,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1606,7 +1616,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1703,7 +1714,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1741,7 +1753,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "tor_relay_load_tcp_exhaustion_total{instance=~\"$Instance\"}",
+          "expr": "max by(instance) (tor_relay_load_tcp_exhaustion_total{instance=~\"$Instance\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -1800,7 +1812,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1838,7 +1851,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(side, instance) (rate(tor_relay_load_global_rate_limit_reached_total{instance=~\"$Instance\"}[$__rate_interval]))",
+          "expr": "sum by(instance) (rate(tor_relay_load_global_rate_limit_reached_total{instance=~\"$Instance\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -1897,7 +1910,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1995,7 +2009,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2034,7 +2049,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "tor_relay_exit_dns_query_total{instance=~\"$Instance\"}",
+          "expr": "max by(instance) (tor_relay_exit_dns_query_total{instance=~\"$Instance\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -2093,7 +2108,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2229,7 +2245,7 @@
         "definition": "label_values(tor_relay_intro1_total,action)",
         "hide": 0,
         "includeAll": true,
-        "label": "Action_circ",
+        "label": "Action circuits",
         "multi": false,
         "name": "Action_circ",
         "options": [],
@@ -2252,7 +2268,7 @@
         "definition": "label_values(tor_relay_congestion_control,action)",
         "hide": 0,
         "includeAll": true,
-        "label": "Action_cong",
+        "label": "Action cong",
         "multi": false,
         "name": "Action_cong",
         "options": [],
@@ -2275,7 +2291,7 @@
         "definition": "label_values(tor_relay_congestion_control_total,action)",
         "hide": 0,
         "includeAll": true,
-        "label": "Action_cong_tot",
+        "label": "Action cong total",
         "multi": false,
         "name": "Action_cong_tot",
         "options": [],
@@ -2298,7 +2314,7 @@
         "definition": "label_values(tor_relay_load_onionskins_total,action)",
         "hide": 0,
         "includeAll": true,
-        "label": "Action_load",
+        "label": "Action load",
         "multi": false,
         "name": "Action_load",
         "options": [],
@@ -2321,7 +2337,7 @@
         "definition": "label_values(tor_relay_connections,direction)",
         "hide": 0,
         "includeAll": true,
-        "label": "Dir_Conn",
+        "label": "Dir conn",
         "multi": false,
         "name": "Dir_conn",
         "options": [],
@@ -2344,7 +2360,7 @@
         "definition": "label_values(tor_relay_traffic_bytes,direction)",
         "hide": 0,
         "includeAll": true,
-        "label": "Dir_traf",
+        "label": "Dir traffic",
         "multi": false,
         "name": "Dir_traf",
         "options": [],
@@ -2390,7 +2406,7 @@
         "definition": "label_values(tor_relay_circuits_total,state)",
         "hide": 0,
         "includeAll": true,
-        "label": "State_circ",
+        "label": "State circuits",
         "multi": false,
         "name": "State_circ",
         "options": [],
@@ -2413,7 +2429,7 @@
         "definition": "label_values(tor_relay_congestion_control,state)",
         "hide": 0,
         "includeAll": true,
-        "label": "State_cong",
+        "label": "State cong",
         "multi": false,
         "name": "State_cong",
         "options": [],
@@ -2436,7 +2452,7 @@
         "definition": "label_values(tor_relay_congestion_control_total,state)",
         "hide": 0,
         "includeAll": true,
-        "label": "State_cong_tot",
+        "label": "State cong total",
         "multi": false,
         "name": "State_cong_tot",
         "options": [],
@@ -2459,7 +2475,7 @@
         "definition": "label_values(tor_relay_load_socket_total,state)",
         "hide": 0,
         "includeAll": true,
-        "label": "State_sock",
+        "label": "State sockets",
         "multi": false,
         "name": "State_sock",
         "options": [],
@@ -2505,7 +2521,7 @@
         "definition": "label_values(tor_relay_connections,type)",
         "hide": 0,
         "includeAll": true,
-        "label": "Type_conn",
+        "label": "Type conn",
         "multi": false,
         "name": "Type_conn",
         "options": [],
@@ -2528,7 +2544,7 @@
         "definition": "label_values(tor_relay_dos_total,type)",
         "hide": 0,
         "includeAll": true,
-        "label": "Type_dos",
+        "label": "Type dos",
         "multi": false,
         "name": "Type_dos",
         "options": [],
@@ -2551,7 +2567,7 @@
         "definition": "label_values(tor_relay_load_onionskins_total,type)",
         "hide": 0,
         "includeAll": true,
-        "label": "Type_load",
+        "label": "Type load",
         "multi": false,
         "name": "Type_load",
         "options": [],
@@ -2574,7 +2590,7 @@
         "definition": "label_values(tor_relay_streams_total,type)",
         "hide": 0,
         "includeAll": true,
-        "label": "Type_stre",
+        "label": "Type stream",
         "multi": false,
         "name": "Type_stre",
         "options": [],
@@ -2591,13 +2607,13 @@
     ]
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-7d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Tor Relay",
   "uid": "bb0ac200-1fab-4d04-a3b0-859d35ec9ee6",
-  "version": 156,
+  "version": 162,
   "weekStart": ""
 }
