@@ -60,6 +60,6 @@ The label `orport` is used as a filter for the DDoS dashboard.
 Snowflake provides metrics under a non-default path and to localhost only.
 To scrape metrics from a remote Prometheus I added 2 iptables rules and set 1 sysctl value as seen in
 ([this](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup-snowflake/tasks/firewall.yaml#L10))
-to deploy Tor bridges and Snowflake.
+Ansible role to deploy Tor bridges and Snowflake.
 
 Whilst this solution lacks encryption (as a separate NGinx would provide) this solution is sane IMO if all systems run in the same provider network.
