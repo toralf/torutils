@@ -214,7 +214,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
+        "h": 8,
         "w": 7,
         "x": 8,
         "y": 1
@@ -267,7 +267,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 10
+        "y": 9
       },
       "id": 35,
       "panels": [],
@@ -339,7 +339,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 11
+        "y": 10
       },
       "id": 20,
       "options": {
@@ -451,7 +451,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 11
+        "y": 10
       },
       "id": 22,
       "options": {
@@ -548,7 +548,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 18
+        "y": 17
       },
       "id": 18,
       "options": {
@@ -648,7 +648,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -656,7 +657,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 18
+        "y": 17
       },
       "id": 63,
       "options": {
@@ -703,16 +704,134 @@
       "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "axisWidth": 80,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "#EAB839",
+                "value": 65535
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "id": 90,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 80
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "node_nf_conntrack_entries",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "current",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "node_nf_conntrack_entries_limit",
+          "fullMetaSearch": false,
+          "hide": true,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "limit",
+          "range": true,
+          "refId": "B",
+          "useBackend": false
+        }
+      ],
+      "title": "Conntrack",
+      "type": "timeseries"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 31
       },
       "id": 33,
       "panels": [],
-      "title": "Tor",
+      "title": "Tor Relay",
       "type": "row"
     },
     {
@@ -770,7 +889,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": [
           {
@@ -795,7 +915,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 26
+        "y": 32
       },
       "id": 74,
       "options": {
@@ -821,7 +941,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport) (tor_relay_connections{family=\"ipv4\", direction=\"initiated\", job=\"Tor\", orport=~\"$orport\"})",
+          "expr": "sum by(orport, family, direction) (tor_relay_connections{family=\"ipv4\", direction=\"initiated\", job=\"Tor\", orport=~\"$orport\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{orport}}",
@@ -888,7 +1008,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -896,7 +1017,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 26
+        "y": 32
       },
       "id": 75,
       "options": {
@@ -920,7 +1041,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport) (tor_relay_connections{family=\"ipv6\", direction=\"initiated\", job=\"Tor\", orport=~\"$orport\"})",
+          "expr": "sum by(orport, family, direction) (tor_relay_connections{family=\"ipv6\", direction=\"initiated\", job=\"Tor\", orport=~\"$orport\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{orport}}",
@@ -987,7 +1108,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -995,7 +1117,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 33
+        "y": 39
       },
       "id": 73,
       "options": {
@@ -1019,7 +1141,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport) (tor_relay_connections{family=\"ipv4\", direction=\"received\", job=\"Tor\", orport=~\"$orport\"})",
+          "expr": "sum by(orport, family, direction) (tor_relay_connections{family=\"ipv4\", direction=\"received\", job=\"Tor\", orport=~\"$orport\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{orport}}",
@@ -1086,7 +1208,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -1094,7 +1217,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 33
+        "y": 39
       },
       "id": 70,
       "options": {
@@ -1118,7 +1241,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport) (tor_relay_connections{family=\"ipv6\", direction=\"received\", job=\"Tor\", orport=~\"$orport\"})",
+          "expr": "sum by(orport, direction, family) (tor_relay_connections{family=\"ipv6\", direction=\"received\", job=\"Tor\", orport=~\"$orport\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{orport}}",
@@ -1194,7 +1317,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 40
+        "y": 46
       },
       "id": 85,
       "options": {
@@ -1218,7 +1341,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport) (rate(tor_relay_traffic_bytes{direction=\"read\", job=\"Tor\", orport=~\"$orport\"}[$__rate_interval]))",
+          "expr": "sum by(orport, direction) (rate(tor_relay_traffic_bytes{direction=\"read\", job=\"Tor\", orport=~\"$orport\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{orport}}",
@@ -1285,7 +1408,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -1293,7 +1417,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 40
+        "y": 46
       },
       "id": 2,
       "options": {
@@ -1317,7 +1441,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "max by(orport) (tor_relay_load_socket_total{state=\"opened\", job=\"Tor\", orport=~\"$orport\"})",
+          "expr": "max by(orport, state) (tor_relay_load_socket_total{state=\"opened\", job=\"Tor\", orport=~\"$orport\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{label_name}}{{orport}}",
@@ -1393,7 +1517,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 47
+        "y": 53
       },
       "id": 87,
       "options": {
@@ -1417,7 +1541,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport) (rate(tor_relay_traffic_bytes{direction=\"written\", job=\"Tor\", orport=~\"$orport\"}[$__rate_interval]))",
+          "expr": "sum by(orport, direction) (rate(tor_relay_traffic_bytes{direction=\"written\", job=\"Tor\", orport=~\"$orport\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{orport}}",
@@ -1435,11 +1559,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 54
+        "y": 60
       },
       "id": 37,
       "panels": [],
-      "title": "torutils iptables",
+      "title": "torutils DDoS iptables",
       "type": "row"
     },
     {
@@ -1506,7 +1630,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 55
+        "y": 61
       },
       "id": 24,
       "options": {
@@ -1607,7 +1731,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 55
+        "y": 61
       },
       "id": 81,
       "options": {
@@ -1708,7 +1832,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 62
+        "y": 68
       },
       "id": 79,
       "options": {
@@ -1730,12 +1854,16 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
           "expr": "sum by(state) (rate(torutils_state_packets{ipver=\"4\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
           "hide": false,
+          "includeNullMetadata": true,
           "legendFormat": "{{dpt}}",
           "range": true,
-          "refId": "D"
+          "refId": "D",
+          "useBackend": false
         }
       ],
       "title": "DROP state IPv4",
@@ -1805,7 +1933,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 62
+        "y": 68
       },
       "id": 80,
       "options": {
@@ -1892,7 +2020,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -1900,7 +2029,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 69
+        "y": 75
       },
       "id": 30,
       "options": {
@@ -1991,7 +2120,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -1999,7 +2129,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 69
+        "y": 75
       },
       "id": 31,
       "options": {
@@ -2089,7 +2219,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -2097,7 +2228,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 76
+        "y": 82
       },
       "id": 27,
       "options": {
@@ -2187,7 +2318,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -2195,7 +2327,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 76
+        "y": 82
       },
       "id": 28,
       "options": {
@@ -2285,7 +2417,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -2293,7 +2426,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 83
+        "y": 89
       },
       "id": 64,
       "options": {
@@ -2383,7 +2516,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -2391,7 +2525,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 83
+        "y": 89
       },
       "id": 65,
       "options": {
@@ -2433,11 +2567,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 90
+        "y": 96
       },
       "id": 39,
       "panels": [],
-      "title": "torutils ipset timeout",
+      "title": "torutils DDoS ipset timeout",
       "type": "row"
     },
     {
@@ -2470,7 +2604,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 91
+        "y": 97
       },
       "id": 41,
       "options": {
@@ -2537,7 +2671,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 91
+        "y": 97
       },
       "id": 44,
       "options": {
@@ -2604,7 +2738,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 96
+        "y": 102
       },
       "id": 88,
       "options": {
@@ -2671,7 +2805,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 96
+        "y": 102
       },
       "id": 54,
       "options": {
@@ -2738,7 +2872,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 101
+        "y": 107
       },
       "id": 52,
       "options": {
@@ -2805,7 +2939,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 101
+        "y": 107
       },
       "id": 89,
       "options": {
@@ -2872,7 +3006,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 106
+        "y": 112
       },
       "id": 53,
       "options": {
@@ -2939,7 +3073,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 106
+        "y": 112
       },
       "id": 55,
       "options": {
@@ -3006,7 +3140,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 111
+        "y": 117
       },
       "id": 76,
       "options": {
@@ -3073,7 +3207,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 111
+        "y": 117
       },
       "id": 77,
       "options": {
@@ -3127,7 +3261,7 @@
         "definition": "label_values(orport)",
         "hide": 0,
         "includeAll": true,
-        "label": "Orport",
+        "label": "ORPort",
         "multi": false,
         "name": "orport",
         "options": [],
@@ -3149,8 +3283,8 @@
   },
   "timepicker": {},
   "timezone": "utc",
-  "title": "Tor",
+  "title": "Tor DDoS",
   "uid": "FgvRNta4k",
-  "version": 288,
+  "version": 298,
   "weekStart": ""
 }
