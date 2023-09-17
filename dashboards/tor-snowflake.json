@@ -109,7 +109,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -140,7 +141,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(tor_snowflake_proxy_connections_total{job=\"Tor-Snowflake\", instance=~\"$Instance\"}[1h]) * 3600",
+          "expr": "rate(tor_snowflake_proxy_connections_total{instance=~\"$Instance\"}[1h]) * 3600",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -242,7 +243,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(instance) (rate(tor_snowflake_proxy_traffic_inbound_bytes_total{job=\"Tor-Snowflake\", instance=~\"$Instance\"}[1h]))",
+          "expr": "sum by(instance) (rate(tor_snowflake_proxy_traffic_inbound_bytes_total{instance=~\"$Instance\"}[1h]))",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "instant": false,
@@ -343,7 +344,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "process_resident_memory_bytes{job=\"Tor-Snowflake\", instance=~\"$Instance\"}",
+          "expr": "process_resident_memory_bytes{instance=~\"$Instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -445,7 +446,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(instance) (rate(tor_snowflake_proxy_traffic_outbound_bytes_total{job=\"Tor-Snowflake\", instance=~\"$Instance\"}[1h]))",
+          "expr": "sum by(instance) (rate(tor_snowflake_proxy_traffic_outbound_bytes_total{instance=~\"$Instance\"}[1h]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -547,7 +548,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(instance) (rate(process_open_fds{job=\"Tor-Snowflake\", instance=~\"$Instance\"}[1h]))",
+          "expr": "sum by(instance) (rate(process_open_fds{instance=~\"$Instance\"}[1h]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -569,6 +570,10 @@
     "list": [
       {
         "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
         "definition": "label_values(tor_snowflake_proxy_connections_total,job)",
         "hide": 0,
         "includeAll": true,
@@ -619,6 +624,6 @@
   "timezone": "",
   "title": "Tor Snowflake",
   "uid": "dcb70785-6263-447f-b93c-ab06ef97a8b5",
-  "version": 28,
+  "version": 31,
   "weekStart": ""
 }
