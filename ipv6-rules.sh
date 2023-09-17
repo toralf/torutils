@@ -45,8 +45,8 @@ function __fill_trustlist() {
     echo 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2001:858:2:2:aabb:0:563b:1526 2610:1c0:0:5::131 2620:13:4000:6000::1000:118
     getent ahostsv6 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }' | sort -u
     if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o -); then
-      jq -cr '.relays[] | .a | select(length > 1) | .[1]' <<<$relays |
-        grep ':' | tr -d ']['
+      jq -cr '.relays[] | .a | select(length > 1) | .[1:]' <<<$relays |
+        grep ':' | tr ',' ' ' | tr -d ']["'
     fi
   ) |
     xargs -r -n 1 -P $jobs ipset add -exist $trustlist
@@ -57,10 +57,13 @@ function __fill_multilist() {
     if [[ -s /var/tmp/$multilist ]]; then
       cat /var/tmp/$multilist
     fi
-    if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -); then
-      jq -cr '.relays[] | .a | select(length > 1) | .[1]' <<<$relays |
-        grep ':' | tr -d '][' | sort | uniq -d |
-        tee /var/tmp/$multilist.new
+    if relays=$(
+      sleep 4 # let ipv4 get the data first
+      curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -
+    ); then
+      jq -cr '.relays[] | .a | select(length > 1) | .[1:]' <<<$relays |
+        grep ':' | tr ',' ' ' | tr -d ']["' |
+        sort | uniq -d | tee /var/tmp/$multilist.new
       if [[ -s /var/tmp/$multilist.new ]]; then
         mv /var/tmp/$multilist.new /var/tmp/$multilist
       fi
@@ -72,7 +75,7 @@ function __fill_multilist() {
 function __fill_ddoslist() {
   if [[ -f /var/tmp/$ddoslist ]]; then
     cat /var/tmp/$ddoslist |
-      xargs -r -n 3 -P $jobs ipset add -exist $ddoslist
+      xargs -r -L 1 -P $jobs ipset add -exist $ddoslist
     rm /var/tmp/$ddoslist
   fi
 }
@@ -186,18 +189,21 @@ function bailOut() {
 
 function saveIpset() {
   local name=$1
+  local suffix=${2-}
 
   rm -f /var/tmp/$name.new
   ipset list $name | sed -e '1,8d' >/var/tmp/$name.new
   if [[ -s /var/tmp/$name.new ]]; then
-    mv /var/tmp/$name.new /var/tmp/$name
+    mv /var/tmp/$name.new /var/tmp/${name}${suffix}
   fi
 }
 
 function saveAllIpsets() {
+  local suffix=${1-}
+
   ipset list -t | grep "^Name: tor-ddos6-" | awk '{ print $2 }' |
     while read -r name; do
-      saveIpset $name
+      saveIpset $name $suffix
     done
 }
 
@@ -243,7 +249,7 @@ update)
   __fill_multilist
   ;;
 save)
-  saveAllIpsets
+  saveAllIpsets ${1-}
   ;;
 *)
   printRuleStatistics

@@ -54,7 +54,10 @@ function __fill_multilist() {
     if [[ -s /var/tmp/$multilist ]]; then
       cat /var/tmp/$multilist
     fi
-    if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -); then
+    if relays=$(
+      sleep 2
+      curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -
+    ); then
       jq -cr '.relays[] | .a[0]' <<<$relays |
         sort | uniq -d | tee /var/tmp/$multilist.new
       if [[ -s /var/tmp/$multilist.new ]]; then
@@ -68,7 +71,7 @@ function __fill_multilist() {
 function __fill_ddoslist() {
   if [[ -f /var/tmp/$ddoslist ]]; then
     cat /var/tmp/$ddoslist |
-      xargs -r -n 3 -P $jobs ipset add -exist $ddoslist
+      xargs -r -L 1 -P $jobs ipset add -exist $ddoslist
     rm /var/tmp/$ddoslist
   fi
 }
@@ -197,18 +200,21 @@ function bailOut() {
 
 function saveIpset() {
   local name=$1
+  local suffix=${2-}
 
   rm -f /var/tmp/$name.new
   ipset list $name | sed -e '1,8d' >/var/tmp/$name.new
   if [[ -s /var/tmp/$name.new ]]; then
-    mv /var/tmp/$name.new /var/tmp/$name
+    mv /var/tmp/$name.new /var/tmp/${name}${suffix}
   fi
 }
 
 function saveAllIpsets() {
+  local suffix=${1-}
+
   ipset list -t | grep "^Name: tor-ddos-" | awk '{ print $2 }' |
     while read -r name; do
-      saveIpset $name
+      saveIpset $name $suffix
     done
 }
 
@@ -254,7 +260,7 @@ test)
   $0 start $*
   ;;
 save)
-  saveAllIpsets
+  saveAllIpsets ${1-}
   ;;
 *)
   printRuleStatistics
