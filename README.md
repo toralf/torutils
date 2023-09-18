@@ -86,7 +86,7 @@ But how likely do more than the given number of Tor clients at the same ip addre
 ### Installation
 
 The instructions belongs to the IPv4 variant.
-If the parsing of the Tor config (line [169](ipv4-rules.sh#L169)) doesn't work for you then:
+If the parsing of the Tor config (line [174](ipv4-rules.sh#L174)) doesn't work for you then:
 
 1. define the local running relay(s) at the command line after the keyword `start`, e.g.:
 
@@ -124,11 +124,11 @@ To allow inbound traffic to other local service(s), do either:
 before you run the script with `start`.
 
 To **append** the rules of this script onto the local _iptables_ rules (**overwrite** of existing rules is the default)
-you've to comment out the call _clearRules()_ (line [236](ipv4-rules.sh#L236)).
-The script sets few _sysctl_ values (line [143](ipv4-rules.sh#L143)).
+you've to comment out the call _clearRules()_ (line [244](ipv4-rules.sh#L244)).
+The script sets few _sysctl_ values (next line).
 As an alternative set them under _/etc/sysctl.d_.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then comment out the call _addHetzner()_ (line [239](ipv4-rules.sh#L239)).
+then comment out the call _addHetzner()_ (line [247](ipv4-rules.sh#L247)).
 Rule 3 depends on recent data of ip addresses serving more than one Tor relay.
 To update that data run this in regular intervalls (best: via cron):
 
