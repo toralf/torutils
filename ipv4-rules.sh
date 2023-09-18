@@ -43,7 +43,8 @@ function __fill_trustlist() {
     echo 45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.39 131.188.40.189 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118
     getent ahostsv4 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }' | sort -u
     if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o -); then
-      jq -cr '.relays[] | .a[0]' <<<$relays
+      jq -r '.relays[] | .a[0]' <<<$relays |
+        grep -F '.'
     fi
   ) |
     xargs -r -n 1 -P $jobs ipset add -exist $trustlist
@@ -58,7 +59,8 @@ function __fill_multilist() {
       sleep 2
       curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -
     ); then
-      jq -cr '.relays[] | .a[0]' <<<$relays |
+      jq -r '.relays[] | .a[0]' <<<$relays |
+        grep -F '.' |
         sort | uniq -d | tee /var/tmp/$multilist.new
       if [[ -s /var/tmp/$multilist.new ]]; then
         mv /var/tmp/$multilist.new /var/tmp/$multilist
