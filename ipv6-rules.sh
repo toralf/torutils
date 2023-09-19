@@ -215,7 +215,7 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 trustlist="tor-trust6"     # Tor authorities and snowflake
 multilist="tor-multi6"     # Tor relay ip addresses hosting > 1 relay
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
-hostmask=64                # any ipv6 address of this /cidr block is considered to belong from the same source/owner
+hostmask=64                # any ipv6 address of this /block is considered to belong to the same source/owner
 # hash and ipset size
 if [[ $(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo) -gt 2 ]]; then
   max=$((2 ** 18))
