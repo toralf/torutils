@@ -62,8 +62,8 @@ function __fill_multilist() {
       curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -
     ); then
       jq -r '.relays[] | .a | select(length > 1) | .[1:]' <<<$relays |
-        tr ',' '\n' | grep -F ':' | tr -d ']["' |
-        sort | uniq -d | tee /var/tmp/$multilist.new
+        tr ',' '\n' | grep -F ':' | tr -d '][" ' |
+        sort -u | tee /var/tmp/$multilist.new
       if [[ -s /var/tmp/$multilist.new ]]; then
         mv /var/tmp/$multilist.new /var/tmp/$multilist
       fi
@@ -201,7 +201,7 @@ function saveIpset() {
 function saveAllIpsets() {
   local suffix=${1-}
 
-  ipset list -t | grep "^Name: tor-ddos6-" | awk '{ print $2 }' |
+  ipset list -t | grep '^Name: ' | grep -e 'tor-ddos6-' -e 'tor-multi6$' | awk '{ print $2 }' |
     while read -r name; do
       saveIpset $name $suffix
     done

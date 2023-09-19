@@ -61,7 +61,7 @@ function __fill_multilist() {
     ); then
       jq -r '.relays[] | .a[0]' <<<$relays |
         grep -F '.' |
-        sort | uniq -d | tee /var/tmp/$multilist.new
+        sort -u | tee /var/tmp/$multilist.new
       if [[ -s /var/tmp/$multilist.new ]]; then
         mv /var/tmp/$multilist.new /var/tmp/$multilist
       fi
@@ -216,7 +216,7 @@ function saveIpset() {
 function saveAllIpsets() {
   local suffix=${1-}
 
-  ipset list -t | grep "^Name: tor-ddos-" | awk '{ print $2 }' |
+  ipset list -t | grep '^Name: ' | grep -e 'tor-ddos-' -e 'tor-multi$' | awk '{ print $2 }' |
     while read -r name; do
       saveIpset $name $suffix
     done
