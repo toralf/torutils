@@ -147,13 +147,15 @@ function addHetzner() {
 
 function setSysctlValues() {
   sysctl -w net.ipv4.tcp_syncookies=1
-  # make tcp_max_syn_backlog big enough to have ListenDrops being 0:
-  # cat /proc/net/netstat | awk '(f==0) {i=1; while (i<=NF) {n[i] = $i; i++ }; f=1; next} (f==1){i=2; while (i<=NF) {printf "%s = %d\n", n[i], $i; i++}; f=0}' | grep 'Drop'
-  for i in net.netfilter.nf_conntrack_buckets net.netfilter.nf_conntrack_max net.ipv4.tcp_max_syn_backlog net.core.somaxconn; do
+  # make tcp_max_syn_backlog big enough to have ListenDrops being low or 0:
+  # awk '(f==0) {i=1; while (i<=NF) {n[i] = $i; i++ }; f=1; next} (f==1){i=2; while (i<=NF) {printf "%s = %d\n", n[i], $i; i++}; f=0}' /proc/net/netstat | grep 'Drop'
+  for i in net.netfilter.nf_conntrack_buckets net.ipv4.tcp_max_syn_backlog net.core.somaxconn; do
     if [[ $(sysctl -n $i) -lt $max ]]; then
       sysctl -w $i=$max
     fi
   done
+  # conntrack table holds both IPv4 and IPv6 - so double its size
+  sysctl -w net.netfilter.nf_conntrack_max=$((2 * max))
 }
 
 function clearRules() {
