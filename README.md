@@ -126,21 +126,38 @@ before you run the script with `start`.
 To **append** the rules of this script onto the local _iptables_ rules (**overwrite** of existing rules is the default)
 you've to comment out the call _clearRules()_ (line [246](ipv4-rules.sh#L246)).
 The script sets few _sysctl_ values (next line).
-As an alternative set them under _/etc/sysctl.d_.
+As an alternative comment out that line and set them under _/etc/sysctl.d/_.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
 then comment out the call _addHetzner()_ (line [249](ipv4-rules.sh#L249)).
 Rule 3 depends on recent data of ip addresses serving more than one Tor relay.
-To update those relay addresses during runtime run this regularly (e.g. hourly via cron):
+Update those addresses regularly:
 
 ```bash
 sudo ./ipv4-rules.sh update
 ```
 
-### Helpers
+e.g. hourly via cron.
 
-Few scripts helps to fine tune the parameters of the rule set.
-[metrics.sh](./metrics.sh) exports data to Prometheus.
-For the appropriate dashboards look [here](./dashboards/README.md).
+### Metrics
+
+The script [metrics.sh](./metrics.sh) exports data to Prometheus.
+Appropriate Grafana dashboards are [here](./dashboards/README.md).
+
+### DDoS examples
+
+Graphs¹ of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
+[6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov
+show the results for few DDoS attacks over 3 days
+for [these](https://nusenu.github.io/OrNetStats/zwiebeltoralf.de.html) 2 relays.
+A more heavier attack was observed at [12th](./doc/network-metric-Nov-12th.svg) of Nov.
+A periodic drop down of the socket count metric, vanishing over time, appeared at
+[5th](./doc/network-metric-Dec-05th.svg) of Dec.
+Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are still handled well.
+
+¹ using [sysstat](http://sebastien.godard.pagesperso-orange.fr/)
+
+### misc
+
 [ddos-inbound.sh](./ddos-inbound.sh) lists ips having more inbound connections to the ORPort than a given
 limit ([example](./doc/ddos-inbound.sh.txt)).
 [hash-stats.sh](./hash-stats.sh) plots the distribution of timeout values of an iptables hash
@@ -159,20 +176,6 @@ h=$(tail -n 2 $svg | head -n 1 | cut -f 5 -d ' ')   # fix the SVG canvas size
 sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
-
-### DDoS examples
-
-Metrics¹ of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
-[6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov
-show the results for few DDoS attacks over 3 days
-for [these](https://nusenu.github.io/OrNetStats/zwiebeltoralf.de.html) 2 relays.
-A more heavier attack was observed at [12th](./doc/network-metric-Nov-12th.svg) of Nov.
-A periodic drop down of the socket count metric, vanishing over time, appeared at
-[5th](./doc/network-metric-Dec-05th.svg) of Dec.
-Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are still handled well.
-
-¹ Graphs were created in the past by [sysstat](http://sebastien.godard.pagesperso-orange.fr/).
-Nowadays I do use [this](./grafana-dashboard.json) Grafana dashboard plus the scripts under [Helpers](#helpers).
 
 ## Query Tor via its API
 
