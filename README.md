@@ -213,11 +213,11 @@ It returns the expiration time in seconds of the mid-term signing key, e.g.:
 
 ```bash
 seconds=$(sudo ./key-expires.py /var/lib/tor/keys/ed25519_signing_cert)
-days=$(( seconds/86400 ))
+days=$((seconds / 86400))
 [[ $days -lt 23 ]] && echo "Tor signing key expires in less than $days day(s)"
 ```
 
-If the Tor metrics are enabled then this 1-liner works too (maybe replace `9052` with the actual metrics port):
+If Tor metrics are enabled then this 1-liner works too (replace `9052` with the actual metrics port if needed):
 
 ```bash
 date -d@$(curl -s localhost:9052/metrics | grep "^tor_relay_signing_cert_expiry_timestamp" | awk '{ print $2 }')
