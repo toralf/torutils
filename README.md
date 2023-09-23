@@ -142,6 +142,8 @@ e.g. hourly via cron.
 
 The script [metrics.sh](./metrics.sh) exports data to Prometheus.
 Appropriate Grafana dashboards are [here](./dashboards/README.md).
+Few more helper scripts were developed to analyze the attack vector,
+e.g. [hash-stats.sh](./hash-stats.sh) and [ipset-stats.sh](./ipset-stats.sh) and [check_ct.sh](./check_ct.sh).
 
 ### DDoS examples
 
