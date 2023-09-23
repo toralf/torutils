@@ -142,8 +142,7 @@ e.g. hourly via cron.
 
 The script [metrics.sh](./metrics.sh) exports data to Prometheus.
 Appropriate Grafana dashboards are [here](./dashboards/README.md).
-Few more helper scripts were developed to analyze the attack vector,
-e.g. [hash-stats.sh](./hash-stats.sh) and [ipset-stats.sh](./ipset-stats.sh) and [check_ct.sh](./check_ct.sh).
+Few more helper scripts were developed to analyze the attack vector, look [here](./misc/README.md).
 
 ### DDoS examples
 
@@ -157,8 +156,6 @@ A periodic drop down of the socket count metric, vanishing over time, appeared a
 Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are still handled well.
 
 ¹ using [sysstat](http://sebastien.godard.pagesperso-orange.fr/)
-
-More (older) scripts can be found under [here](./misc/README.md).
 
 ## Query Tor via its API
 
