@@ -66,7 +66,7 @@ and try out the [Installation](#installation) section.
 ¹ An attacker capable to spoof ip addresses would trick you to block victim ip addresses.
 
 ² An attacker could place a malicious ip within a CIDR range to harm all other addresses in the same network block.
-For IPv6 however a /64 is assumed to be assigned per system.
+For IPv6 however an /56 IPv6 block is assumed to be assigned to a single host.
 
 #### Details
 
@@ -86,7 +86,7 @@ But how likely do more than the given number of Tor clients at the same ip addre
 ### Installation
 
 The instructions belongs to the IPv4 variant.
-If the parsing of the Tor config (line [174](ipv4-rules.sh#L174)) doesn't work for you then:
+If the parsing of the Tor config (line [180](ipv4-rules.sh#L180)) and or SSH (line [19](ipv4-rules.sh#L19)) doesn't work for you then:
 
 1. define the local running relay(s) at the command line after the keyword `start`, e.g.:
 
@@ -124,25 +124,23 @@ To allow inbound traffic to other local service(s), do either:
 before you run the script with `start`.
 
 To **append** the rules of this script onto the local _iptables_ rules (**overwrite** of existing rules is the default)
-you've to comment out the call _clearRules()_ (line [246](ipv4-rules.sh#L246)).
+you've to comment out the call _clearRules()_ (line [250](ipv4-rules.sh#L250)).
 The script sets few _sysctl_ values (next line).
 As an alternative comment out that line and set them under _/etc/sysctl.d/_.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then comment out the call _addHetzner()_ (line [249](ipv4-rules.sh#L249)).
-Rule 3 depends on recent data of ip addresses serving more than one Tor relay.
-Update those addresses regularly:
+then comment out the call _addHetzner()_ (line [253](ipv4-rules.sh#L253)).
+Rule 3 of the rule set depends on recent data about ip addresses serving more than one Tor relay.
+Update this data regularly e.g. hourly via cron:
 
 ```bash
 sudo ./ipv4-rules.sh update
 ```
 
-e.g. hourly via cron.
-
 ### Metrics
 
 The script [metrics.sh](./metrics.sh) exports data to Prometheus.
 Appropriate Grafana dashboards are [here](./dashboards/README.md).
-Few more helper scripts were developed to analyze the attack vector, look [here](./misc/README.md).
+Few more helper scripts were developed to analyze the attack vector, look [here](./misc/README.md) for details.
 
 ### DDoS examples
 
