@@ -17,9 +17,11 @@ function addCommon() {
   iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 
   # ssh
-  local addr=$(grep -m 1 -E "^ListenAddress\s+.+\..+\..+\..+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
+  local addr=$(grep -E "^ListenAddress\s+.+\..+\..+\..+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
-  iptables -A INPUT -p tcp --dst ${addr:-"0.0.0.0/0"} --dport ${port:-22} --syn -j ACCEPT
+  for i in ${addr:-"0.0.0.0/0"}; do
+    iptables -A INPUT -p tcp --dst $i --dport ${port:-22} --syn -j ACCEPT
+  done
 
   # ratelimit ICMP echo
   iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 6/s -j ACCEPT
