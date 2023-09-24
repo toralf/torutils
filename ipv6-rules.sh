@@ -88,7 +88,7 @@ function addTor() {
   __create_ipset $multilist
   __fill_multilist &
 
-  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask $((128 - hostmask)) --hashlimit-htable-size $max --hashlimit-htable-max $max"
+  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask $prefix --hashlimit-htable-size $max --hashlimit-htable-max $max"
   for relay in $*; do
     if [[ ! $relay =~ '[' || ! $relay =~ ']' || $relay =~ '.' || ! $relay =~ ':' ]]; then
       echo " relay '$relay' cannot be parsed" >&2
@@ -102,7 +102,7 @@ function addTor() {
     local synpacket="ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn"
 
     local ddoslist="tor-ddos6-$orport" # this holds ips classified as DDoS'ing the local OR port
-    __create_ipset $ddoslist "timeout $((24 * 3600)) maxelem $max netmask $((128 - hostmask))"
+    __create_ipset $ddoslist "timeout $((24 * 3600)) maxelem $max netmask $prefix"
     __fill_ddoslist &
 
     # rule 1
@@ -224,7 +224,7 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 trustlist="tor-trust6"     # Tor authorities and snowflake
 multilist="tor-multi6"     # Tor relay ip addresses hosting > 1 relay
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
-hostmask=64                # any ipv6 address of this /block is considered to belong to the same source/owner
+prefix=64                  # any ipv6 address of this /block is considered to belong to the same source/owner
 # hash and ipset size
 if [[ $(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo) -gt 2 ]]; then
   max=$((2 ** 20)) # mem is bigger than 2 GiB
