@@ -151,6 +151,13 @@ function addHetzner() {
   ip6tables -A INPUT -m set --match-set $sysmon src -j ACCEPT
 }
 
+function setSysctlValues() {
+  local current=$(sysctl -n net.netfilter.nf_conntrack_max)
+  if [[ $current -lt $max ]]; then
+    sysctl -w net.netfilter.nf_conntrack_max=$max
+  fi
+}
+
 function clearRules() {
   ip6tables -P INPUT ACCEPT
   ip6tables -P OUTPUT ACCEPT
@@ -218,7 +225,7 @@ jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
 hostmask=56                # any ipv6 address of this /block is considered to belong to the same source/owner
 # hash and ipset size
 if [[ $(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo) -gt 2 ]]; then
-  max=$((2 ** 18))
+  max=$((2 ** 20))
 else
   max=$((2 ** 16)) # default: 65536
 fi
@@ -230,6 +237,7 @@ case $action in
 start)
   trap bailOut INT QUIT TERM EXIT
   clearRules
+  setSysctlValues
   addCommon
   addHetzner
   addLocalServices

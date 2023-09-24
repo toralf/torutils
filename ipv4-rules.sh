@@ -154,8 +154,10 @@ function setSysctlValues() {
       sysctl -w $i=$max
     fi
   done
-  # conntrack table holds both IPv4 and IPv6 - so double its size
-  sysctl -w net.netfilter.nf_conntrack_max=$((2 * max))
+  local current=$(sysctl -n net.netfilter.nf_conntrack_max)
+  if [[ $current -lt $max ]]; then
+    sysctl -w net.netfilter.nf_conntrack_max=$max
+  fi
 }
 
 function clearRules() {
