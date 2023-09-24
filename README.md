@@ -66,7 +66,7 @@ and try out the [Installation](#installation) section.
 ¹ An attacker capable to spoof ip addresses would trick you to block victim ip addresses.
 
 ² An attacker could place a malicious ip within a CIDR range to harm all other addresses in the same network block.
-For IPv6 however an /56 IPv6 block is assumed to be assigned to a single host.
+For IPv6 however an /64 IPv6 block is assumed to be assigned to a single host.
 
 #### Details
 
