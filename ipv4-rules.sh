@@ -158,7 +158,7 @@ function setSysctlValues() {
   done
   local current=$(sysctl -n net.netfilter.nf_conntrack_max)
   if [[ $current -lt $max ]]; then
-    sysctl -w net.netfilter.nf_conntrack_max=$max
+    sysctl -w net.netfilter.nf_conntrack_max=$((current + max))
   fi
 }
 
@@ -236,7 +236,7 @@ multilist="tor-multi"      # Tor relay ip addresses hosting > 1 relay
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
 # hash and ipset size
 if [[ $(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo) -gt 2 ]]; then
-  max=$((2 ** 18))
+  max=$((2 ** 18)) # mem is bigger than 2 GiB
 else
   max=$((2 ** 16)) # default: 65536
 fi

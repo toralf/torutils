@@ -156,7 +156,7 @@ function addHetzner() {
 function setSysctlValues() {
   local current=$(sysctl -n net.netfilter.nf_conntrack_max)
   if [[ $current -lt $max ]]; then
-    sysctl -w net.netfilter.nf_conntrack_max=$max
+    sysctl -w net.netfilter.nf_conntrack_max=$((current + max))
   fi
 }
 
@@ -227,7 +227,7 @@ jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
 hostmask=56                # any ipv6 address of this /block is considered to belong to the same source/owner
 # hash and ipset size
 if [[ $(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo) -gt 2 ]]; then
-  max=$((2 ** 20))
+  max=$((2 ** 20)) # mem is bigger than 2 GiB
 else
   max=$((2 ** 16)) # default: 65536
 fi
