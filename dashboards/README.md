@@ -31,15 +31,6 @@ Prometheus is configured in this way:
     - targets: ["localhost:29052"]
       labels:
         orport: "9001"
-    - targets: ["localhost:39052"]
-      labels:
-        orport: "8443"
-    - targets: ["localhost:49052"]
-      labels:
-        orport: "9443"
-    - targets: ["localhost:59052"]
-      labels:
-        orport: "5443"
 ```
 
 The label `orport` is used as a filter for the DDoS dashboard.
@@ -57,12 +48,9 @@ MetricsPortPolicy accept [::1]
 ## Scraping Snowflake metrics
 
 Snowflake provides metrics under a non-default path and to localhost only.
-To scrape metrics from a remote Prometheus I added 2 iptables rules and set 1 sysctl value as seen in
-([this](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup-snowflake/tasks/firewall.yaml#L10))
-Ansible role to deploy Tor bridges and Snowflake.
-
-Whilst this solution lacks encryption (as a separate NGinx would provide) this solution is sane IMO if all systems run in the same provider network.
+To scrape metrics from a remote Prometheus while avoiding unauthorized requests from outside use [this](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup-snowflake/tasks/firewall.yaml#L10) Ansible role.
+Whilst this solution lacks encryption (as a separate NGinx would provide) this solution is sane IMO if all systems run in the same providers network.
 
 ## Scraping DDoS metrics
 
-The upload of the DDoS metrics is made by the help of [node_exporter](https://github.com/prometheus/node_exporter).
+The upload of DDoS metrics is made by the help of [node_exporter](https://github.com/prometheus/node_exporter).
