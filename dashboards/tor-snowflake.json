@@ -476,7 +476,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 12,
+            "axisSoftMax": -1,
             "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
@@ -628,6 +628,6 @@
   "timezone": "",
   "title": "Tor Snowflake",
   "uid": "dcb70785-6263-447f-b93c-ab06ef97a8b5",
-  "version": 34,
+  "version": 35,
   "weekStart": ""
 }
