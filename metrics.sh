@@ -67,7 +67,7 @@ function printMetrics() {
   var="torutils_ipset_total"
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
   for v in "" 6; do
-    ipset list -t | grep -e "^N" | xargs -n 6 | awk '/tor-ddos'$v'-/ { print $2, $6 }' |
+    ipset list -t | grep -e "^N" | xargs -n 6 | awk '/^Name: tor-ddos'$v'-/ { print $2, $6 }' |
       while read -r name size; do
         orport=$(cut -f 3 -d '-' -s <<<$name)
         echo "$var{ipver=\"${v:-4}\",orport=\"$orport\",mode=\"ddos\"} $size"
@@ -81,7 +81,7 @@ function printMetrics() {
   var="torutils_ipset_timeout"
   echo -e "# HELP $var A histogram of ipset timeout values\n# TYPE $var histogram"
   for v in "" 6; do
-    ipset list -t | grep -e "^Name" | awk '/tor-ddos'$v'-/ { print $2 }' |
+    ipset list -t | awk '/^Name: tor-ddos'$v'-/ { print $2 }' |
       while read -r name; do
         orport=$(cut -f 3 -d '-' -s <<<$name)
         ipset list -s $name | sed -e '1,8d' | cut -f 3 -d ' ' -s | _histogram
