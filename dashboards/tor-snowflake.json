@@ -68,7 +68,6 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 200,
             "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
@@ -476,7 +475,6 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": -1,
             "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
@@ -507,7 +505,6 @@
           },
           "decimals": 0,
           "mappings": [],
-          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -621,13 +618,13 @@
     ]
   },
   "time": {
-    "from": "now-7d",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Tor Snowflake",
   "uid": "dcb70785-6263-447f-b93c-ab06ef97a8b5",
-  "version": 35,
+  "version": 36,
   "weekStart": ""
 }
