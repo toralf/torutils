@@ -55,8 +55,6 @@ function __fill_trustlist() {
 }
 
 function __fill_multilist() {
-  ipset flush $multilist
-
   sleep 4 # let ipv4 get the data first
   relays=$(curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -)
   if [[ $? -ne 0 || -z $relays ]]; then
@@ -64,6 +62,8 @@ function __fill_multilist() {
       relays=$(cat /var/tmp/$multilist)
     fi
   fi
+
+  ipset flush $multilist
   jq -r '.relays[] | .a | select(length > 1) | .[1:]' <<<$relays |
     tr ',' '\n' | grep -F ':' | tr -d '][" ' |
     sort | uniq -d | tee /var/tmp/$multilist.new |
