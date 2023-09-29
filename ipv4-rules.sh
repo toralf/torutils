@@ -33,7 +33,7 @@ function __create_ipset() {
   local cmd="ipset create -exist $name hash:ip family inet ${2-}"
 
   if ! $cmd 2>/dev/null; then
-    if ! (ipset list -t $name &>/dev/null && saveIpset $name && ipset destroy $name && $cmd); then
+    if ! (saveIpset $name && ipset destroy $name && $cmd); then
       return 1
     fi
   fi
@@ -53,23 +53,23 @@ function __fill_trustlist() {
 }
 
 function __fill_multilist() {
-  (
+  ipset flush $multilist
+
+  sleep 2
+  relays=$(curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -)
+  if [[ $? -ne 0 || -z $relays ]]; then
     if [[ -s /var/tmp/$multilist ]]; then
-      cat /var/tmp/$multilist
+      relays=$(cat /var/tmp/$multilist)
     fi
-    if relays=$(
-      sleep 2
-      curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -
-    ); then
-      jq -r '.relays[] | .a[0]' <<<$relays |
-        grep -F '.' |
-        sort -u | tee /var/tmp/$multilist.new
-      if [[ -s /var/tmp/$multilist.new ]]; then
-        mv /var/tmp/$multilist.new /var/tmp/$multilist
-      fi
-    fi
-  ) |
+  fi
+  jq -r '.relays[] | .a[0]' <<<$relays |
+    grep -F '.' |
+    sort | uniq -d | tee /var/tmp/$multilist.new |
     xargs -r -n 1 -P $jobs ipset add -exist $multilist
+
+  if [[ -s /var/tmp/$multilist.new ]]; then
+    mv /var/tmp/$multilist.new /var/tmp/$multilist
+  fi
 }
 
 function __fill_ddoslist() {
@@ -217,7 +217,7 @@ function saveIpset() {
   fi
 }
 
-function saveAllIpsets() {
+function saveCertainIpsets() {
   local suffix=${1-}
 
   ipset list -t | grep '^Name: ' | grep -e 'tor-ddos-' -e 'tor-multi$' | awk '{ print $2 }' |
@@ -231,7 +231,7 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-trustlist="tor-trust"      # Tor authorities and snowflake
+trustlist="tor-trust"      # Tor authorities and snowflake servers
 multilist="tor-multi"      # Tor relay ip addresses hosting > 1 relay
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
 # hash and ipset size
@@ -256,7 +256,7 @@ start)
   trap - INT QUIT TERM EXIT
   ;;
 stop)
-  saveAllIpsets
+  saveCertainIpsets
   clearRules
   ;;
 update)
@@ -268,7 +268,7 @@ test)
   $0 start $*
   ;;
 save)
-  saveAllIpsets ${1-}
+  saveCertainIpsets ${1-}
   ;;
 *)
   printRuleStatistics

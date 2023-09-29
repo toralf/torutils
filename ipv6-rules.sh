@@ -35,7 +35,7 @@ function __create_ipset() {
   local cmd="ipset create -exist $name hash:ip family inet6 ${2-}"
 
   if ! $cmd 2>/dev/null; then
-    if ! (ipset list -t $name &>/dev/null && saveIpset $name && ipset destroy $name && $cmd); then
+    if ! (saveIpset $name && ipset destroy $name && $cmd); then
       return 1
     fi
   fi
@@ -55,23 +55,23 @@ function __fill_trustlist() {
 }
 
 function __fill_multilist() {
-  (
+  ipset flush $multilist
+
+  sleep 4 # let ipv4 get the data first
+  relays=$(curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -)
+  if [[ $? -ne 0 || -z $relays ]]; then
     if [[ -s /var/tmp/$multilist ]]; then
-      cat /var/tmp/$multilist
+      relays=$(cat /var/tmp/$multilist)
     fi
-    if relays=$(
-      sleep 4 # let ipv4 get the data first
-      curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -
-    ); then
-      jq -r '.relays[] | .a | select(length > 1) | .[1:]' <<<$relays |
-        tr ',' '\n' | grep -F ':' | tr -d '][" ' |
-        sort -u | tee /var/tmp/$multilist.new
-      if [[ -s /var/tmp/$multilist.new ]]; then
-        mv /var/tmp/$multilist.new /var/tmp/$multilist
-      fi
-    fi
-  ) |
+  fi
+  jq -r '.relays[] | .a | select(length > 1) | .[1:]' <<<$relays |
+    tr ',' '\n' | grep -F ':' | tr -d '][" ' |
+    sort | uniq -d | tee /var/tmp/$multilist.new |
     xargs -r -n 1 -P $jobs ipset add -exist $multilist
+
+  if [[ -s /var/tmp/$multilist.new ]]; then
+    mv /var/tmp/$multilist.new /var/tmp/$multilist
+  fi
 }
 
 function __fill_ddoslist() {
@@ -207,7 +207,7 @@ function saveIpset() {
   fi
 }
 
-function saveAllIpsets() {
+function saveCertainIpsets() {
   local suffix=${1-}
 
   ipset list -t | grep '^Name: ' | grep -e 'tor-ddos6-' -e 'tor-multi6$' | awk '{ print $2 }' |
@@ -221,7 +221,7 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-trustlist="tor-trust6"     # Tor authorities and snowflake
+trustlist="tor-trust6"     # Tor authorities and snowflake servers
 multilist="tor-multi6"     # Tor relay ip addresses hosting > 1 relay
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
 prefix=64                  # any ipv6 address of this /block is considered to belong to the same source/owner
@@ -247,7 +247,7 @@ start)
   trap - INT QUIT TERM EXIT
   ;;
 stop)
-  saveAllIpsets
+  saveCertainIpsets
   clearRules
   ;;
 test)
@@ -259,7 +259,7 @@ update)
   __fill_multilist
   ;;
 save)
-  saveAllIpsets ${1-}
+  saveCertainIpsets ${1-}
   ;;
 *)
   printRuleStatistics
