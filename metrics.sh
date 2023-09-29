@@ -62,15 +62,25 @@ function printMetrics() {
   done
 
   ###############################
-  # ipset ddos sizes
+  # ipset sizes
   #
   var="torutils_ipset_total"
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
   for v in "" 6; do
-    ipset list -t | grep -e "^N" | xargs -n 6 | awk '/^Name: tor-ddos'$v'-/ { print $2, $6 }' |
+    ipset list -t | grep -e "^N" | xargs -n 6 | awk '/^Name: tor-/ { print $2, $6 }' |
+      if [[ $v == "6" ]]; then
+        grep -F -e "6 " -e "6-"
+      else
+        grep -F -v -e "6 " -e "6-"
+      fi |
       while read -r name size; do
+        mode=$(cut -f 2 -d '-' -s <<<$name | tr -d '6')
         orport=$(cut -f 3 -d '-' -s <<<$name)
-        echo "$var{ipver=\"${v:-4}\",orport=\"$orport\",mode=\"ddos\"} $size"
+        if [[ -z $orport ]]; then
+          echo "$var{ipver=\"${v:-4}\",mode=\"$mode\"} $size"
+        else
+          echo "$var{ipver=\"${v:-4}\",mode=\"$mode\",orport=\"$orport\"} $size"
+        fi
       done
   done
 
