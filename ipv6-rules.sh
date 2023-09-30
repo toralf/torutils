@@ -56,24 +56,28 @@ function __fill_trustlist() {
     xargs -r -n 1 -P $jobs ipset add -exist $trustlist
 }
 
-function __fill_multilist() {
+function __fill_multilists() {
   sleep 6 # remote is rate limited, so let ipv4 get the data first
   if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -); then
     if [[ $relays =~ 'relays_published' ]]; then
       set -o pipefail
-      if jq -r '.relays[] | select(.r == true) | .a | select(length > 1) | .[1:]' <<<$relays |
+      if sorted=$(jq -r '.relays[] | select(.r == true) | .a | select(length > 1) | .[1:]' <<<$relays |
         tr ',' '\n' | grep -F ':' | tr -d '][" ' |
-        sort | uniq -d >/var/tmp/$multilist.new; then
-        mv /var/tmp/$multilist.new /var/tmp/$multilist
+        sort | uniq -c); then
+        awk '$1 >1 && $1 <= 2 { print $2 }' <<<$sorted >/var/tmp/$multilist-2
+        awk '$1 >2 && $1 <= 4 { print $2 }' <<<$sorted >/var/tmp/$multilist-4
+        awk '$1 >4 && $1 <= 8 { print $2 }' <<<$sorted >/var/tmp/$multilist-8
       fi
       set +o pipefail
     fi
   fi
 
-  if [[ -s /var/tmp/$multilist ]]; then
-    ipset flush $multilist
-    xargs -r -n 1 -P $jobs ipset add -exist $multilist </var/tmp/$multilist
-  fi
+  for i in 2 4 8; do
+    if [[ -s /var/tmp/$multilist-$i ]]; then
+      ipset flush $multilist-$i
+      xargs -r -n 1 -P $jobs ipset add -exist $multilist-$i </var/tmp/$multilist-$i
+    fi
+  done
 }
 
 function __fill_ddoslist() {
@@ -87,8 +91,10 @@ function __fill_ddoslist() {
 function addTor() {
   __create_ipset $trustlist
   __fill_trustlist &
-  __create_ipset $multilist
-  __fill_multilist &
+  __create_ipset $multilist-2
+  __create_ipset $multilist-4
+  __create_ipset $multilist-8
+  __fill_multilists &
 
   local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask $prefix --hashlimit-htable-size $max --hashlimit-htable-max $max"
   for relay in $*; do
@@ -111,7 +117,9 @@ function addTor() {
     $synpacket -m set --match-set $trustlist src -j ACCEPT
 
     # rule 2
-    $synpacket -m set --match-set $multilist src -m connlimit --connlimit-mask $prefix --connlimit-upto 8 -m set ! --match-set $ddoslist src -j ACCEPT
+    $synpacket -m set --match-set $multilist-2 src -m connlimit --connlimit-mask $prefix --connlimit-upto 2 -m set ! --match-set $ddoslist src -j ACCEPT
+    $synpacket -m set --match-set $multilist-4 src -m connlimit --connlimit-mask $prefix --connlimit-upto 4 -m set ! --match-set $ddoslist src -j ACCEPT
+    $synpacket -m set --match-set $multilist-8 src -m connlimit --connlimit-mask $prefix --connlimit-upto 8 -m set ! --match-set $ddoslist src -j ACCEPT
 
     # rule 3
     $synpacket $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 6/minute --hashlimit-burst 5 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
@@ -258,7 +266,7 @@ test)
   ;;
 update)
   __fill_trustlist
-  __fill_multilist
+  __fill_multilists
   ;;
 save)
   saveCertainIpsets ${1-}

@@ -74,7 +74,7 @@ Generic rules for local network, ICMP, ssh and local user services (if defined) 
 Then these rules are applied (in this order) for connection attempts from an ip to the local ORPort:
 
 1. trust ip of Tor authorities and snowflake
-2. allow up to 8 connections from the same ip if the ip is known to hosts >1 relays
+2. allow (up to) 8 connections from the same ip if the ip is known to hosts >1 relay
 3. block ip for 1 day if the rate of connection attempts is > 6/min in the last 2 minutes¹
 4. drop if there are already 2 established connections from the same ip²
 5. rate limit new connection attempts to 1 within 2 minutes
