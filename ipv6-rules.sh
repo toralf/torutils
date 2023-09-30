@@ -110,14 +110,14 @@ function addTor() {
     $synpacket -m set --match-set $trustlist src -j ACCEPT
 
     # rule 2
-    $synpacket -m set --match-set $multilist src -m connlimit --connlimit-mask 128 --connlimit-upto 8 -j ACCEPT
+    $synpacket -m set --match-set $multilist src -m connlimit --connlimit-mask $prefix --connlimit-upto 8 -j ACCEPT
 
     # rule 3
     $synpacket $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 6/minute --hashlimit-burst 5 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
     $synpacket -m set --match-set $ddoslist src -j $jump
 
     # rule 4
-    $synpacket -m connlimit --connlimit-mask 128 --connlimit-above 2 -j $jump
+    $synpacket -m connlimit --connlimit-mask $prefix --connlimit-above 2 -j $jump
 
     # rule 5
     $synpacket $hashlimit --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j $jump
