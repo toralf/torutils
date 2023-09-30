@@ -45,8 +45,10 @@ function __fill_trustlist() {
     echo 45.66.33.45 66.111.2.131 86.59.21.38 128.31.0.39 131.188.40.189 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118
     getent ahostsv4 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }' | sort -u
     if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o -); then
-      jq -r '.relays[] | .a[0]' <<<$relays |
-        grep -F '.'
+      if [[ $relays =~ 'relays_published' ]]; then
+        jq -r '.relays[] | .a[0]' <<<$relays |
+          grep -F '.'
+      fi
     fi
   ) |
     xargs -r -n 1 -P $jobs ipset add -exist $trustlist
@@ -54,17 +56,16 @@ function __fill_trustlist() {
 
 function __fill_multilist() {
   sleep 2
-  if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -) && [[ $relays =~ 'relays_published' ]]; then
-    set -o pipefail
-    if jq -r '.relays[] | select(.r == true) | .a[0]' <<<$relays |
-      grep -F '.' |
-      sort | uniq -d >/var/tmp/$multilist.new; then
-      mv /var/tmp/$multilist.new /var/tmp/$multilist
+  if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -); then
+    if [[ $relays =~ 'relays_published' ]]; then
+      set -o pipefail
+      if jq -r '.relays[] | select(.r == true) | .a[0]' <<<$relays |
+        grep -F '.' |
+        sort | uniq -d >/var/tmp/$multilist.new; then
+        mv /var/tmp/$multilist.new /var/tmp/$multilist
+      fi
+      set +o pipefail
     fi
-    set +o pipefail
-  elif [[ ! $relays =~ 'Error 503 Backend fetch failed' ]]; then
-    echo " could not fetch relay data for $multilist :" >&2
-    head -n 10 <<<$relays >&2
   fi
 
   if [[ -s /var/tmp/$multilist ]]; then
