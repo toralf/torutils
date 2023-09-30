@@ -94,7 +94,7 @@ function addTor() {
   __create_ipset $multilist-8
   __fill_multilists &
 
-  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 32 --hashlimit-htable-size $max --hashlimit-htable-max $max"
+  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask $prefix --hashlimit-htable-size $max --hashlimit-htable-max $max"
   for relay in $*; do
     if [[ $relay =~ '[' || $relay =~ ']' || ! $relay =~ '.' || ! $relay =~ ':' ]]; then
       echo " relay '$relay' cannot be parsed" >&2
@@ -111,16 +111,16 @@ function addTor() {
     $synpacket -m set --match-set $trustlist src -j ACCEPT
 
     # rule 2
-    $synpacket -m set --match-set $multilist-2 src -m connlimit --connlimit-mask 32 --connlimit-upto 2 -m set ! --match-set $ddoslist src -j ACCEPT
-    $synpacket -m set --match-set $multilist-4 src -m connlimit --connlimit-mask 32 --connlimit-upto 4 -m set ! --match-set $ddoslist src -j ACCEPT
-    $synpacket -m set --match-set $multilist-8 src -m connlimit --connlimit-mask 32 --connlimit-upto 8 -m set ! --match-set $ddoslist src -j ACCEPT
+    $synpacket -m set --match-set $multilist-2 src -m connlimit --connlimit-mask $prefix --connlimit-upto 2 -m set ! --match-set $ddoslist src -j ACCEPT
+    $synpacket -m set --match-set $multilist-4 src -m connlimit --connlimit-mask $prefix --connlimit-upto 4 -m set ! --match-set $ddoslist src -j ACCEPT
+    $synpacket -m set --match-set $multilist-8 src -m connlimit --connlimit-mask $prefix --connlimit-upto 8 -m set ! --match-set $ddoslist src -j ACCEPT
 
     # rule 3
     $synpacket $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 6/minute --hashlimit-burst 5 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
     $synpacket -m set --match-set $ddoslist src -j $jump
 
     # rule 4
-    $synpacket -m connlimit --connlimit-mask 32 --connlimit-above 2 -j $jump
+    $synpacket -m connlimit --connlimit-mask $prefix --connlimit-above 2 -j $jump
 
     # rule 5
     $synpacket $hashlimit --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j $jump
@@ -244,6 +244,7 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 trustlist="tor-trust"      # Tor authorities and snowflake servers
 multilist="tor-multi"      # Tor relay ip addresses hosting > 1 relay
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
+prefix=32                  # any ipv4 address of this /block is considered to belong to the same source/owner
 # hash and ipset size
 if [[ $(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo) -gt 2 ]]; then
   max=$((2 ** 18)) # RAM is bigger than 2 GiB
