@@ -55,7 +55,7 @@ function __fill_trustlist() {
 }
 
 function __fill_multilist() {
-  sleep 4 # let ipv4 get the data first
+  sleep 6 # remote is rate limited, so let ipv4 get the data first
   if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -) && [[ $relays =~ 'relays_published' ]]; then
     set -o pipefail
     if jq -r '.relays[] | select(.r == true) | .a | select(length > 1) | .[1:]' <<<$relays |
