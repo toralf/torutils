@@ -56,17 +56,17 @@ function __fill_trustlist() {
 
 function __fill_multilist() {
   sleep 4 # let ipv4 get the data first
-
   if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -) && [[ $relays =~ 'relays_published' ]]; then
     set -o pipefail
-    if jq -r '.relays[] | .a | select(length > 1) | .[1:]' <<<$relays |
+    if jq -r '.relays[] | select(.r == true) | .a | select(length > 1) | .[1:]' <<<$relays |
       tr ',' '\n' | grep -F ':' | tr -d '][" ' |
       sort | uniq -d >/var/tmp/$multilist.new; then
       mv /var/tmp/$multilist.new /var/tmp/$multilist
     fi
     set +o pipefail
-  else
-    echo " could not fetch relay data for $multilist" >&2
+  elif [[ ! $relays =~ 'Error 503 Backend fetch failed' ]]; then
+    echo " could not fetch relay data for $multilist :" >&2
+    head -n 10 <<<$relays >&2
   fi
 
   if [[ -s /var/tmp/$multilist ]]; then
@@ -228,7 +228,7 @@ jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
 prefix=64                  # any ipv6 address of this /block is considered to belong to the same source/owner
 # hash and ipset size
 if [[ $(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo) -gt 2 ]]; then
-  max=$((2 ** 18)) # mem is bigger than 2 GiB
+  max=$((2 ** 18)) # RAM is bigger than 2 GiB
 else
   max=$((2 ** 16)) # default: 65536
 fi
