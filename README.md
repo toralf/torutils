@@ -71,22 +71,24 @@ For IPv6 however an /64 IPv6 block is assumed to be assigned to a single host.
 #### Details
 
 Generic rules for local network, ICMP, ssh and local user services (if defined) are applied.
-Then these rules are applied (in this order) for a connection attempt from an ip to the local ORPort:
+Then these rules are applied (in this order) for connection attempts from an ip to the local ORPort:
 
 1. trust ip of Tor authorities and snowflake
-1. allow up to 8 connections from the same ip if the ip is known to host >1 relays
-1. block ip for 1 day if the rate is > 6/min
-1. drop if there are already 2 established connections from the same ip¹
-1. rate limit new connection attempts at 0.5/minute
-1. accept it
+2. allow up to 8 connections from the same ip if the ip is known to hosts >1 relays
+3. block ip for 1 day if the rate of connection attempts is > 6/min in the last 2 minutes¹
+4. drop if there are already 2 established connections from the same ip²
+5. rate limit new connection attempts to 1 within 2 minutes
+6. accept it
 
-¹ This connection limit sounds rigid.
-But how likely do more than the given number of Tor clients at the same ip address do connect to the same guard at the same time?
+¹ Even connection attempts from relays will then be blocked
+² This connection limit sounds rigid.
+But how likely is it that more than 2 Tor clients from the same ip address do connect to the same guard at the same time?
+And Tor relays are unlikely run Tor clients too, right?
 
 ### Installation
 
 The instructions belongs to the IPv4 variant.
-If the parsing of the Tor config (line [181](./ipv4-rules.sh#L181)) and or SSH (line [19](./ipv4-rules.sh#L19)) doesn't work for you then:
+If the parsing of the Tor config (line [182](./ipv4-rules.sh#L182)) and or SSH (line [19](./ipv4-rules.sh#L19)) doesn't work for you then:
 
 1. define the local running relay(s) at the command line after the keyword `start`, e.g.:
 
@@ -124,11 +126,11 @@ To allow inbound traffic to other local service(s), do either:
 before you run the script with `start`.
 
 To **append** the rules of this script onto the local _iptables_ rules (**overwrite** of existing rules is the default)
-you've to comment out the call _clearRules()_ (line [251](./ipv4-rules.sh#L251)).
+you've to comment out the call _clearRules()_ (line [252](./ipv4-rules.sh#L252)).
 The script sets few _sysctl_ values (next line).
 As an alternative comment out that line and set them under _/etc/sysctl.d/_.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then comment out the call _addHetzner()_ (line [254](./ipv4-rules.sh#L254)).
+then comment out the call _addHetzner()_ (line [255](./ipv4-rules.sh#L255)).
 Rule 3 of the rule set depends on recent data about ip addresses serving more than one Tor relay.
 Update this data regularly e.g. hourly via cron:
 
