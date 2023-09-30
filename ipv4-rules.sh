@@ -54,21 +54,22 @@ function __fill_trustlist() {
 
 function __fill_multilist() {
   sleep 2
-  relays=$(curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -)
-  if [[ $? -ne 0 || -z $relays ]]; then
-    if [[ -s /var/tmp/$multilist ]]; then
-      relays=$(cat /var/tmp/$multilist)
+
+  if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -) && [[ $relays =~ 'relays_published' ]]; then
+    set -o pipefail
+    if jq -r '.relays[] | .a[0]' <<<$relays |
+      grep -F '.' |
+      sort | uniq -d >/var/tmp/$multilist.new; then
+      mv /var/tmp/$multilist.new /var/tmp/$multilist
     fi
+    set +o pipefail
+  else
+    echo " could not fetch relay data for $multilist" >&2
   fi
 
-  ipset flush $multilist
-  jq -r '.relays[] | .a[0]' <<<$relays |
-    grep -F '.' |
-    sort | uniq -d | tee /var/tmp/$multilist.new |
-    xargs -r -n 1 -P $jobs ipset add -exist $multilist
-
-  if [[ -s /var/tmp/$multilist.new ]]; then
-    mv /var/tmp/$multilist.new /var/tmp/$multilist
+  if [[ -s /var/tmp/$multilist ]]; then
+    ipset flush $multilist
+    xargs -r -n 1 -P $jobs ipset add -exist $multilist </var/tmp/$multilist
   fi
 }
 
