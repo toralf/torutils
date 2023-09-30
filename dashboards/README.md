@@ -48,7 +48,8 @@ MetricsPortPolicy accept [::1]
 ## Scraping Snowflake metrics
 
 Snowflake provides metrics under a non-default path and to localhost only.
-To scrape metrics from a remote Prometheus while avoiding unauthorized requests from outside use [this](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup-snowflake/tasks/firewall.yaml#L10) Ansible role.
+To scrape metrics from a remote Prometheus while avoiding unauthorized requests from outside
+use [this](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup-snowflake/tasks/firewall.yaml#L10) Ansible role.
 Whilst this solution lacks encryption (as a separate NGinx would provide) this solution is sane IMO if all systems run in the same providers network.
 
 ## Scraping DDoS metrics
