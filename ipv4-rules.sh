@@ -81,11 +81,10 @@ function __fill_multilists() {
 }
 
 function __fill_ddoslist() {
-  if [[ -f /var/tmp/$ddoslist ]]; then
-    cat /var/tmp/$ddoslist |
-      xargs -r -L 1 -P $jobs ipset add -exist $ddoslist
-    rm /var/tmp/$ddoslist
+  if [[ -s /var/tmp/$ddoslist ]]; then
+    xargs -r -L 1 -P $jobs ipset add -exist $ddoslist </var/tmp/$ddoslist
   fi
+  rm /var/tmp/$ddoslist
 }
 
 function addTor() {
