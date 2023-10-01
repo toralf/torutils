@@ -4,23 +4,24 @@
 
 # restart a crashed service under Gentoo Linux (OpenRC)
 
+function log() {
+  local msg="$*"
+
+  echo "$msg" >&2
+  logger "$msg"
+}
+
 function healService() {
   local service=${1?}
 
-  local msg="$0: detected crashed $service"
-  echo "$msg" >&2
-  logger "$msg"
+  log "$0: detected crashed $service"
   sleep 30
   rc-service -qq $s status
   if [[ $? -eq 32 ]]; then
-    msg="$0: restart crashed $service"
-    echo "$msg" >&2
-    logger "$msg"
+    log "$0: restart crashed $service"
     rc-service $s zap start
   else
-    msg="$0: healed w/o our help $service"
-    echo "$msg" >&2
-    logger "$msg"
+    log "$0: healed w/o our help $service"
   fi
 }
 
