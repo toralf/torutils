@@ -89,14 +89,14 @@ function __fill_ddoslist() {
 }
 
 function addTor() {
-  __create_ipset $trustlist
+  __create_ipset $trustlist "maxelem 64"
   __fill_trustlist &
   for i in 2 4 8; do
-    __create_ipset $multilist-$i
+    __create_ipset $multilist-$i "maxelem 8192"
   done
   __fill_multilists &
 
-  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask $prefix --hashlimit-htable-size $max --hashlimit-htable-max $max"
+  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask $prefix"
   for relay in $*; do
     if [[ ! $relay =~ '[' || ! $relay =~ ']' || $relay =~ '.' || ! $relay =~ ':' ]]; then
       echo " relay '$relay' cannot be parsed" >&2
@@ -110,7 +110,7 @@ function addTor() {
     local synpacket="ip6tables -A INPUT -p tcp --dst $orip --dport $orport --syn"
 
     local ddoslist="tor-ddos6-$orport" # this holds ips classified as DDoS'ing the local OR port
-    __create_ipset $ddoslist "timeout $((24 * 3600)) maxelem $max netmask $prefix"
+    __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600)) netmask $prefix"
     __fill_ddoslist &
 
     # rule 1
