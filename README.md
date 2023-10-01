@@ -30,31 +30,35 @@ wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O 
 chmod +x ./ipv4-rules.sh
 ```
 
-Make a backup of the current iptables _filter_ table (e.g. under Debian run _iptables-save_).
-Run:
+Make a backup of the current iptables _filter_ table and run test it out:
 
 ```bash
+sudo /usr/sbin/iptables-save > ./rules.v4
+sudo /usr/sbin/ip6tables-save > ./rules.v6
 sudo ./ipv4-rules.sh test
 ```
 
-to replace any current content of the iptables _filter_ table with the rule set described below but in a safe mode.
 Best is to (re-)start Tor afterwards.
 Test in another terminal that you still can ssh into the machine.
+Test reachability of all other services.
 Watch the iptables live statistics by:
 
 ```bash
 sudo watch -t ./ipv4-rules.sh
 ```
 
-If all works fine for you then run the script again with `start` instead `test`.
-Persist the filter rules, e.g. under Debian run _iptables-save_.
-If however the above doesn't work for you then please clear the current iptables filter table:
+If all works fine for you then run the script again with `start` instead `test`
+and persist the filter rules, e.g. under Debian into `/etc/iptables/`.
+
+If however the above doesn't work for you then please stop it and restore the previous state:
 
 ```bash
 sudo ./ipv4-rules.sh stop
+sudo /usr/sbin/iptables-restore < ./rules.v4
+sudo /usr/sbin/ip6tables-restore < ./rules.v6
 ```
 
-and try out the [Installation](#installation) section.
+You might try out the [Installation](#installation) section to adapt the scripts for your system.
 
 ### Rule set
 
