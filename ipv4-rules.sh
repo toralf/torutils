@@ -65,6 +65,8 @@ function __fill_multilists() {
         for i in 2 4 8; do
           awk '$1 > '$i'/2 && $1 <= '$i' { print $2 }' <<<$sorted >/var/tmp/$multilist-$i
         done
+        awk '{ print $2 }' <<<$sorted >/var/tmp/relays.new
+        mv /var/tmp/relays.new /var/tmp/relays
       fi
       set +o pipefail
     fi
