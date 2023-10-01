@@ -159,17 +159,17 @@ function addHetzner() {
 }
 
 function setSysctlValues() {
-  sysctl -w net.ipv4.tcp_syncookies=1
+  sysctl -q -w net.ipv4.tcp_syncookies=1
   # make tcp_max_syn_backlog big enough to have ListenDrops being low or 0:
   # awk '(f==0) {i=1; while (i<=NF) {n[i] = $i; i++ }; f=1; next} (f==1){i=2; while (i<=NF) {printf "%s = %d\n", n[i], $i; i++}; f=0}' /proc/net/netstat | grep 'Drop'
   for i in net.netfilter.nf_conntrack_buckets net.ipv4.tcp_max_syn_backlog net.core.somaxconn; do
     if [[ $(sysctl -n $i) -lt $max ]]; then
-      sysctl -w $i=$max
+      sysctl -q -w $i=$max
     fi
   done
   local current=$(sysctl -n net.netfilter.nf_conntrack_max)
   if [[ $current -lt $max ]]; then
-    sysctl -w net.netfilter.nf_conntrack_max=$((current + max))
+    sysctl -q -w net.netfilter.nf_conntrack_max=$((current + max))
   fi
 }
 

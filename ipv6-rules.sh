@@ -167,7 +167,7 @@ function addHetzner() {
 function setSysctlValues() {
   local current=$(sysctl -n net.netfilter.nf_conntrack_max)
   if [[ $current -lt $((2 * max)) ]]; then
-    sysctl -w net.netfilter.nf_conntrack_max=$((current + 2 * max))
+    sysctl -q -w net.netfilter.nf_conntrack_max=$((current + 2 * max))
   fi
 }
 
