@@ -31,14 +31,11 @@ set -u
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-while :; do
-  if [[ "$(runlevel)" == "N 3" ]]; then
-    for s in ssh unbound $(find /etc/init.d -name 'tor*' -print0 | xargs -r -n 1 --null basename); do
-      rc-service -qq $s status
-      if [[ $? -eq 32 ]]; then
-        healService $s &
-      fi
-    done
-  fi
-  sleep 60
-done
+if [[ "$(runlevel)" == "N 3" ]]; then
+  for s in ssh unbound $(find /etc/init.d -name 'tor*' -print0 | xargs -r -n 1 --null basename); do
+    rc-service -qq $s status
+    if [[ $? -eq 32 ]]; then
+      healService $s &
+    fi
+  done
+fi
