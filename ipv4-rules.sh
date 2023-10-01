@@ -260,7 +260,7 @@ case $action in
 start)
   trap bailOut INT QUIT TERM EXIT
   clearRules
-  setSysctlValues 1>/dev/null || echo "couldn't set sysctl values" >&2
+  setSysctlValues
   addCommon
   addHetzner
   addLocalServices
