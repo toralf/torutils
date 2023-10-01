@@ -64,9 +64,9 @@ function __fill_multilists() {
       if sorted=$(jq -r '.relays[] | select(.r == true) | .a | select(length > 1) | .[1:]' <<<$relays |
         tr ',' '\n' | grep -F ':' | tr -d '][" ' |
         sort | uniq -c); then
-        awk '$1 >1 && $1 <= 2 { print $2 }' <<<$sorted >/var/tmp/$multilist-2
-        awk '$1 >2 && $1 <= 4 { print $2 }' <<<$sorted >/var/tmp/$multilist-4
-        awk '$1 >4 && $1 <= 8 { print $2 }' <<<$sorted >/var/tmp/$multilist-8
+        for i in 2 4 8; do
+          awk '$1 > '$i'/2 && $1 <= '$i' { print $2 }' <<<$sorted >/var/tmp/$multilist-$i
+        done
       fi
       set +o pipefail
     fi
@@ -91,9 +91,9 @@ function __fill_ddoslist() {
 function addTor() {
   __create_ipset $trustlist
   __fill_trustlist &
-  __create_ipset $multilist-2
-  __create_ipset $multilist-4
-  __create_ipset $multilist-8
+  for i in 2 4 8; do
+    __create_ipset $multilist-$i
+  done
   __fill_multilists &
 
   local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask $prefix --hashlimit-htable-size $max --hashlimit-htable-max $max"
@@ -117,9 +117,9 @@ function addTor() {
     $synpacket -m set --match-set $trustlist src -j ACCEPT
 
     # rule 2
-    $synpacket -m set --match-set $multilist-2 src -m connlimit --connlimit-mask $prefix --connlimit-upto 2 -m set ! --match-set $ddoslist src -j ACCEPT
-    $synpacket -m set --match-set $multilist-4 src -m connlimit --connlimit-mask $prefix --connlimit-upto 4 -m set ! --match-set $ddoslist src -j ACCEPT
-    $synpacket -m set --match-set $multilist-8 src -m connlimit --connlimit-mask $prefix --connlimit-upto 8 -m set ! --match-set $ddoslist src -j ACCEPT
+    for i in 2 4 8; do
+      $synpacket -m set --match-set $multilist-$i src -m connlimit --connlimit-mask $prefix --connlimit-upto $i -m set ! --match-set $ddoslist src -j ACCEPT
+    done
 
     # rule 3
     $synpacket $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 6/minute --hashlimit-burst 5 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
