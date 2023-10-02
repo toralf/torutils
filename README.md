@@ -92,7 +92,7 @@ And Tor relays are unlikely run Tor clients too, right?
 ### Installation
 
 The instructions belongs to the IPv4 variant.
-If the parsing of the Tor config (line [191](./ipv4-rules.sh#L191)) and or SSH (line [19](./ipv4-rules.sh#L19)) doesn't work for you then:
+If the parsing of the Tor config (line [189](./ipv4-rules.sh#L189)) and or SSH (line [19](./ipv4-rules.sh#L19)) doesn't work for you then:
 
 1. define the local running relay(s) at the command line after the keyword `start`, e.g.:
 
@@ -130,11 +130,11 @@ To allow inbound traffic to other local service(s), do either:
 before you run the script with `start`.
 
 To **append** the rules of this script onto the local _iptables_ rules (**overwrite** of existing rules is the default)
-you've to comment out the call _clearRules()_ (line [262](./ipv4-rules.sh#L262)).
+you've to comment out the call _clearRules()_ (line [260](./ipv4-rules.sh#L260)).
 The script sets few _sysctl_ values (next line).
 As an alternative comment out that line and set them under _/etc/sysctl.d/_.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then comment out the call _addHetzner()_ (line [265](./ipv4-rules.sh#L265)).
+then comment out the call _addHetzner()_ (line [263](./ipv4-rules.sh#L263)).
 Rule 3 of the rule set depends on recent data about ip addresses serving more than one Tor relay.
 Update this data regularly e.g. hourly via cron:
 
