@@ -380,6 +380,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
             "drawStyle": "line",
@@ -452,7 +453,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(type, direction, instance, family, state) (tor_relay_connections_total{instance=~\"$Instance\", family=~\"$Family\", type=~\"$Type_conn\", direction=~\"$Dir_conn\"})",
+          "expr": "sum by(type, direction, instance, family, state) (rate(tor_relay_connections_total{instance=~\"$Instance\", family=~\"$Family\", type=~\"$Type_conn\", direction=~\"$Dir_conn\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -507,7 +508,6 @@
               "mode": "off"
             }
           },
-          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -607,7 +607,6 @@
               "mode": "off"
             }
           },
-          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -818,7 +817,6 @@
               "mode": "off"
             }
           },
-          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -1028,7 +1026,7 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "none"
         },
         "overrides": []
       },
@@ -1059,7 +1057,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg by(action, instance, state) (tor_relay_congestion_control_total{instance=~\"$Instance\", action=~\"$Action_cong_tot\", state=~\"$State_cong_tot\"})",
+          "expr": "avg by(action, instance, state) (rate(tor_relay_congestion_control_total{instance=~\"$Instance\", action=~\"$Action_cong_tot\", state=~\"$State_cong_tot\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -1211,7 +1209,6 @@
               "mode": "off"
             }
           },
-          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -1322,7 +1319,7 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "none"
         },
         "overrides": []
       },
@@ -1353,7 +1350,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg by(action, instance) (tor_relay_est_intro_total{instance=~\"$Instance\", action=~\"$Action_circ\"})",
+          "expr": "avg by(action, instance) (rate(tor_relay_est_intro_total{instance=~\"$Instance\", action=~\"$Action_circ\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -1420,7 +1417,7 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "none"
         },
         "overrides": []
       },
@@ -1451,7 +1448,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg by(action, instance) (tor_relay_est_rend_total{instance=~\"$Instance\", action=~\"$Action_circ\"})",
+          "expr": "avg by(action, instance) (rate(tor_relay_est_rend_total{instance=~\"$Instance\", action=~\"$Action_circ\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -1954,7 +1951,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "15m",
+  "refresh": "1m",
   "schemaVersion": 38,
   "style": "dark",
   "tags": [],
@@ -2354,13 +2351,13 @@
     ]
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-7d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Tor Relay",
   "uid": "bb0ac200-1fab-4d04-a3b0-859d35ec9ee6",
-  "version": 196,
+  "version": 201,
   "weekStart": ""
 }
