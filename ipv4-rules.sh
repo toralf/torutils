@@ -58,8 +58,7 @@ function __fill_multilists() {
   sleep 2
   if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -); then
     if [[ $relays =~ 'relays_published' ]]; then
-      set -o pipefail
-      if sorted=$(jq -r '.relays[] | select(.r == true) | .a[0]' <<<$relays |
+      if sorted=$(set -o pipefail; jq -r '.relays[] | select(.r == true) | .a[0]' <<<$relays |
         grep -F '.' |
         sort | uniq -c); then
         for i in 2 4 8; do
@@ -68,7 +67,6 @@ function __fill_multilists() {
         awk '{ print $2 }' <<<$sorted >/var/tmp/relays.new
         mv /var/tmp/relays.new /var/tmp/relays
       fi
-      set +o pipefail
     fi
   fi
 

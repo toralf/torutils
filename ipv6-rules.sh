@@ -60,8 +60,7 @@ function __fill_multilists() {
   sleep 6 # remote is rate limited, so let ipv4 get the data first
   if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -); then
     if [[ $relays =~ 'relays_published' ]]; then
-      set -o pipefail
-      if sorted=$(jq -r '.relays[] | select(.r == true) | .a | select(length > 1) | .[1:]' <<<$relays |
+      if sorted=$(set -o pipefail; jq -r '.relays[] | select(.r == true) | .a | select(length > 1) | .[1:]' <<<$relays |
         tr ',' '\n' | grep -F ':' | tr -d '][" ' |
         sort | uniq -c); then
         for i in 2 4 8; do
@@ -70,7 +69,6 @@ function __fill_multilists() {
         awk '{ print $2 }' <<<$sorted >/var/tmp/relays6.new
         mv /var/tmp/relays6.new /var/tmp/relays6
       fi
-      set +o pipefail
     fi
   fi
 
