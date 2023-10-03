@@ -4,14 +4,14 @@
 
 function addCommon() {
   # allow loopback
-  iptables -A INPUT --in-interface lo -m comment --comment "$(date -R)" -j ACCEPT
+  $ipt -A INPUT --in-interface lo -m comment --comment "$(date -R)" -j ACCEPT
 
   # make sure NEW incoming tcp connections are SYN packets
-  iptables -A INPUT -p tcp ! --syn -m state --state NEW -j $jump
-  iptables -A INPUT -m conntrack --ctstate INVALID -j $jump
+  $ipt -A INPUT -p tcp ! --syn -m state --state NEW -j $jump
+  $ipt -A INPUT -m conntrack --ctstate INVALID -j $jump
 
   # do not touch established connections
-  iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+  $ipt -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 
   # ssh
   local addr
@@ -19,12 +19,12 @@ function addCommon() {
   local port
   port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
   for i in ${addr:-"0.0.0.0/0"}; do
-    iptables -A INPUT -p tcp --dst $i --dport ${port:-22} --syn -j ACCEPT
+    $ipt -A INPUT -p tcp --dst $i --dport ${port:-22} --syn -j ACCEPT
   done
 
   # ratelimit ICMP echo
-  iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 6/s -j ACCEPT
-  iptables -A INPUT -p icmp --icmp-type echo-request -j $jump
+  $ipt -A INPUT -p icmp --icmp-type echo-request -m limit --limit 6/s -j ACCEPT
+  $ipt -A INPUT -p icmp --icmp-type echo-request -j $jump
 }
 
 function __create_ipset() {
@@ -105,7 +105,7 @@ function addTor() {
       return 1
     fi
     read -r orip orport <<<$(tr ':' ' ' <<<$relay)
-    local synpacket="iptables -A INPUT -p tcp --dst $orip --dport $orport --syn"
+    local synpacket="$ipt -A INPUT -p tcp --dst $orip --dport $orport --syn"
 
     local ddoslist="tor-ddos-$orport" # this holds ips classified as DDoS'ing the local OR port
     __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600))"
@@ -140,7 +140,7 @@ function addLocalServices() {
     if [[ $addr == "0.0.0.0" ]]; then
       addr+="/0"
     fi
-    iptables -A INPUT -p tcp --dst $addr --dport $port --syn -j ACCEPT
+    $ipt -A INPUT -p tcp --dst $addr --dport $port --syn -j ACCEPT
   done
 }
 
@@ -155,7 +155,7 @@ function addHetzner() {
     ) |
       xargs -r -n 1 -P $jobs ipset add -exist $sysmon
   } &
-  iptables -A INPUT -m set --match-set $sysmon src -j ACCEPT
+  $ipt -A INPUT -m set --match-set $sysmon src -j ACCEPT
 }
 
 function setSysctlValues() {
@@ -175,17 +175,17 @@ function setSysctlValues() {
 }
 
 function clearRules() {
-  iptables -P INPUT ACCEPT
+  $ipt -P INPUT ACCEPT
 
-  iptables -F
-  iptables -X
-  iptables -Z
+  $ipt -F
+  $ipt -X
+  $ipt -Z
 }
 
 function printRuleStatistics() {
   date -R
   echo
-  iptables -nv -L INPUT
+  $ipt -nv -L INPUT
 }
 
 function getConfiguredRelays() {
@@ -244,6 +244,7 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
+ipt="iptables"
 trustlist="tor-trust"      # Tor authorities and snowflake servers
 multilist="tor-multi"      # Tor relay ip addresses hosting > 1 relay
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
@@ -267,7 +268,7 @@ start)
   addHetzner
   addLocalServices
   addTor ${*:-${CONFIGURED_RELAYS:-$(getConfiguredRelays)}}
-  iptables -P INPUT ${DEFAULT_POLICY_INPUT:-$jump}
+  $ipt -P INPUT ${DEFAULT_POLICY_INPUT:-$jump}
   trap - INT QUIT TERM EXIT
   ;;
 stop)
