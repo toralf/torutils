@@ -3,9 +3,6 @@
 # set -x
 
 function addCommon() {
-  iptables -P INPUT ${DEFAULT_POLICY_INPUT:-$jump}
-  iptables -P OUTPUT ACCEPT
-
   # allow loopback
   iptables -A INPUT --in-interface lo -m comment --comment "$(date -R)" -j ACCEPT
 
@@ -179,7 +176,6 @@ function setSysctlValues() {
 
 function clearRules() {
   iptables -P INPUT ACCEPT
-  iptables -P OUTPUT ACCEPT
 
   iptables -F
   iptables -X
@@ -271,6 +267,7 @@ start)
   addHetzner
   addLocalServices
   addTor ${*:-${CONFIGURED_RELAYS:-$(getConfiguredRelays)}}
+  iptables -P INPUT ${DEFAULT_POLICY_INPUT:-$jump}
   trap - INT QUIT TERM EXIT
   ;;
 stop)

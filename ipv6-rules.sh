@@ -3,9 +3,6 @@
 # set -x
 
 function addCommon() {
-  ip6tables -P INPUT ${DEFAULT_POLICY_INPUT:-$jump}
-  ip6tables -P OUTPUT ACCEPT
-
   # allow loopback
   ip6tables -A INPUT --in-interface lo -m comment --comment "$(date -R)" -j ACCEPT
   ip6tables -A INPUT -p udp --source fe80::/10 --dst ff02::1 -j ACCEPT
@@ -177,7 +174,6 @@ function setSysctlValues() {
 
 function clearRules() {
   ip6tables -P INPUT ACCEPT
-  ip6tables -P OUTPUT ACCEPT
 
   ip6tables -F
   ip6tables -X
@@ -261,6 +257,7 @@ start)
   addHetzner
   addLocalServices
   addTor ${*:-${CONFIGURED_RELAYS6:-$(getConfiguredRelays6)}}
+  ip6tables -P INPUT ${DEFAULT_POLICY_INPUT:-$jump}
   trap - INT QUIT TERM EXIT
   ;;
 stop)
