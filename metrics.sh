@@ -76,10 +76,10 @@ function printMetrics() {
       while read -r name size; do
         mode=$(cut -f 2 -d '-' -s <<<$name | tr -d '6')
         if [[ $name =~ 'multi' ]]; then
-          local upto=$(cut -f 3 -d '-' -s <<<$name)
+          upto=$(cut -f 3 -d '-' -s <<<$name)
           echo "$var{ipver=\"${v:-4}\",mode=\"$mode\",upto=\"$upto\"} $size"
         else
-          local orport=$(cut -f 3 -d '-' -s <<<$name)
+          orport=$(cut -f 3 -d '-' -s <<<$name)
           echo "$var{ipver=\"${v:-4}\",mode=\"$mode\",orport=\"$orport\"} $size"
         fi
       done

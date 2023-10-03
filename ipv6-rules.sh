@@ -18,8 +18,10 @@ function addCommon() {
   ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 
   # ssh
-  local addr=$(grep -E "^ListenAddress\s+.*:.*:.*$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
-  local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
+  local addr
+  addr=$(grep -E "^ListenAddress\s+.*:.*:.*$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
+  local port
+  port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
   for i in ${addr:-"::/0"}; do
     ip6tables -A INPUT -p tcp --dst $i --dport ${port:-22} --syn -j ACCEPT
   done
@@ -58,16 +60,21 @@ function __fill_trustlist() {
 
 function __fill_multilists() {
   sleep 6 # remote is rate limited, so let ipv4 get the data first
+
+  local relays
   if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -); then
     if [[ $relays =~ 'relays_published' ]]; then
-      if sorted=$(set -o pipefail; jq -r '.relays[] | select(.r == true) | .a | select(length > 1) | .[1:]' <<<$relays |
-        tr ',' '\n' | grep -F ':' | tr -d '][" ' |
-        sort | uniq -c); then
+      local sorted
+      if sorted=$(
+        set -o pipefail
+        jq -r '.relays[] | select(.r == true) | .a | select(length > 1) | .[1:]' <<<$relays |
+          tr ',' '\n' | grep -F ':' | tr -d '][" ' |
+          sort | uniq -c
+      ); then
         for i in 2 4 8; do
           awk '$1 > '$i'/2 && $1 <= '$i' { print $2 }' <<<$sorted >/var/tmp/$multilist-$i
         done
-        awk '{ print $2 }' <<<$sorted >/var/tmp/relays6.new
-        mv /var/tmp/relays6.new /var/tmp/relays6
+        awk '{ print $2 }' <<<$sorted >/var/tmp/relays6
       fi
     fi
   fi
@@ -75,16 +82,17 @@ function __fill_multilists() {
   for i in 2 4 8; do
     if [[ -s /var/tmp/$multilist-$i ]]; then
       ipset flush $multilist-$i
-      xargs -r -n 1 -P $jobs ipset add -exist $multilist-$i </var/tmp/$multilist-$i
+      xargs -r -n 1 -P $jobs ipset add $multilist-$i </var/tmp/$multilist-$i
     fi
   done
 }
 
 function __fill_ddoslist() {
   if [[ -s /var/tmp/$ddoslist ]]; then
-    xargs -r -L 1 -P $jobs ipset add -exist $ddoslist </var/tmp/$ddoslist
+    ipset flush $ddoslist
+    xargs -r -L 1 -P $jobs ipset add $ddoslist </var/tmp/$ddoslist
   fi
-  rm /var/tmp/$ddoslist
+  rm -f /var/tmp/$ddoslist
 }
 
 function addTor() {
@@ -98,7 +106,7 @@ function addTor() {
   local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask $prefix"
   for relay in $*; do
     if [[ ! $relay =~ '[' || ! $relay =~ ']' || $relay =~ '.' || ! $relay =~ ':' ]]; then
-      echo " relay '$relay' cannot be parsed" >&2
+      echo " relay '$relay' is invalid" >&2
       return 1
     fi
     read -r orip orport <<<$(sed -e 's,]:, ,' -e 's,\[, ,' <<<$relay)
@@ -136,9 +144,6 @@ function addTor() {
 }
 
 function addLocalServices() {
-  local addr
-  local port
-
   for service in ${ADD_LOCAL_SERVICES6-}; do
     read -r addr port <<<$(sed -e 's,]:, ,' -e 's,\[, ,' <<<$service)
     if [[ $addr == "::" ]]; then
@@ -163,7 +168,8 @@ function addHetzner() {
 }
 
 function setSysctlValues() {
-  local current=$(sysctl -n net.netfilter.nf_conntrack_max)
+  local current
+  current=$(sysctl -n net.netfilter.nf_conntrack_max)
   if [[ $current -lt $((2 * max)) ]]; then
     sysctl -q -w net.netfilter.nf_conntrack_max=$((current + 2 * max))
   fi
@@ -194,12 +200,14 @@ function getConfiguredRelays6() {
 function bailOut() {
   local rc=$?
 
-  local signal=$((rc - 128))
-  if [[ $signal -eq 13 ]]; then # PIPE
-    return
+  if [[ $rc -gt 128 ]]; then
+    local signal=$((rc - 128))
+    if [[ $signal -eq 13 ]]; then # PIPE
+      return
+    fi
   fi
-  trap - INT QUIT TERM EXIT
 
+  trap - INT QUIT TERM EXIT
   echo -e "\n Something went wrong, stopping ...\n" >&2
   clearRules
   exit $rc

@@ -28,14 +28,14 @@ function anonymiseIp6() {
 function plotIpOccurrences() {
   local files=$*
 
-  local N=$(wc -l < <(cat $files))
-  if [[ $? -ne 0 || $N -eq 0 ]]; then
+  local N
+  if ! N=$(wc -l < <(cat $files)); then
     echo " no input data " >&2
     return 1
   fi
-  local n=$(awk '{ print $1 }' $files | sort -u | wc -l)
 
-  local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
+  local tmpfile
+  tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
   awk '{ print $1 }' $files | sort | uniq -c | sort -bn | awk '{ print $1 }' | uniq -c | awk '{ print $2, $1 }' >$tmpfile
 
   echo "hits ips"
@@ -48,6 +48,8 @@ function plotIpOccurrences() {
   fi
 
   if [[ $(wc -l <$tmpfile) -gt 1 ]]; then
+    local n
+    n=$(awk '{ print $1 }' $files | sort -u | wc -l)
     gnuplot -e '
         set terminal dumb 65 24;
         set border back;
@@ -65,8 +67,11 @@ function plotIpOccurrences() {
 }
 
 function plotTimeoutValues() {
-  local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
+  local tmpfile
+  tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
   dumpIpset "$1" | awk '{ print $3 }' | sort -bn >$tmpfile
+
+  local N
   N=$(wc -l <$tmpfile)
 
   if [[ $N -gt 7 ]]; then

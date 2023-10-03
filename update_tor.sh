@@ -17,14 +17,16 @@ function restart() {
       echo " restarting $service"
       echo
       if ! rc-service $service restart; then
-        local pid=$(cat /run/tor/$service.pid)
-        if kill -0 $pid; then
-          echo " get roughly with pid $pid"
-          kill -9 $pid
-          sleep 1
-        else
-          rm /run/tor/$service.pid
-          echo " $pid for $service was invalid"
+        local pid
+        if pid=$(cat /run/tor/$service.pid); then
+          if kill -0 $pid; then
+            echo " get roughly with pid $pid"
+            kill -9 $pid
+            sleep 1
+          else
+            rm /run/tor/$service.pid
+            echo " $pid for $service was invalid"
+          fi
         fi
         if ! rc-service $service zap start; then
           echo "zap failed for $service"
