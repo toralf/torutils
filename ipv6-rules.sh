@@ -265,13 +265,13 @@ stop)
   saveCertainIpsets
   clearRules
   ;;
-test)
-  export RUN_ME_WITH_SAFE_JUMP_TARGET="ACCEPT"
-  $0 start $*
-  ;;
 update)
   __fill_trustlist
   __fill_multilists
+  ;;
+test)
+  export RUN_ME_WITH_SAFE_JUMP_TARGET="ACCEPT"
+  $0 start $*
   ;;
 save)
   saveCertainIpsets ${1-}
