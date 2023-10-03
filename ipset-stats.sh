@@ -30,7 +30,11 @@ function plotIpOccurrences() {
 
   local N
   if ! N=$(wc -l < <(cat $files)); then
-    echo " no input data " >&2
+    echo " no files given" >&2
+    return 1
+  fi
+  if [[ $N -eq 0 ]]; then
+    echo " no input data" >&2
     return 1
   fi
 
