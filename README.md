@@ -86,8 +86,8 @@ Then these rules are applied (in this order) for connection attempts from an ip 
 
 ¹ Even connection attempts from relays will then be blocked
 ² This connection limit sounds rigid.
-But how likely is it that more than 2 Tor clients from the same ip address do connect to the same guard at the same time?
-And Tor relays are unlikely run Tor clients too, right?
+But how likely is it that more than 2 Tor clients from the same client ip address do connect to the same Tor guard at the same time?
+And ip addresses where more than 1 Tor relay is running, are not expected to run in addition Tor clients too, right?
 
 ### Installation
 
