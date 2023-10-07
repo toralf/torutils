@@ -48,7 +48,7 @@
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
+  "graphTooltip": 1,
   "id": null,
   "links": [],
   "liveNow": false,
@@ -625,6 +625,6 @@
   "timezone": "",
   "title": "Tor Snowflake",
   "uid": "dcb70785-6263-447f-b93c-ab06ef97a8b5",
-  "version": 36,
+  "version": 37,
   "weekStart": ""
 }
