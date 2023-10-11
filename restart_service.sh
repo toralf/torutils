@@ -7,21 +7,21 @@
 function log() {
   local msg="$*"
 
-  echo "$msg" >&2
+  echo "$0 $(date): $msg" >&2
   logger "$msg"
 }
 
 function healService() {
   local service=${1?}
 
-  log "$0: detected crashed $service"
+  log "crashed: $service"
   sleep 30
-  rc-service -qq $s status
+  rc-service -qq $service status
   if [[ $? -eq 32 ]]; then
-    log "$0: restart crashed $service"
-    rc-service $s zap start
+    log "restarting: $service"
+    rc-service $service zap start
   else
-    log "$0: healed w/o our help $service"
+    log "healed w/o our help: $service"
   fi
 }
 
