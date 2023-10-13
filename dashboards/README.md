@@ -35,7 +35,7 @@ Prometheus is configured in this way:
 
 The label `orport` is used as a filter for the DDoS dashboard.
 
-## Scraping Tor Relay metrics from localhost
+## Scraping Tor Relay metrics
 
 Configure the Tor metrics port, e.g.:
 
@@ -51,7 +51,3 @@ Snowflake provides metrics under a non-default path and to localhost only.
 To scrape metrics from a remote Prometheus while avoiding unauthorized requests from outside
 use [this](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup-snowflake/tasks/firewall.yaml#L10) Ansible role.
 Whilst this solution lacks encryption (as a separate NGinx would provide) this solution is sane IMO if all systems run in the same providers network.
-
-## Scraping DDoS metrics
-
-The upload of DDoS metrics is made by the help of [node_exporter](https://github.com/prometheus/node_exporter).

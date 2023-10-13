@@ -1,35 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_PROMETHEUS",
-      "label": "Prometheus",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "prometheus",
-      "pluginName": "Prometheus"
-    }
-  ],
-  "__elements": {},
-  "__requires": [
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "10.1.1"
-    },
-    {
-      "type": "datasource",
-      "id": "prometheus",
-      "name": "Prometheus",
-      "version": "1.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "timeseries",
-      "name": "Time series",
-      "version": ""
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -43,20 +12,30 @@
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
         "type": "dashboard"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "XbGvg5aVz"
+        },
+        "enable": true,
+        "expr": "changes(node_boot_time_seconds[$__rate_interval])",
+        "iconColor": "red",
+        "name": "Reboot"
       }
     ]
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": null,
+  "id": 16,
   "links": [],
   "liveNow": false,
   "panels": [
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -138,7 +117,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -158,7 +137,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -240,7 +219,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -260,7 +239,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -341,7 +320,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -361,7 +340,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -443,7 +422,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -463,7 +442,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -545,7 +524,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -570,10 +549,14 @@
   "templating": {
     "list": [
       {
-        "current": {},
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "XbGvg5aVz"
         },
         "definition": "label_values(tor_snowflake_proxy_connections_total,job)",
         "hide": 0,
@@ -593,10 +576,14 @@
         "type": "query"
       },
       {
-        "current": {},
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "XbGvg5aVz"
         },
         "definition": "label_values(tor_snowflake_proxy_connections_total{job=~\"$Job\"},instance)",
         "hide": 0,
@@ -625,6 +612,6 @@
   "timezone": "",
   "title": "Tor Snowflake",
   "uid": "dcb70785-6263-447f-b93c-ab06ef97a8b5",
-  "version": 37,
+  "version": 38,
   "weekStart": ""
 }
