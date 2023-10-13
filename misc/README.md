@@ -32,7 +32,7 @@ for v in "" 6; do
   for i in $(ipset list -t | awk '/^Name: tor-ddos'$v'-/ { print $2 }'); do
     ipset list $i | sed -e '1,8d'
   done |
-  grep -f /var/tmp/relays$v | awk '{ print $1 }' | sort | uniq -c | sort -bn | sort -k 2
+  grep -f /var/tmp/relays$v | awk '{ print $1 }' | sort | uniq -c | sort -bn
   echo
 done
 ```

@@ -87,7 +87,7 @@ Then these rules are applied (in this order) for connection attempts from an ip 
 ¹ Even connection attempts from relays will then be blocked
 ² This connection limit sounds rigid.
 But how likely is it that more than 2 Tor clients from the same client ip address do connect to the same Tor guard at the same time?
-And ip addresses where more than 1 Tor relay is running, are not expected to run in addition Tor clients too, right?
+And ip addresses with more than 1 Tor relay are not expected to run a Tor client too, right?
 
 ### Installation
 
@@ -135,8 +135,19 @@ The script sets few _sysctl_ values (next line).
 As an alternative comment out that line and set them under _/etc/sysctl.d/_.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
 then comment out the call _addHetzner()_ (line [268](./ipv4-rules.sh#L268)).
-Rule 3 of the rule set depends on recent data about ip addresses serving more than one Tor relay.
-Update this data regularly e.g. hourly via cron:
+
+### Operational hints
+
+Before reboot run
+
+```bash
+sudo /etc/conf.d/ipv6-rules.sh save
+sudo /etc/conf.d/ipv4-rules.sh save
+```
+
+to feed rule 3 with recent data.
+Rule 2 depends on recent data about ip addresses serving more >1 Tor relay.
+Update this data regularly, e.g. hourly via a cron job:
 
 ```bash
 sudo ./ipv4-rules.sh update
@@ -144,20 +155,21 @@ sudo ./ipv4-rules.sh update
 
 ### Metrics
 
-The script [metrics.sh](./metrics.sh) exports data to Prometheus.
-Appropriate Grafana dashboards are [here](./dashboards/README.md).
-Few more helper scripts were developed to analyze the attack vector, look [here](./misc/README.md) for details.
+The script [metrics.sh](./metrics.sh) exports data for Prometheus.
+The upload of DDoS metrics is done by [node_exporter](https://github.com/prometheus/node_exporter).
+Details and Grafana dashboards are [here](./dashboards/README.md).
 
 ### DDoS examples
 
 Graphs¹ of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
 [6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov
 show the results for few DDoS attacks over 3 days
-for [these](https://nusenu.github.io/OrNetStats/zwiebeltoralf.de.html) 2 relays.
+for 2 relays.
 A more heavier attack was observed at [12th](./doc/network-metric-Nov-12th.svg) of Nov.
 A periodic drop down of the socket count metric, vanishing over time, appeared at
 [5th](./doc/network-metric-Dec-05th.svg) of Dec.
 Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are still handled well.
+Few more helper scripts were developed to analyze the attack vector. Look [here](./misc/README.md) for details.
 
 ¹ using [sysstat](http://sebastien.godard.pagesperso-orange.fr/)
 
