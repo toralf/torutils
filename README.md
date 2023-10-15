@@ -7,21 +7,16 @@ Few tools for a Tor relay.
 ## Block DDoS
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
-against DDoS attacks¹ at the IP [network layer](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg).
-This solution uses [ipsets](https://ipset.netfilter.org)² to block malicious ip addresses.
-The amount of dropped packets over time is seen in [this](./doc/network-metric-July-3rd.jpg) example.
+against DDoS attacks¹ at the IP [network](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) layer ([example](./doc/network-metric-July-3rd.jpg)).
 Look [here](#ddos-examples) for more examples.
 
 ¹ see ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 and ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093)
 of the [Tor project](https://www.torproject.org/).
 
-² An ipset can be easily edited, saved and restored (e.g. for a reboot) using command line tools.
-
 ### Quick start
 
-Hint: If there are additional internet service at the relays (except _ssh_) please go to the [Installation](#installation).
-
+If there are additional internet service at the relays (except _ssh_) please go to the [Installation](#installation) section.
 Otherwise install the dependencies, e.g. for Ubuntu 22.04:
 
 ```bash
@@ -30,7 +25,7 @@ wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O 
 chmod +x ./ipv4-rules.sh
 ```
 
-Make a backup of the current iptables _filter_ table and run test it out:
+Make a backup of the current iptables _filter_ table and test it:
 
 ```bash
 sudo /usr/sbin/iptables-save > ./rules.v4
@@ -39,18 +34,18 @@ sudo ./ipv4-rules.sh test
 ```
 
 Best is to (re-)start Tor afterwards.
-Test in another terminal that you still can ssh into the machine.
-Test reachability of all other services.
+Check in another terminal that you still can ssh into the machine.
+Check reachability of all of your other services.
 Watch the iptables live statistics by:
 
 ```bash
 sudo watch -t ./ipv4-rules.sh
 ```
 
-If all works fine for you then run the script again with `start` instead `test`
+If all works fine then run the script again with `start` instead `test`
 and persist the filter rules, e.g. under Debian into `/etc/iptables/`.
 
-If however the above doesn't work for you then please stop it and restore the previous state:
+But if the above doesn't work for you then please stop it and restore the previous state:
 
 ```bash
 sudo ./ipv4-rules.sh stop
@@ -59,18 +54,16 @@ sudo /usr/sbin/ip6tables-restore < ./rules.v6
 ```
 
 You might try out the [Installation](#installation) section to adapt the scripts for your system.
+I do appreciate [issue](https://github.com/toralf/torutils/issues) reports
+and GitHub [pull](https://github.com/toralf/torutils/pulls) request.
 
 ### Rule set
 
 #### Objectives
 
-- Never touch established connections.¹
-- Filter single IPv4 ips, not network segments.²
-
-¹ An attacker capable to spoof ip addresses would trick you to block victim ip addresses.
-
-² An attacker could place a malicious ip within a CIDR range to harm all other addresses in the same network block.
-For IPv6 however an /64 IPv6 block is assumed to be assigned to a single host.
+- never touch established connections
+- IPv4: filter single IPv4 ips, IPv6: filter /64 network segments
+- the attack threat dictates the rules of the game
 
 #### Details
 
@@ -86,49 +79,35 @@ Then these rules are applied (in this order) for a connection attempt from an ip
 
 ¹ This connection limit sounds rigid.
 But how likely is it that more than 2 Tor clients from the same client ip address do connect to the same Tor guard at the same time?
-In addition, an ip address serving more than 1 Tor relay is not expected to run a Tor client too, right?
+And an ip address serving more than 1 Tor relay should not run a Tor client too, right?
 
 ### Installation
 
-The instructions belongs to the IPv4 variant.
-If the parsing of the Tor config (line [191](./ipv4-rules.sh#L191)) and or SSH (line [16](./ipv4-rules.sh#L16)) doesn't work for you then:
+If the parsing of the Tor config (line [191](./ipv4-rules.sh#L191)) or the SSH logic fails (line [16](./ipv4-rules.sh#L16)), then:
 
-1. define the local running relay(s) at the command line after the keyword `start`, e.g.:
+1. define the local running relay(s) explicitely at the command line after the keyword `start`, e.g.:
 
    ```bash
    sudo ./ipv4-rules.sh start 1.2.3.4:443 5.6.7.8:9001
    ```
 
-1. -or- define them within the environment, e.g.:
+1. -or- define them as environment variables, e.g.:
 
    ```bash
    sudo CONFIGURED_RELAYS="5.6.7.8:9001 1.2.3.4:443" ./ipv4-rules.sh start
    ```
 
-   (command line values overwrite environment values, `CONFIGURED_RELAYS6` for the IPv6 case).
+   (`CONFIGURED_RELAYS6` for the IPv6 case).
 
-In addition I do appreciate any issue request [here](https://github.com/toralf/torutils/issues)
--and/or- a GitHub pull request with the fix [here](https://github.com/toralf/torutils/pulls) ;)
+Command line values takes precedence over environment variables.
+To allow inbound traffic to additional local service(s), then define them in the environment (space separated), e.g.:
 
-To allow inbound traffic to other local service(s), do either:
+```bash
+export ADD_LOCAL_SERVICES="27.18.281.828:555"
+```
 
-1. define them in the environment (space separated), e.g.:
-
-   ```bash
-   export ADD_LOCAL_SERVICES="27.18.281.828:555"
-   ```
-
-   (`ADD_LOCAL_SERVICES6` respectively)
-
-1. -or- explicitely accept any incoming packet which is not filtered out otherwise:
-
-   ```bash
-   export DEFAULT_POLICY_INPUT="ACCEPT"
-   ```
-
-before you run the script with `start`.
-
-To **append** the rules of this script onto the local _iptables_ rules (**overwrite** of existing rules is the default)
+(`ADD_LOCAL_SERVICES6` respectively) before you run the script.
+To append (overwrite is the default) the rules onto existing _iptables_ rules
 you've to comment out the call _clearRules()_ (line [265](./ipv4-rules.sh#L265)).
 The script sets few _sysctl_ values (next line).
 As an alternative comment out that line and set them under _/etc/sysctl.d/_.
@@ -144,7 +123,7 @@ sudo /etc/conf.d/ipv6-rules.sh save
 sudo /etc/conf.d/ipv4-rules.sh save
 ```
 
-to feed rule 3 with recent data.
+to feed rule 3 with recent data at restart.
 Rule 2 depends on recent data about ip addresses serving more >1 Tor relay.
 Update this data regularly, e.g. hourly via a cron job:
 
@@ -168,7 +147,8 @@ A more heavier attack was observed at [12th](./doc/network-metric-Nov-12th.svg) 
 A periodic drop down of the socket count metric, vanishing over time, appeared at
 [5th](./doc/network-metric-Dec-05th.svg) of Dec.
 Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are still handled well.
-Few more helper scripts were developed to analyze the attack vector. Look [here](./misc/README.md) for details.
+Few more helper scripts were developed to analyze the attack vector.
+Look [here](./misc/README.md) for details.
 
 ¹ using [sysstat](http://sebastien.godard.pagesperso-orange.fr/)
 
