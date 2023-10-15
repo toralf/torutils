@@ -75,19 +75,18 @@ For IPv6 however an /64 IPv6 block is assumed to be assigned to a single host.
 #### Details
 
 Generic rules for local network, ICMP, ssh and local user services (if defined) are applied.
-Then these rules are applied (in this order) for connection attempts from an ip to the local ORPort:
+Then these rules are applied (in this order) for a connection attempt from an ip to the local ORPort:
 
-1. trust ip of Tor authorities and snowflake
-2. allow (up to) 8 connections from the same ip if the ip is known to hosts >1 relay
-3. block ip for 1 day if the rate of connection attempts is > 6/min in the last 2 minutes¹
-4. drop if there are already 2 established connections from the same ip²
+1. trust Tor authorities and Snowflake servers
+2. allow (up to) 8 connections in parallel if the ip is known to host Tor relay(s)
+3. block for 1 day if there're > 4/min attempts within the last 2 minutes
+4. drop if there are already 2 established connections from the same ip¹
 5. rate limit new connection attempts to 1 within 2 minutes
 6. accept it
 
-¹ Even connection attempts from relays will then be blocked
-² This connection limit sounds rigid.
+¹ This connection limit sounds rigid.
 But how likely is it that more than 2 Tor clients from the same client ip address do connect to the same Tor guard at the same time?
-And ip addresses with more than 1 Tor relay are not expected to run a Tor client too, right?
+In addition, an ip address serving more than 1 Tor relay is not expected to run a Tor client too, right?
 
 ### Installation
 
@@ -248,7 +247,7 @@ ControlPort 127.0.0.1:9051
 ControlPort [::1]:9051
 ```
 
-The [Stem](https://stem.torproject.org/index.html) python library is needed too.
+The python library [Stem](https://stem.torproject.org/index.html) is needed.
 Install it either by your package manager -or- use the git sources, e.g.:
 
 ```bash
