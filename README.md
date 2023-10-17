@@ -72,7 +72,7 @@ Then these rules are applied (in this order) for a connection attempt from an ip
 
 1. trust Tor authorities and Snowflake servers
 2. allow (up to) 8 connections in parallel if the ip is known to host Tor relay(s)
-3. block for 1 day if there're > 4/min attempts within the last 2 minutes
+3. block for 1 day if there're > 8/min attempts within the last 2 minutes
 4. drop if there are already 2 established connections from the same ip¹
 5. rate limit new connection attempts to 1 within 2 minutes
 6. accept it
