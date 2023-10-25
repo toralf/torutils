@@ -80,7 +80,7 @@ function __fill_multilists() {
       local tmp="temp"
       local args=$(ipset save $multilist-$i | head -n 1 | awk '{ $2 = "'$tmp'" }1' | sed -e 's, initval .*,,')
       if ipset $args; then
-        xargs -r -n 1 -P $jobs ipset add $tmp </var/tmp/$multilist-$i
+        xargs -r -n 1 -P $jobs ipset add $tmp <$tmpdir/$multilist-$i
         ipset swap $tmp $multilist-$i
         ipset destroy $tmp
       fi

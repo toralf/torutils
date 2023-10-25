@@ -69,20 +69,20 @@ function __fill_multilists() {
           sort | uniq -c
       ); then
         for i in 2 4 8; do
-          awk '$1 > '$i'/2 && $1 <= '$i' { print $2 }' <<<$sorted >/var/tmp/$multilist-$i
+          awk '$1 > '$i'/2 && $1 <= '$i' { print $2 }' <<<$sorted >$tmpdir/$multilist-$i
         done
-        awk '{ print $2 }' <<<$sorted >/var/tmp/relays6
+        awk '{ print $2 }' <<<$sorted >$tmpdir/relays6
       fi
     fi
   fi
 
   for i in 2 4 8; do
-    if [[ -s /var/tmp/$multilist-$i ]]; then
+    if [[ -s $tmpdir/$multilist-$i ]]; then
       # create a temporary ipset with same parameters
       local tmp="temp6"
       local args=$(ipset save $multilist-$i | head -n 1 | awk '{ $2 = "'$tmp'" }1' | sed -e 's, initval .*,,')
       if ipset $args; then
-        xargs -r -n 1 -P $jobs ipset add $tmp </var/tmp/$multilist-$i
+        xargs -r -n 1 -P $jobs ipset add $tmp <$tmpdir/$multilist-$i
         ipset swap $tmp $multilist-$i
         ipset destroy $tmp
       fi
@@ -91,11 +91,11 @@ function __fill_multilists() {
 }
 
 function __fill_ddoslist() {
-  if [[ -s /var/tmp/$ddoslist ]]; then
+  if [[ -s $tmpdir/$ddoslist ]]; then
     ipset flush $ddoslist
-    xargs -r -L 1 -P $jobs ipset add $ddoslist </var/tmp/$ddoslist
+    xargs -r -L 1 -P $jobs ipset add $ddoslist <$tmpdir/$ddoslist
   fi
-  rm -f /var/tmp/$ddoslist
+  rm -f $tmpdir/$ddoslist
 }
 
 function addTor() {
@@ -249,7 +249,6 @@ else
   max=$((2 ** 16)) # default: 65536
 fi
 tmpdir=/var/tmp
-
 jump=${RUN_ME_WITH_SAFE_JUMP_TARGET:-DROP}
 action=${1-}
 [[ $# -gt 0 ]] && shift
