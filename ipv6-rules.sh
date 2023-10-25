@@ -78,8 +78,14 @@ function __fill_multilists() {
 
   for i in 2 4 8; do
     if [[ -s /var/tmp/$multilist-$i ]]; then
-      ipset flush $multilist-$i
-      xargs -r -n 1 -P $jobs ipset add $multilist-$i </var/tmp/$multilist-$i
+      # create a temporary ipset with same parameters
+      local tmp="temp6"
+      local args=$(ipset save $multilist-$i | head -n 1 | awk '{ $2 = "'$tmp'" }1' | sed -e 's, initval .*,,')
+      if ipset $args; then
+        xargs -r -n 1 -P $jobs ipset add $tmp </var/tmp/$multilist-$i
+        ipset swap $tmp $multilist-$i
+        ipset destroy $tmp
+      fi
     fi
   done
 }
@@ -211,21 +217,18 @@ function bailOut() {
 
 function saveIpset() {
   local name=$1
-  local suffix=${2-}
 
-  rm -f /var/tmp/$name.new
-  ipset list $name | sed -e '1,8d' >/var/tmp/$name.new
-  if [[ -s /var/tmp/$name.new ]]; then
-    mv /var/tmp/$name.new /var/tmp/${name}${suffix}
+  rm -f $tmpdir/$name.new
+  ipset list $name | sed -e '1,8d' >$tmpdir/$name.new
+  if [[ -s $tmpdir/$name.new ]]; then
+    mv $tmpdir/$name.new $tmpdir/${name}
   fi
 }
 
 function saveCertainIpsets() {
-  local suffix=${1-}
-
-  ipset list -t | grep '^Name: ' | grep -e 'tor-ddos6-' -e 'tor-multi6$' | awk '{ print $2 }' |
+  ipset list -t | grep '^Name: ' | grep -e 'tor-.*6-' -e 'tor-trust6$' | awk '{ print $2 }' |
     while read -r name; do
-      saveIpset $name $suffix
+      saveIpset $name
     done
 }
 
@@ -245,6 +248,7 @@ if [[ $(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo) -gt 2 ]
 else
   max=$((2 ** 16)) # default: 65536
 fi
+tmpdir=/var/tmp
 
 jump=${RUN_ME_WITH_SAFE_JUMP_TARGET:-DROP}
 action=${1-}
@@ -274,7 +278,7 @@ test)
   $0 start $*
   ;;
 save)
-  saveCertainIpsets ${1-}
+  tmpdir=${1:-$tmpdir} saveCertainIpsets
   ;;
 *)
   printRuleStatistics

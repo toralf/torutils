@@ -67,27 +67,33 @@ function __fill_multilists() {
           sort | uniq -c
       ); then
         for i in 2 4 8; do
-          awk '$1 > '$i'/2 && $1 <= '$i' { print $2 }' <<<$sorted >/var/tmp/$multilist-$i
+          awk '$1 > '$i'/2 && $1 <= '$i' { print $2 }' <<<$sorted >$tmpdir/$multilist-$i
         done
-        awk '{ print $2 }' <<<$sorted >/var/tmp/relays
+        awk '{ print $2 }' <<<$sorted >$tmpdir/relays
       fi
     fi
   fi
 
   for i in 2 4 8; do
-    if [[ -s /var/tmp/$multilist-$i ]]; then
-      ipset flush $multilist-$i
-      xargs -r -n 1 -P $jobs ipset add $multilist-$i </var/tmp/$multilist-$i
+    if [[ -s $tmpdir/$multilist-$i ]]; then
+      # create a temporary ipset with same parameters
+      local tmp="temp"
+      local args=$(ipset save $multilist-$i | head -n 1 | awk '{ $2 = "'$tmp'" }1' | sed -e 's, initval .*,,')
+      if ipset $args; then
+        xargs -r -n 1 -P $jobs ipset add $tmp </var/tmp/$multilist-$i
+        ipset swap $tmp $multilist-$i
+        ipset destroy $tmp
+      fi
     fi
   done
 }
 
 function __fill_ddoslist() {
-  if [[ -s /var/tmp/$ddoslist ]]; then
+  if [[ -s $tmpdir/$ddoslist ]]; then
     ipset flush $ddoslist
-    xargs -r -L 1 -P $jobs ipset add $ddoslist </var/tmp/$ddoslist
+    xargs -r -L 1 -P $jobs ipset add $ddoslist <$tmpdir/$ddoslist
   fi
-  rm -f /var/tmp/$ddoslist
+  rm -f $tmpdir/$ddoslist
 }
 
 function addTor() {
@@ -221,21 +227,18 @@ function bailOut() {
 
 function saveIpset() {
   local name=$1
-  local suffix=${2-}
 
-  rm -f /var/tmp/$name.new
-  ipset list $name | sed -e '1,8d' >/var/tmp/$name.new
-  if [[ -s /var/tmp/$name.new ]]; then
-    mv /var/tmp/$name.new /var/tmp/${name}${suffix}
+  rm -f $tmpdir/$name.new
+  ipset list $name | sed -e '1,8d' >$tmpdir/$name.new
+  if [[ -s $tmpdir/$name.new ]]; then
+    mv $tmpdir/$name.new $tmpdir/${name}
   fi
 }
 
 function saveCertainIpsets() {
-  local suffix=${1-}
-
-  ipset list -t | grep '^Name: ' | grep -e 'tor-ddos-' -e 'tor-multi$' | awk '{ print $2 }' |
+  ipset list -t | grep '^Name: ' | grep -e 'tor-ddos-' -e 'tor-multi-' -e 'tor-trust$' | awk '{ print $2 }' |
     while read -r name; do
-      saveIpset $name $suffix
+      saveIpset $name
     done
 }
 
@@ -255,6 +258,7 @@ if [[ $(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo) -gt 2 ]
 else
   max=$((2 ** 16)) # default: 65536
 fi
+tmpdir=/var/tmp
 
 jump=${RUN_ME_WITH_SAFE_JUMP_TARGET:-DROP}
 action=${1-}
@@ -284,7 +288,7 @@ test)
   $0 start $*
   ;;
 save)
-  saveCertainIpsets ${1-}
+  tmpdir=${1:-$tmpdir} saveCertainIpsets
   ;;
 *)
   printRuleStatistics
