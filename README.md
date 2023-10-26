@@ -108,11 +108,11 @@ export ADD_LOCAL_SERVICES="27.18.281.828:555"
 
 (`ADD_LOCAL_SERVICES6` respectively) before you run the script.
 To append (overwrite is the default) the rules onto existing _iptables_ rules
-you've to comment out the call _clearRules()_ (line [269](./ipv4-rules.sh#L269)).
+you've to comment out the call _clearRules()_ (line [274](./ipv4-rules.sh#L274)).
 The script sets few _sysctl_ values (next line).
 As an alternative comment out that line and set them under _/etc/sysctl.d/_.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then comment out the call _addHetzner()_ (line [272](./ipv4-rules.sh#L272)).
+then comment out the call _addHetzner()_ (line [277](./ipv4-rules.sh#L277)).
 
 ### Operational hints
 
