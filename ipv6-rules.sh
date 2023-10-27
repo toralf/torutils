@@ -89,7 +89,7 @@ function __fill_multilists() {
             ipset destroy $tmp
           fi
         done
-        awk '{ print $2 }' <<<$sorted >$tmpdir/relays
+        awk '{ print $2 }' <<<$sorted >$tmpdir/relays6
       fi
     fi
   fi
@@ -194,7 +194,7 @@ function clearRules() {
 function printRuleStatistics() {
   date -R
   echo
-  $ipt -nv -L INPUT
+  $ipt -nv -L INPUT $*
 }
 
 function getConfiguredRelays6() {
@@ -285,6 +285,6 @@ save)
   tmpdir=${1:-$tmpdir} saveCertainIpsets
   ;;
 *)
-  printRuleStatistics
+  printRuleStatistics $*
   ;;
 esac

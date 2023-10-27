@@ -196,7 +196,7 @@ function clearRules() {
 function printRuleStatistics() {
   date -R
   echo
-  $ipt -nv -L INPUT
+  $ipt -nv -L INPUT $*
 }
 
 function getConfiguredRelays() {
@@ -296,6 +296,6 @@ save)
   tmpdir=${1:-$tmpdir} saveCertainIpsets
   ;;
 *)
-  printRuleStatistics
+  printRuleStatistics $*
   ;;
 esac
