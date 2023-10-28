@@ -96,7 +96,7 @@ function __fill_multilists() {
 function __fill_ddoslist() {
   if [[ -s $tmpdir/$ddoslist ]]; then
     ipset flush $ddoslist
-    xargs -r -L 1 -P $jobs ipset add $ddoslist <$tmpdir/$ddoslist # -L 1 b/c the inputs are tupels
+    xargs -r -L 1 -P $jobs ipset add -exist $ddoslist <$tmpdir/$ddoslist # -L 1 b/c the inputs are tupels
   fi
   rm -f $tmpdir/$ddoslist
 }
