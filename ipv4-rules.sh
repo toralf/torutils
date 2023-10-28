@@ -116,32 +116,32 @@ function addTor() {
       return 1
     fi
     read -r orip orport <<<$(tr ':' ' ' <<<$relay)
-    local synpacket="$ipt -A INPUT -p tcp --dst $orip --dport $orport --syn"
+    local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
 
     local ddoslist="tor-ddos-$orport" # this holds ips classified as DDoS'ing the local OR port
     __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600))"
     __fill_ddoslist &
 
     # rule 1
-    $synpacket -m set --match-set $trustlist src -j ACCEPT
+    $common --syn -m set --match-set $trustlist src -j ACCEPT
 
     # rule 2
     for i in 2 4 8; do
-      $synpacket -m set --match-set $multilist-$i src -m set ! --match-set $ddoslist src -m connlimit --connlimit-mask $prefix --connlimit-upto $i -j ACCEPT
+      $common -m set --match-set $multilist-$i src -m set ! --match-set $ddoslist src -m connlimit --connlimit-mask $prefix --connlimit-upto $i -j ACCEPT
     done
 
     # rule 3
-    $synpacket $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 8/minute --hashlimit-burst 7 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
-    $synpacket -m set --match-set $ddoslist src -j $jump
+    $common --syn $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 8/minute --hashlimit-burst 7 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
+    $common --syn -m set --match-set $ddoslist src -j $jump
 
     # rule 4
-    $synpacket -m connlimit --connlimit-mask $prefix --connlimit-above 2 -j $jump
+    $common --syn -m connlimit --connlimit-mask $prefix --connlimit-above 2 -j $jump
 
     # rule 5
-    $synpacket $hashlimit --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j $jump
+    $common --syn $hashlimit --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j $jump
 
     # rule 6
-    $synpacket -j ACCEPT
+    $common --syn -j ACCEPT
   done
 }
 
