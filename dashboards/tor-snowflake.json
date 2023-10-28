@@ -642,7 +642,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "percentunit"
         },
         "overrides": []
       },
@@ -683,7 +683,7 @@
           "useBackend": false
         }
       ],
-      "title": "CPU seconds",
+      "title": "CPU seconds (in perc)",
       "type": "timeseries"
     }
   ],
@@ -749,6 +749,6 @@
   "timezone": "",
   "title": "Tor Snowflake",
   "uid": "dcb70785-6263-447f-b93c-ab06ef97a8b5",
-  "version": 46,
+  "version": 47,
   "weekStart": ""
 }
