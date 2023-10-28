@@ -25,7 +25,7 @@ wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O 
 chmod +x ./ipv4-rules.sh
 ```
 
-Make a backup of the current iptables _filter_ table and test it:
+Make a backup of the current iptables _filter_ table and run a test:
 
 ```bash
 sudo /usr/sbin/iptables-save > ./rules.v4
@@ -33,9 +33,15 @@ sudo /usr/sbin/ip6tables-save > ./rules.v6
 sudo ./ipv4-rules.sh test
 ```
 
-Best is to (re-)start Tor afterwards.
-Check in another terminal that you still can ssh into the machine.
-Check reachability of all of your other services.
+Best is to stop the Tor service(s), flush the connection tracking table:
+
+```bash
+sudo /usr/sbin/conntrack -F
+```
+
+and to start the Tor service(s).
+Then check in another terminal that ssh still works.
+Then check the reachability of all of your other services.
 Watch the iptables live statistics by:
 
 ```bash
@@ -45,7 +51,7 @@ sudo watch -t ./ipv4-rules.sh
 If all works fine then run the script again with `start` instead `test`
 and persist the filter rules, e.g. under Debian into `/etc/iptables/`.
 
-But if the above doesn't work for you then please stop it and restore the previous state:
+However, if the above doesn't work for you then please stop it and restore the previous state:
 
 ```bash
 sudo ./ipv4-rules.sh stop
@@ -55,7 +61,7 @@ sudo /usr/sbin/ip6tables-restore < ./rules.v6
 
 You might try out the [Installation](#installation) section to adapt the scripts for your system.
 I do appreciate [issue](https://github.com/toralf/torutils/issues) reports
-and GitHub [pull](https://github.com/toralf/torutils/pulls) request.
+and GitHub [pull](https://github.com/toralf/torutils/pulls) request reqpectively.
 
 ### Rule set
 
