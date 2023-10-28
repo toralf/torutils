@@ -127,18 +127,18 @@ function addTor() {
 
     # rule 2
     for i in 2 4 8; do
-      $common -m set --match-set $multilist-$i src -m set ! --match-set $ddoslist src -m connlimit --connlimit-mask $prefix --connlimit-upto $i -j ACCEPT
+      $common --syn -m set --match-set $multilist-$i src -m set ! --match-set $ddoslist src -m connlimit --connlimit-mask $prefix --connlimit-upto $i -j ACCEPT
     done
 
     # rule 3
-    $common --syn $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 8/minute --hashlimit-burst 7 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
-    $common --syn -m set --match-set $ddoslist src -j $jump
+    $common $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 8/minute --hashlimit-burst 7 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
+    $common -m set --match-set $ddoslist src -j $jump
 
     # rule 4
     $common -m connlimit --connlimit-mask $prefix --connlimit-above 2 -j $jump
 
     # rule 5
-    $common --syn $hashlimit --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j $jump
+    $common $hashlimit --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j $jump
 
     # rule 6
     $common --syn -j ACCEPT
