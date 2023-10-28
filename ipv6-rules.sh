@@ -141,7 +141,7 @@ function addTor() {
     $common --syn -m set --match-set $ddoslist src -j $jump
 
     # rule 4
-    $common --syn -m connlimit --connlimit-mask $prefix --connlimit-above 2 -j $jump
+    $common -m connlimit --connlimit-mask $prefix --connlimit-above 2 -j $jump
 
     # rule 5
     $common --syn $hashlimit --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j $jump
