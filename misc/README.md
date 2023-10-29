@@ -9,7 +9,7 @@ A quick check for blocked IPv4 relays is made by
 ```bash
 TORUTILS_TMPDIR=/tmp /etc/conf.d/ipv4-rules.sh save
 grep -c -f /var/tmp/relays /tmp/tor-ddos-*
-rm /tmp/tor-ddos*
+rm /tmp/tor-ddos-*
 ```
 
 and for IPv6   run
