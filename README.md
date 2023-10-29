@@ -89,7 +89,7 @@ And an ip address serving more than 1 Tor relay should not run a Tor client too,
 
 ### Installation
 
-If the parsing of the Tor config (line [191](./ipv4-rules.sh#L191)) or the SSH logic fails (line [16](./ipv4-rules.sh#L16)), then:
+If the parsing of the Tor config (function _getConfiguredRelays()_) or of the SSH config fails (function _addCommon()_), then:
 
 1. define the local running relay(s) explicitely at the command line after the keyword `start`, e.g.:
 
@@ -114,11 +114,11 @@ export ADD_LOCAL_SERVICES="27.18.281.828:555"
 
 (`ADD_LOCAL_SERVICES6` respectively) before you run the script.
 To append (overwrite is the default) the rules onto existing _iptables_ rules
-you've to comment out the call _clearRules()_ (line [274](./ipv4-rules.sh#L274)).
+you've to comment out the call _clearRules()_ (near the end of the script below _start)_).
 The script sets few _sysctl_ values (next line).
-As an alternative comment out that line and set them under _/etc/sysctl.d/_.
+To avoid that comment out that line and maybe set them under _/etc/sysctl.d/_.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then comment out the call _addHetzner()_ (line [277](./ipv4-rules.sh#L277)).
+then comment out the call _addHetzner()_ too.
 
 ### Operational hints
 
