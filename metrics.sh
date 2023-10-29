@@ -37,10 +37,10 @@ function _histogram() {
 
 function printMetrics() {
   ###############################
-  # dropped packets stats
+  # dropped packets
   #
-  local var="torutils_state_packets"
-  echo -e "# HELP $var Total number of dropped state packets\n# TYPE $var gauge"
+  local var="torutils_dropped_state_packets"
+  echo -e "# HELP $var Total number of dropped packets due to wrong TCP state\n# TYPE $var gauge"
   for v in "" 6; do
     ip${v}tables -nvxL -t filter |
       grep -F ' DROP ' | grep -v -e "^Chain " | grep -F -e " ctstate INVALID" -e " state NEW" | awk '{ print $1, $NF }' |
@@ -49,13 +49,14 @@ function printMetrics() {
       done
   done
 
-  local var="torutils_syn_packets"
-  echo -e "# HELP $var Total number of dropped syn packets\n# TYPE $var gauge"
+  local var="torutils_dropped_ddos_packets"
+  echo -e "# HELP $var Total number of dropped packets due to being classified as DDoS\n# TYPE $var gauge"
   for v in "" 6; do
     # shellcheck disable=SC2034
     ip${v}tables -nvxL -t filter |
-      grep -F ' DROP ' | grep -v -e "^Chain" | grep -F ' match-set tor-ddos'$v'-' | awk '{ print $1, $14 }' |
-      while read -r pkts name; do
+      grep -F ' DROP ' | grep -v -e "^Chain" | grep -F ' match-set tor-ddos'$v'-' |
+      while read -r pkts remain; do
+        name=$(grep -Eo ' tor-ddos.* ' <<<$remain | tr -d ' ')
         orport=$(cut -f 3 -d '-' -s <<<$name)
         echo "$var{ipver=\"${v:-4}\",orport=\"$orport\"} $pkts"
       done
