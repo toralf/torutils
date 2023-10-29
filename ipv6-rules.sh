@@ -31,10 +31,10 @@ function addCommon() {
 }
 
 function addTor() {
-  __create_ipset $trustlist "maxelem $((2**6))"
+  __create_ipset $trustlist "maxelem $((2 ** 6))"
   __fill_trustlist &
   for i in 2 4 8; do
-    __create_ipset $multilist-$i "maxelem $((2**13))"
+    __create_ipset $multilist-$i "maxelem $((2 ** 13))"
   done
   __fill_multilists &
 
@@ -52,7 +52,7 @@ function addTor() {
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
 
     local ddoslist="tor-ddos6-$orport" # this holds ips classified as DDoS'ing the local OR port
-    __create_ipset $ddoslist "maxelem $max timeout $((48 * 3600)) netmask $prefix"
+    __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600)) netmask $prefix"
     __fill_ddoslist &
 
     # rule 1
@@ -237,7 +237,7 @@ function saveIpset() {
 function saveCertainIpsets() {
   ipset list -t | grep '^Name: ' | grep -e 'tor-.*6-' -e 'tor-trust6$' | awk '{ print $2 }' |
     while read -r name; do
-      saveIpset $name &
+      saveIpset $name
     done
 }
 
@@ -257,7 +257,9 @@ if [[ $(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo) -gt 2 ]
 else
   max=$((2 ** 16)) # default: 65536
 fi
-tmpdir=/var/tmp
+
+tmpdir=${TORUTILS_TMPDIR:-/var/tmp}
+
 jump=${RUN_ME_WITH_SAFE_JUMP_TARGET:-DROP}
 action=${1-}
 [[ $# -gt 0 ]] && shift

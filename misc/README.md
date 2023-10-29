@@ -2,6 +2,24 @@
 
 # misc
 
+## 1-liners
+
+A quick check for blocked IPv4 relays is made by
+
+```bash
+TORUTILS_TMPDIR=/tmp /etc/conf.d/ipv4-rules.sh save
+grep -c -f /var/tmp/relays /tmp/tor-ddos-*
+rm /tmp/tor-ddos*
+```
+
+and for IPv6   run
+
+```bash
+TORUTILS_TMPDIR=/tmp /etc/conf.d/ipv6-rules.sh save
+grep -c -f /var/tmp/relays6 /tmp/tor-ddos6-*
+rm /tmp/tor-ddos6-*
+```
+
 ## deprecated tools
 
 [ddos-inbound.sh](../ddos-inbound.sh) lists ips having more inbound connections to the ORPort than a given
@@ -21,18 +39,4 @@ sadf -g -t /var/log/sa/sa${DAY:-`date +%d`} -O skipempty,oneday -- $args >$svg
 h=$(tail -n 2 $svg | head -n 1 | cut -f 5 -d ' ') # fix the SVG canvas size
 sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
-```
-
-## 1-liners
-
-A quick check for blocked relays is made by
-
-```bash
-for v in "" 6; do
-  for i in $(ipset list -t | awk '/^Name: tor-ddos'$v'-/ { print $2 }'); do
-    ipset list $i | sed -e '1,8d'
-  done |
-  grep -f /var/tmp/relays$v | awk '{ print $1 }' | sort | uniq -c | sort -bn
-  echo
-done
 ```
