@@ -77,7 +77,7 @@ function __fill_multilists() {
       ); then
         for i in 2 4 8; do
           awk '$1 > '$i'/2 && $1 <= '$i' { print $2 }' <<<$sorted >$tmpdir/$multilist-$i
-          local tmp="temp"
+          local tmp="temp-ipset-$i-$((RANDOM))"
           local args=$(ipset save $multilist-$i | head -n 1 | awk '{ $2 = "'$tmp'" }1' | sed -e 's, initval .*,,')
           if ipset $args; then
             xargs -r -n 1 -P $jobs ipset add $tmp <$tmpdir/$multilist-$i
