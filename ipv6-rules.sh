@@ -15,10 +15,8 @@ function addCommon() {
   $ipt -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 
   # ssh
-  local addr
-  addr=$(grep -E "^ListenAddress\s+.*:.*:.*$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
-  local port
-  port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
+  local addr=$(grep -E "^ListenAddress\s+.*:.*:.*$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
+  local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
   for i in ${addr:-"::/0"}; do
     $ipt -A INPUT -p tcp --dst $i --dport ${port:-22} --syn -j ACCEPT
   done
@@ -34,7 +32,7 @@ function __create_ipset() {
   local cmd="ipset create -exist $name hash:ip family inet6 ${2-}"
 
   if ! $cmd 2>/dev/null; then
-    if ! (saveIpset $name && ipset destroy $name && $cmd); then
+    if ! saveIpset $name && ipset destroy $name && $cmd; then
       return 1
     fi
   fi
