@@ -223,11 +223,12 @@ function bailOut() {
 function saveIpset() {
   local name=$1
 
-  rm -f $tmpdir/$name.new
-  ipset list $name | sed -e '1,8d' >$tmpdir/$name.new
-  if [[ -s $tmpdir/$name.new ]]; then
-    mv $tmpdir/$name.new $tmpdir/${name}
+  local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
+  ipset list $name | sed -e '1,8d' >$tmpfile
+  if [[ -s $tmpfile ]]; then
+    mv $tmpfile $tmpdir/$name
   fi
+  rm $tmpfile
 }
 
 function saveCertainIpsets() {
