@@ -282,7 +282,7 @@ start)
   addHetzner
   addLocalServices
   addTor ${*:-${CONFIGURED_RELAYS:-$(getConfiguredRelays)}}
-  $ipt -P INPUT ${DEFAULT_POLICY_INPUT:-$jump}
+  $ipt -P INPUT ${RUN_ME_WITH_SAFE_JUMP_TARGET:-$jump}
   trap - INT QUIT TERM EXIT
   ;;
 stop)

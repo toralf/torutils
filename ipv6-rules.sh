@@ -257,7 +257,6 @@ if [[ $(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo) -gt 2 ]
 else
   max=$((2 ** 16)) # default: 65536
 fi
-
 tmpdir=${TORUTILS_TMPDIR:-/var/tmp}
 
 jump=${RUN_ME_WITH_SAFE_JUMP_TARGET:-DROP}
@@ -272,7 +271,7 @@ start)
   addHetzner
   addLocalServices
   addTor ${*:-${CONFIGURED_RELAYS6:-$(getConfiguredRelays6)}}
-  $ipt -P INPUT ${DEFAULT_POLICY_INPUT:-$jump}
+  $ipt -P INPUT ${RUN_ME_WITH_SAFE_JUMP_TARGET:-$jump}
   trap - INT QUIT TERM EXIT
   ;;
 stop)
