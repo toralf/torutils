@@ -232,9 +232,10 @@ function saveIpset() {
   local name=$1
 
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
-  ipset list $name | sed -e '1,8d' >$tmpfile
-  if [[ -s $tmpfile ]]; then
-    mv $tmpfile $tmpdir/$name
+  if ipset list $name | sed -e '1,8d' >$tmpfile; then
+    if [[ -s $tmpfile ]]; then
+      cp $tmpfile $tmpdir/$name
+    fi
   fi
   rm $tmpfile
 }
