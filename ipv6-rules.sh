@@ -2,6 +2,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
+# addCommon() and addTor() implements a DDoS solution for a Tor relay, the remaining code just parses configs amd maintains ipset content
+# https://github.com/toralf/torutils
+
 function addCommon() {
   # allow loopback
   $ipt -A INPUT --in-interface lo -m comment --comment "$(date -R)" -j ACCEPT
@@ -25,6 +28,54 @@ function addCommon() {
   $ipt -A INPUT -p ipv6-icmp --icmpv6-type echo-request -m limit --limit 6/s -j ACCEPT
   $ipt -A INPUT -p ipv6-icmp --icmpv6-type echo-request -j $jump
   $ipt -A INPUT -p ipv6-icmp -j ACCEPT
+}
+
+function addTor() {
+  __create_ipset $trustlist "maxelem $((2**6))"
+  __fill_trustlist &
+  for i in 2 4 8; do
+    __create_ipset $multilist-$i "maxelem $((2**13))"
+  done
+  __fill_multilists &
+
+  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask $prefix"
+  for relay in $*; do
+    if [[ ! $relay =~ '[' || ! $relay =~ ']' || $relay =~ '.' || ! $relay =~ ':' ]]; then
+      echo " relay '$relay' is invalid" >&2
+      return 1
+    fi
+    read -r orip orport <<<$(sed -e 's,]:, ,' -e 's,\[, ,' <<<$relay)
+    if [[ $orip == "::" ]]; then
+      orip+="/0"
+      echo " notice: using global unicast IPv6 address [::]" >&2
+    fi
+    local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
+
+    local ddoslist="tor-ddos6-$orport" # this holds ips classified as DDoS'ing the local OR port
+    __create_ipset $ddoslist "maxelem $max timeout $((48 * 3600)) netmask $prefix"
+    __fill_ddoslist &
+
+    # rule 1
+    $common --syn -m set --match-set $trustlist src -j ACCEPT
+
+    # rule 2
+    for i in 2 4 8; do
+      $common --syn -m set --match-set $multilist-$i src -m set ! --match-set $ddoslist src -m connlimit --connlimit-mask $prefix --connlimit-upto $i -j ACCEPT
+    done
+
+    # rule 3
+    $common $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 6/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
+    $common -m set --match-set $ddoslist src -j $jump
+
+    # rule 4
+    $common -m connlimit --connlimit-mask $prefix --connlimit-above 2 -j $jump
+
+    # rule 5
+    $common $hashlimit --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j $jump
+
+    # rule 6
+    $common --syn -j ACCEPT
+  done
 }
 
 function __create_ipset() {
@@ -54,13 +105,12 @@ function __fill_trustlist() {
 }
 
 function __fill_multilists() {
-  sleep 6 # remote is rate limited, so let ipv4 get the data first
+  sleep 6 # remote is rate limited, let ipv4 get the data first
 
   # if empty then use old values for now
   for i in 2 4 8; do
     if ipset list -t $multilist-$i | grep -q -F -m 1 'Number of entries: 0'; then
       if [[ -s $tmpdir/$multilist-$i ]]; then
-        # this is racy with an active rule set
         xargs -r -n 1 -P $jobs ipset add -exist $multilist-$i <$tmpdir/$multilist-$i
       fi
     fi
@@ -101,54 +151,6 @@ function __fill_ddoslist() {
   rm -f $tmpdir/$ddoslist
 }
 
-function addTor() {
-  __create_ipset $trustlist "maxelem 64"
-  __fill_trustlist &
-  for i in 2 4 8; do
-    __create_ipset $multilist-$i "maxelem 8192"
-  done
-  __fill_multilists &
-
-  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask $prefix"
-  for relay in $*; do
-    if [[ ! $relay =~ '[' || ! $relay =~ ']' || $relay =~ '.' || ! $relay =~ ':' ]]; then
-      echo " relay '$relay' is invalid" >&2
-      return 1
-    fi
-    read -r orip orport <<<$(sed -e 's,]:, ,' -e 's,\[, ,' <<<$relay)
-    if [[ $orip == "::" ]]; then
-      orip+="/0"
-      echo " notice: using global unicast IPv6 address [::]" >&2
-    fi
-    local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
-
-    local ddoslist="tor-ddos6-$orport" # this holds ips classified as DDoS'ing the local OR port
-    __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600)) netmask $prefix"
-    __fill_ddoslist &
-
-    # rule 1
-    $common --syn -m set --match-set $trustlist src -j ACCEPT
-
-    # rule 2
-    for i in 2 4 8; do
-      $common --syn -m set --match-set $multilist-$i src -m set ! --match-set $ddoslist src -m connlimit --connlimit-mask $prefix --connlimit-upto $i -j ACCEPT
-    done
-
-    # rule 3
-    $common $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 6/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
-    $common -m set --match-set $ddoslist src -j $jump
-
-    # rule 4
-    $common -m connlimit --connlimit-mask $prefix --connlimit-above 2 -j $jump
-
-    # rule 5
-    $common $hashlimit --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j $jump
-
-    # rule 6
-    $common --syn -j ACCEPT
-  done
-}
-
 function addLocalServices() {
   for service in ${ADD_LOCAL_SERVICES6-}; do
     read -r addr port <<<$(sed -e 's,]:, ,' -e 's,\[, ,' <<<$service)
@@ -175,9 +177,11 @@ function addHetzner() {
 
 function setSysctlValues() {
   local current
-  current=$(sysctl -n net.netfilter.nf_conntrack_max)
-  if [[ $current -lt $((2 * max)) ]]; then
-    sysctl -q -w net.netfilter.nf_conntrack_max=$((current + 2 * max))
+
+  if current=$(sysctl -n net.netfilter.nf_conntrack_max); then
+    if [[ $current -lt $((2 * max)) ]]; then
+      sysctl -q -w net.netfilter.nf_conntrack_max=$((current + 2 * max))
+    fi
   fi
 }
 
@@ -208,7 +212,7 @@ function bailOut() {
   if [[ $rc -gt 128 ]]; then
     local signal=$((rc - 128))
     if [[ $signal -eq 13 ]]; then # PIPE
-      return
+      return 0
     fi
   fi
 
