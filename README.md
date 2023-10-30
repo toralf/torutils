@@ -80,13 +80,10 @@ Then these rules are applied (in this order) for an connection attempt from an i
 1. trust Tor authorities and Snowflake servers
 2. allow (up to) 8 connections in parallel if the ip is known to host Tor relay(s)
 3. block for 1 day if there're > 6/min connection attempts within the last 2 minutes
-4. drop if there are already 2 established connections from the same ip¹
-5. rate limit new connection attempts to 1 within 2 minutes
-6. accept it
+4. drop if there are already 13 established connections from the same ip¹
+5. accept it
 
-¹ This connection limit sounds rigid.
-But how likely is it that more than 2 Tor clients from the same client ip address do connect to the same Tor guard at the same time?
-And an ip address serving more than 1 Tor relay should not run a Tor client too, right?
+¹ derived from trinity-1686n in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
 
 ### Installation
 
