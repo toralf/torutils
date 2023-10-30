@@ -43,18 +43,18 @@ function addTor() {
       return 1
     fi
     read -r orip orport <<<$(tr ':' ' ' <<<$relay)
-    local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
+    local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport --syn"
 
     local ddoslist="tor-ddos-$orport" # this holds ips classified as DDoS'ing the local OR port
     __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600))"
     __fill_ddoslist &
 
     # rule 1
-    $common --syn -m set --match-set $trustlist src -j ACCEPT
+    $common -m set --match-set $trustlist src -j ACCEPT
 
     # rule 2
     for i in 2 4 8; do
-      $common --syn -m set --match-set $multilist-$i src -m set ! --match-set $ddoslist src -m connlimit --connlimit-mask $prefix --connlimit-upto $i -j ACCEPT
+      $common -m set --match-set $multilist-$i src -m set ! --match-set $ddoslist src -m connlimit --connlimit-mask $prefix --connlimit-upto $i -j ACCEPT
     done
 
     # rule 3
@@ -68,7 +68,7 @@ function addTor() {
     $common $hashlimit --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j $jump
 
     # rule 6
-    $common --syn -j ACCEPT
+    $common -j ACCEPT
   done
 }
 
@@ -202,16 +202,15 @@ function printRuleStatistics() {
   $ipt -nv -L INPUT $*
 }
 
+# OR port and address are defined in 1 or 2 lines
 function getConfiguredRelays() {
   # shellcheck disable=SC2045
   for f in $(ls /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null); do
-    if orport=$(grep "^ORPort *" $f | grep -v -F -e ' NoListen' -e '[' | grep -P "^ORPort\s+.+\s*"); then
+    if orport=$(grep "^ORPort *" $f | grep -v -F -e ' NoListen' -e '[' -e ':auto' | grep -P "^ORPort\s+.+\s*"); then
       if grep -q -Po "^ORPort\s+\d+\.\d+\.\d+\.\d+\:\d+\s*" <<<$orport; then
         awk '{ print $2 }' <<<$orport
-      else
-        if address=$(grep -P "^Address\s+\d+\.\d+\.\d+\.\d+\s*" $f); then
-          echo $(awk '{ print $2 }' <<<$address):$(awk '{ print $2 }' <<<$orport)
-        fi
+      elif address=$(grep -P "^Address\s+\d+\.\d+\.\d+\.\d+\s*" $f); then
+        echo $(awk '{ print $2 }' <<<$address):$(awk '{ print $2 }' <<<$orport)
       fi
     fi
   done
@@ -256,6 +255,8 @@ function saveCertainIpsets() {
 set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
+
+umask 066
 
 ipt="iptables"
 trustlist="tor-trust"      # Tor authorities and snowflake servers

@@ -49,18 +49,18 @@ function addTor() {
       orip+="/0"
       echo " notice: using global unicast IPv6 address [::]" >&2
     fi
-    local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
+    local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport --syn"
 
     local ddoslist="tor-ddos6-$orport" # this holds ips classified as DDoS'ing the local OR port
     __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600)) netmask $prefix"
     __fill_ddoslist &
 
     # rule 1
-    $common --syn -m set --match-set $trustlist src -j ACCEPT
+    $common -m set --match-set $trustlist src -j ACCEPT
 
     # rule 2
     for i in 2 4 8; do
-      $common --syn -m set --match-set $multilist-$i src -m set ! --match-set $ddoslist src -m connlimit --connlimit-mask $prefix --connlimit-upto $i -j ACCEPT
+      $common -m set --match-set $multilist-$i src -m set ! --match-set $ddoslist src -m connlimit --connlimit-mask $prefix --connlimit-upto $i -j ACCEPT
     done
 
     # rule 3
@@ -74,7 +74,7 @@ function addTor() {
     $common $hashlimit --hashlimit-name tor-rate-$orport --hashlimit-above 1/hour --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j $jump
 
     # rule 6
-    $common --syn -j ACCEPT
+    $common -j ACCEPT
   done
 }
 
@@ -199,9 +199,10 @@ function printRuleStatistics() {
   $ipt -nv -L INPUT $*
 }
 
+# OR port + address are defined in 1 line
 function getConfiguredRelays6() {
   grep -h -e "^ORPort *" /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null |
-    grep -v ' NoListen' |
+    grep -v -F -e ' NoListen' -e ':auto' |
     grep -P "^ORPort\s+\[[0-9a-f]*:[0-9a-f:]*:[0-9a-f]*\]:\d+\s*" |
     awk '{ print $2 }'
 }
@@ -245,6 +246,8 @@ function saveCertainIpsets() {
 set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
+
+umask 066
 
 ipt="ip6tables"
 trustlist="tor-trust6"     # Tor authorities and snowflake servers

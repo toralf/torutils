@@ -20,7 +20,8 @@ If there are additional internet service at the relays (except _ssh_) please go 
 Otherwise install the dependencies, e.g. for Ubuntu 22.04:
 
 ```bash
-sudo apt install iptables ipset jq
+sudo apt update
+sudo apt install -y iptables ipset jq
 wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
 chmod +x ./ipv4-rules.sh
 ```
