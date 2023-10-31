@@ -83,7 +83,7 @@ Then these rules are applied (in this order) for an connection attempt from an i
 4. drop if there are already 9 established connections from the same ip¹
 5. accept it
 
-¹ maths made by trinity-1686n in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
+¹ calculation examples given by trinity-1686n in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
 
 ### Installation
 
