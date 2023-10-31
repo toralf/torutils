@@ -195,7 +195,7 @@ def main(args=None):
         else:
             ipv4.setdefault(address, []).append(conn.remote_port)
 
-    limit = 8
+    limit = 9
     ddos4 = [address for address in ipv4 if len(ipv4[address]) > limit]
     ddos6 = [address for address in ipv6 if len(ipv6[address]) > limit]
     if ddos4:

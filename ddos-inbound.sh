@@ -59,7 +59,7 @@ set -eu
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-limit=8
+limit=9
 relays=$(
   getConfiguredRelays
   getConfiguredRelays6

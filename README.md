@@ -80,10 +80,10 @@ Then these rules are applied (in this order) for an connection attempt from an i
 1. trust Tor authorities and Snowflake servers
 2. allow (up to) 8 connections in parallel if the ip is known to host Tor relay(s)
 3. block for 1 day if there're > 6/min connection attempts within the last 2 minutes
-4. drop if there are already 13 established connections from the same ip¹
+4. drop if there are already 9 established connections from the same ip¹
 5. accept it
 
-¹ derived from trinity-1686n in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
+¹ maths made by trinity-1686n in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
 
 ### Installation
 
