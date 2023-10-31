@@ -2,16 +2,17 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# count inbound to local ORPort per remote ip address
+# count inbound connections per remote ip address
 
 function show() {
   local relay=$1
 
   local v=""
-  if [[ $relay =~ [ ]]; then
+  if [[ $relay =~ "[" ]]; then
     v="6"
   fi
 
+  local conns=0
   local ips=0
   local sum=0
   while read -r conns ip; do
@@ -35,13 +36,11 @@ function show() {
 function getConfiguredRelays() {
   # shellcheck disable=SC2045
   for f in $(ls /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null); do
-    if orport=$(grep "^ORPort *" $f | grep -v -F -e ' NoListen' -e '[' | grep -P "^ORPort\s+.+\s*"); then
+    if orport=$(grep "^ORPort *" $f | grep -v -F -e ' NoListen' -e '[' -e ':auto' | grep -P "^ORPort\s+.+\s*"); then
       if grep -q -Po "^ORPort\s+\d+\.\d+\.\d+\.\d+\:\d+\s*" <<<$orport; then
         awk '{ print $2 }' <<<$orport
-      else
-        if address=$(grep -P "^Address\s+\d+\.\d+\.\d+\.\d+\s*" $f); then
-          echo $(awk '{ print $2 }' <<<$address):$(awk '{ print $2 }' <<<$orport)
-        fi
+      elif address=$(grep -P "^Address\s+\d+\.\d+\.\d+\.\d+\s*" $f); then
+        echo $(awk '{ print $2 }' <<<$address):$(awk '{ print $2 }' <<<$orport)
       fi
     fi
   done
@@ -49,7 +48,7 @@ function getConfiguredRelays() {
 
 function getConfiguredRelays6() {
   grep -h -e "^ORPort *" /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null |
-    grep -v ' NoListen' |
+    grep -v -F -e ' NoListen' -e ':auto' |
     grep -P "^ORPort\s+\[[0-9a-f]*:[0-9a-f:]*:[0-9a-f]*\]:\d+\s*" |
     awk '{ print $2 }'
 }
