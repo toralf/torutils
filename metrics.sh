@@ -36,10 +36,15 @@ function _histogram() {
 }
 
 function printMetrics() {
+  local mode
+  local name
+  local orport
+  local var
+
   ###############################
   # dropped packets
   #
-  local var="torutils_dropped_state_packets"
+  var="torutils_dropped_state_packets"
   echo -e "# HELP $var Total number of dropped packets due to wrong TCP state\n# TYPE $var gauge"
   for v in "" 6; do
     ip${v}tables -nvxL -t filter |
@@ -49,7 +54,7 @@ function printMetrics() {
       done
   done
 
-  local var="torutils_dropped_ddos_packets"
+  var="torutils_dropped_ddos_packets"
   echo -e "# HELP $var Total number of dropped packets due to being classified as DDoS\n# TYPE $var gauge"
   for v in "" 6; do
     # shellcheck disable=SC2034
@@ -89,11 +94,11 @@ function printMetrics() {
   ###############################
   # ipset ddos timeout values
   #
-  local mode="ddos"
+  mode="ddos"
   var="torutils_ipset_timeout"
   echo -e "# HELP $var A histogram of ipset timeout values\n# TYPE $var histogram"
   for v in "" 6; do
-    ipset list -t | awk '/^Name: tor-ddos'$v'-/ { print $2 }' |
+    ipset list -t | awk '/^Name: tor-'${mode}${v}'-/ { print $2 }' |
       while read -r name; do
         orport=$(cut -f 3 -d '-' -s <<<$name)
         ipset list -s $name | sed -e '1,8d' | cut -f 3 -d ' ' -s | _histogram
