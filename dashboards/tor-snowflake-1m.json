@@ -1,6 +1,14 @@
 {
   "__inputs": [
     {
+      "name": "DS_PROMETHEUS-1M",
+      "label": "Prometheus-1m",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    },
+    {
       "name": "DS_PROMETHEUS",
       "label": "Prometheus",
       "description": "",
@@ -79,7 +87,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS-1M}"
       },
       "fieldConfig": {
         "defaults": {
@@ -162,11 +170,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS-1M}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(instance) (rate(tor_snowflake_proxy_connections_total{instance=~\"$Instance\", job=~\"$Job\"}[10m]))",
+          "expr": "sum by(instance) (rate(tor_snowflake_proxy_connections_total{instance=~\"$Instance\", job=~\"$Job\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "instant": false,
@@ -182,7 +190,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS-1M}"
       },
       "fieldConfig": {
         "defaults": {
@@ -265,11 +273,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS-1M}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(instance) (rate(tor_snowflake_proxy_traffic_inbound_bytes_total{instance=~\"$Instance\", job=~\"$Job\"}[10m]))",
+          "expr": "sum by(instance) (rate(tor_snowflake_proxy_traffic_inbound_bytes_total{instance=~\"$Instance\", job=~\"$Job\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "instant": false,
@@ -285,7 +293,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS-1M}"
       },
       "fieldConfig": {
         "defaults": {
@@ -367,7 +375,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS-1M}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -387,7 +395,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS-1M}"
       },
       "fieldConfig": {
         "defaults": {
@@ -470,11 +478,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS-1M}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(instance) (rate(tor_snowflake_proxy_traffic_outbound_bytes_total{instance=~\"$Instance\", job=~\"$Job\"}[10m]))",
+          "expr": "sum by(instance) (rate(tor_snowflake_proxy_traffic_outbound_bytes_total{instance=~\"$Instance\", job=~\"$Job\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "instant": false,
@@ -490,7 +498,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS-1M}"
       },
       "fieldConfig": {
         "defaults": {
@@ -573,7 +581,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS-1M}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -593,7 +601,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "${DS_PROMETHEUS-1M}"
       },
       "fieldConfig": {
         "defaults": {
@@ -675,11 +683,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "${DS_PROMETHEUS-1M}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(instance) (rate(process_cpu_seconds_total{instance=~\"$Instance\", job=~\"$Job\"}[10m]))",
+          "expr": "sum by(instance) (rate(process_cpu_seconds_total{instance=~\"$Instance\", job=~\"$Job\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "instant": false,
@@ -702,9 +710,9 @@
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "${DS_PROMETHEUS-1M}"
         },
-        "definition": "label_values(tor_snowflake_proxy_connections_total{job=\"Tor-Snowflake\"},job)",
+        "definition": "label_values(tor_snowflake_proxy_connections_total{job=\"Tor-Snowflake-1m\"},job)",
         "hide": 0,
         "includeAll": true,
         "label": "Job",
@@ -713,7 +721,7 @@
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(tor_snowflake_proxy_connections_total{job=\"Tor-Snowflake\"},job)",
+          "query": "label_values(tor_snowflake_proxy_connections_total{job=\"Tor-Snowflake-1m\"},job)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -726,7 +734,7 @@
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "${DS_PROMETHEUS-1M}"
         },
         "definition": "label_values(tor_snowflake_proxy_connections_total{job=~\"$Job\"},instance)",
         "hide": 0,
@@ -748,13 +756,13 @@
     ]
   },
   "time": {
-    "from": "now-7d",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Tor Snowflake",
-  "uid": "dcb70785-6263-447f-b93c-ab06ef97a8b5",
-  "version": 64,
+  "title": "Tor Snowflake 1m",
+  "uid": "b1cf61bb-53e2-44e9-9f96-af33116dee8a",
+  "version": 12,
   "weekStart": ""
 }
