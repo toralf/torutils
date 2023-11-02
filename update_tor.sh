@@ -20,16 +20,16 @@ function restart() {
         local pid
         if pid=$(cat /run/tor/$service.pid); then
           if kill -0 $pid; then
-            echo " get roughly with pid $pid"
+            echo " kill pid $pid"
             kill -9 $pid
             sleep 1
           else
             rm /run/tor/$service.pid
-            echo " $pid for $service was invalid"
+            echo " stale pid $pid for $service"
           fi
         fi
         if ! rc-service $service zap start; then
-          echo "zap failed for $service"
+          echo "zap start failed for $service"
         fi
       fi
     done
