@@ -79,7 +79,7 @@ Then these rules are applied (in this order) for an connection attempt from an i
 
 1. trust Tor authorities and Snowflake servers
 2. allow (up to) 8 connections in parallel if the ip is known to host Tor relay(s)
-3. block for 1 day if the connection attempts exceeds > 10/min within last 2 minutes
+3. block for 1 day if the connection attempt rate exceeds > 10/min within last 2 minutes
 4. drop if there are already 9 established connections from the same ip¹
 5. accept it
 
@@ -87,9 +87,9 @@ Then these rules are applied (in this order) for an connection attempt from an i
 
 ### Installation
 
-If the parsing of the Tor config (function _getConfiguredRelays()_) or of the SSH config fails (function _addCommon()_), then:
+If the parsing of the Tor config (_getConfiguredRelays()_) and/or of the SSH config fails (_addCommon()_), then:
 
-1. define the local running relay(s) explicitely at the command line after the keyword `start`, e.g.:
+1. define the local running relay/s explicitely at the command line after the keyword `start`, e.g.:
 
    ```bash
    sudo ./ipv4-rules.sh start 1.2.3.4:443 5.6.7.8:9001
@@ -103,18 +103,18 @@ If the parsing of the Tor config (function _getConfiguredRelays()_) or of the SS
 
    (`CONFIGURED_RELAYS6` for the IPv6 case).
 
-Command line values takes precedence over environment variables.
-To allow inbound traffic to additional local service(s), then define them in the environment (space separated), e.g.:
+A command line value takes precedence over the environment variable.
+To allow inbound traffic to additional local port/s, then define them in the environment (space separated), e.g.:
 
 ```bash
-export ADD_LOCAL_SERVICES="27.18.281.828:555"
+export ADD_LOCAL_SERVICES="2.71.82.81:828 3.141.59.26:53"
 ```
 
 (`ADD_LOCAL_SERVICES6` respectively) before you run the script.
-To append (overwrite is the default) the rules onto existing _iptables_ rules
-you've to comment out the call _clearRules()_ (near the end of the script below _start)_).
-The script sets few _sysctl_ values (next line).
-To avoid that comment out that line and maybe set them under _/etc/sysctl.d/_.
+To append the rules onto existing _iptables_ rules (overwrite is the default)
+you've to comment out the call _clearRules()_ (near the end of the script at _start)_).
+The script sets few _sysctl_ values (following line).
+To avoid that comment out that call, but consider to set them under _/etc/sysctl.d/_.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
 then comment out the call _addHetzner()_ too.
 
