@@ -11,10 +11,10 @@ if [[ "$(whoami)" != "root" ]]; then
   exit 1
 fi
 
-log=$1    # logfile to watch
-pat=$2    # pattern file for grep
+log=$1 # logfile to watch
+pat=$2 # pattern file for grep
 shift 2
-opt="$*"  # options for grep
+opt="$*" # options for grep
 
 mailto="tor-relay@zwiebeltoralf.de"
 
@@ -24,4 +24,3 @@ while :; do
   tail -n 50 $log | mail -s "$(basename $log)  $(cut -c 1-150 <<<$catched)" --end-options $mailto &
   sleep 60
 done
-

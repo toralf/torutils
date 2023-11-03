@@ -238,3 +238,21 @@ Install it either by your package manager -or- use the git sources, e.g.:
 git clone https://github.com/torproject/stem.git
 export PYTHONPATH=$PWD/stem
 ```
+
+## watch
+
+I do prefer simple and stupid solutions.
+To watch the healthyness of my 5 Tor bare metal relays I us [watch.sh](./watch.sh) and its 2 pattern files.
+I start it at reboot via
+
+```bash
+log=/tmp/${0##*/}.log
+
+/opt/torutils/watch.sh /var/log/messages /opt/torutils/watch-messages.txt &>>$log &
+sleep 1
+
+for i in {1..5}
+do
+  /opt/torutils/watch.sh /var/log/tor/notice$i.log /opt/torutils/watch-tor.txt -v &>>$log &
+done
+```
