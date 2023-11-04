@@ -13,7 +13,7 @@ function _histogram() {
     }
     {
       chomp();
-      my $hour = int(($F[0]-1)/3600);
+      my $hour = int(($F[2]-1)/3600);
       if ($hour <= 23)  {
         $arr[$hour]++;
       } else {
@@ -48,7 +48,7 @@ function printMetrics() {
   echo -e "# HELP $var Total number of dropped packets due to wrong TCP state\n# TYPE $var gauge"
   for v in "" 6; do
     ip${v}tables -nvxL -t filter |
-      grep -F ' DROP ' | grep -v -e "^Chain " | grep -F -e " ctstate INVALID" -e " state NEW" | awk '{ print $1, $NF }' |
+      grep -F ' DROP ' | grep -F -e " ctstate INVALID" -e " state NEW" | awk '{ print $1, $NF }' |
       while read -r pkts state; do
         echo "$var{ipver=\"${v:-4}\",state=\"$state\"} $pkts"
       done
@@ -59,7 +59,7 @@ function printMetrics() {
   for v in "" 6; do
     # shellcheck disable=SC2034
     ip${v}tables -nvxL -t filter |
-      grep -F ' DROP ' | grep -v -e "^Chain" | grep -F ' match-set tor-ddos'$v'-' |
+      grep -F ' DROP ' | grep -F ' match-set tor-ddos'$v'-' |
       while read -r pkts remain; do
         name=$(grep -Eo ' tor-ddos.* ' <<<$remain | tr -d ' ')
         orport=$(cut -f 3 -d '-' -s <<<$name)
@@ -73,7 +73,7 @@ function printMetrics() {
   var="torutils_ipset_total"
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
   for v in "" 6; do
-    ipset list -t | grep -e "^N" | xargs -n 6 | awk '/^Name: tor-/ { print $2, $6 }' |
+    ipset list -t | grep -e "^N" | xargs -L 2 | awk '/^Name: tor-/ { print $2, $6 }' |
       if [[ $v == "6" ]]; then
         grep -F -e "6 " -e "6-"
       else
@@ -102,7 +102,10 @@ function printMetrics() {
       grep '^tor-'${mode}${v}'-' |
       while read -r name; do
         orport=$(cut -f 3 -d '-' -s <<<$name)
-        ipset list -s $name | sed -e '1,8d' | cut -f 3 -d ' ' -s | _histogram
+        {
+          ipset list -s $name | sed -e '1,8d' | _histogram > $tmpfile.$name.prom
+          mv $tmpfile.$name.prom $datadir/torutils-$name.prom
+        } &
       done
   done
 
@@ -127,7 +130,7 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.tmp)
+tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.prom)
 trap 'rm $tmpfile' INT QUIT TERM EXIT
 
 datadir=${1:-/var/lib/node_exporter} # default directory under Gentoo Linux
@@ -135,5 +138,4 @@ cd $datadir
 
 echo "# $0   $(date -R)" >$tmpfile
 printMetrics >>$tmpfile
-chmod a+r $tmpfile
 mv $tmpfile $datadir/torutils.prom
