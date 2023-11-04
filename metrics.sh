@@ -132,7 +132,6 @@ export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.prom)
-trap 'rm $tmpfile' INT QUIT TERM EXIT
 
 datadir=${1:-/var/lib/node_exporter} # default directory under Gentoo Linux
 cd $datadir
