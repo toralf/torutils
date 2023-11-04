@@ -42,6 +42,25 @@ function printMetrics() {
   local var
 
   ###############################
+  # ipset timeout values
+  #
+  mode="ddos"
+  var="torutils_ipset_timeout"
+  echo -e "# HELP $var A histogram of ipset timeout values\n# TYPE $var histogram"
+  for v in "" 6; do
+    ipset list -n |
+      grep '^tor-'${mode}${v}'-' |
+      while read -r name; do
+        orport=$(cut -f 3 -d '-' -s <<<$name)
+        {
+          ipset list -s $name | sed -e '1,8d' | _histogram >$tmpfile.$name.prom
+          chmod a+r $tmpfile.$name.prom
+          mv $tmpfile.$name.prom $datadir/torutils-$name.prom
+        } &
+      done
+  done
+
+  ###############################
   # dropped packets
   #
   var="torutils_dropped_state_packets"
@@ -88,25 +107,6 @@ function printMetrics() {
           orport=$(cut -f 3 -d '-' -s <<<$name)
           echo "$var{ipver=\"${v:-4}\",mode=\"$mode\",orport=\"$orport\"} $size"
         fi
-      done
-  done
-
-  ###############################
-  # ipset ddos timeout values
-  #
-  mode="ddos"
-  var="torutils_ipset_timeout"
-  echo -e "# HELP $var A histogram of ipset timeout values\n# TYPE $var histogram"
-  for v in "" 6; do
-    ipset list -n |
-      grep '^tor-'${mode}${v}'-' |
-      while read -r name; do
-        orport=$(cut -f 3 -d '-' -s <<<$name)
-        {
-          ipset list -s $name | sed -e '1,8d' | _histogram >$tmpfile.$name.prom
-          chmod a+r $tmpfile.$name.prom
-          mv $tmpfile.$name.prom $datadir/torutils-$name.prom
-        } &
       done
   done
 
