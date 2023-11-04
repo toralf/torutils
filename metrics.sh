@@ -109,17 +109,16 @@ function printMetrics() {
   ###############################
   # hashlimit sizes
   #
+  mode="ddos"
   var="torutils_hashlimit_total"
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
   for v in "" 6; do
-    for mode in "ddos"; do
-      wc -l /proc/net/ip${v}t_hashlimit/tor-$mode-* |
-        grep -v ' total' |
-        while read -r count name; do
-          orport=$(cut -f 3 -d '-' -s <<<$name)
-          echo "$var{ipver=\"${v:-4}\",orport=\"$orport\",mode=\"$mode\"} $count"
-        done
-    done
+    wc -l /proc/net/ip${v}t_hashlimit/tor-$mode-* |
+      grep -v ' total' |
+      while read -r count name; do
+        orport=$(cut -f 3 -d '-' -s <<<$name)
+        echo "$var{ipver=\"${v:-4}\",orport=\"$orport\",mode=\"$mode\"} $count"
+      done
   done
 }
 
