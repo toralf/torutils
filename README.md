@@ -242,7 +242,7 @@ export PYTHONPATH=$PWD/stem
 ## watch
 
 I do prefer simple and stupid solutions.
-To watch the healthyness of my 5 Tor bare metal relays I us [watch.sh](./watch.sh) and its 2 pattern files.
+To watch the healthyness of my Tor relays I do use [watch.sh](./watch.sh) and its 2 pattern files.
 I start it at reboot via
 
 ```bash

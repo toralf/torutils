@@ -4,6 +4,8 @@
 
 Few dashboards for Tor relay, Tor Snowflake and the proposed DDoS solution.
 Prometheus and Grafana run in the given example below at the same Tor relay where the DDoS solution is implemented.
+The scrape intervall of Prometheus is 15 sec, but for the Snowflake job 1 min.
+That's why in Grafana 2 datasources are needed to let it compute its "\_\_rate_interval" correctly accordingly to the choosen job.
 
 ## Prometheus
 
@@ -18,7 +20,8 @@ Prometheus is configured in this way:
   static_configs:
     - targets: ["borstel:9052", "casimir:9052", ....]
 
-- job_name: "Tor-Snowflake"
+- job_name: "Tor-Snowflake-1m"
+  scrape_interval: 1
   metrics_path: "/internal/metrics"
   static_configs:
     - targets: ["buddelflink:9999", "drehrumbum:9999", ....]
@@ -33,7 +36,7 @@ Prometheus is configured in this way:
         orport: "9001"
 ```
 
-The label `orport` is used as a filter for the DDoS dashboard.
+The label `orport` is used e.g. as a filter for the DDoS dashboard.
 
 ## Scraping Tor Relay metrics
 
@@ -42,7 +45,6 @@ Configure the Tor metrics port, e.g.:
 ```config
 MetricsPort 127.0.0.1:9052
 MetricsPortPolicy accept 127.0.0.1
-MetricsPortPolicy accept [::1]
 ```
 
 ## Scraping Snowflake metrics

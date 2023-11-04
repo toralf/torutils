@@ -245,7 +245,7 @@
               }
             ]
           },
-          "unit": "binBps"
+          "unit": "KiBs"
         },
         "overrides": []
       },
@@ -450,7 +450,7 @@
               }
             ]
           },
-          "unit": "binBps"
+          "unit": "KiBs"
         },
         "overrides": []
       },
@@ -713,7 +713,7 @@
         },
         "definition": "label_values(tor_snowflake_proxy_connections_total{job=\"Tor-Snowflake-1m\"},job)",
         "hide": 0,
-        "includeAll": true,
+        "includeAll": false,
         "label": "Job",
         "multi": false,
         "name": "Job",
@@ -755,13 +755,13 @@
     ]
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-7d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Tor Snowflake 1m",
   "uid": "b1cf61bb-53e2-44e9-9f96-af33116dee8a",
-  "version": 14,
+  "version": 17,
   "weekStart": ""
 }

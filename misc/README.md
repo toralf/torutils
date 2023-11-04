@@ -12,7 +12,7 @@ grep -c -f /var/tmp/relays /tmp/tor-ddos-*
 rm /tmp/tor-ddos-*
 ```
 
-and for IPv6   run
+and for IPv6 run
 
 ```bash
 TORUTILS_TMPDIR=/tmp /etc/conf.d/ipv6-rules.sh save
@@ -20,7 +20,7 @@ grep -c -f /var/tmp/relays6 /tmp/tor-ddos6-*
 rm /tmp/tor-ddos6-*
 ```
 
-## deprecated tools
+## tools
 
 [ddos-inbound.sh](../ddos-inbound.sh) lists ips having more inbound connections to the ORPort than a given
 limit ([example](../doc/ddos-inbound.sh.txt)).

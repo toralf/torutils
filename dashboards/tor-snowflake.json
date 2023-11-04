@@ -706,7 +706,7 @@
         },
         "definition": "label_values(tor_snowflake_proxy_connections_total{job=\"Tor-Snowflake\"},job)",
         "hide": 0,
-        "includeAll": true,
+        "includeAll": false,
         "label": "Job",
         "multi": false,
         "name": "Job",
@@ -755,6 +755,6 @@
   "timezone": "",
   "title": "Tor Snowflake",
   "uid": "dcb70785-6263-447f-b93c-ab06ef97a8b5",
-  "version": 64,
+  "version": 65,
   "weekStart": ""
 }
