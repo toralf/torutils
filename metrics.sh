@@ -103,7 +103,7 @@ function printMetrics() {
       while read -r name; do
         orport=$(cut -f 3 -d '-' -s <<<$name)
         {
-          ipset list -s $name | sed -e '1,8d' | _histogram > $tmpfile.$name.prom
+          ipset list -s $name | sed -e '1,8d' | _histogram >$tmpfile.$name.prom
           chmod a+r $tmpfile.$name.prom
           mv $tmpfile.$name.prom $datadir/torutils-$name.prom
         } &
