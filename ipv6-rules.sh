@@ -233,7 +233,7 @@ function saveIpset() {
 }
 
 function saveCertainIpsets() {
-  ipset list -t | grep '^Name: ' | grep -e 'tor-.*6-' -e 'tor-trust6$' | awk '{ print $2 }' |
+  ipset list -n | grep -e 'tor-.*6-' -e 'tor-trust6$' |
     while read -r name; do
       saveIpset $name
     done
