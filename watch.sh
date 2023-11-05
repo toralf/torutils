@@ -18,9 +18,19 @@ opt="$*" # options for grep
 
 mailto="tor-relay@zwiebeltoralf.de"
 
-set -o pipefail
 while :; do
-  catched=$(tail --quiet -n 0 -f $log | grep -m 1 -f $pat $opt)
-  tail -n 50 $log | mail -s "$(basename $log)  $(cut -c 1-150 <<<$catched)" --end-options $mailto &
-  sleep 60
+  if catched=$(
+    tail --quiet -n 0 -f $log |
+      grep -m 1 -f $pat $opt
+  ); then
+    if [[ -n $catched ]]; then
+      tail -n 50 $log | mail -s "$(basename $log)  $(cut -c 1-150 <<<$catched)" --end-options $mailto &
+    else
+      echo "failure: $*" | mail -s "$(basename $log)" --end-options $mailto &
+    fi
+    sleep 60
+  else
+    # maybe log file rotation
+    sleep 5
+  fi
 done
