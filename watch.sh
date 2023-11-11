@@ -24,7 +24,7 @@ while :; do
       grep -m 1 -f $pat $opt
   ); then
     if [[ -n $catched ]]; then
-      tail -n 50 $log | mail -s "$(basename $log)  $(cut -c 1-150 <<<$catched)" --end-options $mailto &
+      tail -n 50 $log | mail -s "$(basename $log)  $(cut -c 1-180 <<<$catched)" --end-options $mailto &
     else
       echo "failure: $*" | mail -s "$(basename $log)" --end-options $mailto &
     fi
