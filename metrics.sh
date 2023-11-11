@@ -53,9 +53,9 @@ function printMetrics() {
       while read -r name; do
         orport=$(cut -f 3 -d '-' -s <<<$name)
         {
-          ipset list -s $name | sed -e '1,8d' | _histogram >$tmpfile.$name.prom
-          chmod a+r $tmpfile.$name.prom
-          mv $tmpfile.$name.prom $datadir/torutils-$name.prom
+          ipset list -s $name | sed -e '1,8d' | _histogram >$tmpfile.$name.tmp
+          chmod a+r $tmpfile.$name.tmp
+          mv $tmpfile.$name.tmp $datadir/torutils-$name.prom
         } &
       done
   done
@@ -131,7 +131,7 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.prom)
+tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.tmp)
 
 datadir=${1:-/var/lib/node_exporter} # default directory under Gentoo Linux
 cd $datadir
