@@ -40,6 +40,7 @@ Since last heartbeat message
 Since our last heartbeat,
 Since startup we initiated 
 Starting with guard context "default"
+Sudden decrease in circuit RTT
 The current consensus contains exit nodes
 The current consensus has no exit nodes
 These two versions should be binary compatible.
