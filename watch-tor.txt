@@ -9,26 +9,26 @@ Bootstrapped 75% (enough_dirinfo): Loaded enough directory info to build circuit
 Bootstrapped 90% (ap_handshake_done): Handshake finished with a relay to build circuits
 Bootstrapped 95% (circuit_create): Establishing a Tor circuit
 Channel padding timeout scheduled
-Circuit handshake stats since last time: 
+Circuit handshake stats since last time:
 Clean shutdown finished. Exiting.
 Configured to measure statistics. Look for the *-stats files that will first be written to the data directory in 24 hours from now.
-DoS mitigation since startup: 
+DoS mitigation since startup:
 Heartbeat:
 I learned some more directory information, but not enough to build a circuit
 Included configuration file or directory at recursion level
 Including configuration file "/etc/tor/conf.d//
  is newer than any recommended version, according to the directory authorities.
  is reachable from the outside. Excellent.
-New control connection opened from 
+New control connection opened from
 No circuits are opened. Relaxed timeout for circuit
-Now checking whether IPv4 DirPort 
-Now checking whether IPv4 ORPort 
+Now checking whether IPv4 DirPort
+Now checking whether IPv4 ORPort
 Opened Control listener connection
 Opening Control listener on
 opening log file
-Opening Metrics listener on 
-Opening Socks listener on 
-Our directory information is no longer up-to-date enough to build circuits: We're missing descriptors for 
+Opening Metrics listener on
+Opening Socks listener on
+Our directory information is no longer up-to-date enough to build circuits: We're missing descriptors for
 Parsing GEOIP IPv4 file /usr/share/tor/geoip.
 Parsing GEOIP IPv6 file /usr/share/tor/geoip6.
 Performing bandwidth self-test...done.
@@ -38,7 +38,7 @@ Received circuit padding stop command for unknown machine.
 Received reload signal (hup). Reloading config and resetting internal state.
 Since last heartbeat message
 Since our last heartbeat,
-Since startup we initiated 
+Since startup we initiated
 Starting with guard context "default"
 Sudden decrease in circuit RTT
 The current consensus contains exit nodes
@@ -52,4 +52,4 @@ While bootstrapping, fetched this many bytes:
 While not bootstrapping, fetched this many bytes:
 You have asked to exclude certain relays from all positions in your circuits
 Your network connection speed appears to have changed.
-Your Tor server's identity key 
+Your Tor server's identity key
