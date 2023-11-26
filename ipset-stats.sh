@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# dumpIpset ip addresses of ipset(s) -or- plot histograms of that
+# goal: dump or plot the content (a little bit anonymized before) of an ipset
 
-# kick off the header of the ipset
 function dumpIpset() {
   ipset list -s $1 |
+    # kick off the header of the ipset
     sed -e '1,8d'
 }
 
