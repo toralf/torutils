@@ -21,7 +21,7 @@ Prometheus is configured in this way:
     - targets: ["borstel:9052", "casimir:9052", ....]
 
 - job_name: "Tor-Snowflake-1m"
-  scrape_interval: 1
+  scrape_interval: 1m
   metrics_path: "/internal/metrics"
   static_configs:
     - targets: ["buddelflink:9999", "drehrumbum:9999", ....]
