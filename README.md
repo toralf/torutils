@@ -16,7 +16,7 @@ of the [Tor project](https://www.torproject.org/).
 
 ### Quick start
 
-Otherwise install the dependencies, e.g. for Ubuntu 22.04:
+Install the packages for _iptables_, _ipset_ and  _jq_, e.g. for Ubuntu 22.04:
 
 ```bash
 sudo apt update
@@ -25,7 +25,7 @@ wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O 
 chmod +x ./ipv4-rules.sh
 ```
 
-Make a backup of the current iptables _filter_ table and run a test:
+Make a backup of the current iptables _filter_ table and run a first quick test:
 
 ```bash
 sudo /usr/sbin/iptables-save > ./rules.v4
@@ -33,23 +33,29 @@ sudo /usr/sbin/ip6tables-save > ./rules.v6
 sudo ./ipv4-rules.sh test
 ```
 
-Best is to stop the Tor service(s), flush the connection tracking table:
+Best is to stop the Tor service(s) and flush the connection tracking table now:
 
 ```bash
 sudo /usr/sbin/conntrack -F
 ```
 
-and to start the Tor service(s).
-Then check in another terminal that ssh still works.
-Then check the reachability of all of your other services.
+and to (re-)start the Tor service(s).
+Check in another terminal that your ssh login still works.
+Then check the reachability of all services.
 Watch the iptables live statistics by:
 
 ```bash
 sudo watch -t ./ipv4-rules.sh
 ```
 
-If all works fine then run the script again with `start` instead `test`
-and persist the filter rules, e.g. under Debian into `/etc/iptables/`.
+If all works fine then run the script with `start` instead `test`
+and persist the filter rules, e.g. under Debian into `/etc/iptables/`:
+
+```bash
+sudo ./ipv4-rules.sh start
+sudo /usr/sbin/iptables-save > /etc/iptables//rules.v4
+sudo /usr/sbin/ip6tables-save > /etc/iptables//rules.v6
+```
 
 However, if the above doesn't work for you then please stop it and restore the previous state:
 
@@ -61,7 +67,7 @@ sudo /usr/sbin/ip6tables-restore < ./rules.v6
 
 You might try out the [Installation](#installation) section to adapt the scripts for your system.
 I do appreciate both [issue](https://github.com/toralf/torutils/issues) reports
-and GitHub [pull request](https://github.com/toralf/torutils/pulls).
+and GitHub [pull request](https://github.com/toralf/torutils/pulls) to improve the current version.
 
 ### Rule set
 
