@@ -7,8 +7,8 @@ Few tools for a Tor relay.
 ## Block DDoS
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
-against DDoS attacks¹ at the IP [network](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) layer ([example](./doc/network-metric-July-3rd.jpg)).
-Look [here](#ddos-examples) for more examples.
+against DDoS attacks¹ ([this](./doc/network-metric-July-3rd.jpg) is an example for dropped packages at 5 different OR ports)
+at the IP [network](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) layer.
 
 ¹ see ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 and ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093)
@@ -16,7 +16,6 @@ of the [Tor project](https://www.torproject.org/).
 
 ### Quick start
 
-If there are additional internet service at the relays (except _ssh_) please go to the [Installation](#installation) section.
 Otherwise install the dependencies, e.g. for Ubuntu 22.04:
 
 ```bash
@@ -61,27 +60,26 @@ sudo /usr/sbin/ip6tables-restore < ./rules.v6
 ```
 
 You might try out the [Installation](#installation) section to adapt the scripts for your system.
-I do appreciate [issue](https://github.com/toralf/torutils/issues) reports
-and GitHub [pull](https://github.com/toralf/torutils/pulls) request reqpectively.
+I do appreciate both [issue](https://github.com/toralf/torutils/issues) reports
+and GitHub [pull request](https://github.com/toralf/torutils/pulls).
 
 ### Rule set
 
 #### Objectives
 
 - never touch established connections
-- IPv4: filter single IPv4 ips, IPv6: filter /64 network segments
-- the attack threat dictates the rules of the game
+- filter single IPv4 ips, but IPv6 /64 network segments
 
 #### Details
 
-Generic rules for local network, ICMP, ssh and local user services (if defined) are applied.
-Then these rules are applied (in this order) for an connection attempt from an ip to the local ORPort:
+Generic filter rules for local network, ICMP, ssh and local user services are applied.
+Then these rules are applied for each connection attempt from an ip to a local ORPort:
 
 1. trust Tor authorities and Snowflake servers
-2. allow (up to) 8 connections in parallel if the ip is known to host Tor relay(s)
-3. block for 1 day if the connection attempt rate exceeds > 10/min within last 2 minutes
-4. drop if there are already 9 established connections from the same ip¹
-5. accept it
+2. allow (up to) 8 connections in parallel if the ip is known to host more than 1 Tor relay
+3. block the ip for 1 day if the connection attempt rate exceeds > 10/min within last 2 minutes
+4. ignore the connection attempt if there are already 9 established connections from the same ip¹
+5. accept the connection attempt
 
 ¹ calculation examples given by trinity-1686n in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
 
