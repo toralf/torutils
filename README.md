@@ -16,7 +16,7 @@ of the [Tor project](https://www.torproject.org/).
 
 ### Quick start
 
-Install the packages for _iptables_, _ipset_ and  _jq_, e.g. for Ubuntu 22.04:
+Install the packages for _iptables_, _ipset_ and _jq_, e.g. for Ubuntu 22.04:
 
 ```bash
 sudo apt update
