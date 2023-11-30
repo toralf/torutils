@@ -245,18 +245,14 @@ export PYTHONPATH=$PWD/stem
 
 ## watch
 
-I do prefer simple and stupid solutions.
-To watch the healthyness of my Tor relays I do use [watch.sh](./watch.sh) and its 2 pattern files.
-I start it at reboot via
+The script [watch.sh](./watch.sh) helps to monitor the host system and the Tor relay.
+It sends alarms via SMTP email.
 
 ```bash
 log=/tmp/${0##*/}.log
 
+# watch syslog
 /opt/torutils/watch.sh /var/log/messages /opt/torutils/watch-messages.txt &>>$log &
-sleep 1
-
-for i in {1..5}
-do
-  /opt/torutils/watch.sh /var/log/tor/notice$i.log /opt/torutils/watch-tor.txt -v &>>$log &
-done
+# watch Tor
+/opt/torutils/watch.sh /var/log/tor/notice.log /opt/torutils/watch-tor.txt -v &>>$log &
 ```
