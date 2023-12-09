@@ -40,8 +40,7 @@ sudo /usr/sbin/conntrack -F
 ```
 
 and to (re-)start the Tor service(s).
-Check in another terminal that your ssh login still works.
-Then check the reachability of all services.
+Check in another terminal that your ssh login and other services still works.
 Watch the iptables live statistics by:
 
 ```bash
@@ -49,7 +48,7 @@ sudo watch -t ./ipv4-rules.sh
 ```
 
 If all works fine then run the script with `start` instead `test`
-and persist the filter rules, e.g. under Debian into `/etc/iptables/`:
+and persist the filter rules, e.g. under Debian into the directory `/etc/iptables/`:
 
 ```bash
 sudo ./ipv4-rules.sh start
@@ -57,7 +56,7 @@ sudo /usr/sbin/iptables-save > /etc/iptables//rules.v4
 sudo /usr/sbin/ip6tables-save > /etc/iptables//rules.v6
 ```
 
-However, if the above doesn't work for you then please stop it and restore the previous state:
+However, if the above doesn't work for you then please stop it (Ctrl-C) and restore the previous state:
 
 ```bash
 sudo ./ipv4-rules.sh stop
@@ -66,20 +65,20 @@ sudo /usr/sbin/ip6tables-restore < ./rules.v6
 ```
 
 You might try out the [Installation](#installation) section to adapt the scripts for your system.
-I do appreciate both [issue](https://github.com/toralf/torutils/issues) reports
-and GitHub [pull request](https://github.com/toralf/torutils/pulls) to improve the current version.
+I do appreciate [issue](https://github.com/toralf/torutils/issues) reports
+and GitHub [PR](https://github.com/toralf/torutils/pulls) to improve the current state.
 
 ### Rule set
 
 #### Objectives
 
 - never touch established connections
-- filter single IPv4 ips, but IPv6 /64 network segments
+- for IPv4 filter single ips, for IPv6 however /64 ip blocks
 
 #### Details
 
-Generic filter rules for local network, ICMP, ssh and local user services are applied.
-Then these rules are applied for each connection attempt from an ip to a local ORPort:
+Generic filter rules for local network, ICMP, ssh and local user services are configured.
+Then these rules are check each connection attempt from an ip to a local ORPort:
 
 1. trust Tor authorities and Snowflake servers
 2. allow (up to) 8 connections in parallel if the ip is known to host more than 1 Tor relay
@@ -87,7 +86,7 @@ Then these rules are applied for each connection attempt from an ip to a local O
 4. ignore the connection attempt if there are already 9 established connections from the same ip¹
 5. accept the connection attempt
 
-¹ calculation examples given by trinity-1686n in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
+¹ calculation examples given by user _trinity-1686n_ in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
 
 ### Installation
 
