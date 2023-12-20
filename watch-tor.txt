@@ -35,6 +35,7 @@ Performing bandwidth self-test...done.
 Processing configuration path "/etc/tor/conf.d/" at recursion level 1
 Read configuration file
 Received circuit padding stop command for unknown machine.
+Received directory with skewed time
 Received reload signal (hup). Reloading config and resetting internal state.
 Since last heartbeat message
 Since our last heartbeat,
