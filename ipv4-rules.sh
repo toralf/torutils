@@ -170,7 +170,7 @@ function setSysctlValues() {
   local current
 
   if current=$(sysctl -n net.netfilter.nf_conntrack_max); then
-    if [[ $current -lt $max ]]; then
+    if [[ $current -le $max ]]; then
       sysctl -q -w net.netfilter.nf_conntrack_max=$((current + max))
     fi
   fi
