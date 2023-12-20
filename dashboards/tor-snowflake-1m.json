@@ -57,7 +57,7 @@
           "type": "prometheus",
           "uid": "${DS_PROMETHEUS}"
         },
-        "enable": false,
+        "enable": true,
         "expr": "changes(node_boot_time_seconds[$__rate_interval])",
         "iconColor": "red",
         "name": "Reboot"
@@ -155,7 +155,7 @@
               }
             ]
           },
-          "unit": "cpm"
+          "unit": "none"
         },
         "overrides": []
       },
@@ -186,7 +186,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(instance) (rate(tor_snowflake_proxy_connections_total{instance=~\"$Instance\", job=~\"$Job\"}[$__rate_interval])) * 60",
+          "expr": "sum by(instance) (rate(tor_snowflake_proxy_connections_total{instance=~\"$Instance\", job=~\"$Job\"}[1h])) * 3600",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "instant": false,
@@ -196,7 +196,7 @@
           "useBackend": false
         }
       ],
-      "title": "Proxy Connections",
+      "title": "Proxy Connections / hr",
       "type": "timeseries"
     },
     {
@@ -876,6 +876,6 @@
   "timezone": "",
   "title": "Tor Snowflake 1m",
   "uid": "b1cf61bb-53e2-44e9-9f96-af33116dee8a",
-  "version": 25,
+  "version": 28,
   "weekStart": ""
 }

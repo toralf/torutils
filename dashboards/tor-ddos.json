@@ -200,7 +200,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "tor_bug_reached{orport=~\"$orport\"}",
+          "expr": "tor_bug_reached{orport=~\"$Orport\"}",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -284,7 +284,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "tor_relay_flag{orport=~\"$orport\"}",
+          "expr": "tor_relay_flag{orport=~\"$Orport\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": true,
@@ -364,7 +364,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "(tor_relay_signing_cert_expiry_timestamp{orport=~\"$orport\"} / 86400) - (time() / 86400)",
+          "expr": "(tor_relay_signing_cert_expiry_timestamp{orport=~\"$Orport\"} / 86400) - (time() / 86400)",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -452,7 +452,32 @@
           },
           "unit": "pps"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "rx"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 7,
@@ -480,11 +505,15 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(node_network_receive_packets_total{device=\"enp8s0\"}[$__rate_interval])",
+          "expr": "rate(node_network_receive_packets_total{device=\"enp8s0\", instance=~\"$Instance\"}[$__rate_interval])",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "rx",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         },
         {
           "datasource": {
@@ -562,7 +591,32 @@
           },
           "unit": "binBps"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "tx"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 7,
@@ -590,11 +644,15 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(node_network_receive_bytes_total{device=\"enp8s0\"}[$__rate_interval])",
+          "expr": "rate(node_network_receive_bytes_total{device=\"enp8s0\", instance=~\"$Instance\"}[$__rate_interval])",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "rx",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         },
         {
           "datasource": {
@@ -703,11 +761,15 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "(sum(rate(node_cpu_seconds_total{mode=\"user\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total[$__rate_interval]))",
+          "expr": "(sum(rate(node_cpu_seconds_total{mode=\"user\", instance=~\"$Instance\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total{instance=~\"$Instance\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "user",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "CPU",
@@ -801,25 +863,33 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "node_sockstat_TCP_inuse",
+          "expr": "node_sockstat_TCP_inuse{instance=~\"$Instance\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "instant": false,
           "legendFormat": "IPv4",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "node_sockstat_TCP6_inuse",
+          "expr": "node_sockstat_TCP6_inuse{instance=~\"$Instance\"}",
+          "fullMetaSearch": false,
           "hide": false,
+          "includeNullMetadata": true,
           "instant": false,
           "legendFormat": "IPv6",
           "range": true,
-          "refId": "B"
+          "refId": "B",
+          "useBackend": false
         }
       ],
       "title": "TCP Socket Stats Inuse",
@@ -874,7 +944,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "#EAB839",
@@ -914,7 +985,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "node_nf_conntrack_entries",
+          "expr": "node_nf_conntrack_entries{instance=~\"$Instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "current",
@@ -930,7 +1001,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "node_nf_conntrack_entries_limit",
+          "expr": "node_nf_conntrack_entries_limit{instance=~\"$Instance\"}",
           "fullMetaSearch": false,
           "hide": true,
           "includeNullMetadata": true,
@@ -1006,7 +1077,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1065,7 +1137,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport, family, direction) (tor_relay_connections{family=\"ipv4\", direction=\"initiated\", orport=~\"$orport\"})",
+          "expr": "sum by(orport, family, direction) (tor_relay_connections{family=\"ipv4\", direction=\"initiated\", orport=~\"$Orport\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{orport}}",
@@ -1126,7 +1198,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1166,7 +1239,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport, family, direction) (tor_relay_connections{family=\"ipv6\", direction=\"initiated\", orport=~\"$orport\"})",
+          "expr": "sum by(orport, family, direction) (tor_relay_connections{family=\"ipv6\", direction=\"initiated\", orport=~\"$Orport\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{orport}}",
@@ -1227,7 +1300,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1267,7 +1341,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport, family, direction) (tor_relay_connections{family=\"ipv4\", direction=\"received\", orport=~\"$orport\"})",
+          "expr": "sum by(orport, family, direction) (tor_relay_connections{family=\"ipv4\", direction=\"received\", orport=~\"$Orport\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{orport}}",
@@ -1328,7 +1402,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1368,7 +1443,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport, direction, family) (tor_relay_connections{family=\"ipv6\", direction=\"received\", orport=~\"$orport\"})",
+          "expr": "sum by(orport, direction, family) (tor_relay_connections{family=\"ipv6\", direction=\"received\", orport=~\"$Orport\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{orport}}",
@@ -1429,7 +1504,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1469,7 +1545,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport, direction) (rate(tor_relay_traffic_bytes{direction=\"read\", orport=~\"$orport\"}[$__rate_interval]))",
+          "expr": "sum by(orport, direction) (rate(tor_relay_traffic_bytes{direction=\"read\", orport=~\"$Orport\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{orport}}",
@@ -1530,7 +1606,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1570,7 +1647,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "max by(orport, state) (tor_relay_load_socket_total{state=\"opened\", orport=~\"$orport\"})",
+          "expr": "max by(orport, state) (tor_relay_load_socket_total{state=\"opened\", orport=~\"$Orport\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{label_name}}{{orport}}",
@@ -1631,7 +1708,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1671,7 +1749,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport, direction) (rate(tor_relay_traffic_bytes{direction=\"written\", orport=~\"$orport\"}[$__rate_interval]))",
+          "expr": "sum by(orport, direction) (rate(tor_relay_traffic_bytes{direction=\"written\", orport=~\"$Orport\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{orport}}",
@@ -1745,7 +1823,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1863,7 +1942,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1981,7 +2061,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2021,7 +2102,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport) (rate(torutils_dropped_ddos_packets{ipver=\"4\", orport=~\"$orport\"}[$__rate_interval]))",
+          "expr": "sum by(orport) (rate(torutils_dropped_ddos_packets{ipver=\"4\", orport=~\"$Orport\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -2099,7 +2180,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2139,7 +2221,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport) (rate(torutils_dropped_ddos_packets{ipver=\"6\", orport=~\"$orport\"}[$__rate_interval]))",
+          "expr": "sum by(orport) (rate(torutils_dropped_ddos_packets{ipver=\"6\", orport=~\"$Orport\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -2218,7 +2300,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2258,7 +2341,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_total{ipver=\"4\", mode=\"ddos\", orport=~\"$orport\"}",
+          "expr": "torutils_ipset_total{ipver=\"4\", mode=\"ddos\", orport=~\"$Orport\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{orport}}",
@@ -2320,7 +2403,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2360,7 +2444,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_total{ipver=\"6\", mode=\"ddos\", orport=~\"$orport\"}",
+          "expr": "torutils_ipset_total{ipver=\"6\", mode=\"ddos\", orport=~\"$Orport\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{orport}}",
@@ -2421,7 +2505,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2461,7 +2546,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_hashlimit_total{ipver=\"4\", mode=\"ddos\", orport=~\"$orport\"}",
+          "expr": "torutils_hashlimit_total{ipver=\"4\", mode=\"ddos\", orport=~\"$Orport\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{orport}}",
@@ -2522,7 +2607,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2562,7 +2648,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_hashlimit_total{ipver=\"6\", mode=\"ddos\", orport=~\"$orport\"}",
+          "expr": "torutils_hashlimit_total{ipver=\"6\", mode=\"ddos\", orport=~\"$Orport\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{orport}}",
@@ -2624,7 +2710,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2726,7 +2813,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2837,19 +2925,23 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.0",
+      "pluginVersion": "10.2.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
           "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", orport=\"443\", mode=\"ddos\"}",
           "format": "heatmap",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "{{le}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "tor-ddos-443 IPv4",
@@ -2901,7 +2993,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.0",
+      "pluginVersion": "10.2.2",
       "targets": [
         {
           "datasource": {
@@ -2965,7 +3057,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.0",
+      "pluginVersion": "10.2.2",
       "targets": [
         {
           "datasource": {
@@ -3029,7 +3121,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.0",
+      "pluginVersion": "10.2.2",
       "targets": [
         {
           "datasource": {
@@ -3093,7 +3185,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.0",
+      "pluginVersion": "10.2.2",
       "targets": [
         {
           "datasource": {
@@ -3157,7 +3249,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.0",
+      "pluginVersion": "10.2.2",
       "targets": [
         {
           "datasource": {
@@ -3221,7 +3313,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.0",
+      "pluginVersion": "10.2.2",
       "targets": [
         {
           "datasource": {
@@ -3285,7 +3377,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.0",
+      "pluginVersion": "10.2.2",
       "targets": [
         {
           "datasource": {
@@ -3349,7 +3441,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.0",
+      "pluginVersion": "10.2.2",
       "targets": [
         {
           "datasource": {
@@ -3413,7 +3505,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.0",
+      "pluginVersion": "10.2.2",
       "targets": [
         {
           "datasource": {
@@ -3449,7 +3541,7 @@
         "includeAll": true,
         "label": "ORPort",
         "multi": false,
-        "name": "orport",
+        "name": "Orport",
         "options": [],
         "query": {
           "qryType": 1,
@@ -3460,6 +3552,30 @@
         "regex": "/^[0-9]*$/",
         "skipUrlSync": false,
         "sort": 3,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(instance)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Instance",
+        "multi": false,
+        "name": "Instance",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(instance)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "/.*:9100*/",
+        "skipUrlSync": false,
+        "sort": 0,
         "type": "query"
       }
     ]
@@ -3472,6 +3588,6 @@
   "timezone": "utc",
   "title": "Tor DDoS",
   "uid": "FgvRNta4k",
-  "version": 353,
+  "version": 360,
   "weekStart": ""
 }

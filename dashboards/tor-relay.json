@@ -505,7 +505,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(type, direction, instance, family, state) (rate(tor_relay_connections_total{instance=~\"$Instance\", family=~\"$Family\", type=~\"$Type_conn\", direction=~\"$Dir_conn\", job=~\"$Job\"}[$__rate_interval]))",
+          "expr": "sum by(type, direction, instance, family, state) (rate(tor_relay_connections_total{instance=~\"$Instance\", family=~\"$Family\", type=~\"$Type_conn\", direction=~\"$Dir_conn\", job=~\"$Job\", state=~\"$State_cong_tot|$State_conn_tot\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -2407,6 +2407,30 @@
           "type": "prometheus",
           "uid": "${DS_PROMETHEUS}"
         },
+        "definition": "label_values(tor_relay_connections_total,state)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "State conn tot",
+        "multi": false,
+        "name": "State_conn_tot",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(tor_relay_connections_total,state)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
         "definition": "label_values(tor_relay_load_oom_bytes_total,subsys)",
         "hide": 0,
         "includeAll": true,
@@ -2526,6 +2550,6 @@
   "timezone": "",
   "title": "Tor Relay",
   "uid": "bb0ac200-1fab-4d04-a3b0-859d35ec9ee6",
-  "version": 236,
+  "version": 249,
   "weekStart": ""
 }
