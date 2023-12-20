@@ -44,7 +44,7 @@ export GIT_PAGER="cat"
 
 if [[ ! -d ~/tor ]]; then
   cd ~
-  git clone https://git.torproject.org/tor.git
+  git clone https://git.torproject.org/tor.git/
 else
   tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
   cd ~/tor
