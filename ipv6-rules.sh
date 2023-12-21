@@ -172,16 +172,6 @@ function addHetzner() {
   $ipt -A INPUT -m set --match-set $sysmon src -j ACCEPT
 }
 
-function setSysctlValues() {
-  local current
-
-  if current=$(sysctl -n net.netfilter.nf_conntrack_max); then
-    if [[ $current -le $((2 * max)) ]]; then
-      sysctl -q -w net.netfilter.nf_conntrack_max=$((current + 2 * max))
-    fi
-  fi
-}
-
 function clearRules() {
   $ipt -P INPUT ACCEPT
 
@@ -266,7 +256,6 @@ case $action in
 start)
   trap bailOut INT QUIT TERM EXIT
   clearRules
-  setSysctlValues
   addCommon
   addHetzner
   addLocalServices
