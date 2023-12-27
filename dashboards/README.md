@@ -3,16 +3,18 @@
 # Tor Grafana Dashboards
 
 Few dashboards for Tor relay, Tor Snowflake and the proposed DDoS solution.
-Prometheus and Grafana run in the given example below at the same Tor relay where the DDoS solution is implemented.
-The scrape intervall of Prometheus is 15 sec, but for the Snowflake job 1 min.
+Prometheus and Grafana run in the given example below at the same machine where few Tor relays are running and protected by the proposed DDoS solution ([README](../README.md)).
+The default scrape intervall of Prometheus is 15 sec, but for the Snowflake job it is set to 1 min.
 That's why in Grafana 2 datasources are needed to let it compute its "\_\_rate_interval" correctly accordingly to the choosen job.
+
+**Hint**: Do only scrape within the same network / at the same machine. Otherwise the Prometheus network traffic could unveil the Tor bridges.
 
 ## Prometheus
 
 Prometheus is configured in this way:
 
 ```yaml
-- job_name: "mr-fox"
+- job_name: "Node-Exporter"
   static_configs:
     - targets: ["localhost:9100"]
 
@@ -21,7 +23,6 @@ Prometheus is configured in this way:
     - targets: ["borstel:9052", "casimir:9052", ....]
   relabel_configs:
     - source_labels: [__address__]
-      separator: ":"
       regex: "(.*):(.*)"
       replacement: "${1}"
       target_label: instance
@@ -33,7 +34,6 @@ Prometheus is configured in this way:
     - targets: ["buddelflink:9999", "drehrumbum:9999", ....]
   relabel_configs:
     - source_labels: [__address__]
-      separator: ":"
       regex: "(.*):(.*)"
       replacement: "${1}"
       target_label: instance
@@ -42,11 +42,8 @@ Prometheus is configured in this way:
   static_configs:
     - targets: ["localhost:9052"]
       labels:
-        orport: "443"
-        instance: "nickeneck"
+        instance: "my-nickname"
 ```
-
-The label `orport` is used in the _Tor DDoS_ dashboard, replace `instance` with the appropriate nickname for the _Tor Relay_ dashboard.
 
 ## Scraping Tor Relay metrics
 

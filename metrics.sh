@@ -4,6 +4,20 @@
 
 # use node_exporter's "textfile" feature to send metrics to Prometheus
 
+# set the Prometheus label "nickname"  to the value of the Tor nickname
+function _orport2nickname() {
+  local opt=${1:-UNSET}
+
+  case $opt in
+  443) echo "toralf1" ;;
+  9001) echo "toralf2" ;;
+  8443) echo "toralf3" ;;
+  9443) echo "toralf4" ;;
+  5443) echo "toralf5" ;;
+  *) echo "$opt" ;;
+  esac
+}
+
 function _histogram() {
   perl -wane '
     BEGIN {
@@ -26,18 +40,20 @@ function _histogram() {
       my $N = 0;
       for (my $i = 0; $i <= $#arr; $i++) {
         $N += $arr[$i];
-        print "'${var}'_bucket{ipver=\"'${v:-4}'\",orport=\"'$orport'\",mode=\"'$mode'\",le=\"$i\"} $N\n";
+        print "'${var}'_bucket{ipver=\"'${v:-4}'\",nickname=\"'$nickname'\",mode=\"'$mode'\",le=\"$i\"} $N\n";
       }
       my $count = $N + $inf;
-      print "'${var}'_bucket{ipver=\"'${v:-4}'\",orport=\"'$orport'\",mode=\"'$mode'\",le=\"+Inf\"} $count\n";
-      print "'${var}'_count{ipver=\"'${v:-4}'\",orport=\"'$orport'\",mode=\"'$mode'\"} $count\n";
-      print "'${var}'_sum{ipver=\"'${v:-4}'\",orport=\"'$orport'\",mode=\"'$mode'\"} $sum\n";
+      print "'${var}'_bucket{ipver=\"'${v:-4}'\",nickname=\"'$nickname'\",mode=\"'$mode'\",le=\"+Inf\"} $count\n";
+      print "'${var}'_count{ipver=\"'${v:-4}'\",nickname=\"'$nickname'\",mode=\"'$mode'\"} $count\n";
+      print "'${var}'_sum{ipver=\"'${v:-4}'\",nickname=\"'$nickname'\",mode=\"'$mode'\"} $sum\n";
     }'
 }
 
 function printMetrics() {
+  local count
   local mode
   local name
+  local nickname
   local orport
   local var
 
@@ -52,6 +68,7 @@ function printMetrics() {
       grep '^tor-'${mode}${v}'-' |
       while read -r name; do
         orport=$(cut -f 3 -d '-' -s <<<$name)
+        nickname=$(_orport2nickname $orport)
         {
           ipset list -s $name | sed -e '1,8d' | _histogram >$tmpfile.$name.tmp
           chmod a+r $tmpfile.$name.tmp
@@ -67,7 +84,7 @@ function printMetrics() {
   echo -e "# HELP $var Total number of dropped packets due to wrong TCP state\n# TYPE $var gauge"
   for v in "" 6; do
     ip${v}tables -nvxL -t filter |
-      grep -F ' DROP ' | grep -F -e " ctstate INVALID" -e " state NEW" | awk '{ print $1, $NF }' |
+      grep ' DROP ' | grep -e " ctstate INVALID" -e " state NEW" | awk '{ print $1, $NF }' |
       while read -r pkts state; do
         echo "$var{ipver=\"${v:-4}\",state=\"$state\"} $pkts"
       done
@@ -78,11 +95,12 @@ function printMetrics() {
   for v in "" 6; do
     # shellcheck disable=SC2034
     ip${v}tables -nvxL -t filter |
-      grep -F ' DROP ' | grep -F ' match-set tor-ddos'$v'-' |
+      grep ' DROP ' | grep -F ' match-set tor-ddos'$v'-' |
       while read -r pkts remain; do
         name=$(grep -Eo ' tor-ddos.* ' <<<$remain | tr -d ' ')
         orport=$(cut -f 3 -d '-' -s <<<$name)
-        echo "$var{ipver=\"${v:-4}\",orport=\"$orport\"} $pkts"
+        nickname=$(_orport2nickname $orport)
+        echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\"} $pkts"
       done
   done
 
@@ -94,18 +112,21 @@ function printMetrics() {
   for v in "" 6; do
     ipset list -t | grep -e "^N" | xargs -L 2 | awk '/^Name: tor-/ { print $2, $6 }' |
       if [[ $v == "6" ]]; then
-        grep -F -e "6 " -e "6-"
+        grep -e "6 " -e "6-"
       else
-        grep -F -v -e "6 " -e "6-"
+        grep -v -e "6 " -e "6-"
       fi |
       while read -r name size; do
         mode=$(cut -f 2 -d '-' -s <<<$name | tr -d '6')
         if [[ $name =~ 'multi' ]]; then
-          upto=$(cut -f 3 -d '-' -s <<<$name)
-          echo "$var{ipver=\"${v:-4}\",mode=\"$mode\",upto=\"$upto\"} $size"
+          count=$(cut -f 3 -d '-' -s <<<$name)
+          echo "$var{ipver=\"${v:-4}\",mode=\"$mode\",count=\"$count\"} $size"
+        elif [[ $name =~ 'trust' ]]; then
+          echo "$var{ipver=\"${v:-4}\",mode=\"$mode\"} $size"
         else
           orport=$(cut -f 3 -d '-' -s <<<$name)
-          echo "$var{ipver=\"${v:-4}\",mode=\"$mode\",orport=\"$orport\"} $size"
+          nickname=$(_orport2nickname $orport)
+          echo "$var{ipver=\"${v:-4}\",mode=\"$mode\",nickname=\"$nickname\"} $size"
         fi
       done
   done
@@ -121,7 +142,8 @@ function printMetrics() {
       grep -v ' total' |
       while read -r count name; do
         orport=$(cut -f 3 -d '-' -s <<<$name)
-        echo "$var{ipver=\"${v:-4}\",orport=\"$orport\",mode=\"$mode\"} $count"
+        nickname=$(_orport2nickname $orport)
+        echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\",mode=\"$mode\"} $count"
       done
   done
 }

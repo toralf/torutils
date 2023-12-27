@@ -23,7 +23,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "10.2.2"
+      "version": "10.2.3"
     },
     {
       "type": "datasource",
@@ -815,7 +815,7 @@
     }
   ],
   "refresh": "5m",
-  "schemaVersion": 38,
+  "schemaVersion": 39,
   "tags": [],
   "templating": {
     "list": [
@@ -876,6 +876,6 @@
   "timezone": "",
   "title": "Tor Snowflake 1m",
   "uid": "b1cf61bb-53e2-44e9-9f96-af33116dee8a",
-  "version": 30,
+  "version": 31,
   "weekStart": ""
 }

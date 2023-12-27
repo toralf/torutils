@@ -27,7 +27,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "10.2.2"
+      "version": "10.2.3"
     },
     {
       "type": "datasource",
@@ -190,7 +190,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.2.2",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
@@ -200,13 +200,13 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "tor_bug_reached{orport=~\"$Orport\"}",
+          "expr": "tor_bug_reached{nickname=~\"$Nickname\"}",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": true,
           "interval": "",
-          "legendFormat": "{{orport}}",
+          "legendFormat": "{{nickname}}",
           "range": false,
           "refId": "A",
           "useBackend": false
@@ -274,7 +274,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.2.2",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
@@ -284,11 +284,11 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "tor_relay_flag{orport=~\"$Orport\"}",
+          "expr": "tor_relay_flag{nickname=~\"$Nickname\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": true,
-          "legendFormat": "{{orport}} {{type}}",
+          "legendFormat": "{{nickname}} {{type}}",
           "range": false,
           "refId": "A",
           "useBackend": false
@@ -352,9 +352,10 @@
           "values": false
         },
         "showThresholdLabels": false,
-        "showThresholdMarkers": true
+        "showThresholdMarkers": true,
+        "sizing": "auto"
       },
-      "pluginVersion": "10.2.2",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
@@ -364,13 +365,13 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "(tor_relay_signing_cert_expiry_timestamp{orport=~\"$Orport\"} / 86400) - (time() / 86400)",
+          "expr": "(tor_relay_signing_cert_expiry_timestamp{nickname=~\"$Nickname\"} / 86400) - (time() / 86400)",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": true,
           "interval": "",
-          "legendFormat": "{{orport}}",
+          "legendFormat": "{{nickname}}",
           "range": false,
           "refId": "A",
           "useBackend": false
@@ -452,32 +453,7 @@
           },
           "unit": "pps"
         },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "rx"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 7,
@@ -507,7 +483,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(node_network_receive_packets_total{device=\"enp8s0\"}[$__rate_interval])",
+          "expr": "rate(node_network_receive_packets_total{device=\"enp8s0\", instance=\"localhost:9100\"}[$__rate_interval])",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "rx",
@@ -520,12 +496,16 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(node_network_transmit_packets_total{device=\"enp8s0\"}[$__rate_interval])",
+          "expr": "rate(node_network_transmit_packets_total{device=\"enp8s0\", instance=\"localhost:9100\"}[$__rate_interval])",
+          "fullMetaSearch": false,
           "hide": false,
+          "includeNullMetadata": true,
           "legendFormat": "tx",
           "range": true,
-          "refId": "B"
+          "refId": "B",
+          "useBackend": false
         }
       ],
       "title": "Packets",
@@ -591,32 +571,7 @@
           },
           "unit": "binBps"
         },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "tx"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 7,
@@ -646,7 +601,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(node_network_receive_bytes_total{device=\"enp8s0\"}[$__rate_interval])",
+          "expr": "rate(node_network_receive_bytes_total{device=\"enp8s0\", instance=\"localhost:9100\"}[$__rate_interval])",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "rx",
@@ -659,12 +614,16 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(node_network_transmit_bytes_total{device=\"enp8s0\"}[$__rate_interval])",
+          "expr": "rate(node_network_transmit_bytes_total{device=\"enp8s0\", instance=\"localhost:9100\"}[$__rate_interval])",
+          "fullMetaSearch": false,
           "hide": false,
+          "includeNullMetadata": true,
           "legendFormat": "tx",
           "range": true,
-          "refId": "B"
+          "refId": "B",
+          "useBackend": false
         }
       ],
       "title": "Traffic",
@@ -835,32 +794,7 @@
           },
           "unit": "none"
         },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "IPv6"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 7,
@@ -890,7 +824,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "node_sockstat_TCP_inuse",
+          "expr": "node_sockstat_TCP_inuse{instance=\"localhost:9100\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -906,7 +840,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "node_sockstat_TCP6_inuse",
+          "expr": "node_sockstat_TCP6_inuse{instance=\"localhost:9100\"}",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -1005,30 +939,12 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "node_nf_conntrack_entries",
+          "expr": "node_nf_conntrack_entries{instance=\"localhost:9100\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "current",
           "range": true,
           "refId": "A",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "exemplar": false,
-          "expr": "node_nf_conntrack_entries_limit",
-          "fullMetaSearch": false,
-          "hide": true,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "limit",
-          "range": true,
-          "refId": "B",
           "useBackend": false
         }
       ],
@@ -1156,10 +1072,10 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport, family, direction) (tor_relay_connections{family=\"ipv4\", direction=\"initiated\", orport=~\"$Orport\"})",
+          "expr": "sum by(nickname, family, direction) (tor_relay_connections{family=\"ipv4\", direction=\"initiated\", nickname=~\"$Nickname\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{orport}}",
+          "legendFormat": "{{nickname}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -1257,10 +1173,10 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport, family, direction) (tor_relay_connections{family=\"ipv6\", direction=\"initiated\", orport=~\"$Orport\"})",
+          "expr": "sum by(family, direction, nickname) (tor_relay_connections{family=\"ipv6\", direction=\"initiated\", nickname=~\"$Nickname\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{orport}}",
+          "legendFormat": "{{nickname}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -1358,10 +1274,10 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport, family, direction) (tor_relay_connections{family=\"ipv4\", direction=\"received\", orport=~\"$Orport\"})",
+          "expr": "sum by(family, direction, nickname) (tor_relay_connections{family=\"ipv4\", direction=\"received\", nickname=~\"$Nickname\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{orport}}",
+          "legendFormat": "{{nickname}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -1459,10 +1375,10 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport, direction, family) (tor_relay_connections{family=\"ipv6\", direction=\"received\", orport=~\"$Orport\"})",
+          "expr": "sum by(nickname, direction, family) (tor_relay_connections{family=\"ipv6\", direction=\"received\", nickname=~\"$Nickname\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{orport}}",
+          "legendFormat": "{{instance}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -1538,7 +1454,7 @@
         "x": 0,
         "y": 47
       },
-      "id": 85,
+      "id": 94,
       "options": {
         "legend": {
           "calcs": [],
@@ -1560,10 +1476,10 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport, direction) (rate(tor_relay_traffic_bytes{direction=\"read\", orport=~\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(nickname, direction) (rate(tor_relay_traffic_bytes{direction=\"read\", nickname=~\"$Nickname\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{orport}}",
+          "legendFormat": "{{nickname}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -1661,10 +1577,10 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "max by(orport, state) (tor_relay_load_socket_total{state=\"opened\", orport=~\"$Orport\"})",
+          "expr": "max by(nickname, state) (tor_relay_load_socket_total{state=\"opened\", nickname=~\"$Nickname\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{label_name}}{{orport}}",
+          "legendFormat": "{{label_name}}{{nickname}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -1762,10 +1678,10 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport, direction) (rate(tor_relay_traffic_bytes{direction=\"written\", orport=~\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(nickname, direction) (rate(tor_relay_traffic_bytes{direction=\"written\", nickname=~\"$Nickname\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{orport}}",
+          "legendFormat": "{{nickname}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -2112,7 +2028,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport) (rate(torutils_dropped_ddos_packets{ipver=\"4\", orport=~\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(nickname) (rate(torutils_dropped_ddos_packets{ipver=\"4\", nickname=~\"$Nickname\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -2128,7 +2044,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport) (rate(torutils_syn_packets{ipver=\"4\", orport=~\"$orport\"}[$__rate_interval]))",
+          "expr": "sum(rate(torutils_syn_packets{ipver=\"4\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -2230,7 +2146,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport) (rate(torutils_dropped_ddos_packets{ipver=\"6\", orport=~\"$Orport\"}[$__rate_interval]))",
+          "expr": "sum by(nickname) (rate(torutils_dropped_ddos_packets{ipver=\"6\", nickname=~\"$Instance|$Nickname\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -2246,7 +2162,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(orport) (rate(torutils_syn_packets{ipver=\"6\", orport=~\"$orport\"}[$__rate_interval]))",
+          "expr": "sum by() (rate(torutils_syn_packets{ipver=\"6\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -2349,10 +2265,10 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_total{ipver=\"4\", mode=\"ddos\", orport=~\"$Orport\"}",
+          "expr": "torutils_ipset_total{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{orport}}",
+          "legendFormat": "{{nickname}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -2451,10 +2367,10 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_total{ipver=\"6\", mode=\"ddos\", orport=~\"$Orport\"}",
+          "expr": "torutils_ipset_total{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{orport}}",
+          "legendFormat": "{{nickname}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -2552,10 +2468,10 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_hashlimit_total{ipver=\"4\", mode=\"ddos\", orport=~\"$Orport\"}",
+          "expr": "torutils_hashlimit_total{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{orport}}",
+          "legendFormat": "{{nickname}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -2653,10 +2569,10 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_hashlimit_total{ipver=\"6\", mode=\"ddos\", orport=~\"$Orport\"}",
+          "expr": "torutils_hashlimit_total{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{orport}}",
+          "legendFormat": "{{nickname}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -2755,10 +2671,10 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_total{ipver=\"4\", mode!=\"ddos\"}",
+          "expr": "torutils_ipset_total{ipver=\"4\", mode!=\"ddos\", instance=~\"$Instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{mode}} {{upto}}",
+          "legendFormat": "{{mode}} {{count}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -2857,10 +2773,10 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_total{ipver=\"6\", mode!=\"ddos\"}",
+          "expr": "torutils_ipset_total{ipver=\"6\", mode!=\"ddos\", instance=~\"$Instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{mode}} {{upto}}",
+          "legendFormat": "{{mode}} {{count}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -2913,6 +2829,7 @@
       "id": 41,
       "options": {
         "displayMode": "gradient",
+        "maxVizHeight": 300,
         "minVizHeight": 10,
         "minVizWidth": 0,
         "namePlacement": "auto",
@@ -2925,10 +2842,11 @@
           "values": false
         },
         "showUnfilled": true,
+        "sizing": "manual",
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.2",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
@@ -2937,7 +2855,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", orport=\"443\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf1\", mode=\"ddos\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -2947,7 +2865,7 @@
           "useBackend": false
         }
       ],
-      "title": "tor-ddos-443 IPv4",
+      "title": "toralf1 IPv4",
       "type": "bargauge"
     },
     {
@@ -2981,6 +2899,7 @@
       "id": 44,
       "options": {
         "displayMode": "gradient",
+        "maxVizHeight": 300,
         "minVizHeight": 10,
         "minVizWidth": 0,
         "namePlacement": "auto",
@@ -2993,25 +2912,30 @@
           "values": false
         },
         "showUnfilled": true,
+        "sizing": "manual",
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.2",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", orport=\"443\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf1\", mode=\"ddos\"}",
           "format": "heatmap",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "{{le}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "tor-ddos-443 IPv6",
+      "title": "toralf1 IPv6",
       "type": "bargauge"
     },
     {
@@ -3042,9 +2966,10 @@
         "x": 0,
         "y": 103
       },
-      "id": 88,
+      "id": 53,
       "options": {
         "displayMode": "gradient",
+        "maxVizHeight": 300,
         "minVizHeight": 10,
         "minVizWidth": 0,
         "namePlacement": "auto",
@@ -3057,25 +2982,30 @@
           "values": false
         },
         "showUnfilled": true,
+        "sizing": "manual",
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.2",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", orport=\"5443\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf2\", mode=\"ddos\"}",
           "format": "heatmap",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "{{le}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "tor-ddos-5443 IPv4",
+      "title": "toralf2 IPv4",
       "type": "bargauge"
     },
     {
@@ -3106,9 +3036,10 @@
         "x": 12,
         "y": 103
       },
-      "id": 54,
+      "id": 55,
       "options": {
         "displayMode": "gradient",
+        "maxVizHeight": 300,
         "minVizHeight": 10,
         "minVizWidth": 0,
         "namePlacement": "auto",
@@ -3121,25 +3052,30 @@
           "values": false
         },
         "showUnfilled": true,
+        "sizing": "manual",
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.2",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", orport=\"5443\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf2\", mode=\"ddos\"}",
           "format": "heatmap",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "{{le}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "tor-ddos-5443 IPv6",
+      "title": "toralf2 IPv6",
       "type": "bargauge"
     },
     {
@@ -3173,6 +3109,7 @@
       "id": 52,
       "options": {
         "displayMode": "gradient",
+        "maxVizHeight": 300,
         "minVizHeight": 10,
         "minVizWidth": 0,
         "namePlacement": "auto",
@@ -3185,25 +3122,30 @@
           "values": false
         },
         "showUnfilled": true,
+        "sizing": "manual",
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.2",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", orport=\"8443\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf3\", mode=\"ddos\"}",
           "format": "heatmap",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "{{le}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "tor-ddos-8443 IPv4",
+      "title": "toralf3 IPv4",
       "type": "bargauge"
     },
     {
@@ -3237,6 +3179,7 @@
       "id": 89,
       "options": {
         "displayMode": "gradient",
+        "maxVizHeight": 300,
         "minVizHeight": 10,
         "minVizWidth": 0,
         "namePlacement": "auto",
@@ -3249,25 +3192,30 @@
           "values": false
         },
         "showUnfilled": true,
+        "sizing": "manual",
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.2",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", orport=\"8443\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf3\", mode=\"ddos\"}",
           "format": "heatmap",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "{{le}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "tor-ddos-8443 IPv6",
+      "title": "toralf3 IPv6",
       "type": "bargauge"
     },
     {
@@ -3297,138 +3245,11 @@
         "w": 12,
         "x": 0,
         "y": 113
-      },
-      "id": 53,
-      "options": {
-        "displayMode": "gradient",
-        "minVizHeight": 10,
-        "minVizWidth": 0,
-        "namePlacement": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "text": {},
-        "valueMode": "color"
-      },
-      "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", orport=\"9001\", mode=\"ddos\"}",
-          "format": "heatmap",
-          "legendFormat": "{{le}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "tor-ddos-9001 IPv4",
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 12,
-        "x": 12,
-        "y": 113
-      },
-      "id": 55,
-      "options": {
-        "displayMode": "gradient",
-        "minVizHeight": 10,
-        "minVizWidth": 0,
-        "namePlacement": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "text": {},
-        "valueMode": "color"
-      },
-      "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", orport=\"9001\", mode=\"ddos\"}",
-          "format": "heatmap",
-          "legendFormat": "{{le}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "tor-ddos-9001 IPv6",
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 12,
-        "x": 0,
-        "y": 118
       },
       "id": 76,
       "options": {
         "displayMode": "gradient",
+        "maxVizHeight": 300,
         "minVizHeight": 10,
         "minVizWidth": 0,
         "namePlacement": "auto",
@@ -3441,25 +3262,170 @@
           "values": false
         },
         "showUnfilled": true,
+        "sizing": "manual",
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.2",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", orport=\"9443\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf4\", mode=\"ddos\"}",
           "format": "heatmap",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "{{le}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "tor-ddos-9443 IPv4",
+      "title": "toralf4 IPv4",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 12,
+        "y": 113
+      },
+      "id": 77,
+      "options": {
+        "displayMode": "gradient",
+        "maxVizHeight": 300,
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "namePlacement": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "manual",
+        "text": {},
+        "valueMode": "color"
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf4\", mode=\"ddos\"}",
+          "format": "heatmap",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "{{le}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "toralf4 IPv6",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 0,
+        "y": 118
+      },
+      "id": 88,
+      "options": {
+        "displayMode": "gradient",
+        "maxVizHeight": 300,
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "namePlacement": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "manual",
+        "text": {},
+        "valueMode": "color"
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf5\", mode=\"ddos\"}",
+          "format": "heatmap",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "{{le}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "toralf5 IPv4",
       "type": "bargauge"
     },
     {
@@ -3490,9 +3456,10 @@
         "x": 12,
         "y": 118
       },
-      "id": 77,
+      "id": 54,
       "options": {
         "displayMode": "gradient",
+        "maxVizHeight": 300,
         "minVizHeight": 10,
         "minVizWidth": 0,
         "namePlacement": "auto",
@@ -3505,31 +3472,36 @@
           "values": false
         },
         "showUnfilled": true,
+        "sizing": "manual",
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.2",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", orport=\"9443\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf5\", mode=\"ddos\"}",
           "format": "heatmap",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "{{le}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "tor-ddos-9443 IPv6",
+      "title": "toralf5 IPv6",
       "type": "bargauge"
     }
   ],
   "refresh": "5m",
   "revision": 1,
-  "schemaVersion": 38,
+  "schemaVersion": 39,
   "tags": [],
   "templating": {
     "list": [
@@ -3539,22 +3511,46 @@
           "type": "prometheus",
           "uid": "${DS_PROMETHEUS}"
         },
-        "definition": "label_values(torutils_hashlimit_total,orport)",
+        "definition": "label_values(node_arp_entries,instance)",
         "hide": 0,
         "includeAll": true,
-        "label": "ORPort",
+        "label": "Instance",
         "multi": false,
-        "name": "Orport",
+        "name": "Instance",
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(torutils_hashlimit_total,orport)",
+          "query": "label_values(node_arp_entries,instance)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
-        "refresh": 2,
-        "regex": "/^[0-9]*$/",
+        "refresh": 1,
+        "regex": "",
         "skipUrlSync": false,
-        "sort": 3,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(tor_relay_connections,nickname)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Nickname",
+        "multi": false,
+        "name": "Nickname",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(tor_relay_connections,nickname)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "/toralf.*/",
+        "skipUrlSync": false,
+        "sort": 1,
         "type": "query"
       }
     ]
@@ -3567,6 +3563,6 @@
   "timezone": "utc",
   "title": "Tor DDoS",
   "uid": "FgvRNta4k",
-  "version": 366,
+  "version": 386,
   "weekStart": ""
 }
