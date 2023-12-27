@@ -19,8 +19,8 @@ fi
 
 conntrack -S | grep -v ' insert_failed=0 drop=0 ' | awk '{ print $1, $5, $6 }' | cut -f2- -d':' >$tmpfile
 n=$(conntrack -C)
-if [[ $n -gt 50000 ]]; then
-  echo "more than 50K in conntrack table: $n" >>$tmpfile
+if [[ $n -gt 60000 ]]; then
+  echo "more than 60K in conntrack table: $n" >>$tmpfile
 fi
 
 if ! diff -q $tmpfile{,.old} &>/dev/null; then
