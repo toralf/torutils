@@ -20,7 +20,7 @@ Prometheus is configured in this way:
 
 - job_name: "Tor-Bridge-Public"
   static_configs:
-    - targets: ["borstel:9052", "casimir:9052", ....]
+    - targets: ["borstel:9052", "casimir:9052", ...]
   relabel_configs:
     - source_labels: [__address__]
       regex: "(.*):(.*)"
@@ -31,7 +31,7 @@ Prometheus is configured in this way:
   scrape_interval: 1m
   metrics_path: "/internal/metrics"
   static_configs:
-    - targets: ["buddelflink:9999", "drehrumbum:9999", ....]
+    - targets: ["buddelflink:9999", "drehrumbum:9999", ...]
   relabel_configs:
     - source_labels: [__address__]
       regex: "(.*):(.*)"
@@ -40,9 +40,10 @@ Prometheus is configured in this way:
 
 - job_name: "Tor"
   static_configs:
-    - targets: ["localhost:9052"]
+    - targets: ["localhost:9052", ...]
       labels:
         instance: "my-nickname"
+        nickname: "my-nickname"
 ```
 
 ## Scraping Tor Relay metrics
