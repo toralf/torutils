@@ -95,7 +95,7 @@ function printMetrics() {
   for v in "" 6; do
     # shellcheck disable=SC2034
     ip${v}tables -nvxL -t filter |
-      grep ' DROP ' | grep -F ' match-set tor-ddos'$v'-' |
+      grep ' DROP ' | grep ' match-set tor-ddos'$v'-' |
       while read -r pkts remain; do
         name=$(grep -Eo ' tor-ddos.* ' <<<$remain | tr -d ' ')
         orport=$(cut -f 3 -d '-' -s <<<$name)

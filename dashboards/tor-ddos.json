@@ -200,7 +200,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "tor_bug_reached{nickname=~\"$Nickname\"}",
+          "expr": "tor_bug_reached{instance=~\"$Nickname\"}",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -903,7 +903,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -1013,7 +1014,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1133,7 +1135,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1234,7 +1237,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1335,7 +1339,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1353,7 +1358,7 @@
         "x": 12,
         "y": 40
       },
-      "id": 70,
+      "id": 95,
       "options": {
         "legend": {
           "calcs": [],
@@ -1375,10 +1380,10 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(nickname, direction, family) (tor_relay_connections{family=\"ipv6\", direction=\"received\", nickname=~\"$Nickname\"})",
+          "expr": "sum by(family, direction, nickname) (tor_relay_connections{family=\"ipv6\", direction=\"received\", nickname=~\"$Nickname\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{instance}}",
+          "legendFormat": "{{nickname}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -1436,7 +1441,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1537,7 +1543,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1638,7 +1645,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2395,6 +2403,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
             "drawStyle": "line",
@@ -2496,6 +2505,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
             "drawStyle": "line",
@@ -2680,7 +2690,7 @@
           "useBackend": false
         }
       ],
-      "title": "Ipset Multirelays IPv4",
+      "title": "Ipset IPv4",
       "type": "timeseries"
     },
     {
@@ -2782,7 +2792,7 @@
           "useBackend": false
         }
       ],
-      "title": "Ipset Multirelays IPv6",
+      "title": "Ipset IPv6",
       "type": "timeseries"
     },
     {
@@ -3556,13 +3566,13 @@
     ]
   },
   "time": {
-    "from": "now-7d",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "utc",
   "title": "Tor DDoS",
   "uid": "FgvRNta4k",
-  "version": 386,
+  "version": 389,
   "weekStart": ""
 }
