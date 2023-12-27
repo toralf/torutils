@@ -507,7 +507,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(node_network_receive_packets_total{device=\"enp8s0\", instance=~\"$Instance\"}[$__rate_interval])",
+          "expr": "rate(node_network_receive_packets_total{device=\"enp8s0\"}[$__rate_interval])",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "rx",
@@ -646,7 +646,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(node_network_receive_bytes_total{device=\"enp8s0\", instance=~\"$Instance\"}[$__rate_interval])",
+          "expr": "rate(node_network_receive_bytes_total{device=\"enp8s0\"}[$__rate_interval])",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "rx",
@@ -763,7 +763,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "(sum(rate(node_cpu_seconds_total{mode=\"user\", instance=~\"$Instance\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total{instance=~\"$Instance\"}[$__rate_interval]))",
+          "expr": "(sum(rate(node_cpu_seconds_total{mode=\"user\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "user",
@@ -835,7 +835,32 @@
           },
           "unit": "none"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "IPv6"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 7,
@@ -865,7 +890,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "node_sockstat_TCP_inuse{instance=~\"$Instance\"}",
+          "expr": "node_sockstat_TCP_inuse",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -881,7 +906,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "node_sockstat_TCP6_inuse{instance=~\"$Instance\"}",
+          "expr": "node_sockstat_TCP6_inuse",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -944,12 +969,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "#EAB839",
-                "value": 65535
+                "color": "green"
               }
             ]
           },
@@ -985,7 +1005,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "node_nf_conntrack_entries{instance=~\"$Instance\"}",
+          "expr": "node_nf_conntrack_entries",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "current",
@@ -1001,7 +1021,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "node_nf_conntrack_entries_limit{instance=~\"$Instance\"}",
+          "expr": "node_nf_conntrack_entries_limit",
           "fullMetaSearch": false,
           "hide": true,
           "includeNullMetadata": true,
@@ -1077,8 +1097,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1198,8 +1217,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1300,8 +1318,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1402,8 +1419,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1504,8 +1520,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1606,8 +1621,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1708,8 +1722,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1823,8 +1836,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1942,8 +1954,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2061,8 +2072,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2180,8 +2190,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2300,8 +2309,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2403,8 +2411,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2505,8 +2512,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2607,8 +2613,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2710,8 +2715,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2813,8 +2817,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -3553,30 +3556,6 @@
         "skipUrlSync": false,
         "sort": 3,
         "type": "query"
-      },
-      {
-        "current": {},
-        "datasource": {
-          "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
-        },
-        "definition": "label_values(instance)",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Instance",
-        "multi": false,
-        "name": "Instance",
-        "options": [],
-        "query": {
-          "qryType": 1,
-          "query": "label_values(instance)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "/.*:9100*/",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
       }
     ]
   },
@@ -3588,6 +3567,6 @@
   "timezone": "utc",
   "title": "Tor DDoS",
   "uid": "FgvRNta4k",
-  "version": 360,
+  "version": 366,
   "weekStart": ""
 }

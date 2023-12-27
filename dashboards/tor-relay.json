@@ -476,7 +476,32 @@
           },
           "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "{direction=\"initiated\", family=\"ipv4\", instance=\"borstel2:9052\", state=\"created\", type=\"Control\"}"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -2166,7 +2191,7 @@
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
-        "regex": "/.*52/",
+        "regex": "",
         "skipUrlSync": false,
         "sort": 1,
         "type": "query"
@@ -2550,6 +2575,6 @@
   "timezone": "",
   "title": "Tor Relay",
   "uid": "bb0ac200-1fab-4d04-a3b0-859d35ec9ee6",
-  "version": 249,
+  "version": 252,
   "weekStart": ""
 }

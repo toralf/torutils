@@ -19,24 +19,34 @@ Prometheus is configured in this way:
 - job_name: "Tor-Bridge-Public"
   static_configs:
     - targets: ["borstel:9052", "casimir:9052", ....]
+  relabel_configs:
+    - source_labels: [__address__]
+      separator: ":"
+      regex: "(.*):(.*)"
+      replacement: "${1}"
+      target_label: instance
 
 - job_name: "Tor-Snowflake-1m"
   scrape_interval: 1m
   metrics_path: "/internal/metrics"
   static_configs:
     - targets: ["buddelflink:9999", "drehrumbum:9999", ....]
+  relabel_configs:
+    - source_labels: [__address__]
+      separator: ":"
+      regex: "(.*):(.*)"
+      replacement: "${1}"
+      target_label: instance
 
 - job_name: "Tor"
   static_configs:
-    - targets: ["localhost:19052"]
+    - targets: ["localhost:9052"]
       labels:
         orport: "443"
-    - targets: ["localhost:29052"]
-      labels:
-        orport: "9001"
+        instance: "nickeneck"
 ```
 
-The label `orport` is used e.g. as a filter for the DDoS dashboard.
+The label `orport` is used in the _Tor DDoS_ dashboard, replace `instance` with the appropriate nickname for the _Tor Relay_ dashboard.
 
 ## Scraping Tor Relay metrics
 
