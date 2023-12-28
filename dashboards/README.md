@@ -4,10 +4,10 @@
 
 Few dashboards for Tor relay, Tor Snowflake and the proposed DDoS solution.
 Prometheus and Grafana run in the given example below at the same machine where few Tor relays are running and protected by the proposed DDoS solution ([README](../README.md)).
-The default scrape intervall of Prometheus is 15 sec, but for the Snowflake job it is set to 1 min.
-That's why in Grafana 2 datasources are needed to let it compute its "\_\_rate_interval" correctly accordingly to the choosen job.
+The default scrape intervall of Prometheus is 15 sec here under a Gentoo Linux, so for the Snowflake job it is set explicitely to 1 min.
+That's why in Grafana 2 datasources are needed to let it compute its `__rate_interval` correctly accordingly to the choosen job.
 
-**Hint**: Do only scrape within the same network / at the same machine. Otherwise the Prometheus network traffic could unveil the Tor bridges.
+**Hint**: Do only scrape in the same network (ideally at the same machine). Otherwise the Prometheus network traffic could unveil a Tor system.
 
 ## Prometheus
 
@@ -62,4 +62,4 @@ To scrape metrics from a remote Prometheus I do use
 [this](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup-snowflake/tasks/firewall.yaml#L10) Ansible task
 to configure the Snowflake clients in the right way.
 This solution lacks encryption.
-Nevertheless, this solution is sane for me because all systems run within the network of the same provider.
+Nevertheless, this solution looks sane for me because all systems run within the network of the same provider.
