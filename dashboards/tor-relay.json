@@ -200,7 +200,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(instance, direction) (rate(tor_relay_traffic_bytes{instance=~\"$Instance\", direction=~\"$Dir_traf\", job=~\"$Job\"}[$__rate_interval]))",
+          "expr": "sum by(instance, direction) (rate(tor_relay_traffic_bytes{instance=~\"$Instance\", direction=~\"$Dir_traf\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -303,7 +303,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg by(instance) (tor_relay_load_socket_total{instance=~\"$Instance\", state=\"opened\", job=~\"$Job\"})",
+          "expr": "avg by(instance) (tor_relay_load_socket_total{instance=~\"$Instance\", state=\"opened\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "instant": false,
@@ -404,7 +404,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(type, instance) (rate(tor_relay_dos_total{instance=~\"$Instance\", type=~\"$Type_dos\", job=~\"$Job\"}[$__rate_interval]))",
+          "expr": "sum by(type, instance) (rate(tor_relay_dos_total{instance=~\"$Instance\", type=~\"$Type_dos\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -474,34 +474,9 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "none"
         },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "{direction=\"initiated\", family=\"ipv4\", instance=\"borstel2:9052\", state=\"created\", type=\"Control\"}"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 8,
@@ -530,7 +505,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(type, direction, instance, family, state) (rate(tor_relay_connections_total{instance=~\"$Instance\", family=~\"$Family\", type=~\"$Type_conn\", direction=~\"$Dir_conn\", job=~\"$Job\", state=~\"$State_cong_tot|$State_conn_tot\"}[$__rate_interval]))",
+          "expr": "sum by(type, direction, instance, family, state) (rate(tor_relay_connections_total{instance=~\"$Instance\", family=~\"$Family\", type=~\"$Type_conn\", direction=~\"$Dir_conn\", state=~\"$State_conn_tot\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -631,7 +606,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(instance) (rate(tor_relay_circuits_total{instance=~\"$Instance\", state=\"opened\", job=~\"$Job\"}[$__rate_interval]))",
+          "expr": "sum by(instance) (rate(tor_relay_circuits_total{instance=~\"$Instance\", state=\"opened\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -731,7 +706,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(type, direction, instance, family) (rate(tor_relay_connections{family=~\"$Family\", type=~\"$Type_conn\", instance=~\"$Instance\", direction=~\"$Dir_conn\", state=\"opened\", job=~\"$Job\"}[$__rate_interval]))",
+          "expr": "sum by(type, direction, instance, family) (rate(tor_relay_connections{family=~\"$Family\", type=~\"$Type_conn\", instance=~\"$Instance\", direction=~\"$Dir_conn\", state=\"opened\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -843,7 +818,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(action, type, instance) (rate(tor_relay_load_onionskins_total{instance=~\"$Instance\", action=~\"$Action_load\", type=~\"$Type_load\", job=~\"$Job\"}[$__rate_interval]))",
+          "expr": "sum by(action, type, instance) (rate(tor_relay_load_onionskins_total{instance=~\"$Instance\", action=~\"$Action_load\", type=~\"$Type_load\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -942,7 +917,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(action, state, instance, state) (rate(tor_relay_congestion_control{instance=~\"$Instance\", state=~\"$State_cong\", action=~\"$Action_cong\", job=~\"$Job\"}[$__rate_interval]))",
+          "expr": "sum by(action, state, instance, state) (rate(tor_relay_congestion_control{instance=~\"$Instance\", state=~\"$State_cong\", action=~\"$Action_cong\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -1041,7 +1016,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(instance, action) (rate(tor_relay_intro1_total{instance=~\"$Instance\", action=~\"$Action_circ\", job=~\"$Job\"}[$__rate_interval]))",
+          "expr": "sum by(instance, action) (rate(tor_relay_intro1_total{instance=~\"$Instance\", action=~\"$Action_circ\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -1140,7 +1115,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg by(action, instance, state) (rate(tor_relay_congestion_control_total{instance=~\"$Instance\", action=~\"$Action_cong_tot\", state=~\"$State_cong_tot\", job=~\"$Job\"}[$__rate_interval]))",
+          "expr": "avg by(action, instance, state) (rate(tor_relay_congestion_control_total{instance=~\"$Instance\", action=~\"$Action_cong_tot\", state=~\"$State_cong_tot\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -1240,7 +1215,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(action, instance) (rate(tor_relay_rend1_total{instance=~\"$Instance\", action=~\"$Action_circ\", job=~\"$Job\"}[$__rate_interval]))",
+          "expr": "sum by(action, instance) (rate(tor_relay_rend1_total{instance=~\"$Instance\", action=~\"$Action_circ\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -1338,7 +1313,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(type, instance) (rate(tor_relay_streams_total{instance=~\"$Instance\", type=~\"$Type_stre\", job=~\"$Job\"}[$__rate_interval]))",
+          "expr": "sum by(type, instance) (rate(tor_relay_streams_total{instance=~\"$Instance\", type=~\"$Type_stre\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -1437,7 +1412,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg by(action, instance) (rate(tor_relay_est_intro_total{instance=~\"$Instance\", action=~\"$Action_circ\", job=~\"$Job\"}[$__rate_interval]))",
+          "expr": "avg by(action, instance) (rate(tor_relay_est_intro_total{instance=~\"$Instance\", action=~\"$Action_circ\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -1536,7 +1511,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg by(action, instance) (rate(tor_relay_est_rend_total{instance=~\"$Instance\", action=~\"$Action_circ\", job=~\"$Job\"}[$__rate_interval]))",
+          "expr": "avg by(action, instance) (rate(tor_relay_est_rend_total{instance=~\"$Instance\", action=~\"$Action_circ\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -1635,7 +1610,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg by(reason, instance) (tor_relay_exit_dns_error_total{instance=~\"$Instance\", reason=~\"$Reason\", job=~\"$Job\"})",
+          "expr": "avg by(reason, instance) (tor_relay_exit_dns_error_total{instance=~\"$Instance\", reason=~\"$Reason\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -1734,7 +1709,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg by(instance) (tor_relay_load_tcp_exhaustion_total{instance=~\"$Instance\", job=~\"$Job\"})",
+          "expr": "avg by(instance) (tor_relay_load_tcp_exhaustion_total{instance=~\"$Instance\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "legendFormat": "__auto",
@@ -1833,7 +1808,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg by(instance) (tor_relay_exit_dns_query_total{instance=~\"$Instance\", job=~\"$Job\"})",
+          "expr": "avg by(instance) (tor_relay_exit_dns_query_total{instance=~\"$Instance\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "legendFormat": "__auto",
@@ -1932,7 +1907,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg by(instance) (tor_relay_load_global_rate_limit_reached_total{instance=~\"$Instance\", job=~\"$Job\"})",
+          "expr": "avg by(instance) (tor_relay_load_global_rate_limit_reached_total{instance=~\"$Instance\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -2031,7 +2006,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg by(subsys, instance) (tor_relay_load_oom_bytes_total{instance=~\"$Instance\", subsys=~\"$Subsys\", job=~\"$Job\"})",
+          "expr": "avg by(subsys, instance) (tor_relay_load_oom_bytes_total{instance=~\"$Instance\", subsys=~\"$Subsys\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -2132,7 +2107,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg by(instance) (tor_bug_reached{instance=~\"$Instance\", job=~\"$Job\"})",
+          "expr": "avg by(instance) (tor_bug_reached{instance=~\"$Instance\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -2179,15 +2154,16 @@
           "type": "prometheus",
           "uid": "${DS_PROMETHEUS}"
         },
-        "definition": "label_values(tor_relay_connections{job=~\"$Job\"},instance)",
+        "definition": "label_values(tor_relay_connections_total{job=~\"$Job\"},instance)",
         "hide": 0,
         "includeAll": true,
-        "label": "Instance",
+        "label": "Instance (Tor)",
         "multi": false,
         "name": "Instance",
         "options": [],
         "query": {
-          "query": "label_values(tor_relay_connections{job=~\"$Job\"},instance)",
+          "qryType": 1,
+          "query": "label_values(tor_relay_connections_total{job=~\"$Job\"},instance)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
@@ -2575,6 +2551,6 @@
   "timezone": "",
   "title": "Tor Relay",
   "uid": "bb0ac200-1fab-4d04-a3b0-859d35ec9ee6",
-  "version": 253,
+  "version": 259,
   "weekStart": ""
 }

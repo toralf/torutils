@@ -200,7 +200,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "tor_bug_reached{instance=~\"$Nickname\"}",
+          "expr": "tor_bug_reached{nickname=~\"$Nickname\"}",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -483,7 +483,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(node_network_receive_packets_total{device=\"enp8s0\", instance=\"localhost:9100\"}[$__rate_interval])",
+          "expr": "rate(node_network_receive_packets_total{device=\"enp8s0\", instance=~\"$Instance\"}[$__rate_interval])",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "rx",
@@ -498,7 +498,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(node_network_transmit_packets_total{device=\"enp8s0\", instance=\"localhost:9100\"}[$__rate_interval])",
+          "expr": "rate(node_network_transmit_packets_total{device=\"enp8s0\", instance=~\"$Instance\"}[$__rate_interval])",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -601,7 +601,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(node_network_receive_bytes_total{device=\"enp8s0\", instance=\"localhost:9100\"}[$__rate_interval])",
+          "expr": "rate(node_network_receive_bytes_total{device=\"enp8s0\", instance=~\"$Instance\"}[$__rate_interval])",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "rx",
@@ -616,7 +616,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(node_network_transmit_bytes_total{device=\"enp8s0\", instance=\"localhost:9100\"}[$__rate_interval])",
+          "expr": "rate(node_network_transmit_bytes_total{device=\"enp8s0\", instance=~\"$Instance\"}[$__rate_interval])",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -722,7 +722,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "(sum(rate(node_cpu_seconds_total{mode=\"user\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total[$__rate_interval]))",
+          "expr": "(sum(rate(node_cpu_seconds_total{mode=\"user\", instance=~\"$Instance\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "user",
@@ -824,7 +824,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "node_sockstat_TCP_inuse{instance=\"localhost:9100\"}",
+          "expr": "node_sockstat_TCP_inuse{instance=~\"$Instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -903,8 +903,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -940,7 +939,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "node_nf_conntrack_entries{instance=\"localhost:9100\"}",
+          "expr": "node_nf_conntrack_entries{instance=~\"$Instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "current",
@@ -1014,8 +1013,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1135,8 +1133,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1237,8 +1234,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1339,8 +1335,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1441,8 +1436,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1543,8 +1537,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1645,8 +1638,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1800,7 +1792,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(state) (rate(torutils_dropped_state_packets{ipver=\"4\"}[$__rate_interval]))",
+          "expr": "sum by(state) (rate(torutils_dropped_state_packets{ipver=\"4\", instance=~\"$Instance\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -1918,7 +1910,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(state) (rate(torutils_dropped_state_packets{ipver=\"6\"}[$__rate_interval]))",
+          "expr": "sum by(state) (rate(torutils_dropped_state_packets{ipver=\"6\", instance=~\"$Instance\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -2036,7 +2028,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(nickname) (rate(torutils_dropped_ddos_packets{ipver=\"4\", nickname=~\"$Nickname\"}[$__rate_interval]))",
+          "expr": "sum by(nickname) (rate(torutils_dropped_ddos_packets{ipver=\"4\", nickname=~\"$Nickname\", instance=~\"$Instance\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -2154,7 +2146,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(nickname) (rate(torutils_dropped_ddos_packets{ipver=\"6\", nickname=~\"$Instance|$Nickname\"}[$__rate_interval]))",
+          "expr": "sum by(nickname) (rate(torutils_dropped_ddos_packets{ipver=\"6\", nickname=~\"$Nickname\", instance=~\"$Instance\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -2273,7 +2265,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_total{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\"}",
+          "expr": "torutils_ipset_total{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -2375,7 +2367,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_total{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\"}",
+          "expr": "torutils_ipset_total{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -2477,7 +2469,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_hashlimit_total{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\"}",
+          "expr": "torutils_hashlimit_total{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -2579,7 +2571,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_hashlimit_total{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\"}",
+          "expr": "torutils_hashlimit_total{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -2865,7 +2857,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf1\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf1\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -2935,7 +2927,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf1\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf1\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -3005,7 +2997,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf2\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf2\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -3075,7 +3067,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf2\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf2\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -3145,7 +3137,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf3\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf3\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -3215,7 +3207,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf3\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf3\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -3285,7 +3277,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf4\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf4\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -3355,7 +3347,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf4\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf4\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -3425,7 +3417,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf5\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf5\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -3495,7 +3487,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf5\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf5\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -3524,7 +3516,7 @@
         "definition": "label_values(node_arp_entries,instance)",
         "hide": 0,
         "includeAll": true,
-        "label": "Instance",
+        "label": "Instance (Node)",
         "multi": false,
         "name": "Instance",
         "options": [],
@@ -3545,7 +3537,7 @@
           "type": "prometheus",
           "uid": "${DS_PROMETHEUS}"
         },
-        "definition": "label_values(tor_relay_connections,nickname)",
+        "definition": "label_values(torutils_dropped_ddos_packets{instance=~\"$Instance\"},nickname)",
         "hide": 0,
         "includeAll": true,
         "label": "Nickname",
@@ -3554,11 +3546,11 @@
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(tor_relay_connections,nickname)",
+          "query": "label_values(torutils_dropped_ddos_packets{instance=~\"$Instance\"},nickname)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
-        "regex": "/toralf.*/",
+        "regex": "",
         "skipUrlSync": false,
         "sort": 1,
         "type": "query"
@@ -3566,13 +3558,13 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-7d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "utc",
   "title": "Tor DDoS",
   "uid": "FgvRNta4k",
-  "version": 389,
+  "version": 408,
   "weekStart": ""
 }
