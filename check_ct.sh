@@ -17,7 +17,7 @@ if [[ ! -f $tmpfile.old ]]; then
   touch $tmpfile.old
 fi
 
-conntrack -S | grep -v ' insert_failed=0 drop=0 ' | awk '{ print $1, $5, $6 }' | cut -f2- -d':' >$tmpfile
+conntrack -S | grep -v ' insert_failed=0 drop=0 ' | awk '{ print $1, $5, $6 }' | cut -f 2- -d ':' >$tmpfile
 n=$(conntrack -C)
 if [[ $n -gt 60000 ]]; then
   echo "more than 60K in conntrack table: $n" >>$tmpfile
