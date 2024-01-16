@@ -1,3 +1,4 @@
+All current guards excluded by path restriction type 2; using an additonal guard.
 Bootstrapped 0%: Starting
 Bootstrapped 0% (starting): Starting
 Bootstrapped 100% (done): Done
@@ -12,6 +13,7 @@ Channel padding timeout scheduled
 Circuit handshake stats since last time:
 Clean shutdown finished. Exiting.
 Configured to measure statistics. Look for the *-stats files that will first be written to the data directory in 24 hours from now.
+Detected possible compression bomb with input size
 DoS mitigation since startup:
 Heartbeat:
 I learned some more directory information, but not enough to build a circuit
@@ -32,6 +34,7 @@ Our directory information is no longer up-to-date enough to build circuits: We'r
 Parsing GEOIP IPv4 file /usr/share/tor/geoip.
 Parsing GEOIP IPv6 file /usr/share/tor/geoip6.
 Performing bandwidth self-test...done.
+Possible compression bomb; abandoning stream.
 Processing configuration path "/etc/tor/conf.d/" at recursion level 1
 Read configuration file
 Received circuit padding stop command for unknown machine.
@@ -47,6 +50,7 @@ The current consensus has no exit nodes
 These two versions should be binary compatible.
 The state file seems to be into a status that could yield to weird entry node selection:
 Tried to establish rendezvous on non-edge circuit
+Unable to decompress HTTP body
 We now have enough directory information to build circuits
 We were built to run on a 64-bit CPU, with OpenSSL 1.0.1 or later, but with a version of OpenSSL that apparently lacks accelerated support for the NIST P-224 and P-256 groups. Building openssl with such support (using the enable-ec_nistp_64_gcc_128 option when configuring it) would make ECDH much faster.
 While bootstrapping, fetched this many bytes:
