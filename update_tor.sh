@@ -59,8 +59,9 @@ else
     rm $tmpfile
   else
     rm $tmpfile
-    # rebuild if libevent was updated (and tor refuses to start w/o being recompiled against latest libevent)
-    if tor --version 1>/dev/null; then
+    # detect the need of a rebuild if e.g. libevent was updated and tor therefore refuses even to start
+    # plus: if git pull succeeded but a subsequent emerge failed, then this would give a version versus commit id mismatch
+    if tor --version | grep -q $(git show --oneline HEAD | cut -f 1 -d ' '); then
       exit 0
     fi
   fi
