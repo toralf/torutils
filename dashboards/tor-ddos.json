@@ -27,7 +27,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "10.2.3"
+      "version": "10.3.1"
     },
     {
       "type": "datasource",
@@ -164,7 +164,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -187,10 +188,11 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.2.3",
+      "pluginVersion": "10.3.1",
       "targets": [
         {
           "datasource": {
@@ -235,7 +237,7 @@
                 "value": null
               },
               {
-                "color": "transparent",
+                "color": "super-light-blue",
                 "value": 0
               },
               {
@@ -244,7 +246,8 @@
               }
             ]
           },
-          "unit": "bool_yes_no"
+          "unit": "bool_yes_no",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -267,6 +270,7 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {
           "titleSize": 13,
           "valueSize": 13
@@ -274,7 +278,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.2.3",
+      "pluginVersion": "10.3.1",
       "targets": [
         {
           "datasource": {
@@ -329,7 +333,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -355,7 +360,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "10.2.3",
+      "pluginVersion": "10.3.1",
       "targets": [
         {
           "datasource": {
@@ -451,7 +456,8 @@
               }
             ]
           },
-          "unit": "pps"
+          "unit": "pps",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -483,7 +489,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(node_network_receive_packets_total{device=\"enp8s0\", instance=~\"$Instance\"}[$__rate_interval])",
+          "expr": "sum by(device) (rate(node_network_receive_packets_total{instance=~\"$Instance\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "rx",
@@ -498,7 +504,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(node_network_transmit_packets_total{device=\"enp8s0\", instance=~\"$Instance\"}[$__rate_interval])",
+          "expr": "sum by(device) (rate(node_network_transmit_packets_total{instance=~\"$Instance\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -569,7 +575,8 @@
               }
             ]
           },
-          "unit": "binBps"
+          "unit": "binBps",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -601,7 +608,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(node_network_receive_bytes_total{device=\"enp8s0\", instance=~\"$Instance\"}[$__rate_interval])",
+          "expr": "sum by(device) (rate(node_network_receive_bytes_total{instance=~\"$Instance\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "rx",
@@ -616,7 +623,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(node_network_transmit_bytes_total{device=\"enp8s0\", instance=~\"$Instance\"}[$__rate_interval])",
+          "expr": "sum by(device) (rate(node_network_transmit_bytes_total{instance=~\"$Instance\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -690,7 +697,8 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "percent",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -792,7 +800,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -840,7 +849,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "node_sockstat_TCP6_inuse{instance=\"localhost:9100\"}",
+          "expr": "node_sockstat_TCP6_inuse{instance=~\"$Instance\"}",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -907,7 +916,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -980,6 +990,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": 34000000,
             "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
@@ -1021,438 +1032,16 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "binBps",
+          "unitScale": true
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "443"
-            },
-            "properties": [
-              {
-                "id": "custom.axisLabel",
-                "value": "tor1"
-              },
-              {
-                "id": "custom.axisLabel",
-                "value": ""
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 7,
         "w": 12,
         "x": 0,
         "y": 33
-      },
-      "id": 74,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "sortBy": "Name",
-          "sortDesc": false,
-          "width": 80
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "sum by(nickname, family, direction) (tor_relay_connections{family=\"ipv4\", direction=\"initiated\", nickname=~\"$Nickname\"})",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{nickname}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "Connections Initiated IPv4",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "axisWidth": 80,
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 33
-      },
-      "id": 75,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "width": 80
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "sum by(family, direction, nickname) (tor_relay_connections{family=\"ipv6\", direction=\"initiated\", nickname=~\"$Nickname\"})",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{nickname}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "Connections Initiated IPv6",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "axisWidth": 80,
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 40
-      },
-      "id": 73,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "width": 80
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "sum by(family, direction, nickname) (tor_relay_connections{family=\"ipv4\", direction=\"received\", nickname=~\"$Nickname\"})",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{nickname}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "Connections Received IPv4",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "axisWidth": 80,
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 40
-      },
-      "id": 95,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "width": 80
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "sum by(family, direction, nickname) (tor_relay_connections{family=\"ipv6\", direction=\"received\", nickname=~\"$Nickname\"})",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{nickname}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "Connections Received IPv6",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "axisWidth": 80,
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "binBps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 47
       },
       "id": 94,
       "options": {
@@ -1476,7 +1065,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(nickname, direction) (rate(tor_relay_traffic_bytes{direction=\"read\", nickname=~\"$Nickname\"}[$__rate_interval]))",
+          "expr": "sum by(nickname, direction) (rate(tor_relay_traffic_bytes{direction=\"read\", nickname=~\"$Nickname\", instance=~\"$Nickname\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -1545,7 +1134,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -1553,7 +1143,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 47
+        "y": 33
       },
       "id": 2,
       "options": {
@@ -1577,7 +1167,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "max by(nickname, state) (tor_relay_load_socket_total{state=\"opened\", nickname=~\"$Nickname\"})",
+          "expr": "max by(nickname, state) (tor_relay_load_socket_total{state=\"opened\", nickname=~\"$Nickname\", instance=~\"$Nickname\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{label_name}}{{nickname}}",
@@ -1605,6 +1195,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": 34000000,
             "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
@@ -1646,7 +1237,8 @@
               }
             ]
           },
-          "unit": "binBps"
+          "unit": "binBps",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -1654,7 +1246,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 54
+        "y": 40
       },
       "id": 87,
       "options": {
@@ -1678,7 +1270,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(nickname, direction) (rate(tor_relay_traffic_bytes{direction=\"written\", nickname=~\"$Nickname\"}[$__rate_interval]))",
+          "expr": "sum by(nickname, direction) (rate(tor_relay_traffic_bytes{direction=\"written\", nickname=~\"$Nickname\", instance=~\"$Nickname\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -1696,7 +1288,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 61
+        "y": 47
       },
       "id": 37,
       "panels": [],
@@ -1760,7 +1352,8 @@
               }
             ]
           },
-          "unit": "pps"
+          "unit": "pps",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -1768,7 +1361,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 62
+        "y": 48
       },
       "id": 79,
       "options": {
@@ -1878,7 +1471,8 @@
               }
             ]
           },
-          "unit": "pps"
+          "unit": "pps",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -1886,7 +1480,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 62
+        "y": 48
       },
       "id": 80,
       "options": {
@@ -1996,7 +1590,8 @@
               }
             ]
           },
-          "unit": "pps"
+          "unit": "pps",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -2004,7 +1599,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 69
+        "y": 55
       },
       "id": 24,
       "options": {
@@ -2114,7 +1709,8 @@
               }
             ]
           },
-          "unit": "pps"
+          "unit": "pps",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -2122,7 +1718,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 69
+        "y": 55
       },
       "id": 81,
       "options": {
@@ -2241,211 +1837,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 76
-      },
-      "id": 30,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "width": 80
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "torutils_ipset_total{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{nickname}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "Ipset DDoS IPv4",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "axisWidth": 80,
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 0,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 76
-      },
-      "id": 31,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "width": 80
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "torutils_ipset_total{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{nickname}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "Ipset DDoS IPv6",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "axisWidth": 80,
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 0,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 83
+        "y": 62
       },
       "id": 27,
       "options": {
@@ -2547,7 +1939,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 83
+        "y": 62
       },
       "id": 28,
       "options": {
@@ -2641,6 +2033,210 @@
               }
             ]
           },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 69
+      },
+      "id": 30,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 80
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "torutils_ipset_total{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "{{nickname}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Ipset DDoS IPv4",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "axisWidth": 80,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 69
+      },
+      "id": 31,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 80
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "torutils_ipset_total{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "{{nickname}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Ipset DDoS IPv6",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "axisWidth": 80,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
           "unit": "short"
         },
         "overrides": []
@@ -2649,7 +2245,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 90
+        "y": 76
       },
       "id": 91,
       "options": {
@@ -2751,7 +2347,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 90
+        "y": 76
       },
       "id": 92,
       "options": {
@@ -2793,7 +2389,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 97
+        "y": 83
       },
       "id": 39,
       "panels": [],
@@ -2826,9 +2422,9 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 98
+        "y": 84
       },
-      "id": 41,
+      "id": 95,
       "options": {
         "displayMode": "gradient",
         "maxVizHeight": 300,
@@ -2896,7 +2492,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 98
+        "y": 84
       },
       "id": 44,
       "options": {
@@ -2966,7 +2562,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 103
+        "y": 89
       },
       "id": 53,
       "options": {
@@ -3036,7 +2632,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 103
+        "y": 89
       },
       "id": 55,
       "options": {
@@ -3106,7 +2702,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 108
+        "y": 94
       },
       "id": 52,
       "options": {
@@ -3176,7 +2772,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 108
+        "y": 94
       },
       "id": 89,
       "options": {
@@ -3246,7 +2842,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 113
+        "y": 99
       },
       "id": 76,
       "options": {
@@ -3316,7 +2912,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 113
+        "y": 99
       },
       "id": 77,
       "options": {
@@ -3386,7 +2982,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 118
+        "y": 104
       },
       "id": 88,
       "options": {
@@ -3456,7 +3052,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 118
+        "y": 104
       },
       "id": 54,
       "options": {
@@ -3565,6 +3161,6 @@
   "timezone": "utc",
   "title": "Tor DDoS",
   "uid": "FgvRNta4k",
-  "version": 408,
+  "version": 426,
   "weekStart": ""
 }
