@@ -167,11 +167,9 @@ function addHetzner() {
 }
 
 function setSysctlValues() {
-  local current
-
   sysctl -q -w net.netfilter.nf_conntrack_max=$((2 ** 21))
-
   sysctl -q -w net.ipv4.tcp_syncookies=1
+
   # make tcp_max_syn_backlog big enough to have ListenDrops being low or 0:
   # awk '(f==0) {i=1; while (i<=NF) {n[i] = $i; i++ }; f=1; next} (f==1){i=2; while (i<=NF) {printf "%s = %d\n", n[i], $i; i++}; f=0}' /proc/net/netstat | grep 'Drop'
   for i in net.netfilter.nf_conntrack_buckets net.ipv4.tcp_max_syn_backlog net.core.somaxconn; do
@@ -255,7 +253,7 @@ ipt="iptables"
 trustlist="tor-trust"      # Tor authorities and snowflake servers
 multilist="tor-multi"      # Tor relay ip addresses hosting > 1 relay
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
-prefix=32                  # any ipv4 address of this /block is considered to belong to the same source/owner
+prefix=32                  # any ipv4 address of this CIDR block is considered to belong to the same source/owner
 # hash and ipset size
 if [[ $(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo) -gt 2 ]]; then
   max=$((2 ** 18)) # RAM is bigger than 2 GiB
