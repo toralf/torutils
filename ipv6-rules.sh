@@ -10,7 +10,7 @@ function addCommon() {
   $ipt -A INPUT --in-interface lo -m comment --comment "$(date -R)" -j ACCEPT
 
   # IPv6 Multicast
-  $ipt -A INPUT -p udp --source fe80::/10 --dst ff02::/96 -j ACCEPT
+  $ipt -A INPUT -p udp --source fe80::/10 --dst ff02::/80 -j ACCEPT
 
   # make sure NEW incoming tcp connections are SYN packets
   $ipt -A INPUT -p tcp ! --syn -m state --state NEW -j $jump
