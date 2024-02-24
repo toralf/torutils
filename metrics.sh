@@ -8,13 +8,13 @@
 function _orport2nickname() {
   local opt=${1:-UNSET}
 
+  echo -n "gnampf"
   case $opt in
-  443) echo "toralf1" ;;
-  9001) echo "toralf2" ;;
-  8443) echo "toralf3" ;;
-  9443) echo "toralf4" ;;
-  5443) echo "toralf5" ;;
-  *) echo "$opt" ;;
+  443) echo "1" ;;
+  9001) echo "2" ;;
+  8443) echo "3" ;;
+  9443) echo "4" ;;
+  5443) echo "5" ;;
   esac
 }
 
