@@ -27,7 +27,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "10.3.1"
+      "version": "10.3.3"
     },
     {
       "type": "datasource",
@@ -192,7 +192,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "datasource": {
@@ -253,7 +253,7 @@
       },
       "gridPos": {
         "h": 9,
-        "w": 7,
+        "w": 8,
         "x": 7,
         "y": 1
       },
@@ -278,7 +278,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "datasource": {
@@ -360,7 +360,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "datasource": {
@@ -489,7 +489,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(device) (rate(node_network_receive_packets_total{instance=~\"$Instance\"}[$__rate_interval]))",
+          "expr": "sum by(device) (rate(node_network_receive_packets_total{instance=~\"$Instance\", device!=\"lo\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "rx",
@@ -504,7 +504,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(device) (rate(node_network_transmit_packets_total{instance=~\"$Instance\"}[$__rate_interval]))",
+          "expr": "sum by(device) (rate(node_network_transmit_packets_total{instance=~\"$Instance\", device!=\"lo\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -608,7 +608,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(device) (rate(node_network_receive_bytes_total{instance=~\"$Instance\"}[$__rate_interval]))",
+          "expr": "sum by(device) (rate(node_network_receive_bytes_total{instance=~\"$Instance\", device!=\"lo\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "rx",
@@ -623,7 +623,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(device) (rate(node_network_transmit_bytes_total{instance=~\"$Instance\"}[$__rate_interval]))",
+          "expr": "sum by(device) (rate(node_network_transmit_bytes_total{instance=~\"$Instance\", device!=\"lo\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -1591,7 +1591,7 @@
             ]
           },
           "unit": "pps",
-          "unitScale": true
+          "unitScale": false
         },
         "overrides": []
       },
@@ -1829,7 +1829,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -1931,7 +1932,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -2033,7 +2035,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -2135,7 +2138,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -2237,7 +2241,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -2339,7 +2344,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -2414,7 +2420,8 @@
                 "color": "green"
               }
             ]
-          }
+          },
+          "unitScale": true
         },
         "overrides": []
       },
@@ -2444,7 +2451,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.3",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "datasource": {
@@ -2453,7 +2460,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf1\", mode=\"ddos\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"gnampf1\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -2463,7 +2470,7 @@
           "useBackend": false
         }
       ],
-      "title": "toralf1 IPv4",
+      "title": "gnampf1 IPv4",
       "type": "bargauge"
     },
     {
@@ -2484,7 +2491,8 @@
                 "color": "green"
               }
             ]
-          }
+          },
+          "unitScale": true
         },
         "overrides": []
       },
@@ -2514,7 +2522,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.3",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "datasource": {
@@ -2523,7 +2531,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf1\", mode=\"ddos\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"gnampf1\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -2533,7 +2541,7 @@
           "useBackend": false
         }
       ],
-      "title": "toralf1 IPv6",
+      "title": "gnampf1 IPv6",
       "type": "bargauge"
     },
     {
@@ -2554,7 +2562,8 @@
                 "color": "green"
               }
             ]
-          }
+          },
+          "unitScale": true
         },
         "overrides": []
       },
@@ -2584,7 +2593,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.3",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "datasource": {
@@ -2593,7 +2602,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf2\", mode=\"ddos\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"gnampf2\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -2603,7 +2612,7 @@
           "useBackend": false
         }
       ],
-      "title": "toralf2 IPv4",
+      "title": "gnampf2 IPv4",
       "type": "bargauge"
     },
     {
@@ -2624,7 +2633,8 @@
                 "color": "green"
               }
             ]
-          }
+          },
+          "unitScale": true
         },
         "overrides": []
       },
@@ -2654,7 +2664,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.3",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "datasource": {
@@ -2663,7 +2673,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf2\", mode=\"ddos\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"gnampf2\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -2673,7 +2683,7 @@
           "useBackend": false
         }
       ],
-      "title": "toralf2 IPv6",
+      "title": "gnampf2 IPv6",
       "type": "bargauge"
     },
     {
@@ -2694,7 +2704,8 @@
                 "color": "green"
               }
             ]
-          }
+          },
+          "unitScale": true
         },
         "overrides": []
       },
@@ -2724,7 +2735,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.3",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "datasource": {
@@ -2733,7 +2744,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf3\", mode=\"ddos\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"gnampf3\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -2743,7 +2754,7 @@
           "useBackend": false
         }
       ],
-      "title": "toralf3 IPv4",
+      "title": "gnampf3 IPv4",
       "type": "bargauge"
     },
     {
@@ -2764,7 +2775,8 @@
                 "color": "green"
               }
             ]
-          }
+          },
+          "unitScale": true
         },
         "overrides": []
       },
@@ -2794,7 +2806,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.3",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "datasource": {
@@ -2803,7 +2815,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf3\", mode=\"ddos\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"gnampf3\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -2813,7 +2825,7 @@
           "useBackend": false
         }
       ],
-      "title": "toralf3 IPv6",
+      "title": "gnampf3 IPv6",
       "type": "bargauge"
     },
     {
@@ -2834,7 +2846,8 @@
                 "color": "green"
               }
             ]
-          }
+          },
+          "unitScale": true
         },
         "overrides": []
       },
@@ -2864,7 +2877,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.3",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "datasource": {
@@ -2873,7 +2886,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf4\", mode=\"ddos\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"gnampf4\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -2883,7 +2896,7 @@
           "useBackend": false
         }
       ],
-      "title": "toralf4 IPv4",
+      "title": "gnampf4 IPv4",
       "type": "bargauge"
     },
     {
@@ -2904,7 +2917,8 @@
                 "color": "green"
               }
             ]
-          }
+          },
+          "unitScale": true
         },
         "overrides": []
       },
@@ -2934,7 +2948,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.3",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "datasource": {
@@ -2943,7 +2957,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf4\", mode=\"ddos\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"gnampf4\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -2953,7 +2967,7 @@
           "useBackend": false
         }
       ],
-      "title": "toralf4 IPv6",
+      "title": "gnampf4 IPv6",
       "type": "bargauge"
     },
     {
@@ -2974,7 +2988,8 @@
                 "color": "green"
               }
             ]
-          }
+          },
+          "unitScale": true
         },
         "overrides": []
       },
@@ -3004,7 +3019,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.3",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "datasource": {
@@ -3013,7 +3028,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"toralf5\", mode=\"ddos\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"gnampf5\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -3023,7 +3038,7 @@
           "useBackend": false
         }
       ],
-      "title": "toralf5 IPv4",
+      "title": "gnampf5 IPv4",
       "type": "bargauge"
     },
     {
@@ -3044,7 +3059,8 @@
                 "color": "green"
               }
             ]
-          }
+          },
+          "unitScale": true
         },
         "overrides": []
       },
@@ -3074,7 +3090,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.2.3",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "datasource": {
@@ -3083,7 +3099,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"toralf5\", mode=\"ddos\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"gnampf5\", mode=\"ddos\", instance=~\"$Instance\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -3093,7 +3109,7 @@
           "useBackend": false
         }
       ],
-      "title": "toralf5 IPv6",
+      "title": "gnampf5 IPv6",
       "type": "bargauge"
     }
   ],
@@ -3161,6 +3177,6 @@
   "timezone": "utc",
   "title": "Tor DDoS",
   "uid": "FgvRNta4k",
-  "version": 426,
+  "version": 432,
   "weekStart": ""
 }
