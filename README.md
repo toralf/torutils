@@ -25,7 +25,7 @@ wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O 
 chmod +x ./ipv4-rules.sh
 ```
 
-Make a backup of the current iptables _filter_ table and run a first quick test:
+Make a backup of the current iptables _filter_ table and run a quick test:
 
 ```bash
 sudo /usr/sbin/iptables-save > ./rules.v4
@@ -33,22 +33,23 @@ sudo /usr/sbin/ip6tables-save > ./rules.v6
 sudo ./ipv4-rules.sh test
 ```
 
-Best is to stop the Tor service(s) and flush the connection tracking table now:
+Best is to stop the Tor service(s) now.
+Then flush the connection tracking table
 
 ```bash
 sudo /usr/sbin/conntrack -F
 ```
 
-and to (re-)start the Tor service(s).
-Check in another terminal that your ssh login and other services still works.
+and (re-)start the Tor service(s).
+Check that your ssh login and other services still works.
 Watch the iptables live statistics by:
 
 ```bash
 sudo watch -t ./ipv4-rules.sh
 ```
 
-If all works fine then run the script with `start` instead `test`
-and persist the filter rules, e.g. under Debian into the directory `/etc/iptables/`:
+If all works fine then run the script with `start` instead `test`.
+Persist the filter rules to the system directory useed by iptables (i.e. for Debian to `/etc/iptables/`):
 
 ```bash
 sudo ./ipv4-rules.sh start
