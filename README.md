@@ -7,8 +7,13 @@ Few tools for a Tor relay.
 ## Block DDoS
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
-against DDoS attacks¹ ([this](./doc/network-metric-July-3rd.jpg) is an example for dropped packages at 5 different OR ports)
-at the IP [network](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) layer.
+against DDoS attacks¹ at the IP [network](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) layer.
+![image](./doc/dopped_ipv4_2024-03.jpg)
+[Here](./doc/network-metric-July-3rd.jpg) is an older example.
+
+See [this]((https://github.com/toralf/tor-relays/)) Ansible role for a solution
+to deploy and configure Tor relays and Tor Snowflake with a secure transmission of metrics data.
+And take a look [here](./dashboards/README.md) for appropriate dashboards.
 
 ¹ see ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 and ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093)
