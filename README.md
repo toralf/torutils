@@ -8,7 +8,9 @@ Few tools for a Tor relay.
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
 against DDoS attacks¹ at the IP [network](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) layer.
+
 ![image](./doc/dopped_ipv4_2024-03.jpg)
+
 [Here](./doc/network-metric-July-3rd.jpg) is an older example.
 
 See [this]((https://github.com/toralf/tor-relays/)) Ansible role for a solution
