@@ -45,7 +45,9 @@ export GIT_PAGER="cat"
 if [[ ! -d ~/tor ]]; then
   cd ~
   git clone https://git.torproject.org/tor.git/
-else
+
+# any parameter forces a rebuild
+elif [[ $# -eq 0 ]]; then
   tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
   cd ~/tor
   git pull &>$tmpfile

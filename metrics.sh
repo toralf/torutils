@@ -4,11 +4,11 @@
 
 # use node_exporter's "textfile" feature to send metrics to Prometheus
 
-# set the Prometheus label "nickname"  to the value of the Tor nickname
 function _orport2nickname() {
   local opt=${1:-UNSET}
 
-  echo -n "gnampf"
+  # set the Prometheus label "nickname" to the value of the Tor server ones
+  echo -n "fuchs"
   case $opt in
   443) echo "1" ;;
   9001) echo "2" ;;
