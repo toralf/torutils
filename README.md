@@ -13,7 +13,7 @@ against DDoS attacks¹ at the IP [network](https://upload.wikimedia.org/wikipedi
 
 [Here](./doc/network-metric-July-3rd.jpg) is an older example.
 
-See [this]((https://github.com/toralf/tor-relays/)) Ansible role for a solution
+See [this](https://github.com/toralf/tor-relays/) Ansible role for a solution
 to deploy and configure Tor relays and Tor Snowflake with a secure transmission of metrics data.
 And take a look [here](./dashboards/README.md) for appropriate dashboards.
 

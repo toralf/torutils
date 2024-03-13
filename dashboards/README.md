@@ -1,5 +1,11 @@
 [![StandWithUkraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 
+# Tor Grafana Dashboards
+
+Few dashboards for Tor relays, Tor Snowflake and the proposed DDoS solution.
+
+![image](./tor-ddos-dashboard.jpg)
+
 ## Scraping Tor metrics
 
 To scrape metrics I do use [this](https://github.com/toralf/tor-relays/) Ansible task.
@@ -22,12 +28,3 @@ A Prometheus config would look like this:
       regex: "([^:]+).*:(.).*"
       replacement: "nick${2}"
 ```
-
-# Tor Grafana Dashboards
-
-Few dashboards for Tor relay, Tor Snowflake and the proposed DDoS solution.
-Prometheus and Grafana run in the given example below at the same machine.
-The default scrape intervall of Prometheus is 15 sec here under a Gentoo Linux.
-For Snowflake I set it to 1 min.
-That's why 2 Grafana datasources are needed.
-Each computes its specific `__rate_interval` accordingly to the choosen job.
