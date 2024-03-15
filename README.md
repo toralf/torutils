@@ -90,7 +90,7 @@ Then these rules are check each connection attempt from an ip to a local ORPort:
 
 1. trust Tor authorities and Snowflake servers
 2. allow (up to) 8 connections in parallel if the ip is known to host more than 1 Tor relay
-3. block the ip for 1 day if the connection attempt rate exceeds > 10/min within last 2 minutes
+3. block the ip for 1 day if the connection attempt rate exceeds > 6/min within last 2 minutes¹
 4. ignore the connection attempt if there are already 9 established connections from the same ip¹
 5. accept the connection attempt
 
