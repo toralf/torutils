@@ -12,7 +12,6 @@ against DDoS attacks¹ at the IP [network](https://upload.wikimedia.org/wikipedi
 ![image](./doc/dopped_ipv4_2024-03.jpg)
 
 [Here](./doc/network-metric-July-3rd.jpg) is an older example.
-
 See [this](https://github.com/toralf/tor-relays/) Ansible role for a solution
 to deploy and configure Tor relays and Tor Snowflake with a secure transmission of metrics data.
 And take a look [here](./dashboards/README.md) for appropriate dashboards.
@@ -32,7 +31,7 @@ wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O 
 chmod +x ./ipv4-rules.sh
 ```
 
-Make a backup of the current iptables _filter_ table and run a quick test:
+Make a backup of the current iptables _filter_ table, then run a quick test:
 
 ```bash
 sudo /usr/sbin/iptables-save > ./rules.v4
@@ -41,22 +40,22 @@ sudo ./ipv4-rules.sh test
 ```
 
 Best is to stop the Tor service(s) now.
-Then flush the connection tracking table
+Flush the connection tracking table
 
 ```bash
 sudo /usr/sbin/conntrack -F
 ```
 
-and (re-)start the Tor service(s).
-Check that your ssh login and other services still works.
+and (re-)start the Tor service.
+Check that your ssh login and any other service are still working.
 Watch the iptables live statistics by:
 
 ```bash
 sudo watch -t ./ipv4-rules.sh
 ```
 
-If all works fine then run the script with `start` instead `test`.
-Persist the filter rules to the system directory useed by iptables (i.e. for Debian to `/etc/iptables/`):
+If all works fine then run the script with the parameter `start` instead of `test`
+and persist the filter rules (i.e. for Debian into the directory `/etc/iptables/`):
 
 ```bash
 sudo ./ipv4-rules.sh start
@@ -64,7 +63,7 @@ sudo /usr/sbin/iptables-save > /etc/iptables//rules.v4
 sudo /usr/sbin/ip6tables-save > /etc/iptables//rules.v6
 ```
 
-However, if the above doesn't work for you then please stop it (Ctrl-C) and restore the previous state:
+However, if something failed then restore the previous state:
 
 ```bash
 sudo ./ipv4-rules.sh stop
@@ -72,7 +71,8 @@ sudo /usr/sbin/iptables-restore < ./rules.v4
 sudo /usr/sbin/ip6tables-restore < ./rules.v6
 ```
 
-You might try out the [Installation](#installation) section to adapt the scripts for your system.
+You find hints in the [Installation](#installation) section to adapt the scripts for your system.
+
 I do appreciate [issue](https://github.com/toralf/torutils/issues) reports
 and GitHub [PR](https://github.com/toralf/torutils/pulls) to improve the current state.
 
