@@ -9,8 +9,8 @@ Few dashboards for Tor relays, Tor Snowflake and the proposed DDoS solution.
 ## Scraping Tor metrics
 
 To scrape metrics I do use [this](https://github.com/toralf/tor-relays/) Ansible task.
-That task deploys Tor relays and Snowflake clients in an easy and reliable manner.
-In addition if deploys and configures to each system to securely transmit data.
+That task deploys Tor relays and Snowflake clients.
+In addition it configures the client to securely transmit metrics data.
 
 A Prometheus config would look like this:
 
