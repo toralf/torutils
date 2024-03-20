@@ -63,7 +63,7 @@ elif [[ $# -eq 0 ]]; then
     rm $tmpfile
     # detect the need of a rebuild if e.g. libevent was updated and tor therefore refuses even to start
     # plus: if git pull succeeded but a subsequent emerge failed, then this would give a version versus commit id mismatch
-    if tor --version | grep -q $(git show --oneline HEAD | cut -f 1 -d ' '); then
+    if tor --version | grep -q $(git show --quiet --oneline 'HEAD' | cut -f 1 -d ' '); then
       exit 0
     fi
   fi
