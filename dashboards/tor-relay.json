@@ -15,7 +15,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "10.3.3"
+      "version": "10.4.0"
     },
     {
       "type": "datasource",
@@ -171,8 +171,7 @@
               }
             ]
           },
-          "unit": "bytes",
-          "unitScale": true
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -273,8 +272,7 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": true
+          "unit": "none"
         },
         "overrides": []
       },
@@ -376,8 +374,7 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": true
+          "unit": "none"
         },
         "overrides": []
       },
@@ -408,7 +405,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg by(instance, state) (tor_relay_load_socket_total{instance=~\"$Instance\", state=~\"$State_load_socket_tot\"})",
+          "expr": "sum by(instance) (rate(tor_relay_load_socket_total{instance=~\"$Instance\", state=~\"$State_load_socket_tot\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "instant": false,
@@ -418,7 +415,7 @@
           "useBackend": false
         }
       ],
-      "title": "Load  Sockets",
+      "title": "Load  Sockets (5m)",
       "type": "timeseries"
     },
     {
@@ -478,8 +475,7 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": true
+          "unit": "none"
         },
         "overrides": []
       },
@@ -580,8 +576,7 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": true
+          "unit": "none"
         },
         "overrides": []
       },
@@ -682,8 +677,7 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": true
+          "unit": "none"
         },
         "overrides": []
       },
@@ -782,8 +776,7 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": true
+          "unit": "none"
         },
         "overrides": []
       },
@@ -881,8 +874,7 @@
                 "value": 80
               }
             ]
-          },
-          "unitScale": true
+          }
         },
         "overrides": []
       },
@@ -981,8 +973,7 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": true
+          "unit": "none"
         },
         "overrides": []
       },
@@ -1083,8 +1074,7 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": true
+          "unit": "none"
         },
         "overrides": []
       },
@@ -1183,8 +1173,7 @@
               }
             ]
           },
-          "unit": "bool_yes_no",
-          "unitScale": true
+          "unit": "bool_yes_no"
         },
         "overrides": []
       },
@@ -1608,7 +1597,7 @@
         "x": 12,
         "y": 58
       },
-      "id": 9,
+      "id": 15,
       "options": {
         "legend": {
           "calcs": [],
@@ -1629,7 +1618,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(type, direction, instance, family, state) (rate(tor_relay_connections{family=~\"$Family\", type=~\"$Type_conn\", instance=~\"$Instance\", direction=~\"$Dir_conn\", state=~\"$State_conn\"}[$__rate_interval]))",
+          "expr": "sum by(action, state, instance, state) (rate(tor_relay_congestion_control{instance=~\"$Instance\", state=~\"$State_cong\", action=~\"$Action_cong\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -1638,7 +1627,7 @@
           "useBackend": false
         }
       ],
-      "title": "Connection",
+      "title": "Congestion Control",
       "type": "timeseries"
     },
     {
@@ -1808,7 +1797,7 @@
         "x": 12,
         "y": 66
       },
-      "id": 15,
+      "id": 9,
       "options": {
         "legend": {
           "calcs": [],
@@ -1829,7 +1818,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(action, state, instance, state) (rate(tor_relay_congestion_control{instance=~\"$Instance\", state=~\"$State_cong\", action=~\"$Action_cong\"}[$__rate_interval]))",
+          "expr": "sum by(type, direction, instance, family, state) (rate(tor_relay_connections{family=~\"$Family\", type=~\"$Type_conn\", instance=~\"$Instance\", direction=~\"$Dir_conn\", state=~\"$State_conn\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -1838,7 +1827,7 @@
           "useBackend": false
         }
       ],
-      "title": "Congestion Control",
+      "title": "Connection",
       "type": "timeseries"
     },
     {
@@ -3070,6 +3059,6 @@
   "timezone": "",
   "title": "Tor Relay",
   "uid": "bb0ac200-1fab-4d04-a3b0-859d35ec9ee6",
-  "version": 288,
+  "version": 303,
   "weekStart": ""
 }

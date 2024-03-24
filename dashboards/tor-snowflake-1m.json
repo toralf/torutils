@@ -15,7 +15,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "10.3.3"
+      "version": "10.4.0"
     },
     {
       "type": "datasource",
@@ -104,7 +104,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 180,
+            "axisSoftMax": 150,
             "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
@@ -148,8 +148,7 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": true
+          "unit": "none"
         },
         "overrides": []
       },
@@ -209,7 +208,6 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 300,
             "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
@@ -253,8 +251,7 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": true
+          "unit": "none"
         },
         "overrides": []
       },
@@ -314,7 +311,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 3500,
+            "axisSoftMax": 2100,
             "axisSoftMin": 0,
             "axisWidth": 80,
             "barAlignment": 0,
@@ -358,8 +355,7 @@
               }
             ]
           },
-          "unit": "KiBs",
-          "unitScale": true
+          "unit": "KiBs"
         },
         "overrides": []
       },
@@ -390,7 +386,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(instance) (rate(tor_snowflake_proxy_traffic_inbound_bytes_total{instance=~\"$Instance\", job=~\"$Job\"}[5m]))",
+          "expr": "sum by(instance) (rate(tor_snowflake_proxy_traffic_inbound_bytes_total{instance=~\"$Instance\", job=~\"$Job\"}[1h]))",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "instant": false,
@@ -462,8 +458,7 @@
               }
             ]
           },
-          "unit": "percentunit",
-          "unitScale": true
+          "unit": "percentunit"
         },
         "overrides": []
       },
@@ -567,8 +562,7 @@
               }
             ]
           },
-          "unit": "KiBs",
-          "unitScale": true
+          "unit": "KiBs"
         },
         "overrides": []
       },
@@ -599,7 +593,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(instance) (rate(tor_snowflake_proxy_traffic_outbound_bytes_total{instance=~\"$Instance\"}[5m]))",
+          "expr": "sum by(instance) (rate(tor_snowflake_proxy_traffic_outbound_bytes_total{instance=~\"$Instance\"}[10m]))",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "instant": false,
@@ -670,8 +664,7 @@
               }
             ]
           },
-          "unit": "bytes",
-          "unitScale": true
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -881,6 +874,6 @@
   "timezone": "",
   "title": "Tor Snowflake 1m",
   "uid": "b1cf61bb-53e2-44e9-9f96-af33116dee8a",
-  "version": 50,
+  "version": 56,
   "weekStart": ""
 }
