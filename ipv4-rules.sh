@@ -81,6 +81,7 @@ function __create_ipset() {
 }
 
 function __fill_trustlist() {
+  # this is intentionally not filled from a saved set at reboot
   (
     echo 193.187.88.42 193.187.88.43 193.187.88.44 193.187.88.45 193.187.88.46 141.212.118.18
     echo 45.66.33.45 66.111.2.131 217.196.147.77 128.31.0.39 131.188.40.189 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118
