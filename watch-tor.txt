@@ -9,10 +9,12 @@ Bootstrapped 5% (conn): Connecting to a relay
 Bootstrapped 75% (enough_dirinfo): Loaded enough directory info to build circuits
 Bootstrapped 90% (ap_handshake_done): Handshake finished with a relay to build circuits
 Bootstrapped 95% (circuit_create): Establishing a Tor circuit
+Bug:     /
 Channel padding timeout scheduled
 Circuit handshake stats since last time:
 Clean shutdown finished. Exiting.
 Configured to measure statistics. Look for the *-stats files that will first be written to the data directory in 24 hours from now.
+Couldn't send authenticate cell
 Detected possible compression bomb with input size
 DoS mitigation since startup:
 Heartbeat:
@@ -21,6 +23,7 @@ Included configuration file or directory at recursion level
 Including configuration file "/etc/tor/conf.d//
  is newer than any recommended version, according to the directory authorities.
  is reachable from the outside. Excellent.
+Missing master key after handshake
 New control connection opened from
 No circuits are opened. Relaxed timeout for circuit
 Now checking whether IPv4 DirPort
@@ -43,6 +46,7 @@ Received reload signal (hup). Reloading config and resetting internal state.
 Since last heartbeat message
 Since our last heartbeat,
 Since startup we initiated
+src/lib/tls/tortls_openssl.c:1674
 Starting with guard context "default"
 Sudden decrease in circuit RTT
 The current consensus contains exit nodes
