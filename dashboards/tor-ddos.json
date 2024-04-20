@@ -27,7 +27,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "10.4.0"
+      "version": "10.4.2"
     },
     {
       "type": "datasource",
@@ -169,7 +169,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 3,
         "w": 7,
         "x": 0,
         "y": 1
@@ -188,10 +188,13 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "titleSize": 13
+        },
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.0",
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -201,7 +204,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "tor_bug_reached{nickname=~\"$Nickname\"}",
+          "expr": "tor_bug_reached_count{nickname=~\"$Nickname\"}",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -276,7 +279,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.0",
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -336,10 +339,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 5,
+        "h": 6,
         "w": 7,
         "x": 0,
-        "y": 5
+        "y": 4
       },
       "id": 83,
       "options": {
@@ -355,9 +358,12 @@
         },
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
-        "sizing": "auto"
+        "sizing": "auto",
+        "text": {
+          "titleSize": 13
+        }
       },
-      "pluginVersion": "10.4.0",
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -909,8 +915,7 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": true
+          "unit": "none"
         },
         "overrides": []
       },
@@ -3170,6 +3175,6 @@
   "timezone": "utc",
   "title": "Tor DDoS",
   "uid": "FgvRNta4k",
-  "version": 444,
+  "version": 446,
   "weekStart": ""
 }
