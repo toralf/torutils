@@ -46,7 +46,10 @@ function addTor() {
     __fill_ddoslist &
 
     # rule 1
-    $common -m set --match-set $trustlist src -j ACCEPT
+    local trust_rule="INPUT -p tcp --dst $orip --syn -m set --match-set $trustlist src -j ACCEPT"
+    if ! $ipt -C $trust_rule 2>/dev/null; then
+      $ipt -A $trust_rule
+    fi
 
     # rule 2
     $common $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist

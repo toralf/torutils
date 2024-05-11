@@ -79,19 +79,19 @@ and GitHub [PR](https://github.com/toralf/torutils/pulls).
 
 - never touch established connections
 - try to not overblock
-- for IPv4 work on single ips, but for IPv6 on /80 CIDR block
 
 #### Details
 
 Generic filter rules for the local network, ICMP, ssh and additional services are created.
 Then the following rules are applied:
 
-1. trust connection attempt to the ORPort from trusted Tor authorities/Snowflake servers
-2. block the source for 24 hours if the connection attempt rate to the ORPort exceeds > 9/min¹ within last 2 minutes
-3. ignore the connection attempt if there are already 9 established connections from that source¹ to the ORPort
+1. trust connection attempt to any port from trusted Tor authorities/Snowflake servers
+2. block the source² for 24 hours if the connection attempt rate to the ORPort exceeds > 9/min¹ within last 2 minutes
+3. ignore the connection attempt if there are already 9 established connections to the ORPort
 4. accept the connection attempt to the ORPort
 
-¹ the 9 is derived from calculations given in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
+¹ the value is derived from calculations given in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
+² for IPv4 "source" is a regular ip, but for IPv6 the corresponding /80 CIDR block
 
 ### Installation
 
