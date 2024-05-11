@@ -86,18 +86,18 @@ and GitHub [PR](https://github.com/toralf/torutils/pulls).
 #### Details
 
 Generic filter rules for local network, ICMP, ssh and local user services are created.
-Then the following rules are created (for each new connection attempt from an ip to a local ORPort):
+Then the following rules are created:
 
-1. trust Tor authorities and Snowflake servers
-2. block the ip for 1 day if the connection attempt rate exceeds > 9/min within last 2 minutes¹
-3. ignore the connection attempt if there are already 9 established connections from the same ip¹
-4. accept the connection attempt
+1. trust connection attempt to the ORPort from trusted Tor authorities/Snowflake servers
+2. block the ip for 1 day if the connection attempt rate to the ORPort exceeds > 9/min¹ within last 2 minutes
+3. ignore the connection attempt if there are already 9 established connections from that ip¹ to the ORPort
+4. accept the connection attempt to the ORPort
 
-¹ calculation examples given by user _trinity-1686n_ in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
+¹ calculation examples given in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
 
 ### Installation
 
-If the parsing of the Tor config (_getConfiguredRelays()_) and/or of the SSH config fails (_addCommon()_), then:
+If parsing of the Tor config (_getConfiguredRelays()_) and/or of the SSH config fails (_addCommon()_) then:
 
 1. define the local running relay/s explicitely at the command line after the keyword `start`, e.g.:
 
@@ -111,16 +111,16 @@ If the parsing of the Tor config (_getConfiguredRelays()_) and/or of the SSH con
    sudo CONFIGURED_RELAYS="5.6.7.8:9001 1.2.3.4:443" ./ipv4-rules.sh start
    ```
 
-   (`CONFIGURED_RELAYS6` for the IPv6 case).
+   (use `CONFIGURED_RELAYS6` for the IPv6 case).
 
-A command line value takes precedence over the environment variable.
-To allow inbound traffic to additional local port/s, then define them in the environment (space separated), e.g.:
+Specifying command line argument/s takes precedence over an environment variable.
+To allow inbound traffic to additional local port/s define them in the environment, e.g.:
 
 ```bash
 export ADD_LOCAL_SERVICES="2.71.82.81:828 3.141.59.26:53"
 ```
 
-(`ADD_LOCAL_SERVICES6` respectively) before you run the script.
+(use `ADD_LOCAL_SERVICES6` appropriatly) before running the script.
 To append the rules onto existing _iptables_ rules (overwrite is the default)
 you've to comment out the call _clearRules()_ (near the end of the script at _start)_).
 The script sets few _sysctl_ values (following line).
