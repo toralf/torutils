@@ -7,14 +7,11 @@ Few tools for a Tor relay.
 ## Block DDoS
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
-against DDoS attacks¹ at the IP [network](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) layer.
+against DDoS attacks¹ at the IP [network](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) layer, as seen in this metrics:
 
 ![image](./doc/dopped_ipv4_2024-03.jpg)
 
-[Here](./doc/network-metric-July-3rd.jpg) is an older example.
-See [this](https://github.com/toralf/tor-relays/) Ansible role for a solution
-to deploy and configure Tor relays and Tor Snowflake with a secure transmission of metrics data.
-And take a look [here](./dashboards/README.md) for appropriate dashboards.
+An older example is [here](./doc/network-metric-July-3rd.jpg).
 
 ¹ see ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
 and ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093)
@@ -81,19 +78,20 @@ and GitHub [PR](https://github.com/toralf/torutils/pulls).
 #### Objectives
 
 - never touch established connections
-- for IPv4 filter single ips, for IPv6 however /64 ip blocks
+- try to not overblock
+- for IPv4 work on single ips, but for IPv6 on /80 CIDR block
 
 #### Details
 
-Generic filter rules for local network, ICMP, ssh and local user services are created.
-Then the following rules are created:
+Generic filter rules for the local network, ICMP, ssh and additional services are created.
+Then the following rules are applied:
 
 1. trust connection attempt to the ORPort from trusted Tor authorities/Snowflake servers
-2. block the ip for 1 day if the connection attempt rate to the ORPort exceeds > 9/min¹ within last 2 minutes
-3. ignore the connection attempt if there are already 9 established connections from that ip¹ to the ORPort
+2. block the source for 24 hours if the connection attempt rate to the ORPort exceeds > 9/min¹ within last 2 minutes
+3. ignore the connection attempt if there are already 9 established connections from that source¹ to the ORPort
 4. accept the connection attempt to the ORPort
 
-¹ calculation examples given in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
+¹ the 9 is derived from calculations given in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
 
 ### Installation
 
@@ -165,6 +163,11 @@ Few more helper scripts were developed to analyze the attack vector.
 Look [here](./misc/README.md) for details.
 
 ¹ using [sysstat](http://sebastien.godard.pagesperso-orange.fr/)
+
+### More
+
+I used [this](https://github.com/toralf/tor-relays/) Ansible role to deploy and configure Tor relays (server, bridges, snowflake).
+Take a look [here](./dashboards/README.md) for dashboards.
 
 ## Query Tor via its API
 
@@ -249,9 +252,9 @@ git clone https://github.com/torproject/stem.git
 export PYTHONPATH=$PWD/stem
 ```
 
-## watch
+## grep logs for pre-defined text patterns
 
-The script [watch.sh](./watch.sh) helps to monitor the host system and the Tor relay.
+The script [watch.sh](./watch.sh) helps to monitor a host or its Tor relay.
 It sends alarms via SMTP email.
 
 ```bash
