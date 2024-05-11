@@ -112,16 +112,13 @@ function printMetrics() {
   for v in "" 6; do
     ipset list -t | grep -e "^N" | xargs -L 2 | awk '/^Name: tor-/ { print $2, $6 }' |
       if [[ $v == "6" ]]; then
-        grep -e "6 " -e "6-"
+        grep -F -e "6 " -e "6-"
       else
-        grep -v -e "6 " -e "6-"
+        grep -v -F -e "6 " -e "6-"
       fi |
       while read -r name size; do
         mode=$(cut -f 2 -d '-' -s <<<$name | tr -d '6')
-        if [[ $name =~ 'multi' ]]; then
-          count=$(cut -f 3 -d '-' -s <<<$name)
-          echo "$var{ipver=\"${v:-4}\",mode=\"$mode\",count=\"$count\"} $size"
-        elif [[ $name =~ 'trust' ]]; then
+        if [[ $name =~ 'trust' ]]; then
           echo "$var{ipver=\"${v:-4}\",mode=\"$mode\"} $size"
         else
           orport=$(cut -f 3 -d '-' -s <<<$name)

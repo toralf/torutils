@@ -57,6 +57,7 @@ All current guards excluded by path restriction type 2; using an additional guar
 Bug:     /
 Bug: src/lib/tls/tortls_openssl.c:1674:
 Bug: Duplicate call to circuit_mark_for_close at
+connection_edge_process_relay_cell (at origin) failed.
 Couldn't send authenticate cell
 Detected possible compression bomb with input size
 Error relaying cell across rendezvous; closing circuits

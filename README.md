@@ -22,16 +22,16 @@ of the [Tor project](https://www.torproject.org/).
 
 ### Quick start
 
-Install the packages for _iptables_, _ipset_ and _jq_, e.g. for Ubuntu 22.04:
+Install packages for _jq_, _ipset_ and _iptables_, e.g. for Ubuntu 22.04:
 
 ```bash
 sudo apt update
-sudo apt install -y iptables ipset jq
+sudo apt install -y jq ipset iptables
 wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
 chmod +x ./ipv4-rules.sh
 ```
 
-Make a backup of the current iptables _filter_ table, then run a quick test:
+Make a backup of the current iptables _filter_ table and run a quick test:
 
 ```bash
 sudo /usr/sbin/iptables-save > ./rules.v4
@@ -47,15 +47,15 @@ sudo /usr/sbin/conntrack -F
 ```
 
 and (re-)start the Tor service.
-Check that your ssh login and any other service are still working.
+Check that your ssh login and other services are still working.
 Watch the iptables live statistics by:
 
 ```bash
 sudo watch -t ./ipv4-rules.sh
 ```
 
-If all works fine then run the script with the parameter `start` instead of `test`
-and persist the filter rules (i.e. for Debian into the directory `/etc/iptables/`):
+If all works fine then run the script with the parameter `start` instead of `test`.
+Afterwards persist the filter rules (i.e. for Debian into the directory `/etc/iptables/`):
 
 ```bash
 sudo ./ipv4-rules.sh start
@@ -71,10 +71,10 @@ sudo /usr/sbin/iptables-restore < ./rules.v4
 sudo /usr/sbin/ip6tables-restore < ./rules.v6
 ```
 
-You find hints in the [Installation](#installation) section to adapt the scripts for your system.
+You can find few more hints in the [Installation](#installation) section to adapt the scripts for your needs.
 
 I do appreciate [issue](https://github.com/toralf/torutils/issues) reports
-and GitHub [PR](https://github.com/toralf/torutils/pulls) to improve the current state.
+and GitHub [PR](https://github.com/toralf/torutils/pulls).
 
 ### Rule set
 
@@ -85,14 +85,13 @@ and GitHub [PR](https://github.com/toralf/torutils/pulls) to improve the current
 
 #### Details
 
-Generic filter rules for local network, ICMP, ssh and local user services are configured.
-Then these rules are check each connection attempt from an ip to a local ORPort:
+Generic filter rules for local network, ICMP, ssh and local user services are created.
+Then the following rules are created (for each new connection attempt from an ip to a local ORPort):
 
 1. trust Tor authorities and Snowflake servers
-2. allow (up to) 8 connections in parallel if the ip is known to host more than 1 Tor relay
-3. block the ip for 1 day if the connection attempt rate exceeds > 6/min within last 2 minutes¹
-4. ignore the connection attempt if there are already 9 established connections from the same ip¹
-5. accept the connection attempt
+2. block the ip for 1 day if the connection attempt rate exceeds > 9/min within last 2 minutes¹
+3. ignore the connection attempt if there are already 9 established connections from the same ip¹
+4. accept the connection attempt
 
 ¹ calculation examples given by user _trinity-1686n_ in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
 

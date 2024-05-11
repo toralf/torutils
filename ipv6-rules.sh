@@ -35,10 +35,6 @@ function addCommon() {
 function addTor() {
   __create_ipset $trustlist "maxelem $((2 ** 6))"
   __fill_trustlist &
-  for i in 2 4 8; do
-    __create_ipset $multilist-$i "maxelem $((2 ** 13))"
-  done
-  __fill_multilists &
 
   local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask $prefix"
   for relay in $*; do
@@ -60,13 +56,8 @@ function addTor() {
     # rule 1
     $common -m set --match-set $trustlist src -j ACCEPT
 
-    # rule 2
-    for i in 2 4 8; do
-      $common -m set --match-set $multilist-$i src -m connlimit --connlimit-mask $prefix --connlimit-upto $i -m set ! --match-set $ddoslist src -j ACCEPT
-    done
-
     # rule 3
-    $common $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 6/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
+    $common $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
     $common -m set --match-set $ddoslist src -j $jump
 
     # rule 4
@@ -102,45 +93,6 @@ function __fill_trustlist() {
     fi
   ) |
     xargs -r -n 1 -P $jobs ipset add -exist $trustlist
-}
-
-function __fill_multilists() {
-  sleep 6 # remote is rate limited, let ipv4 get the data first
-
-  # if empty then use old values for now
-  for i in 2 4 8; do
-    if ipset list -t $multilist-$i | grep -q -F -m 1 'Number of entries: 0'; then
-      if [[ -s $tmpdir/$multilist-$i ]]; then
-        xargs -r -n 1 -P $jobs ipset add -exist $multilist-$i <$tmpdir/$multilist-$i
-      fi
-    fi
-  done
-
-  # now there's time to update it
-  local relays
-  if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=type:relay' -o -); then
-    if [[ $relays =~ 'relays_published' ]]; then
-      local sorted
-      if sorted=$(
-        set -o pipefail
-        jq -r '.relays[] | select(.r == true) | .a | select(length > 1) | .[1:]' <<<$relays |
-          tr ',' '\n' | grep -F ':' | tr -d '][" ' |
-          sort | uniq -c
-      ); then
-        for i in 2 4 8; do
-          awk '$1 > '$i'/2 && $1 <= '$i' { print $2 }' <<<$sorted >$tmpdir/$multilist-$i
-          local tmp="temp-ipset6-$i-$((RANDOM))"
-          local args=$(ipset save $multilist-$i | head -n 1 | awk '{ $2 = "'$tmp'" }1' | sed -e 's, initval .*,,')
-          if ipset $args; then
-            xargs -r -n 1 -P $jobs ipset add $tmp <$tmpdir/$multilist-$i
-            ipset swap $tmp $multilist-$i
-            ipset destroy $tmp
-          fi
-        done
-        awk '{ print $2 }' <<<$sorted >$tmpdir/relays6
-      fi
-    fi
-  fi
 }
 
 function __fill_ddoslist() {
@@ -241,7 +193,6 @@ umask 066
 
 ipt="ip6tables"
 trustlist="tor-trust6"     # Tor authorities and snowflake servers
-multilist="tor-multi6"     # Tor relay ip addresses hosting > 1 relay
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
 prefix=80                  # any ipv6 address of this CIDR block is considered to belong to the same source/owner
 # hash and ipset size
@@ -272,7 +223,6 @@ stop)
   ;;
 update)
   __fill_trustlist
-  __fill_multilists
   ;;
 test)
   export RUN_ME_WITH_SAFE_JUMP_TARGET="ACCEPT"
