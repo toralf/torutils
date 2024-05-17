@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# addCommon() and addTor() implements a DDoS solution for a Tor relay, the remaining code just parses configs amd maintains ipset content
+# addCommon() and addTor() implement a DDoS solution for a Tor relay for IPv6
+# the remaining code just parses the config and maintains ipset content
 # https://github.com/toralf/torutils
 
 function addCommon() {
