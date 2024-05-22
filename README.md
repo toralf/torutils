@@ -52,12 +52,18 @@ sudo watch -t ./ipv4-rules.sh
 ```
 
 If all works fine then run the script with the parameter `start` instead of `test`.
-Afterwards persist the filter rules (i.e. for Debian into the directory `/etc/iptables/`):
 
 ```bash
 sudo ./ipv4-rules.sh start
-sudo /usr/sbin/iptables-save > /etc/iptables//rules.v4
-sudo /usr/sbin/ip6tables-save > /etc/iptables//rules.v6
+```
+
+and create the following 2 cron jobs:
+
+```cron
+# start at reboot
+
+# save in regular intervalls the ips to be blocked, will be fetched at next reboot
+
 ```
 
 However, if something failed then restore the previous state:
@@ -140,20 +146,14 @@ please comment out the call _clearRules()_ (near the end of the script at _start
 
 ### Operational hints
 
-Before reboot run
+Before a reboot (or hourly via cron) run
 
 ```bash
 sudo /etc/conf.d/ipv6-rules.sh save
 sudo /etc/conf.d/ipv4-rules.sh save
 ```
 
-to feed rule 3 with recent data at restart.
-Rule 2 depends on recent data about ip addresses serving more >1 Tor relay.
-Update this data regularly, e.g. hourly via a cron job:
-
-```bash
-sudo ./ipv4-rules.sh update
-```
+to keep the list of blocked address between restarts.
 
 ### Metrics
 
