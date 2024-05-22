@@ -99,13 +99,21 @@ function __fill_ddoslist() {
   rm -f $tmpdir/$ddoslist
 }
 
-function addLocalServices() {
+function additionalServices() {
   for service in ${ADD_LOCAL_SERVICES-}; do
     read -r addr port <<<$(tr ':' ' ' <<<$service)
     if [[ $addr == "0.0.0.0" ]]; then
       addr+="/0"
     fi
     $ipt -A INPUT -p tcp --dst $addr --dport $port --syn -j ACCEPT
+  done
+
+  for service in ${ADD_REMOTE_SERVICES-}; do
+    read -r addr port <<<$(tr ':' ' ' <<<$service)
+    if [[ $addr == "0.0.0.0" ]]; then
+      addr+="/0"
+    fi
+    $ipt -A INPUT -p tcp --src $addr --dport $port --syn -j ACCEPT
   done
 }
 
@@ -228,7 +236,7 @@ start)
   setSysctlValues
   addCommon
   addHetzner
-  addLocalServices
+  additionalServices
   addTor ${*:-${CONFIGURED_RELAYS:-$(getConfiguredRelays)}}
   $ipt -P INPUT ${RUN_ME_WITH_SAFE_JUMP_TARGET:-$jump}
   trap - INT QUIT TERM EXIT

@@ -107,13 +107,21 @@ function __fill_ddoslist() {
   rm -f $tmpdir/$ddoslist
 }
 
-function addLocalServices() {
+function additionalServices() {
   for service in ${ADD_LOCAL_SERVICES6-}; do
     read -r addr port <<<$(sed -e 's,]:, ,' -e 's,\[, ,' <<<$service)
     if [[ $addr == "::" ]]; then
       addr+="/0"
     fi
     $ipt -A INPUT -p tcp --dst $addr --dport $port --syn -j ACCEPT
+  done
+
+  for service in ${ADD_REMOTE_SERVICES6-}; do
+    read -r addr port <<<$(sed -e 's,]:, ,' -e 's,\[, ,' <<<$service)
+    if [[ $addr == "::" ]]; then
+      addr+="/0"
+    fi
+    $ipt -A INPUT -p tcp --src $addr --dport $port --syn -j ACCEPT
   done
 }
 
@@ -216,7 +224,7 @@ start)
   clearRules
   addCommon
   addHetzner
-  addLocalServices
+  additionalServices
   addTor ${*:-${CONFIGURED_RELAYS6:-$(getConfiguredRelays6)}}
   $ipt -P INPUT ${RUN_ME_WITH_SAFE_JUMP_TARGET:-$jump}
   trap - INT QUIT TERM EXIT

@@ -112,19 +112,31 @@ If parsing of the Tor config (_getConfiguredRelays()_) and/or of the SSH config 
    (use `CONFIGURED_RELAYS6` for the IPv6 case).
 
 Specifying command line argument/s takes precedence over an environment variable.
-To allow inbound traffic to additional local port/s define them in the environment, e.g.:
+Please use the same syntax to allow inbound traffic to additional <address:port> destinations, e.g.:
 
 ```bash
 export ADD_LOCAL_SERVICES="2.71.82.81:828 3.141.59.26:53"
 ```
 
 (use `ADD_LOCAL_SERVICES6` appropriatly) before running the script.
-To append the rules onto existing _iptables_ rules (overwrite is the default)
-you've to comment out the call _clearRules()_ (near the end of the script at _start)_).
+
+Similar `ADD_REMOTE_SERVICES` and its IPv6 variant can be used to allow inbound traffic
+from an address to the local port, e.g.:
+
+```bash
+export ADD_LOCAL_SERVICES="4.3.2.1:4711"
+```
+
+allows traffic from the (remote) address "4.3.2.1" to local port "4711".
+
 The script sets few _sysctl_ values (following line).
-To avoid that comment out that call, but consider to set them under _/etc/sysctl.d/_.
+To avoid that please comment out that call.
+But consider to set them under _/etc/sysctl.d/_ yoruself.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
 then comment out the call _addHetzner()_ too.
+
+To append (overwrite is the default) all rules onto existing _iptables_ rule set
+please comment out the call _clearRules()_ (near the end of the script at _start)_).
 
 ### Operational hints
 
