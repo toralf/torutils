@@ -132,6 +132,10 @@ function addHetzner() {
 }
 
 function setSysctlValues() {
+  if modinfo nf_conntrack &>/dev/null && ! lsmod | grep -q 'nf_conntrack'; then
+    modprobe nf_conntrack
+  fi
+
   sysctl -q -w net.netfilter.nf_conntrack_max=$((2 ** 21)) || sysctl -q -w net.nf_conntrack_max=$((2 ** 21))
   sysctl -q -w net.ipv4.tcp_syncookies=1
 
