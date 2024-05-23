@@ -136,13 +136,14 @@ export ADD_LOCAL_SERVICES="4.3.2.1:4711"
 allows traffic from the (remote) address "4.3.2.1" to local port "4711".
 
 The script sets few _sysctl_ values (following line).
-To avoid that please comment out that call.
-But consider to set them under _/etc/sysctl.d/_ yoruself.
+If not wanted then please comment out that call.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
 then comment out the call _addHetzner()_ too.
 
 To append (overwrite is the default) all rules onto existing _iptables_ rule set
 please comment out the call _clearRules()_ (near the end of the script at _start)_).
+
+An implementation example using Ansible is seen [here](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_tor/tasks/firewall-server.yaml).
 
 ### Operational hints
 
