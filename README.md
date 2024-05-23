@@ -57,13 +57,14 @@ If all works fine then run the script with the parameter `start` instead of `tes
 sudo ./ipv4-rules.sh start
 ```
 
-and create the following 2 cron jobs:
+and create the following 2 cron jobs (via `crontab -e`):
 
 ```cron
-# start at reboot
+# start firewall
+@reboot /root/ipv4-rules.sh start; /root/ipv6-rules.sh start
 
-# save in regular intervalls the ips to be blocked, will be fetched at next reboot
-
+# save ips to be blocked, helps at reboot
+@hourly /root/ipv4-rules.sh save; /root/ipv6-rules.sh save
 ```
 
 However, if something failed then restore the previous state:
@@ -74,7 +75,7 @@ sudo /usr/sbin/iptables-restore < ./rules.v4
 sudo /usr/sbin/ip6tables-restore < ./rules.v6
 ```
 
-You can find few more hints in the [Installation](#installation) section to adapt the scripts for your needs.
+More hints are in the [Installation](#installation) section.
 
 I do appreciate [issue](https://github.com/toralf/torutils/issues) reports
 and GitHub [PR](https://github.com/toralf/torutils/pulls).
