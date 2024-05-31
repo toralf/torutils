@@ -87,7 +87,7 @@ function __fill_trustlist() {
   # this is intentionally not filled from a saved set at reboot
   (
     echo 2a0c:dd40:1:b::42 2a0c:dd40:1:b::43 2a0c:dd40:1:b::44 2a0c:dd40:1:b::45 2a0c:dd40:1:b::46 2607:f018:600:8:be30:5bff:fef1:c6fa
-    echo 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2a02:16a8:662:2203::1 2610:1c0:0:5::131 2620:13:4000:6000::1000:118
+    echo 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2a02:16a8:662:2203::1 2610:1c0:0:5::131
     getent ahostsv6 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }' | sort -u
     if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o -); then
       if [[ $relays =~ 'relays_published' ]]; then
@@ -207,11 +207,14 @@ ipt="ip6tables"
 trustlist="tor-trust6"     # Tor authorities and snowflake servers
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
 prefix=80                  # any ipv6 address of this CIDR block is considered to belong to the same source/owner
-# hash and ipset size
-if [[ $(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo) -gt 2 ]]; then
-  max=$((2 ** 18)) # RAM is bigger than 2 GiB
+# hash and ipset size: 1M if > 32 GiB, 256K if > 2 GiB, default: 64K
+ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
+if [[ ${ram} -gt 32 ]]; then
+  max=$((2 ** 20))
+elif [[ ${ram} -gt 2 ]]; then
+  max=$((2 ** 18))
 else
-  max=$((2 ** 16)) # default: 65536
+  max=$((2 ** 16))
 fi
 tmpdir=${TORUTILS_TMPDIR:-/var/tmp}
 
