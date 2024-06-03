@@ -104,7 +104,7 @@ Then the following rules are applied:
 
 If parsing of the Tor config (_getConfiguredRelays()_) and/or of the SSH config fails (_addCommon()_) then:
 
-1. define the local running relay/s explicitely at the command line after the keyword `start`, e.g.:
+1. define the local running relay/s explicitly at the command line after the keyword `start`, e.g.:
 
    ```bash
    sudo ./ipv4-rules.sh start 1.2.3.4:443 5.6.7.8:9001
@@ -125,7 +125,7 @@ Please use the same syntax to allow inbound traffic to additional <address:port>
 export ADD_LOCAL_SERVICES="2.71.82.81:828 3.141.59.26:53"
 ```
 
-(use `ADD_LOCAL_SERVICES6` appropriatly) before running the script.
+(use `ADD_LOCAL_SERVICES6` appropriately) before running the script.
 
 Similar `ADD_REMOTE_SERVICES` and its IPv6 variant can be used to allow inbound traffic
 from an address to the local port, e.g.:
