@@ -51,7 +51,15 @@ Watch the iptables live statistics by:
 sudo watch -t ./ipv4-rules.sh
 ```
 
-If all works fine then run the script with the parameter `start` instead of `test`.
+If something failed then restore the previous state:
+
+```bash
+sudo ./ipv4-rules.sh stop
+sudo /usr/sbin/iptables-restore < ./rules.v4
+sudo /usr/sbin/ip6tables-restore < ./rules.v6
+```
+
+However, if all works fine, then run the script with the parameter `start` instead of `test`.
 
 ```bash
 sudo ./ipv4-rules.sh start
@@ -67,16 +75,9 @@ and create the following 2 cron jobs (via `crontab -e`):
 @hourly /root/ipv4-rules.sh save; /root/ipv6-rules.sh save
 ```
 
-However, if something failed then restore the previous state:
-
-```bash
-sudo ./ipv4-rules.sh stop
-sudo /usr/sbin/iptables-restore < ./rules.v4
-sudo /usr/sbin/ip6tables-restore < ./rules.v6
-```
+Ensure, that the package _iptables-persistent_ is either not installed or disabled.
 
 More hints are in the [Installation](#installation) section.
-
 I do appreciate [issue](https://github.com/toralf/torutils/issues) reports
 and GitHub [PR](https://github.com/toralf/torutils/pulls).
 
