@@ -53,21 +53,10 @@ While not bootstrapping, fetched this many bytes:
 You have asked to exclude certain relays from all positions in your circuits
 Your Tor server's identity key
 #################### warnings, bugs and more
-All current guards excluded by path restriction type 2; using an additional guard.
-Bug:     /
-Bug: src/lib/tls/tortls_openssl.c:1674:
-Bug: Duplicate call to circuit_mark_for_close at
 connection_edge_process_relay_cell (at origin) failed.
 Couldn't send authenticate cell
 Detected possible compression bomb with input size
-Error relaying cell across rendezvous; closing circuits
-Extremely large value for circuit build timeout:
-Missing master key after handshake using TLSv1.3
-Non-fatal assertion !(! master_key_len) failed in tor_tls_get_tlssecrets
-Possible compression bomb; abandoning stream.
-relay_send_command_from_edge_(): Bug: circuit_package_relay_cell failed. Closing.
 Sudden decrease in circuit RTT
-The state file seems to be into a status that could yield to weird entry node selection:
 Unable to decompress HTTP body
 Unable to send INTRODUCE2 cell to the service.
 Your network connection speed appears to have changed.
