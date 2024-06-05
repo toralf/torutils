@@ -14,25 +14,35 @@ against DDoS attacks¹ at the IP [network](https://upload.wikimedia.org/wikipedi
 An older example is [here](./doc/network-metric-July-3rd.jpg).
 
 ¹ see ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
-and ticket [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093)
+and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093)
 of the [Tor project](https://www.torproject.org/).
 
 ### Quick start
 
-Install packages for _jq_, _ipset_ and _iptables_, e.g. for Ubuntu 22.04:
+Install _jq_, _ipset_ and _iptables_, e.g. for Ubuntu 22.04
 
 ```bash
 sudo apt update
 sudo apt install -y jq ipset iptables
+```
+
+download the script
+
+```bash
 wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
 chmod +x ./ipv4-rules.sh
 ```
 
-Make a backup of the current iptables _filter_ table and run a quick test:
+make a backup of the current iptables _filter_ table:
 
 ```bash
 sudo /usr/sbin/iptables-save > ./rules.v4
 sudo /usr/sbin/ip6tables-save > ./rules.v6
+```
+
+and run a quick test
+
+```bash
 sudo ./ipv4-rules.sh test
 ```
 
@@ -59,7 +69,7 @@ sudo /usr/sbin/iptables-restore < ./rules.v4
 sudo /usr/sbin/ip6tables-restore < ./rules.v6
 ```
 
-However, if all works fine, then run the script with the parameter `start` instead of `test`.
+Otherwise run the script with the parameter `start` instead of `test`.
 
 ```bash
 sudo ./ipv4-rules.sh start
@@ -68,12 +78,14 @@ sudo ./ipv4-rules.sh start
 and create the following 2 cron jobs (via `crontab -e`):
 
 ```cron
-# start firewall
+# DDoS prevention
 @reboot /root/ipv4-rules.sh start; /root/ipv6-rules.sh start
 
-# save ips to be blocked, helps at reboot
+# keep ips during reboot
 @hourly /root/ipv4-rules.sh save; /root/ipv6-rules.sh save
 ```
+
+That's all.
 
 Ensure, that the package _iptables-persistent_ is either not installed or disabled.
 
@@ -94,16 +106,17 @@ Generic filter rules for the local network, ICMP, ssh and additional services ar
 Then the following rules are applied:
 
 1. trust connection attempt to any port from trusted Tor authorities/Snowflake servers
-2. block the source² for 24 hours if the connection attempt rate to the ORPort exceeds > 9/min¹ within last 2 minutes
+2. block the source¹ for 24 hours if the connection attempt rate to the ORPort exceeds > 9/min² within last 2 minutes
 3. ignore the connection attempt if there are already 9 established connections to the ORPort
 4. accept the connection attempt to the ORPort
 
-¹ the value is derived from calculations given in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
-² for IPv4 "source" is a regular ip, but for IPv6 the corresponding /80 CIDR block
+¹ for IPv4 "source" is a regular ip, but for IPv6 the corresponding /80 CIDR block
+
+² the value is derived from ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
 
 ### Installation
 
-If parsing of the Tor config (_getConfiguredRelays()_) and/or of the SSH config fails (_addCommon()_) then:
+If the parsing of the Tor and/or of the SSH config fails, then:
 
 1. define the local running relay/s explicitly at the command line after the keyword `start`, e.g.:
 
@@ -117,7 +130,7 @@ If parsing of the Tor config (_getConfiguredRelays()_) and/or of the SSH config 
    sudo CONFIGURED_RELAYS="5.6.7.8:9001 1.2.3.4:443" ./ipv4-rules.sh start
    ```
 
-   (use `CONFIGURED_RELAYS6` for the IPv6 case).
+   (`CONFIGURED_RELAYS6` for IPv6).
 
 Specifying command line argument/s takes precedence over an environment variable.
 Please use the same syntax to allow inbound traffic to additional <address:port> destinations, e.g.:
@@ -126,43 +139,27 @@ Please use the same syntax to allow inbound traffic to additional <address:port>
 export ADD_LOCAL_SERVICES="2.71.82.81:828 3.141.59.26:53"
 ```
 
-(use `ADD_LOCAL_SERVICES6` appropriately) before running the script.
+(`ADD_LOCAL_SERVICES6` appropriately) before running the script.
 
-Similar `ADD_REMOTE_SERVICES` and its IPv6 variant can be used to allow inbound traffic
-from an address to the local port, e.g.:
+Similar `ADD_REMOTE_SERVICES` and its IPv6 variant can be used to allow particular inbound traffic, e.g.:
 
 ```bash
 export ADD_LOCAL_SERVICES="4.3.2.1:4711"
 ```
 
-allows traffic from the (remote) address "4.3.2.1" to local port "4711".
+allows traffic from the remote address "4.3.2.1" to the local port "4711".
 
-The script sets few _sysctl_ values (following line).
-If not wanted then please comment out that call.
+The script sets few _sysctl_ values.
+If unwanted then please comment out the call of _setSysctlValues()_.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then comment out the call _addHetzner()_ too.
-
-To append (overwrite is the default) all rules onto existing _iptables_ rule set
-please comment out the call _clearRules()_ (near the end of the script at _start)_).
-
-An implementation example using Ansible is seen [here](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_tor/tasks/firewall-server.yaml).
-
-### Operational hints
-
-Before a reboot (or hourly via cron) run
-
-```bash
-sudo /etc/conf.d/ipv6-rules.sh save
-sudo /etc/conf.d/ipv4-rules.sh save
-```
-
-to keep the list of blocked address between restarts.
+then comment out _addHetzner()_.
+To append rules onto existing _iptables_ rule set (overwrite is the default) please comment out the call _clearRules()_.
 
 ### Metrics
 
 The script [metrics.sh](./metrics.sh) exports data for Prometheus.
 The upload of DDoS metrics is done by [node_exporter](https://github.com/prometheus/node_exporter).
-Details and Grafana dashboards are [here](./dashboards/README.md).
+More details and few Grafana dashboards are [here](./dashboards/README.md).
 
 ### DDoS examples
 
@@ -182,7 +179,6 @@ Look [here](./misc/README.md) for details.
 ### More
 
 I used [this](https://github.com/toralf/tor-relays/) Ansible role to deploy and configure Tor relays (server, bridges, snowflake).
-Take a look [here](./dashboards/README.md) for dashboards.
 
 ## Query Tor via its API
 
