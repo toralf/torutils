@@ -141,13 +141,13 @@ export ADD_LOCAL_SERVICES="2.71.82.81:828 3.141.59.26:53"
 
 (`ADD_LOCAL_SERVICES6` appropriately) before running the script.
 
-Similar `ADD_REMOTE_SERVICES` and its IPv6 variant can be used to allow particular inbound traffic, e.g.:
+A slightly different syntax can be used for `ADD_REMOTE_SERVICES` and its IPv6 variant to allow inbound traffic, e.g.:
 
 ```bash
-export ADD_LOCAL_SERVICES="4.3.2.1:4711"
+export ADD_LOCAL_SERVICES="4.3.2.1>4711"
 ```
 
-allows traffic from the remote address "4.3.2.1" to the local port "4711".
+allows traffic, i.e. from the remote address "4.3.2.1" to the local port "4711".
 
 The script sets few _sysctl_ values.
 If unwanted then please comment out the call of _setSysctlValues()_.

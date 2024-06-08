@@ -110,6 +110,7 @@ function __fill_ddoslist() {
 }
 
 function additionalServices() {
+  # local-address:local-port
   for service in ${ADD_LOCAL_SERVICES6-}; do
     read -r addr port <<<$(sed -e 's,]:, ,' -e 's,\[, ,' <<<$service)
     if [[ $addr == "::" ]]; then
@@ -118,8 +119,9 @@ function additionalServices() {
     $ipt -A INPUT -p tcp --dst $addr --dport $port --syn -j ACCEPT
   done
 
+  # remote-address>local-port
   for service in ${ADD_REMOTE_SERVICES6-}; do
-    read -r addr port <<<$(sed -e 's,]:, ,' -e 's,\[, ,' <<<$service)
+    read -r addr port <<<$(sed -e 's,]>, ,' -e 's,\[, ,' <<<$service)
     if [[ $addr == "::" ]]; then
       addr+="/0"
     fi
