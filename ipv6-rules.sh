@@ -31,6 +31,10 @@ function addCommon() {
   $ipt -A INPUT -p ipv6-icmp --icmpv6-type echo-request -m limit --limit 6/s -j ACCEPT
   $ipt -A INPUT -p ipv6-icmp --icmpv6-type echo-request -j $jump
   $ipt -A INPUT -p ipv6-icmp -j ACCEPT
+
+  # DHCPv6
+  $ipt -A INPUT -p udp --sport 547 -j ACCEPT
+  $ipt -A INPUT -p udp --dport 546 -j ACCEPT
 }
 
 function addTor() {
