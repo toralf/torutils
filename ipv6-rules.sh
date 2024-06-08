@@ -33,7 +33,6 @@ function addCommon() {
   $ipt -A INPUT -p ipv6-icmp -j ACCEPT
 
   # DHCPv6
-  $ipt -A INPUT -p udp --sport 547 -j ACCEPT
   $ipt -A INPUT -p udp --dport 546 -j ACCEPT
 }
 
