@@ -62,4 +62,7 @@ Unable to send INTRODUCE2 cell to the service.
 Your network connection speed appears to have changed.
 #################### known bugs
 Bug:     /
+Couldn't send authenticate cell
+Missing master key after handshake using TLSv1.3
+Non-fatal assertion !(! master_key_len)
 tor_bug_occurred_(): Bug: src/lib/tls/tortls_openssl.c
