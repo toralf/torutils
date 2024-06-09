@@ -10,7 +10,7 @@ Few dashboards for Tor relays, Snowflake and the DDoS metrics.
 
 An Ansible example to scrape metrics is given [here](https://github.com/toralf/tor-relays/?tab=readme-ov-file#metrics).
 
-A Prometheus config would look like this:
+The Prometheus config needs to set the _nickname_, i.e. it is set using the address (usually the hostname):
 
 ```yaml
 - job_name: "Tor-Relay"
@@ -22,7 +22,7 @@ A Prometheus config would look like this:
     - targets: ["..."]
   relabel_configs:
     - source_labels: [__address__]
-      target_label: instance
+      target_label: nickname
       regex: "([^:]+).*:(.).*"
-      replacement: "nick${2}"
+      replacement: "my-nick-prefix-${1}"
 ```
