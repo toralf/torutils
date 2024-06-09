@@ -4,12 +4,15 @@
 
 # use node_exporter's "textfile" feature to send metrics to Prometheus
 
-function _orport2nickname() {
-  local opt=${1:-UNSET}
+# local hack
+function _orportFromIpsetName() {
+  local name=${1?NAME IS UNSET}
+
+  local orport=$(cut -f 3 -d '-' -s <<<$name)
 
   # set the Prometheus label "nickname" to the value of the Tor server ones
   echo -n "fuchs"
-  case $opt in
+  case $orport in
   443) echo "1" ;;
   9001) echo "2" ;;
   8443) echo "3" ;;
@@ -53,8 +56,6 @@ function printMetrics() {
   local count
   local mode
   local name
-  local nickname
-  local orport
   local var
 
   ###############################
@@ -67,8 +68,7 @@ function printMetrics() {
     ipset list -n |
       grep '^tor-'${mode}${v}'-' |
       while read -r name; do
-        orport=$(cut -f 3 -d '-' -s <<<$name)
-        nickname=$(_orport2nickname $orport)
+        nickname=${NICKNAME:-$(_orportFromIpsetName $name)}
         {
           ipset list -s $name | sed -e '1,8d' | _histogram >$tmpfile.$name.tmp
           chmod a+r $tmpfile.$name.tmp
@@ -98,8 +98,7 @@ function printMetrics() {
       grep ' DROP ' | grep ' match-set tor-ddos'$v'-' |
       while read -r pkts remain; do
         name=$(grep -Eo ' tor-ddos.* ' <<<$remain | tr -d ' ')
-        orport=$(cut -f 3 -d '-' -s <<<$name)
-        nickname=$(_orport2nickname $orport)
+        nickname=${NICKNAME:-$(_orportFromIpsetName $name)}
         echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\"} $pkts"
       done
   done
@@ -121,8 +120,7 @@ function printMetrics() {
         if [[ $name =~ 'trust' ]]; then
           echo "$var{ipver=\"${v:-4}\",mode=\"$mode\"} $size"
         else
-          orport=$(cut -f 3 -d '-' -s <<<$name)
-          nickname=$(_orport2nickname $orport)
+          nickname=${NICKNAME:-$(_orportFromIpsetName $name)}
           echo "$var{ipver=\"${v:-4}\",mode=\"$mode\",nickname=\"$nickname\"} $size"
         fi
       done
@@ -138,8 +136,7 @@ function printMetrics() {
     wc -l /proc/net/ip${v}t_hashlimit/tor-$mode-* |
       grep -v ' total' |
       while read -r count name; do
-        orport=$(cut -f 3 -d '-' -s <<<$name)
-        nickname=$(_orport2nickname $orport)
+        nickname=${NICKNAME:-$(_orportFromIpsetName $name)}
         echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\",mode=\"$mode\"} $count"
       done
   done
@@ -150,11 +147,12 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
+datadir=${1:-/var/lib/node_exporter}                                                # default at least under Gentoo Linux
+NICKNAME=${2:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')} # if not given nor found then derive it from the orport
+export NICKNAME
+
 tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.tmp)
-
-datadir=${1:-/var/lib/node_exporter} # default directory under Gentoo Linux
 cd $datadir
-
 echo "# $0   $(date -R)" >$tmpfile
 printMetrics >>$tmpfile
 chmod a+r $tmpfile

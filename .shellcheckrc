@@ -8,4 +8,5 @@ disable=SC2012 # low  Use find instead of ls to better handle non-alphanumeric f
 disable=SC2035 # Use ./*glob* or -- *glob* so names with dashes won't become options.
 disable=SC2076 # Remove quotes from right-hand side of =~ to match as a regex rather than literally.
 disable=SC2001 # See if you can use ${variable//search/replace} instead.
-
+disable=SC2030 # Modification of nickname is local (to subshell caused by pipeline).
+disable=SC2031 # nickname was modified in a subshell. That change might be lost.
