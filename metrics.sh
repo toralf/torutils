@@ -147,7 +147,10 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-datadir=${1:-/var/lib/node_exporter}                                                # default at least under Gentoo Linux
+datadir=${1:-/var/lib/node_exporter} # default at least under Gentoo Linux
+if [[ ! -d $datadir ]]; then
+  exit 1
+fi
 NICKNAME=${2:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')} # if not given nor found then derive it from the orport
 export NICKNAME
 
