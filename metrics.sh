@@ -111,9 +111,9 @@ function printMetrics() {
   for v in "" 6; do
     ipset list -t | grep -e "^N" | xargs -L 2 | awk '/^Name: tor-/ { print $2, $6 }' |
       if [[ $v == "6" ]]; then
-        grep -F -e "6 " -e "6-"
+        grep -e "[a-z]6 " -e "[a-z]6-"
       else
-        grep -v -F -e "6 " -e "6-"
+        grep -v -e "[a-z]6 " -e "[a-z]6-"
       fi |
       while read -r name size; do
         mode=$(cut -f 2 -d '-' -s <<<$name | tr -d '6')
