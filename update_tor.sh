@@ -8,30 +8,35 @@ function restart() {
   export GRACEFUL_TIMEOUT=20
 
   # shellcheck disable=SC2011
-  ls /etc/init.d/tor? |
+  ls /etc/init.d/tor{,?} |
     xargs -n 1 basename |
     while read -r service; do
       echo
       echo "----------------------------"
       date
-      echo " restarting $service"
+      echo " $service"
       echo
-      if ! rc-service $service restart; then
-        local pid
-        if pid=$(cat /run/tor/$service.pid); then
-          if kill -0 $pid; then
-            echo " kill pid $pid"
-            kill -9 $pid
-            sleep 1
-          else
-            rm /run/tor/$service.pid
-            echo " stale pid $pid for $service"
+
+      if ! rc-service $service status; then
+        echo -e "\n skipped"
+      else
+        if ! rc-service $service restart; then
+          if pid=$(cat /run/tor/$service.pid); then
+            if kill -0 $pid; then
+              echo " kill pid $pid"
+              kill -9 $pid
+              sleep 1
+            else
+              rm /run/tor/$service.pid
+              echo " stale pid $pid"
+            fi
+          fi
+          if ! rc-service $service zap start; then
+            echo "zap start failed"
           fi
         fi
-        if ! rc-service $service zap start; then
-          echo "zap start failed for $service"
-        fi
       fi
+      echo
     done
 }
 
