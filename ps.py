@@ -3,6 +3,10 @@
 # -*- coding: utf-8 -*-
 
 
+# shows open exit port stats:
+#
+#   ps.py --address ::1 --ctrlport 39051 --suffix data3
+
 import argparse
 import glob
 import ipaddress
