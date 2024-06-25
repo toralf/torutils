@@ -1,0 +1,14 @@
+[MASTER]
+
+disable=C0103,C0114,C0115,C0116,C0301,R0913,R0914,W0718,W0719
+
+# low     Argument name "DBInstanceIdentifier" doesn't conform to snake_case naming style        pylint/C0103
+# low     Missing module docstring                                                               pylint/C0114
+# low     Missing class docstring                                                                pylint/C0115
+# low     Missing function or method docstring                                                   pylint/C0116
+# low     Line too long (173/100)                                                                pylint/C0301
+# low     Too many arguments (6/5)                                                               pylint/R0913
+# low     Too many local variables (21/15)                                                       pylint/R0914
+# medium  Catching too general exception Exception                                               pylint/W0718
+# medium  Raising too general exception: Exception                                               pylint/W0719
+
