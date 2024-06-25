@@ -8,12 +8,11 @@ import ipaddress
 import sys
 import time
 
+# https://github.com/torproject/stem.git
 from stem.connection import connect
 from stem.control import Listener
 from stem.descriptor import parse_file
 from stem.util.connection import get_connections, port_usage
-
-# https://github.com/torproject/stem.git
 from stem.util.str_tools import short_time_label
 from stem.util.system import start_time
 

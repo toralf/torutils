@@ -14,16 +14,6 @@ from stem.control import Controller, Listener
 from stem.descriptor import parse_file
 from stem.util.connection import get_connections, is_valid_ipv4_address, port_usage
 
-"""
-print out exit port statistics of a running Tor exit relay:
-
-  port   # opened closed    max        (3.6 sec, lsof: 6068 conns in 0.9 sec)
-  53   1    1    1    1    0    0  (DNS)
-  80  1250   54   48   1250   54   48  (HTTP)
-  81   1    0    0    1    0    0  (HTTP Alternate)
-   110   1    0    0    1    0    0  (POP3)
-"""
-
 
 def parse_consensus(relays, filename):
     for desc in parse_file(filename):
@@ -92,9 +82,9 @@ def main():
                             if ":" in accept:
                                 port = accept.split(":")[1]
                                 if "-" in port:
-                                    min = port.split("-")[0]
-                                    max = port.split("-")[1]
-                                    for port in range(int(min), int(max)):
+                                    min_port = port.split("-")[0]
+                                    max_port = port.split("-")[1]
+                                    for port in range(int(min_port), int(max_port)):
                                         exit_ports.append(port)
                                 else:
                                     exit_ports.append(port)
