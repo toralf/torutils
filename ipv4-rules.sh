@@ -212,7 +212,7 @@ function saveIpset() {
 }
 
 function saveCertainIpsets() {
-  ipset list -n | grep -e 'tor-ddos-' -e 'tor-trust$' |
+  ipset list -n | grep -e '^tor-ddos-[0-9]*$' -e '^tor-trust$' |
     while read -r name; do
       saveIpset $name
     done
