@@ -27,7 +27,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "10.4.2"
+      "version": "11.0.1"
     },
     {
       "type": "datasource",
@@ -148,6 +148,89 @@
           "color": {
             "mode": "thresholds"
           },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "super-light-blue",
+                "value": 0
+              },
+              {
+                "color": "blue",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "bool_yes_no"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 0,
+        "y": 1
+      },
+      "id": 84,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {
+          "titleSize": 13,
+          "valueSize": 13
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "tor_relay_flag{nickname=~\"$Nickname\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "legendFormat": "{{nickname}} {{type}}",
+          "range": false,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Node Flags",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
           "decimals": 0,
           "mappings": [],
           "min": 0,
@@ -169,9 +252,9 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 3,
-        "w": 7,
-        "x": 0,
+        "h": 7,
+        "w": 8,
+        "x": 8,
         "y": 1
       },
       "id": 93,
@@ -188,13 +271,11 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "titleSize": 13
-        },
+        "text": {},
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.2",
+      "pluginVersion": "11.0.1",
       "targets": [
         {
           "datasource": {
@@ -204,7 +285,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "tor_bug_reached_count{nickname=~\"$Nickname\"}",
+          "expr": "tor_bug_reached_count",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -230,39 +311,37 @@
           "color": {
             "mode": "thresholds"
           },
+          "decimals": 0,
           "mappings": [],
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "blue",
                 "value": null
               },
               {
-                "color": "super-light-blue",
-                "value": 0
-              },
-              {
-                "color": "blue",
+                "color": "yellow",
                 "value": 1
               }
             ]
           },
-          "unit": "bool_yes_no"
+          "unit": "none"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
+        "h": 5,
         "w": 8,
-        "x": 7,
+        "x": 16,
         "y": 1
       },
-      "id": 84,
+      "id": 98,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -272,14 +351,11 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "titleSize": 13,
-          "valueSize": 13
-        },
+        "text": {},
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.2",
+      "pluginVersion": "11.0.1",
       "targets": [
         {
           "datasource": {
@@ -289,17 +365,99 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "tor_relay_flag{nickname=~\"$Nickname\"}",
+          "expr": "torutils_ipset_total{ipver=\"4\", mode=\"ddos\"}",
+          "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": true,
-          "legendFormat": "{{nickname}} {{type}}",
+          "interval": "",
+          "legendFormat": "{{nickname}}",
           "range": false,
           "refId": "A",
           "useBackend": false
         }
       ],
-      "title": "Flags",
+      "title": "ipset DDoS IPv4",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 6
+      },
+      "id": 99,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "torutils_ipset_total{ipver=\"6\", mode=\"ddos\"}",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "{{nickname}}",
+          "range": false,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "ipset DDoS IPv6",
       "type": "stat"
     },
     {
@@ -339,10 +497,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 7,
-        "x": 0,
-        "y": 4
+        "h": 3,
+        "w": 8,
+        "x": 8,
+        "y": 8
       },
       "id": 83,
       "options": {
@@ -359,11 +517,9 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
         "sizing": "auto",
-        "text": {
-          "titleSize": 13
-        }
+        "text": {}
       },
-      "pluginVersion": "10.4.2",
+      "pluginVersion": "11.0.1",
       "targets": [
         {
           "datasource": {
@@ -373,7 +529,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "(tor_relay_signing_cert_expiry_timestamp{nickname=~\"$Nickname\"} / 86400) - (time() / 86400)",
+          "expr": "(tor_relay_signing_cert_expiry_timestamp / 86400) - (time() / 86400)",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -394,7 +550,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 10
+        "y": 11
       },
       "id": 35,
       "panels": [],
@@ -467,7 +623,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 11
+        "y": 12
       },
       "id": 20,
       "options": {
@@ -479,6 +635,7 @@
           "width": 80
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -585,7 +742,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 11
+        "y": 12
       },
       "id": 18,
       "options": {
@@ -597,6 +754,7 @@
           "width": 80
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -689,8 +847,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -706,7 +863,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 18
+        "y": 19
       },
       "id": 22,
       "options": {
@@ -718,6 +875,7 @@
           "width": 80
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -736,6 +894,54 @@
           "legendFormat": "user",
           "range": true,
           "refId": "A",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "(sum(rate(node_cpu_seconds_total{mode=\"system\", instance=~\"$Instance\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "legendFormat": "system",
+          "range": true,
+          "refId": "B",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "(sum(rate(node_cpu_seconds_total{mode=\"iowait\", instance=~\"$Instance\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "legendFormat": "iowait",
+          "range": true,
+          "refId": "C",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "(sum(rate(node_cpu_seconds_total{mode=\"irq\", instance=~\"$Instance\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "legendFormat": "irq",
+          "range": true,
+          "refId": "D",
           "useBackend": false
         }
       ],
@@ -791,8 +997,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -808,7 +1013,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 18
+        "y": 19
       },
       "id": 63,
       "options": {
@@ -820,6 +1025,7 @@
           "width": 80
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -923,7 +1129,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 25
+        "y": 26
       },
       "id": 90,
       "options": {
@@ -935,6 +1141,7 @@
           "width": 80
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -965,7 +1172,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 33
       },
       "id": 33,
       "panels": [],
@@ -1038,7 +1245,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 33
+        "y": 34
       },
       "id": 94,
       "options": {
@@ -1050,6 +1257,7 @@
           "width": 80
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1062,7 +1270,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(nickname, direction) (rate(tor_relay_traffic_bytes{direction=\"read\", nickname=~\"$Nickname\", instance=~\"$Nickname\"}[$__rate_interval]))",
+          "expr": "sum by(nickname, direction) (rate(tor_relay_traffic_bytes{direction=\"read\", nickname=~\"$Nickname\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -1139,7 +1347,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 33
+        "y": 34
       },
       "id": 2,
       "options": {
@@ -1151,6 +1359,7 @@
           "width": 80
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1163,7 +1372,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "max by(nickname, state) (tor_relay_load_socket_total{state=\"opened\", nickname=~\"$Nickname\", instance=~\"$Nickname\"})",
+          "expr": "max by(nickname, state) (tor_relay_load_socket_total{state=\"opened\", nickname=~\"$Nickname\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{label_name}}{{nickname}}",
@@ -1241,7 +1450,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 40
+        "y": 41
       },
       "id": 87,
       "options": {
@@ -1253,6 +1462,7 @@
           "width": 80
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1265,7 +1475,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(nickname, direction) (rate(tor_relay_traffic_bytes{direction=\"written\", nickname=~\"$Nickname\", instance=~\"$Nickname\"}[$__rate_interval]))",
+          "expr": "sum by(nickname, direction) (rate(tor_relay_traffic_bytes{direction=\"written\", nickname=~\"$Nickname\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -1283,7 +1493,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 47
+        "y": 48
       },
       "id": 37,
       "panels": [],
@@ -1355,7 +1565,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 48
+        "y": 49
       },
       "id": 79,
       "options": {
@@ -1367,6 +1577,7 @@
           "width": 80
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1473,7 +1684,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 48
+        "y": 49
       },
       "id": 80,
       "options": {
@@ -1485,6 +1696,7 @@
           "width": 80
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1525,6 +1737,19 @@
       ],
       "title": "Dropped State IPv6",
       "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 56
+      },
+      "id": 97,
+      "panels": [],
+      "title": "Torutils Ipsets",
+      "type": "row"
     },
     {
       "datasource": {
@@ -1591,7 +1816,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 55
+        "y": 57
       },
       "id": 24,
       "options": {
@@ -1603,6 +1828,7 @@
           "width": 80
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1615,7 +1841,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(nickname) (rate(torutils_dropped_ddos_packets{ipver=\"4\", nickname=~\"$Nickname\", instance=~\"$Instance\"}[$__rate_interval]))",
+          "expr": "sum by(nickname) (rate(torutils_dropped_ddos_packets{ipver=\"4\", nickname=~\"$Nickname\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -1709,7 +1935,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 55
+        "y": 57
       },
       "id": 81,
       "options": {
@@ -1721,6 +1947,7 @@
           "width": 80
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1733,7 +1960,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(nickname) (rate(torutils_dropped_ddos_packets{ipver=\"6\", nickname=~\"$Nickname\", instance=~\"$Instance\"}[$__rate_interval]))",
+          "expr": "sum by(nickname) (rate(torutils_dropped_ddos_packets{ipver=\"6\", nickname=~\"$Nickname\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -1828,7 +2055,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 62
+        "y": 64
       },
       "id": 27,
       "options": {
@@ -1840,6 +2067,7 @@
           "width": 80
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1852,7 +2080,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_hashlimit_total{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
+          "expr": "torutils_hashlimit_total{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -1930,7 +2158,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 62
+        "y": 64
       },
       "id": 28,
       "options": {
@@ -1942,6 +2170,7 @@
           "width": 80
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1954,7 +2183,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_hashlimit_total{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
+          "expr": "torutils_hashlimit_total{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -2032,7 +2261,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 69
+        "y": 71
       },
       "id": 30,
       "options": {
@@ -2044,6 +2273,7 @@
           "width": 80
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -2056,7 +2286,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_total{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset_total{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -2134,7 +2364,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 69
+        "y": 71
       },
       "id": 31,
       "options": {
@@ -2146,6 +2376,7 @@
           "width": 80
         },
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -2158,7 +2389,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_total{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset_total{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -2176,11 +2407,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 76
+        "y": 78
       },
       "id": 39,
       "panels": [],
-      "title": "Torutils Ipset Timeout Values",
+      "title": "Torutils Ipset Timeouts",
       "type": "row"
     },
     {
@@ -2206,12 +2437,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 5,
+        "h": 7,
         "w": 12,
         "x": 0,
-        "y": 77
+        "y": 79
       },
-      "id": 95,
+      "id": 96,
       "options": {
         "displayMode": "gradient",
         "maxVizHeight": 300,
@@ -2231,7 +2462,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.4.2",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -2240,7 +2471,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"fuchs1\", mode=\"ddos\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=~\"$Nickname\", mode=\"ddos\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -2250,7 +2481,7 @@
           "useBackend": false
         }
       ],
-      "title": "fuchs1 IPv4",
+      "title": "IPv4",
       "type": "bargauge"
     },
     {
@@ -2276,10 +2507,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 5,
+        "h": 7,
         "w": 12,
         "x": 12,
-        "y": 77
+        "y": 79
       },
       "id": 44,
       "options": {
@@ -2301,7 +2532,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "10.4.2",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -2310,7 +2541,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"fuchs1\", mode=\"ddos\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=~\"$Nickname\", mode=\"ddos\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -2320,571 +2551,7 @@
           "useBackend": false
         }
       ],
-      "title": "fuchs1 IPv6",
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 12,
-        "x": 0,
-        "y": 82
-      },
-      "id": 53,
-      "options": {
-        "displayMode": "gradient",
-        "maxVizHeight": 300,
-        "minVizHeight": 10,
-        "minVizWidth": 0,
-        "namePlacement": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "manual",
-        "text": {},
-        "valueMode": "color"
-      },
-      "pluginVersion": "10.4.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"fuchs2\", mode=\"ddos\", instance=~\"$Instance\"}",
-          "format": "heatmap",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{le}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "fuchs2 IPv4",
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 12,
-        "x": 12,
-        "y": 82
-      },
-      "id": 55,
-      "options": {
-        "displayMode": "gradient",
-        "maxVizHeight": 300,
-        "minVizHeight": 10,
-        "minVizWidth": 0,
-        "namePlacement": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "manual",
-        "text": {},
-        "valueMode": "color"
-      },
-      "pluginVersion": "10.4.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"fuchs2\", mode=\"ddos\", instance=~\"$Instance\"}",
-          "format": "heatmap",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{le}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "fuchs2 IPv6",
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 12,
-        "x": 0,
-        "y": 87
-      },
-      "id": 52,
-      "options": {
-        "displayMode": "gradient",
-        "maxVizHeight": 300,
-        "minVizHeight": 10,
-        "minVizWidth": 0,
-        "namePlacement": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "manual",
-        "text": {},
-        "valueMode": "color"
-      },
-      "pluginVersion": "10.4.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"fuchs3\", mode=\"ddos\", instance=~\"$Instance\"}",
-          "format": "heatmap",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{le}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "fuchs3 IPv4",
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 12,
-        "x": 12,
-        "y": 87
-      },
-      "id": 89,
-      "options": {
-        "displayMode": "gradient",
-        "maxVizHeight": 300,
-        "minVizHeight": 10,
-        "minVizWidth": 0,
-        "namePlacement": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "manual",
-        "text": {},
-        "valueMode": "color"
-      },
-      "pluginVersion": "10.4.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"fuchs3\", mode=\"ddos\", instance=~\"$Instance\"}",
-          "format": "heatmap",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{le}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "fuchs3 IPv6",
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          },
-          "unitScale": true
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 12,
-        "x": 0,
-        "y": 92
-      },
-      "id": 76,
-      "options": {
-        "displayMode": "gradient",
-        "maxVizHeight": 300,
-        "minVizHeight": 10,
-        "minVizWidth": 0,
-        "namePlacement": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "manual",
-        "text": {},
-        "valueMode": "color"
-      },
-      "pluginVersion": "10.3.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"fuchs4\", mode=\"ddos\", instance=~\"$Instance\"}",
-          "format": "heatmap",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{le}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "fuchs4 IPv4",
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          },
-          "unitScale": true
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 12,
-        "x": 12,
-        "y": 92
-      },
-      "id": 77,
-      "options": {
-        "displayMode": "gradient",
-        "maxVizHeight": 300,
-        "minVizHeight": 10,
-        "minVizWidth": 0,
-        "namePlacement": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "manual",
-        "text": {},
-        "valueMode": "color"
-      },
-      "pluginVersion": "10.3.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"fuchs4\", mode=\"ddos\", instance=~\"$Instance\"}",
-          "format": "heatmap",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{le}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "fuchs4 IPv6",
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          },
-          "unitScale": true
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 12,
-        "x": 0,
-        "y": 97
-      },
-      "id": 88,
-      "options": {
-        "displayMode": "gradient",
-        "maxVizHeight": 300,
-        "minVizHeight": 10,
-        "minVizWidth": 0,
-        "namePlacement": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "manual",
-        "text": {},
-        "valueMode": "color"
-      },
-      "pluginVersion": "10.3.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=\"fuchs5\", mode=\"ddos\", instance=~\"$Instance\"}",
-          "format": "heatmap",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{le}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "fuchs5 IPv4",
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          },
-          "unitScale": true
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 12,
-        "x": 12,
-        "y": 97
-      },
-      "id": 54,
-      "options": {
-        "displayMode": "gradient",
-        "maxVizHeight": 300,
-        "minVizHeight": 10,
-        "minVizWidth": 0,
-        "namePlacement": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "manual",
-        "text": {},
-        "valueMode": "color"
-      },
-      "pluginVersion": "10.3.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=\"fuchs5\", mode=\"ddos\", instance=~\"$Instance\"}",
-          "format": "heatmap",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{le}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "fuchs5 IPv6",
+      "title": "IPv6",
       "type": "bargauge"
     }
   ],
@@ -2900,20 +2567,20 @@
           "type": "prometheus",
           "uid": "${DS_PROMETHEUS}"
         },
-        "definition": "label_values(node_arp_entries,instance)",
+        "definition": "label_values(tor_relay_connections,instance)",
         "hide": 0,
-        "includeAll": true,
-        "label": "Instance (Node)",
+        "includeAll": false,
+        "label": "Instance",
         "multi": false,
         "name": "Instance",
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(node_arp_entries,instance)",
+          "query": "label_values(tor_relay_connections,instance)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
-        "refresh": 1,
-        "regex": "/.*localhost/",
+        "refresh": 2,
+        "regex": "",
         "skipUrlSync": false,
         "sort": 1,
         "type": "query"
@@ -2924,7 +2591,7 @@
           "type": "prometheus",
           "uid": "${DS_PROMETHEUS}"
         },
-        "definition": "label_values(torutils_dropped_ddos_packets{instance=~\"$Instance\"},nickname)",
+        "definition": "label_values(tor_relay_connections{instance=~\"$Instance\"},nickname)",
         "hide": 0,
         "includeAll": true,
         "label": "Nickname",
@@ -2933,10 +2600,10 @@
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(torutils_dropped_ddos_packets{instance=~\"$Instance\"},nickname)",
+          "query": "label_values(tor_relay_connections{instance=~\"$Instance\"},nickname)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
-        "refresh": 1,
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
@@ -2948,10 +2615,11 @@
     "from": "now-7d",
     "to": "now"
   },
+  "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "utc",
   "title": "Tor DDoS",
   "uid": "FgvRNta4k",
-  "version": 449,
+  "version": 495,
   "weekStart": ""
 }
