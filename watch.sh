@@ -4,7 +4,7 @@
 
 set -euf
 export LANG=C.utf8
-export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/opt/tb/bin"
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 if [[ "$(whoami)" != "root" ]]; then
   echo " you must be root" >&2
@@ -21,16 +21,12 @@ mailto="tor-relay@zwiebeltoralf.de"
 while :; do
   if caught=$(
     tail --quiet -n 0 -f $log |
-      grep -m 1 -f $pat $opt
+      grep -m 1 $opt -f $pat
   ); then
-    if [[ -n $caught ]]; then
-      tail -n 50 $log | mail -s "$(basename $log)  $(cut -c 1-180 <<<$caught)" --end-options $mailto &
-    else
-      echo "failure: $*" | mail -s "$(basename $log)" --end-options $mailto &
-    fi
+    tail -n 50 $log | mail -S nosendwait -s "$(basename $log)  $(cut -c 1-180 <<<$caught)" --end-options $mailto
     sleep 60
   else
-    # maybe log file rotation
+    # log file rotation ?
     sleep 5
   fi
 done
