@@ -28,6 +28,7 @@ function _histogram() {
       $inf = 0;         # anything above
       $sum = 0;
     }
+
     {
       chomp();
       my $hour = int(($F[2]-1)/3600);
