@@ -265,8 +265,8 @@ export PYTHONPATH=$PWD/stem
 
 ## grep logs for pre-defined text patterns
 
-The script [watch.sh](./watch.sh) helps to monitor a host or its Tor relay.
-It sends alarms via SMTP email.
+The script [watch.sh](./watch.sh) helps to monitor bith host and Tor logs.
+It sends findings via mailx.
 
 ```bash
 log=/tmp/${0##*/}.log
