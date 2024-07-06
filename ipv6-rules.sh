@@ -51,7 +51,7 @@ function addTor() {
       orip+="/0"
       echo " notice: using global unicast IPv6 address [::]" >&2
     fi
-    local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport --syn"
+    local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
 
     local ddoslist="tor-ddos6-$orport" # this holds ips classified as DDoS'ing the local OR port
     __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600)) netmask $prefix"
@@ -71,7 +71,7 @@ function addTor() {
     $common -m connlimit --connlimit-mask $prefix --connlimit-above 9 -j $jump
 
     # rule 4
-    $common -j ACCEPT
+    $common --syn -j ACCEPT
   done
 }
 

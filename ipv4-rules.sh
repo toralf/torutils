@@ -43,7 +43,7 @@ function addTor() {
       return 1
     fi
     read -r orip orport <<<$(tr ':' ' ' <<<$relay)
-    local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport --syn"
+    local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
 
     local ddoslist="tor-ddos-$orport" # this holds ips classified as DDoS'ing the local OR port
     __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600))"
@@ -63,7 +63,7 @@ function addTor() {
     $common -m connlimit --connlimit-mask $prefix --connlimit-above 9 -j $jump
 
     # rule 4
-    $common -j ACCEPT
+    $common --syn -j ACCEPT
   done
 }
 
