@@ -6,6 +6,14 @@
 # the remaining code just parses the config and maintains ipset content
 # https://github.com/toralf/torutils
 
+function relay_2_ip_and_port() {
+  if [[ $relay =~ '[' || $relay =~ ']' || ! $relay =~ '.' || ! $relay =~ ':' ]]; then
+    echo " relay '$relay' is invalid" >&2
+    return 1
+  fi
+  read -r orip orport <<<$(tr ':' ' ' <<<$relay)
+}
+
 function addCommon() {
   # allow loopback
   $ipt -A INPUT --in-interface lo -m comment --comment "$(date -R)" -j ACCEPT
@@ -38,11 +46,7 @@ function addTor() {
 
   local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask $prefix"
   for relay in $*; do
-    if [[ $relay =~ '[' || $relay =~ ']' || ! $relay =~ '.' || ! $relay =~ ':' ]]; then
-      echo " relay '$relay' is invalid" >&2
-      return 1
-    fi
-    read -r orip orport <<<$(tr ':' ' ' <<<$relay)
+    relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
 
     local ddoslist="tor-ddos-$orport" # this holds ips classified as DDoS'ing the local OR port
