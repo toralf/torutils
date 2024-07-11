@@ -4,13 +4,10 @@
 
 # use node_exporter's "textfile" feature to send metrics to Prometheus
 
-# local hack
+# local hack at my mr-fox to set the Prometheus label "nickname" to the value of the torrc
 function _orport2nickname() {
-  local name=${1?NAME IS UNSET}
+  local orport=${1?PORT IS UNSET}
 
-  local orport=$(cut -f 3 -d '-' -s <<<$name)
-
-  # set the Prometheus label "nickname" to the value of the Tor server ones
   case $orport in
   443) echo "fuchs1" ;;
   9001) echo "fuchs2" ;;
@@ -18,6 +15,13 @@ function _orport2nickname() {
   9443) echo "fuchs4" ;;
   5443) echo "fuchs5" ;;
   esac
+}
+
+function _ipset2nickname() {
+  local name=${1?NAME IS UNSET}
+
+  local orport=$(cut -f 3 -d '-' -s <<<$name)
+  _orport2nickname $orport
 }
 
 function _histogram() {
@@ -64,7 +68,7 @@ function printMetrics() {
     ipset list -n |
       grep '^tor-'${mode}${v}'-' |
       while read -r name; do
-        nickname=${NICKNAME:-$(_orport2nickname $name)}
+        nickname=${NICKNAME:-$(_ipset2nickname $name)}
         {
           ipset list -s $name | sed -e '1,8d' | _histogram >$tmpfile.$name.tmp
           chmod a+r $tmpfile.$name.tmp
@@ -94,7 +98,20 @@ function printMetrics() {
       grep ' DROP ' | grep ' match-set tor-ddos'$v'-' |
       while read -r pkts remain; do
         name=$(grep -Eo ' tor-ddos.* ' <<<$remain | tr -d ' ')
-        nickname=${NICKNAME:-$(_orport2nickname $name)}
+        nickname=${NICKNAME:-$(_ipset2nickname $name)}
+        echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\"} $pkts"
+      done
+  done
+
+  var="torutils_dropped_length_packets"
+  echo -e "# HELP $var Total number of dropped packets due to having a wrong length\n# TYPE $var gauge"
+  for v in "" 6; do
+    # shellcheck disable=SC2034
+    ip${v}tables -nvxL -t filter |
+      grep 'length.*ctstate RELATED,ESTABLISHED' | awk '{ print $1, $11 }' |
+      while read -r pkts dport; do
+        orport=$(cut -f 2 -d ':' <<<$dport)
+        nickname=${NICKNAME:-$(_orport2nickname $orport)}
         echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\"} $pkts"
       done
   done
@@ -116,7 +133,7 @@ function printMetrics() {
         if [[ $name =~ 'trust' ]]; then
           echo "$var{ipver=\"${v:-4}\",mode=\"$mode\"} $size"
         else
-          nickname=${NICKNAME:-$(_orport2nickname $name)}
+          nickname=${NICKNAME:-$(_ipset2nickname $name)}
           echo "$var{ipver=\"${v:-4}\",mode=\"$mode\",nickname=\"$nickname\"} $size"
         fi
       done
