@@ -26,18 +26,15 @@ function _histogram() {
     BEGIN {
       @arr = (0) x 24;  # 0-23 hour
       $inf = 0;         # anything above
-      $sum = 0;
     }
 
     {
-      chomp();
-      my $hour = int(($F[2]-1)/3600);
-      if ($hour <= 23)  {
-        $arr[$hour]++;
+      my $hour = int( ($F[2] - 1) / 3600);
+      if ($hour <= 23) {
+        $arr[$hour]++
       } else {
         $inf++;
       }
-      $sum += $hour;
     }
 
     END {
@@ -49,7 +46,6 @@ function _histogram() {
       my $count = $N + $inf;
       print "'${var}'_bucket{ipver=\"'${v:-4}'\",nickname=\"'$nickname'\",mode=\"'$mode'\",le=\"+Inf\"} $count\n";
       print "'${var}'_count{ipver=\"'${v:-4}'\",nickname=\"'$nickname'\",mode=\"'$mode'\"} $count\n";
-      print "'${var}'_sum{ipver=\"'${v:-4}'\",nickname=\"'$nickname'\",mode=\"'$mode'\"} $sum\n";
     }'
 }
 
