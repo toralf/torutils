@@ -149,7 +149,7 @@ function printMetrics() {
     wc -l /proc/net/ip${v}t_hashlimit/tor-$mode-* |
       grep -v ' total' |
       while read -r count name; do
-        nickname=${NICKNAME:-$(_orport2nickname $name)}
+        nickname=${NICKNAME:-$(_ipset2nickname $name)}
         echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\",mode=\"$mode\"} $count"
       done
   done
