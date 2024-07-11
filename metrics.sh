@@ -5,19 +5,18 @@
 # use node_exporter's "textfile" feature to send metrics to Prometheus
 
 # local hack
-function _orportFromIpsetName() {
+function _orport2nickname() {
   local name=${1?NAME IS UNSET}
 
   local orport=$(cut -f 3 -d '-' -s <<<$name)
 
   # set the Prometheus label "nickname" to the value of the Tor server ones
-  echo -n "fuchs"
   case $orport in
-  443) echo "1" ;;
-  9001) echo "2" ;;
-  8443) echo "3" ;;
-  9443) echo "4" ;;
-  5443) echo "5" ;;
+  443) echo "fuchs1" ;;
+  9001) echo "fuchs2" ;;
+  8443) echo "fuchs3" ;;
+  9443) echo "fuchs4" ;;
+  5443) echo "fuchs5" ;;
   esac
 }
 
@@ -65,7 +64,7 @@ function printMetrics() {
     ipset list -n |
       grep '^tor-'${mode}${v}'-' |
       while read -r name; do
-        nickname=${NICKNAME:-$(_orportFromIpsetName $name)}
+        nickname=${NICKNAME:-$(_orport2nickname $name)}
         {
           ipset list -s $name | sed -e '1,8d' | _histogram >$tmpfile.$name.tmp
           chmod a+r $tmpfile.$name.tmp
@@ -95,7 +94,7 @@ function printMetrics() {
       grep ' DROP ' | grep ' match-set tor-ddos'$v'-' |
       while read -r pkts remain; do
         name=$(grep -Eo ' tor-ddos.* ' <<<$remain | tr -d ' ')
-        nickname=${NICKNAME:-$(_orportFromIpsetName $name)}
+        nickname=${NICKNAME:-$(_orport2nickname $name)}
         echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\"} $pkts"
       done
   done
@@ -117,7 +116,7 @@ function printMetrics() {
         if [[ $name =~ 'trust' ]]; then
           echo "$var{ipver=\"${v:-4}\",mode=\"$mode\"} $size"
         else
-          nickname=${NICKNAME:-$(_orportFromIpsetName $name)}
+          nickname=${NICKNAME:-$(_orport2nickname $name)}
           echo "$var{ipver=\"${v:-4}\",mode=\"$mode\",nickname=\"$nickname\"} $size"
         fi
       done
@@ -133,7 +132,7 @@ function printMetrics() {
     wc -l /proc/net/ip${v}t_hashlimit/tor-$mode-* |
       grep -v ' total' |
       while read -r count name; do
-        nickname=${NICKNAME:-$(_orportFromIpsetName $name)}
+        nickname=${NICKNAME:-$(_orport2nickname $name)}
         echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\",mode=\"$mode\"} $count"
       done
   done
