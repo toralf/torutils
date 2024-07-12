@@ -105,10 +105,10 @@ function printMetrics() {
     else
       echo "$tables6"
     fi |
-      grep ' DROP .* match-set tor-ddos'$v'-' |
-      while read -r pkts remain; do
-        name=$(grep -Eo ' tor-ddos.* ' <<<$remain | tr -d ' ')
-        nickname=${NICKNAME:-$(_ipset2nickname $name)}
+      grep ' DROP .* match-set tor-ddos'$v'-' | awk '{ print $1, $11 }' |
+      while read -r pkts dport; do
+        orport=$(cut -f 2 -d ':' <<<$dport)
+        nickname=${NICKNAME:-$(_orport2nickname $orport)}
         echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\"} $pkts"
       done
   done
