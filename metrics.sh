@@ -135,11 +135,11 @@ function printMetrics() {
   var="torutils_ipset_total"
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
   for v in "" 6; do
-    ipset list -t | grep -e "^N" | xargs -L 2 | awk '/^Name: tor-/ { print $2, $6 }' |
-      if [[ $v == "6" ]]; then
-        grep -E -e "-[a-z]+6[ -]"
-      else
+    ipset list -t | grep "^N" | xargs -L 2 | awk '/^Name: tor-/ { print $2, $6 }' |
+      if [[ -z $v ]]; then
         grep -v -E -e "-[a-z]+6[ -]"
+      else
+        grep -E -e "-[a-z]+6[ -]"
       fi |
       while read -r name size; do
         mode=$(cut -f 2 -d '-' -s <<<$name | tr -d '6')
