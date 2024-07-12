@@ -78,13 +78,20 @@ function printMetrics() {
   done
 
   ###############################
-  # dropped packets
+  # iptables stats
   #
+  tables4=$(iptables -nvx -L INPUT -t filter)
+  tables6=$(ip6tables -nvx -L INPUT -t filter)
+
   var="torutils_dropped_state_packets"
   echo -e "# HELP $var Total number of dropped packets due to wrong TCP state\n# TYPE $var gauge"
   for v in "" 6; do
-    ip${v}tables -nvxL -t filter |
-      grep ' DROP ' | grep -e " ctstate INVALID" -e " state NEW" | awk '{ print $1, $NF }' |
+    if [[ -z $v ]]; then
+      echo "$tables4"
+    else
+      echo "$tables6"
+    fi |
+      grep ' DROP ' | grep -e ' ctstate INVALID' -e ' state NEW' | awk '{ print $1, $NF }' |
       while read -r pkts state; do
         echo "$var{ipver=\"${v:-4}\",state=\"$state\"} $pkts"
       done
@@ -93,9 +100,12 @@ function printMetrics() {
   var="torutils_dropped_ddos_packets"
   echo -e "# HELP $var Total number of dropped packets due to being classified as DDoS\n# TYPE $var gauge"
   for v in "" 6; do
-    # shellcheck disable=SC2034
-    ip${v}tables -nvxL -t filter |
-      grep ' DROP ' | grep ' match-set tor-ddos'$v'-' |
+    if [[ -z $v ]]; then
+      echo "$tables4"
+    else
+      echo "$tables6"
+    fi |
+      grep ' DROP .* match-set tor-ddos'$v'-' |
       while read -r pkts remain; do
         name=$(grep -Eo ' tor-ddos.* ' <<<$remain | tr -d ' ')
         nickname=${NICKNAME:-$(_ipset2nickname $name)}
@@ -106,9 +116,12 @@ function printMetrics() {
   var="torutils_dropped_length_packets"
   echo -e "# HELP $var Total number of dropped packets due to having a wrong length\n# TYPE $var gauge"
   for v in "" 6; do
-    # shellcheck disable=SC2034
-    ip${v}tables -nvxL -t filter |
-      grep 'length.*ctstate RELATED,ESTABLISHED' | awk '{ print $1, $11 }' |
+    if [[ -z $v ]]; then
+      echo "$tables4"
+    else
+      echo "$tables6"
+    fi |
+      grep 'length .* ctstate RELATED,ESTABLISHED' | awk '{ print $1, $11 }' |
       while read -r pkts dport; do
         orport=$(cut -f 2 -d ':' <<<$dport)
         nickname=${NICKNAME:-$(_orport2nickname $orport)}
