@@ -5,9 +5,11 @@ Bootstrapped 100% (done): Done
 Bootstrapped 10% (conn_done): Connected to a relay
 Bootstrapped 14% (handshake): Handshaking with a relay
 Bootstrapped 15% (handshake_done): Handshake with a relay done
+Bootstrapped 20% (onehop_create): Establishing an encrypted directory connection
 Bootstrapped 5% (conn): Connecting to a relay
 Bootstrapped 75% (enough_dirinfo): Loaded enough directory info to build circuits
 Bootstrapped 85% (ap_conn_done): Connected to a relay to build circuits
+Bootstrapped 89% (ap_handshake): Finishing handshake with a relay to build circuits
 Bootstrapped 90% (ap_handshake_done): Handshake finished with a relay to build circuits
 Bootstrapped 95% (circuit_create): Establishing a Tor circuit
 Channel padding timeout scheduled
