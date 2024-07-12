@@ -75,7 +75,7 @@ Otherwise run the script with the parameter `start` instead of `test`.
 sudo ./ipv4-rules.sh start
 ```
 
-and create the following 2 cron jobs (via `crontab -e`):
+and create cron jobs (via `crontab -e`) like these:
 
 ```cron
 # DDoS prevention
@@ -83,6 +83,9 @@ and create the following 2 cron jobs (via `crontab -e`):
 
 # keep ips during reboot
 @hourly /root/ipv4-rules.sh save; /root/ipv6-rules.sh save
+
+# update Tor authorities
+@daily  /root/ipv4-rules.sh update; /root/ipv6-rules.sh update
 ```
 
 That's all.
