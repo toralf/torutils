@@ -91,7 +91,7 @@ function printMetrics() {
     else
       echo "$tables6"
     fi |
-      grep ' DROP ' | grep -e ' ctstate INVALID' -e ' state NEW' | awk '{ print $1, $NF }' |
+      grep 'DROP .*state [NEW|INVALID]' | awk '{ print $1, $NF }' |
       while read -r pkts state; do
         echo "$var{ipver=\"${v:-4}\",state=\"$state\"} $pkts"
       done
