@@ -31,7 +31,7 @@ function addCommon() {
 
   for relay in $*; do
     relay_2_ip_and_port
-    $ipt -A INPUT -p tcp --dst $orip --dport $orport -m length --length 40:60 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+    $ipt -A INPUT -p tcp --dst $orip --dport $orport -m length --length 40:71 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   done
   $ipt -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 
