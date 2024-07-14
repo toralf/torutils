@@ -5,6 +5,61 @@
 # use node_exporter's "textfile" feature to send metrics to Prometheus
 
 # local hack at my mr-fox to set the Prometheus label "nickname" to the value of the torrc
+function printMetricsIptables() {
+  local var
+  local tables4
+  local tables6
+
+  tables4=$(iptables -nvx -L INPUT -t filter) || return 1
+  tables6=$(ip6tables -nvx -L INPUT -t filter) || return 1
+
+  var="torutils_dropped_state_packets"
+  echo -e "# HELP $var Total number of dropped packets due to wrong TCP state\n# TYPE $var gauge"
+  for v in "" 6; do
+    if [[ -z $v ]]; then
+      echo "$tables4"
+    else
+      echo "$tables6"
+    fi |
+      grep 'DROP .*state [NEW|INVALID]' | awk '{ print $1, $NF }' |
+      while read -r pkts state; do
+        echo "$var{ipver=\"${v:-4}\",state=\"$state\"} $pkts"
+      done
+  done
+
+  var="torutils_dropped_ddos_packets"
+  echo -e "# HELP $var Total number of dropped packets due to being classified as DDoS\n# TYPE $var gauge"
+  for v in "" 6; do
+    if [[ -z $v ]]; then
+      echo "$tables4"
+    else
+      echo "$tables6"
+    fi |
+      grep ' DROP .* match-set tor-ddos'$v'-' | awk '{ print $1, $11 }' |
+      while read -r pkts dport; do
+        orport=$(cut -f 2 -d ':' <<<$dport)
+        nickname=${NICKNAME:-$(_orport2nickname $orport)}
+        echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\"} $pkts"
+      done
+  done
+
+  var="torutils_dropped_length_packets"
+  echo -e "# HELP $var Total number of dropped packets due to having a wrong length\n# TYPE $var gauge"
+  for v in "" 6; do
+    if [[ -z $v ]]; then
+      echo "$tables4"
+    else
+      echo "$tables6"
+    fi |
+      grep 'length .* ctstate RELATED,ESTABLISHED' | awk '{ print $1, $11 }' |
+      while read -r pkts dport; do
+        orport=$(cut -f 2 -d ':' <<<$dport)
+        nickname=${NICKNAME:-$(_orport2nickname $orport)}
+        echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\"} $pkts"
+      done
+  done
+}
+
 function _orport2nickname() {
   local orport=${1?PORT IS UNSET}
 
@@ -52,7 +107,7 @@ function _histogram() {
     }'
 }
 
-function printMetrics() {
+function printMetricsIpsets() {
   local count
   local mode
   local name
@@ -74,58 +129,6 @@ function printMetrics() {
           chmod a+r $tmpfile.$name.tmp
           mv $tmpfile.$name.tmp $datadir/torutils-$name.prom
         } &
-      done
-  done
-
-  ###############################
-  # iptables stats
-  #
-  tables4=$(iptables -nvx -L INPUT -t filter)
-  tables6=$(ip6tables -nvx -L INPUT -t filter)
-
-  var="torutils_dropped_state_packets"
-  echo -e "# HELP $var Total number of dropped packets due to wrong TCP state\n# TYPE $var gauge"
-  for v in "" 6; do
-    if [[ -z $v ]]; then
-      echo "$tables4"
-    else
-      echo "$tables6"
-    fi |
-      grep 'DROP .*state [NEW|INVALID]' | awk '{ print $1, $NF }' |
-      while read -r pkts state; do
-        echo "$var{ipver=\"${v:-4}\",state=\"$state\"} $pkts"
-      done
-  done
-
-  var="torutils_dropped_ddos_packets"
-  echo -e "# HELP $var Total number of dropped packets due to being classified as DDoS\n# TYPE $var gauge"
-  for v in "" 6; do
-    if [[ -z $v ]]; then
-      echo "$tables4"
-    else
-      echo "$tables6"
-    fi |
-      grep ' DROP .* match-set tor-ddos'$v'-' | awk '{ print $1, $11 }' |
-      while read -r pkts dport; do
-        orport=$(cut -f 2 -d ':' <<<$dport)
-        nickname=${NICKNAME:-$(_orport2nickname $orport)}
-        echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\"} $pkts"
-      done
-  done
-
-  var="torutils_dropped_length_packets"
-  echo -e "# HELP $var Total number of dropped packets due to having a wrong length\n# TYPE $var gauge"
-  for v in "" 6; do
-    if [[ -z $v ]]; then
-      echo "$tables4"
-    else
-      echo "$tables6"
-    fi |
-      grep 'length .* ctstate RELATED,ESTABLISHED' | awk '{ print $1, $11 }' |
-      while read -r pkts dport; do
-        orport=$(cut -f 2 -d ':' <<<$dport)
-        nickname=${NICKNAME:-$(_orport2nickname $orport)}
-        echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\"} $pkts"
       done
   done
 
@@ -183,6 +186,9 @@ export NICKNAME
 tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.tmp)
 cd $datadir
 echo "# $0   $(date -R)" >$tmpfile
-printMetrics >>$tmpfile
+printMetricsIptables >>$tmpfile
+if type ipset 1>/dev/null 2>&1; then
+  printMetricsIpsets >>$tmpfile
+fi
 chmod a+r $tmpfile
 mv $tmpfile $datadir/torutils.prom
