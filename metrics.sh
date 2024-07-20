@@ -42,22 +42,6 @@ function printMetricsIptables() {
         echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\"} $pkts"
       done
   done
-
-  var="torutils_dropped_length_packets"
-  echo -e "# HELP $var Total number of dropped packets due to having a wrong length\n# TYPE $var gauge"
-  for v in "" 6; do
-    if [[ -z $v ]]; then
-      echo "$tables4"
-    else
-      echo "$tables6"
-    fi |
-      grep 'length .* ctstate RELATED,ESTABLISHED' | awk '{ print $1, $11 }' |
-      while read -r pkts dport; do
-        orport=$(cut -f 2 -d ':' <<<$dport)
-        nickname=${NICKNAME:-$(_orport2nickname $orport)}
-        echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\"} $pkts"
-      done
-  done
 }
 
 function _orport2nickname() {

@@ -22,10 +22,7 @@ function addCommon() {
   $ipt -A INPUT -p tcp ! --syn -m state --state NEW -j $jump
   $ipt -A INPUT -m conntrack --ctstate INVALID -j $jump
 
-  for relay in $*; do
-    relay_2_ip_and_port
-    $ipt -A INPUT -p tcp --dst $orip --dport $orport -m length --length 40:60 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-  done
+  # do not touch established connections
   $ipt -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 
   # ssh
@@ -255,7 +252,7 @@ start)
   trap bailOut INT QUIT TERM EXIT
   clearRules
   setSysctlValues
-  addCommon ${*:-${CONFIGURED_RELAYS:-$(getConfiguredRelays)}}
+  addCommon
   addHetzner
   additionalServices
   addTor ${*:-${CONFIGURED_RELAYS:-$(getConfiguredRelays)}}
