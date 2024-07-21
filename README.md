@@ -105,7 +105,7 @@ and GitHub [PR](https://github.com/toralf/torutils/pulls).
 
 #### Details
 
-Generic filter rules for the local network, ICMP, ssh and additional services are created.
+Generic filter rules for the local network, ICMP, ssh, DHCP and additional services are created.
 Then the following rules are applied:
 
 1. trust connection attempt to any port from trusted Tor authorities/Snowflake servers
@@ -113,13 +113,13 @@ Then the following rules are applied:
 3. ignore the connection attempt if there are already 9 established connections to the ORPort
 4. accept the connection attempt to the ORPort
 
-¹ for IPv4 "source" is a regular ip, but for IPv6 the corresponding /80 CIDR block
+¹ for IPv4 the "source" is a regular ip, for IPv6 the corresponding /80 CIDR block
 
 ² the value is derived from ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
 
 ### Installation
 
-If the parsing of the Tor and/or of the SSH config fails, then:
+If the parsing of the Tor and/or of the SSH config fails then:
 
 1. define the local running relay/s explicitly at the command line after the keyword `start`, e.g.:
 
@@ -135,8 +135,8 @@ If the parsing of the Tor and/or of the SSH config fails, then:
 
    (`CONFIGURED_RELAYS6` for IPv6).
 
-Specifying command line argument/s takes precedence over an environment variable.
-Please use the same syntax to allow inbound traffic to additional <address:port> destinations, e.g.:
+A command line argument takes precedence over its environment variable.
+The same syntax is sued to allow inbound traffic to additional <address:port> destinations, e.g.:
 
 ```bash
 export ADD_LOCAL_SERVICES="2.71.82.81:828 3.141.59.26:53"
@@ -160,9 +160,9 @@ To append rules onto existing _iptables_ rule set (overwrite is the default) ple
 
 ### Metrics
 
-The script [metrics.sh](./metrics.sh) exports data for Prometheus.
-The upload of DDoS metrics is done by [node_exporter](https://github.com/prometheus/node_exporter).
-More details and few Grafana dashboards are [here](./dashboards/README.md).
+The script [metrics.sh](./metrics.sh) exports DDoS metrics in a Prometheus-formatted file.
+The scrape of it is handled by [node_exporter](https://github.com/prometheus/node_exporter).
+More details plus few Grafana dashboards are [here](./dashboards/README.md).
 
 ### DDoS examples
 
@@ -221,8 +221,8 @@ sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
 
 ### Tor circuit closings
 
-[orstatus.py](./orstatus.py) prints the reason to stdout.
-[orstatus-stats.sh](./orstatus-stats.sh) prints/plots statistics ([example](./doc/orstatus-stats.sh.txt)) from that.
+[orstatus.py](./orstatus.py) prints the _closing reason_ to stdout,
+[orstatus-stats.sh](./orstatus-stats.sh) prints/plots statistics ([see this example](./doc/orstatus-stats.sh.txt)) from that.
 
 ```bash
 orstatus.py --ctrlport 9051 --address ::1 >> /tmp/orstatus &
@@ -234,7 +234,7 @@ orstatus-stats.sh /tmp/orstatus
 
 [key-expires.py](./key-expires.py) helps to maintain
 [Tor offline keys](https://support.torproject.org/relay-operators/offline-ed25519/).
-It returns the expiration time in seconds of the mid-term signing key, e.g.:
+It returns the expiration time in seconds of the mid-term signing key, a cronjob could be sth. like this:
 
 ```bash
 seconds=$(sudo ./key-expires.py /var/lib/tor/keys/ed25519_signing_cert)
@@ -242,7 +242,7 @@ days=$((seconds / 86400))
 [[ $days -lt 23 ]] && echo "Tor signing key expires in less than $days day(s)"
 ```
 
-If Tor metrics are enabled then this 1-liner works too (replace `9052` with the actual metrics port if needed):
+If Tor metrics are enabled then this 1-liner does the similar job (maybe replace `9052` with the metrics port):
 
 ```bash
 date -d@$(curl -s localhost:9052/metrics | grep "^tor_relay_signing_cert_expiry_timestamp" | awk '{ print $2 }')
@@ -266,10 +266,10 @@ git clone https://github.com/torproject/stem.git
 export PYTHONPATH=$PWD/stem
 ```
 
-## grep logs for pre-defined text patterns
+## Search logs for pre-defined text patterns
 
-The script [watch.sh](./watch.sh) helps to monitor bith host and Tor logs.
-It sends findings via mailx.
+The script [watch.sh](./watch.sh) helps to constantly monitor the host and Tor log files.
+It sends findings via _mailx_.
 
 ```bash
 log=/tmp/${0##*/}.log
