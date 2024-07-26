@@ -18,11 +18,20 @@ The Prometheus config needs to set the _nickname_, i.e. it is set using the addr
   scheme: https
   tls_config:
     ca_file: "/etc/prometheus/CA.crt"
-  static_configs:
-    - targets: ["..."]
+  file_sd_configs:
+    - files:
+      - 'foo.yaml'
   relabel_configs:
     - source_labels: [__address__]
       target_label: nickname
       regex: "([^:]+).*:(.).*"
       replacement: "my-nick-prefix-${1}"
+```
+
+and _foo.yaml_ contains the targets:
+
+```yaml
+- targets: [...
+- targets: [...
+...
 ```
