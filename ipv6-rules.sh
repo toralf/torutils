@@ -217,9 +217,9 @@ umask 066
 if type ip6tables-legacy 1>/dev/null; then
   ipt="ip6tables-legacy"
 elif type ip6tables 1>/dev/null; then
-  ipt="ip6tables-legacy"
+  ipt="ip6tables"
 else
-  echo "can't find ip6tables executeable" >&1
+  echo "can't find ip6tables executable" >&1
 fi
 trustlist="tor-trust6"     # Tor authorities and snowflake servers
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset

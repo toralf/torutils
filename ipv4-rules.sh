@@ -232,9 +232,9 @@ umask 066
 if type iptables-legacy 1>/dev/null; then
   ipt="iptables-legacy"
 elif type iptables 1>/dev/null; then
-  ipt="iptables-legacy"
+  ipt="iptables"
 else
-  echo "can't find iptables executeable" >&1
+  echo "can't find iptables executable" >&1
 fi
 trustlist="tor-trust"      # Tor authorities and snowflake servers
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
