@@ -4,6 +4,19 @@
 
 # use node_exporter's "textfile" feature to send metrics to Prometheus
 
+# local quirk
+function _orport2nickname() {
+  local orport=${1?PORT IS UNSET}
+
+  case $orport in
+  443) echo "fuchs1" ;;
+  9001) echo "fuchs2" ;;
+  8443) echo "fuchs3" ;;
+  9443) echo "fuchs4" ;;
+  5443) echo "fuchs5" ;;
+  esac
+}
+
 # local hack at my mr-fox to set the Prometheus label "nickname" to the value of the torrc
 function printMetricsIptables() {
   local var
@@ -42,18 +55,6 @@ function printMetricsIptables() {
         echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\"} $pkts"
       done
   done
-}
-
-function _orport2nickname() {
-  local orport=${1?PORT IS UNSET}
-
-  case $orport in
-  443) echo "fuchs1" ;;
-  9001) echo "fuchs2" ;;
-  8443) echo "fuchs3" ;;
-  9443) echo "fuchs4" ;;
-  5443) echo "fuchs5" ;;
-  esac
 }
 
 function _ipset2nickname() {
@@ -100,20 +101,17 @@ function printMetricsIpsets() {
   ###############################
   # ipset timeout values
   #
-  mode="ddos"
-  var="torutils_ipset_timeout"
+  export mode="ddos"
+  export var="torutils_ipset_timeout"
   echo -e "# HELP $var A histogram of ipset timeout values\n# TYPE $var histogram"
   for v in "" 6; do
     ipset list -n |
       grep '^tor-'${mode}${v}'-' |
       while read -r name; do
-        nickname=${NICKNAME:-$(_ipset2nickname $name)}
-        {
-          ipset list -s $name | sed -e '1,8d' | _histogram >$tmpfile.$name.tmp
-          chmod a+r $tmpfile.$name.tmp
-          mv $tmpfile.$name.tmp $datadir/torutils-$name.prom
-        } &
-      done
+        export nickname=${NICKNAME:-$(_ipset2nickname $name)}
+        echo "nickname=$nickname; v=$v; ipset list -s $name | sed -e '1,8d' | _histogram >$tmpfile.$name.tmp; chmod a+r $tmpfile.$name.tmp; mv $tmpfile.$name.tmp $datadir/torutils-$name.prom"
+      done |
+      xargs -r -P $cpus -I '{}' bash -c "{}"
   done
 
   ###############################
@@ -160,15 +158,14 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-datadir=${1:-/var/lib/node_exporter} # default at least under Gentoo Linux
-if [[ ! -d $datadir ]]; then
-  exit 1
-fi
-NICKNAME=${2:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')} # if not given nor found then derive it from the orport
-export NICKNAME
-
-tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.tmp)
+export datadir=${1:-/var/lib/node_exporter}
 cd $datadir
+
+export NICKNAME=${2:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')} # if neither given nor found then use _orport2nickname()
+export cpus=$(((1 + $(nproc)) / 2))
+export -f _histogram _ipset2nickname _orport2nickname
+
+export tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.tmp)
 echo "# $0   $(date -R)" >$tmpfile
 printMetricsIptables >>$tmpfile
 if type ipset 1>/dev/null 2>&1; then
