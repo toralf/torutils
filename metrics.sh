@@ -158,7 +158,7 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-lockfile="/tmp/$(basename $0).lock"
+lockfile="/tmp/torutils-$(basename $0).lock"
 if [[ -s $lockfile ]]; then
   pid=$(cat $lockfile)
   if kill -0 $pid &>/dev/null; then
@@ -170,16 +170,15 @@ fi
 echo $$ >"$lockfile"
 
 intervall=${1:-0}
-export NICKNAME=${2:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')} # if neither given nor found then use _orport2nickname()
-export datadir=${3:-/var/lib/node_exporter}
-
+export datadir=${2:-/var/lib/node_exporter}
 cd $datadir
+export NICKNAME=${3:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')} # if neither given nor found then use _orport2nickname()
 
 export cpus=$(((1 + $(nproc)) / 2))
 export -f _histogram _ipset2nickname _orport2nickname
 
 while :; do
-  now=${EPOCHSECONDS}
+  now=$EPOCHSECONDS
 
   export tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.tmp)
   echo "# $0   $(date -R)" >$tmpfile
