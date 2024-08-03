@@ -158,18 +158,43 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-export datadir=${1:-/var/lib/node_exporter}
+lockfile="/tmp/$(basename $0).lock"
+if [[ -s $lockfile ]]; then
+  pid=$(cat $lockfile)
+  if kill -0 $pid &>/dev/null; then
+    exit 0
+  else
+    echo "ignore lock file, pid=$pid" >&2
+  fi
+fi
+echo $$ >"$lockfile"
+
+intervall=${1:-0}
+export NICKNAME=${2:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')} # if neither given nor found then use _orport2nickname()
+export datadir=${3:-/var/lib/node_exporter}
+
 cd $datadir
 
-export NICKNAME=${2:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')} # if neither given nor found then use _orport2nickname()
 export cpus=$(((1 + $(nproc)) / 2))
 export -f _histogram _ipset2nickname _orport2nickname
 
-export tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.tmp)
-echo "# $0   $(date -R)" >$tmpfile
-printMetricsIptables >>$tmpfile
-if type ipset 1>/dev/null 2>&1; then
-  printMetricsIpsets >>$tmpfile
-fi
-chmod a+r $tmpfile
-mv $tmpfile $datadir/torutils.prom
+while :; do
+  now=${EPOCHSECONDS}
+
+  export tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.tmp)
+  echo "# $0   $(date -R)" >$tmpfile
+  printMetricsIptables >>$tmpfile
+  if type ipset 1>/dev/null 2>&1; then
+    printMetricsIpsets >>$tmpfile
+  fi
+  chmod a+r $tmpfile
+  mv $tmpfile $datadir/torutils.prom
+
+  if [[ $intervall -eq 0 ]]; then
+    break
+  fi
+  diff=$((EPOCHSECONDS - now))
+  if [[ $diff -lt $intervall ]]; then
+    sleep $((intervall - diff))
+  fi
+done
