@@ -36,8 +36,8 @@ chmod +x ./ipv4-rules.sh
 make a backup of the current iptables _filter_ table:
 
 ```bash
-sudo /usr/sbin/iptables-legacy-save > ./rules.v4
-sudo /usr/sbin/ip6tables-legacy-save > ./rules.v6
+sudo /usr/sbin/iptables-save > ./rules.v4
+sudo /usr/sbin/ip6tables-save > ./rules.v6
 ```
 
 and run a quick test
@@ -65,8 +65,8 @@ If something failed then restore the previous state:
 
 ```bash
 sudo ./ipv4-rules.sh stop
-sudo /usr/sbin/iptables-legacy-restore < ./rules.v4
-sudo /usr/sbin/ip6tables-legacy-restore < ./rules.v6
+sudo /usr/sbin/iptables-restore < ./rules.v4
+sudo /usr/sbin/ip6tables-restore < ./rules.v6
 ```
 
 Otherwise run the script with the parameter `start` instead of `test`.

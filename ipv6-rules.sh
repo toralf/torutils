@@ -214,7 +214,7 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 umask 066
 
-ipt="ip6tables-legacy"
+ipt="ip6tables"
 trustlist="tor-trust6"     # Tor authorities and snowflake servers
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
 prefix=80                  # any ipv6 address of this CIDR block is considered to belong to the same source/owner
