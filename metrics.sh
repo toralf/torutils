@@ -23,8 +23,8 @@ function printMetricsIptables() {
   local tables4
   local tables6
 
-  tables4=$(iptables -nvx -L INPUT -t filter) || return 1
-  tables6=$(ip6tables -nvx -L INPUT -t filter) || return 1
+  tables4=$(iptables-legacy -nvx -L INPUT -t filter) || return 1
+  tables6=$(ip6tables-legacy -nvx -L INPUT -t filter) || return 1
 
   var="torutils_dropped_state_packets"
   echo -e "# HELP $var Total number of dropped packets due to wrong TCP state\n# TYPE $var gauge"

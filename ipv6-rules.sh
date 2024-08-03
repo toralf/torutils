@@ -214,13 +214,7 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 umask 066
 
-if type ip6tables-legacy 1>/dev/null; then
-  ipt="ip6tables-legacy"
-elif type ip6tables 1>/dev/null; then
-  ipt="ip6tables"
-else
-  echo "can't find ip6tables executable" >&1
-fi
+ipt="ip6tables-legacy"
 trustlist="tor-trust6"     # Tor authorities and snowflake servers
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
 prefix=80                  # any ipv6 address of this CIDR block is considered to belong to the same source/owner
