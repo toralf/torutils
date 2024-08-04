@@ -88,9 +88,9 @@ and create cron jobs (via `crontab -e`) like these:
 @daily  /root/ipv4-rules.sh update; /root/ipv6-rules.sh update
 ```
 
-That's all.
-
 Ensure, that the package _iptables-persistent_ is either not installed or disabled.
+
+That's all.
 
 More hints are in the [Installation](#installation) section.
 I do appreciate [issue](https://github.com/toralf/torutils/issues) reports

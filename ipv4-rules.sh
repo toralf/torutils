@@ -229,7 +229,23 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 umask 066
 
+# check if regular iptables works or if the legacy variant is explicitly needed
 ipt="iptables"
+set +e
+$ipt -nv -L INPUT &>/dev/null
+rc=$?
+if [[ $rc -ne 0 ]]; then
+  if [[ $rc -eq 4 ]]; then
+    ipt+="-legacy"
+  fi
+  $ipt -nv -L INPUT &>/dev/null
+  rc=$?
+  if [[ $rc -ne 0 ]]; then
+    echo " $ipt is not working as expected" >&2
+  fi
+fi
+set -e
+
 trustlist="tor-trust"      # Tor authorities and snowflake servers
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
 prefix=32                  # any ipv4 address of this CIDR block is considered to belong to the same source/owner
