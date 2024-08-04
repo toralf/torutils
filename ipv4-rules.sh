@@ -242,6 +242,7 @@ if [[ $rc -ne 0 ]]; then
   rc=$?
   if [[ $rc -ne 0 ]]; then
     echo " $ipt is not working as expected" >&2
+    exit 1
   fi
 fi
 set -e
