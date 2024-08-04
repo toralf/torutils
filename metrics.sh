@@ -169,6 +169,8 @@ if [[ -s $lockfile ]]; then
 fi
 echo $$ >"$lockfile"
 
+trap 'rm -f $lockfile' INT QUIT TERM EXIT
+
 intervall=${1:-0}
 export datadir=${2:-/var/lib/node_exporter}
 cd $datadir
