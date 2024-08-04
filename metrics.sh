@@ -109,7 +109,7 @@ function printMetricsIpsets() {
       grep '^tor-'${mode}${v}'-' |
       while read -r name; do
         export nickname=${NICKNAME:-$(_ipset2nickname $name)}
-        echo "nickname=$nickname; v=$v; ipset list -s $name | sed -e '1,8d' | _histogram >$tmpfile.$name.tmp; chmod a+r $tmpfile.$name.tmp; mv $tmpfile.$name.tmp $datadir/torutils-$name.prom"
+        echo "nickname=$nickname; v=$v; ipset list -s $name | sed -e '1,8d' | _histogram >>$tmpfile.$name.tmp"
       done |
       xargs -r -P $cpus -I '{}' bash -c "{}"
   done
