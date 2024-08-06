@@ -23,8 +23,8 @@ function printMetricsIptables() {
   local tables4
   local tables6
 
-  tables4=$(iptables -nvx -L INPUT -t filter 2>/dev/null) || return 1
-  tables6=$(ip6tables -nvx -L INPUT -t filter 2>/dev/null) || return 1
+  tables4=$($ipt -nvx -L INPUT -t filter 2>/dev/null) || return 1
+  tables6=$($ip6t -nvx -L INPUT -t filter 2>/dev/null) || return 1
 
   var="torutils_dropped_state_packets"
   echo -e "# HELP $var Total number of dropped packets due to wrong TCP state\n# TYPE $var gauge"
@@ -175,6 +175,26 @@ intervall=${1:-0}
 export datadir=${2:-/var/lib/node_exporter}
 cd $datadir
 export NICKNAME=${3:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')} # if neither given nor found then use _orport2nickname()
+
+# check if regular iptables works or if the legacy variant is explicitly needed
+ipt="iptables"
+ip6t="ip6tables"
+set +e
+$ipt -nv -L INPUT &>/dev/null
+rc=$?
+if [[ $rc -ne 0 ]]; then
+  if [[ $rc -eq 4 ]]; then
+    ipt+="-legacy"
+    ip6t+="-legacy"
+  fi
+  $ipt -nv -L INPUT &>/dev/null
+  rc=$?
+  if [[ $rc -ne 0 ]]; then
+    echo " $ipt is not working as expected" >&2
+    exit 1
+  fi
+fi
+set -e
 
 export cpus=$(((1 + $(nproc)) / 2))
 export -f _histogram _ipset2nickname _orport2nickname
