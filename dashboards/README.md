@@ -19,7 +19,7 @@ The Prometheus config needs to set the _nickname_, i.e. it is set using the addr
     ca_file: "CA.crt"
   file_sd_configs:
     - files:
-      - 'foo.yaml'
+        - "foo.yaml"
   relabel_configs:
     - source_labels: [__address__]
       target_label: nickname
