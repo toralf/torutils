@@ -117,6 +117,9 @@ Then the following rules are applied:
 
 ² the value is derived from ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
 
+Basically just these rules were be implemented, for ipv4 [here](./ipv4-rules.sh#L56),
+the rest of the script deals with all the stuff around that.
+
 ### Installation
 
 If the parsing of the Tor and/or of the SSH config fails then:
