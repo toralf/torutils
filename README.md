@@ -17,30 +17,44 @@ An older example is [here](./doc/network-metric-July-3rd.jpg).
 and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093)
 of the [Tor project](https://www.torproject.org/).
 
+### Rule set
+
+Idea:
+
+Identify an ip DDoS'ing a Tor relay by counting its connection attempts over a short time period.
+Block that ip for a much longer time period.
+
+Due to the later a simple network rule won't make it. Using _ipset_ however the goal can be achieved.
+
+Further considerations:
+
+- never touch established connections
+- try to not overblock
+
 ### Quick start
 
-Install _jq_, _ipset_ and _iptables_, e.g. for Ubuntu 22.04
+Install _jq_, _ipset_ and _iptables_, e.g. for Ubuntu 22.04:
 
 ```bash
 sudo apt update
 sudo apt install -y jq ipset iptables
 ```
 
-download the script
+Download the script
 
 ```bash
 wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
 chmod +x ./ipv4-rules.sh
 ```
 
-make a backup of the current iptables _filter_ table:
+Make a backup of the current iptables _filter_ table:
 
 ```bash
 sudo /usr/sbin/iptables-save > ./rules.v4
 sudo /usr/sbin/ip6tables-save > ./rules.v6
 ```
 
-and run a quick test
+Run a quick test
 
 ```bash
 sudo ./ipv4-rules.sh test
@@ -61,7 +75,7 @@ Watch the iptables live statistics by:
 sudo watch -t ./ipv4-rules.sh
 ```
 
-If something failed then restore the previous state:
+If something failed then restore the backuped state:
 
 ```bash
 sudo ./ipv4-rules.sh stop
@@ -69,13 +83,13 @@ sudo /usr/sbin/iptables-restore < ./rules.v4
 sudo /usr/sbin/ip6tables-restore < ./rules.v6
 ```
 
-Otherwise run the script with the parameter `start` instead of `test`.
+Otherwise, if all is fine then run the script again, but with the parameter `start`:
 
 ```bash
 sudo ./ipv4-rules.sh start
 ```
 
-and create cron jobs (via `crontab -e`) like these:
+FGinally create cron jobs (via `crontab -e`) like these:
 
 ```cron
 # DDoS prevention
@@ -88,22 +102,15 @@ and create cron jobs (via `crontab -e`) like these:
 @daily  /root/ipv4-rules.sh update; /root/ipv6-rules.sh update
 ```
 
-Ensure, that the package _iptables-persistent_ is either not installed or disabled.
-
-That's all.
+Ensure, that the package _iptables-persistent_ is either de-installed or at least disabled.
 
 More hints are in the [Installation](#installation) section.
 I do appreciate [issue](https://github.com/toralf/torutils/issues) reports
 and GitHub [PR](https://github.com/toralf/torutils/pulls).
 
-### Rule set
+That's all.
 
-#### Objectives
-
-- never touch established connections
-- try to not overblock
-
-#### Details
+### Details
 
 Generic filter rules for the local network, ICMP, ssh, DHCP and additional services are created.
 Then the following rules are applied:
