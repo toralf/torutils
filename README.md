@@ -89,7 +89,7 @@ Otherwise, if all is fine then run the script again, but with the parameter `sta
 sudo ./ipv4-rules.sh start
 ```
 
-FGinally create cron jobs (via `crontab -e`) like these:
+Finally, create cron jobs (via `crontab -e`) like these:
 
 ```cron
 # DDoS prevention
