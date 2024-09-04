@@ -17,14 +17,12 @@ An older example is [here](./doc/network-metric-July-3rd.jpg).
 and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093)
 of the [Tor project](https://www.torproject.org/).
 
-### Rule set
+### Idea
 
-Idea:
-
-Identify an ip DDoS'ing a Tor relay by counting its connection attempts over a short time period.
+Mark an ip as malicious if its connection attempts over a short time period exceed a given threshold.
 Block that ip for a much longer time period.
 
-Due to the later a simple network rule won't make it. Using _ipset_ however the goal can be achieved.
+Therefore a simple network rule won't make it. However _ipset_ helps to achieve the goal.
 
 Further considerations:
 
