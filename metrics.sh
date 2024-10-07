@@ -173,10 +173,11 @@ trap 'rm -f $lockfile' INT QUIT TERM EXIT
 
 intervall=${1:-0}
 export datadir=${2:-/var/lib/node_exporter}
-cd $datadir
 export NICKNAME=${3:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')} # if neither given nor found then use _orport2nickname()
 
-# check if regular iptables works or if the legacy variant is explicitly needed
+cd $datadir
+
+# check whether the regular iptables works or if the legacy variant is needed
 ipt="iptables"
 ip6t="ip6tables"
 set +e
