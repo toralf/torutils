@@ -36,6 +36,7 @@ Our directory information is no longer up-to-date enough to build circuits: We'r
 Parsing GEOIP IPv4 file /usr/share/tor/geoip.
 Parsing GEOIP IPv6 file /usr/share/tor/geoip6.
 Performing bandwidth self-test...done.
+Possible compression bomb; abandoning stream.
 Processing configuration path "/etc/tor/conf.d/" at recursion level 1
 Read configuration file
 Received circuit padding stop command for unknown machine.
