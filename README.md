@@ -185,11 +185,22 @@ Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are
 Few more helper scripts were developed to analyze the attack vector.
 Look [here](./misc/README.md) for details.
 
-¹ using [sysstat](http://sebastien.godard.pagesperso-orange.fr/)
+¹ using [sysstat](http://sebastien.godard.pagesperso-orange.fr/), created e.g. by
+
+```bash
+# create the SVG file
+svg=/tmp/graph.svg
+sadf -g -t /var/log/sa/sa${DAY:-`date +%d`} -O skipempty,oneday -- -n DEV,SOCK,SOCK6 --iface=enp8s0 > $svg
+# fix SVG canvas size
+h=$(tail -n 2 $svg | head -n 1 | cut -f 5 -d ' ')
+sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
+# display it
+firefox $svg
+```
 
 ### More
 
-I used [this](https://github.com/toralf/tor-relays/) Ansible role to deploy and configure Tor relays (server, bridges, snowflake).
+I used [this](https://github.com/toralf/tor-relays/) Ansible role to deploy and configure Tor relays and Snowflake proxies.
 
 ## Query Tor via its API
 
