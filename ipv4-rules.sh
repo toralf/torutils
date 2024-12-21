@@ -285,6 +285,7 @@ update)
   ;;
 test)
   export RUN_ME_WITH_SAFE_JUMP_TARGET="ACCEPT"
+  type ipset iptables jq
   $0 start $*
   ;;
 save)
