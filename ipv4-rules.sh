@@ -34,7 +34,6 @@ function addCommon() {
 
   # ratelimit ICMP echo
   $ipt -A INPUT -p icmp --icmp-type echo-request -m limit --limit 6/s -j ACCEPT
-  $ipt -A INPUT -p icmp --icmp-type echo-request -j $jump
 
   # DHCPv4
   $ipt -A INPUT -p udp --dport 68 -j ACCEPT

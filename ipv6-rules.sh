@@ -40,7 +40,6 @@ function addCommon() {
 
   # ratelimit ICMP echo
   $ipt -A INPUT -p ipv6-icmp --icmpv6-type echo-request -m limit --limit 6/s -j ACCEPT
-  $ipt -A INPUT -p ipv6-icmp --icmpv6-type echo-request -j $jump
   $ipt -A INPUT -p ipv6-icmp -j ACCEPT
 
   # DHCPv6
