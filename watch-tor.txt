@@ -58,7 +58,6 @@ While not bootstrapping, fetched this many bytes:
 You have asked to exclude certain relays from all positions in your circuits
 Your Tor server's identity key
 #################### ignoreable notices and warnings
-All current guards excluded by path restriction type 2; using an additional guard.
 connection_edge_process_relay_cell (at origin) failed.
 Detected possible compression bomb with input size
 Sudden decrease in circuit RTT
