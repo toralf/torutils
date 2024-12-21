@@ -19,10 +19,7 @@ opt="$*" # options for grep
 mailto="tor-relay@zwiebeltoralf.de"
 
 while :; do
-  if caught=$(
-    tail --quiet -n 0 -f $log |
-      grep -m 1 $opt -f $pat
-  ); then
+  if caught=$(tail --quiet -n 0 -f $log | grep -m 1 $opt -f $pat); then
     tail -n 50 $log | mail -s "$(basename $log)  $(cut -c 1-180 <<<$caught)" --end-options $mailto
     sleep 60
   else
