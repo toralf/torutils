@@ -20,7 +20,7 @@ mailto="tor-relay@zwiebeltoralf.de"
 
 while :; do
   if caught=$(tail --quiet -n 0 -f $log | grep -m 1 $opt -f $pat); then
-    tail -n 50 $log | mail -s "$(basename $log)  $(cut -c 1-180 <<<$caught)" --end-options $mailto
+    tail -n 50 $log | mail -s "$(basename $log)  $(cut -c 1-180 <<<$caught)" $mailto
     sleep 60
   else
     # log file rotation ?
