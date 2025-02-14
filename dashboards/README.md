@@ -31,5 +31,4 @@ where _foo.yaml_ contains the targets:
 ...
 ```
 
-My current Prometheus config is [here](./prometheus.yml).
 The self-signed CA is created by the Ansible role mentioned above.

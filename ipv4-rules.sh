@@ -236,10 +236,11 @@ rc=$?
 if [[ $rc -ne 0 ]]; then
   if [[ $rc -eq 4 ]]; then
     ipt+="-legacy"
-  fi
-  $ipt -nv -L INPUT &>/dev/null
-  rc=$?
-  if [[ $rc -ne 0 ]]; then
+    if ! $ipt -nv -L INPUT 1>/dev/null; then
+      echo " $ipt is not working as expected" >&2
+      exit 1
+    fi
+  else
     echo " $ipt is not working as expected" >&2
     exit 1
   fi
