@@ -266,9 +266,9 @@ action=${1-}
 [[ $# -gt 0 ]] && shift
 case $action in
 start)
+  setSysctlValues
   trap bailOut INT QUIT TERM EXIT
   clearRules
-  setSysctlValues
   addCommon
   addHetzner
   addServices
