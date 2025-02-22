@@ -277,7 +277,7 @@ test)
   $0 start $*
   ;;
 save)
-  tmpdir=${1:-$tmpdir} saveCertainIpsets
+  saveCertainIpsets
   ;;
 *)
   printRuleStatistics
