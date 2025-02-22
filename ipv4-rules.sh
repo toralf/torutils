@@ -107,7 +107,7 @@ function __fill_ddoslist() {
   rm -f $tmpdir/$ddoslist
 }
 
-function additionalServices() {
+function addServices() {
   # local-address:local-port
   for service in ${ADD_LOCAL_SERVICES-}; do
     read -r addr port <<<$(tr ':' ' ' <<<$service)
@@ -189,11 +189,9 @@ function getConfiguredRelays() {
 function bailOut() {
   local rc=$?
 
-  if [[ $rc -gt 128 ]]; then
-    local signal=$((rc - 128))
-    if [[ $signal -eq 13 ]]; then # PIPE
-      return 0
-    fi
+  # sigpipe
+  if [[ $rc -eq 141 ]]; then
+    return 0
   fi
 
   trap - INT QUIT TERM EXIT
@@ -273,7 +271,7 @@ start)
   setSysctlValues
   addCommon
   addHetzner
-  additionalServices
+  addServices
   addTor ${*:-${CONFIGURED_RELAYS:-$(getConfiguredRelays)}}
   $ipt -P INPUT ${RUN_ME_WITH_SAFE_JUMP_TARGET:-$jump}
   trap - INT QUIT TERM EXIT
