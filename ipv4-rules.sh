@@ -247,6 +247,8 @@ if [[ $rc -ne 0 ]]; then
   fi
 fi
 
+type ipset $ipt jq 1>/dev/null
+
 trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
 
 trustlist="tor-trust"      # Tor authorities and snowflake servers
@@ -287,7 +289,6 @@ update)
   ;;
 test)
   export RUN_ME_WITH_SAFE_JUMP_TARGET="ACCEPT"
-  type ipset iptables jq
   $0 start $*
   ;;
 save)
