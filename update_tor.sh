@@ -9,7 +9,7 @@ function restart() {
 
   # shellcheck disable=SC2011
   ls /etc/init.d/tor{,?} |
-    xargs -n 1 basename |
+    xargs -r -n 1 basename |
     while read -r service; do
       echo
       echo "----------------------------"
@@ -66,8 +66,9 @@ elif [[ $# -eq 0 ]]; then
     rm $tmpfile
   else
     rm $tmpfile
-    # detect the need of a rebuild if e.g. libevent was updated and tor therefore refuses even to start
-    # plus: if git pull succeeded but a subsequent emerge failed, then this would give a version versus commit id mismatch
+    # test if rebuild is not needed
+    # e.g. libevent was updated and tor refuses to start
+    # or:  if git pull succeeded but a emerge failed, then there's a version mismatch
     if tor --version | grep -q $(git show --quiet --oneline 'HEAD' | cut -f 1 -d ' '); then
       exit 0
     fi
