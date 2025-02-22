@@ -186,7 +186,7 @@ function bailOut() {
 }
 
 function saveIpset() {
-  local name=$1
+  local name=${1?IPSET NAME IS UNSET}
 
   [[ -d $tmpdir ]] || return 1
 
@@ -200,7 +200,8 @@ function saveIpset() {
 }
 
 function saveCertainIpsets() {
-  ipset list -n | grep -e '^tor-ddos6-[0-9]*$' -e '^tor-trust6$' |
+  ipset list -n |
+    grep -e '^tor-ddos6-[0-9]*$' -e '^tor-trust6$' |
     while read -r name; do
       saveIpset $name
     done
