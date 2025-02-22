@@ -263,7 +263,6 @@ else
 fi
 tmpdir=${TORUTILS_TMPDIR:-/var/tmp}
 
-jump=${RUN_ME_WITH_SAFE_JUMP_TARGET:-DROP}
 action=${1-}
 [[ $# -gt 0 ]] && shift
 case $action in
@@ -271,11 +270,12 @@ start)
   setSysctlValues
   trap bailOut INT QUIT TERM EXIT
   clearRules
+  jump=${RUN_ME_WITH_SAFE_JUMP_TARGET:-DROP}
   addCommon
   addHetzner
   addServices
   addTor ${*:-${CONFIGURED_RELAYS:-$(getConfiguredRelays)}}
-  $ipt -P INPUT ${RUN_ME_WITH_SAFE_JUMP_TARGET:-$jump}
+  $ipt -P INPUT $jump
   trap - INT QUIT TERM EXIT
   ;;
 stop)
