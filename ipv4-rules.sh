@@ -203,6 +203,8 @@ function bailOut() {
 function saveIpset() {
   local name=$1
 
+  [[ -d $tmpdir ]] || return 1
+
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
   if ipset list $name | sed -e '1,8d' >$tmpfile; then
     if [[ -s $tmpfile ]]; then
@@ -245,7 +247,7 @@ if [[ $rc -ne 0 ]]; then
   fi
 fi
 
-trap '[[ $? -ne 0 ]] && echo "$* unsuccessful" >&2' INT QUIT TERM EXIT
+trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
 
 trustlist="tor-trust"      # Tor authorities and snowflake servers
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
