@@ -232,6 +232,8 @@ if [[ $rc -ne 0 ]]; then
   fi
 fi
 
+trap '[[ $? -ne 0 ]] && echo "$* unsuccessful" >&2' INT QUIT TERM EXIT
+
 trustlist="tor-trust6"     # Tor authorities and snowflake servers
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
 prefix=80                  # any ipv6 address of this CIDR block is considered to belong to the same source/owner
