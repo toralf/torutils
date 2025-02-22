@@ -237,14 +237,14 @@ trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
 trustlist="tor-trust6"     # Tor authorities and snowflake servers
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
 prefix=80                  # any ipv6 address of this CIDR block is considered to belong to the same source/owner
-# hash and ipset size: 1M if > 32 GiB, 256K if > 2 GiB, default: 64K
+# hashes and ipset sizes do depend on available RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
 if [[ ${ram} -gt 32 ]]; then
-  max=$((2 ** 20))
+  max=$((2 ** 20)) # 1M
 elif [[ ${ram} -gt 2 ]]; then
-  max=$((2 ** 18))
+  max=$((2 ** 18)) # 256K
 else
-  max=$((2 ** 16))
+  max=$((2 ** 16)) # 64K
 fi
 tmpdir=${TORUTILS_TMPDIR:-/var/tmp}
 
