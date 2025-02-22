@@ -169,7 +169,7 @@ function clearRules() {
 function printRuleStatistics() {
   date -R
   echo
-  $ipt -nv -L INPUT $*
+  $ipt -nv -L INPUT
 }
 
 # OR port and address are defined in 1 or 2 lines
@@ -292,6 +292,6 @@ save)
   tmpdir=${1:-$tmpdir} saveCertainIpsets
   ;;
 *)
-  printRuleStatistics $*
+  printRuleStatistics
   ;;
 esac
