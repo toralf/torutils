@@ -228,7 +228,7 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 umask 066
 
-# check if regular iptables works or if the legacy variant is explicitly needed
+# check if iptables works or if the legacy variant is needed
 ipt="iptables"
 set +e
 $ipt -nv -L INPUT 1>/dev/null

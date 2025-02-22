@@ -4,7 +4,7 @@
 
 # use node_exporter's "textfile" feature to send metrics to Prometheus
 
-# local quirk
+# local hack at mr-fox to set the Prometheus label "nickname" to the value of the torrc
 function _orport2nickname() {
   local orport=${1?PORT IS UNSET}
 
@@ -17,7 +17,6 @@ function _orport2nickname() {
   esac
 }
 
-# local hack at my mr-fox to set the Prometheus label "nickname" to the value of the torrc
 function printMetricsIptables() {
   local var
   local tables4
@@ -34,7 +33,8 @@ function printMetricsIptables() {
     else
       echo "$tables6"
     fi |
-      grep 'DROP .*state [NEW|INVALID]' | awk '{ print $1, $NF }' |
+      grep 'DROP .*state [NEW|INVALID]' |
+      awk '{ print $1, $NF }' |
       while read -r pkts state; do
         echo "$var{ipver=\"${v:-4}\",state=\"$state\"} $pkts"
       done
@@ -48,7 +48,8 @@ function printMetricsIptables() {
     else
       echo "$tables6"
     fi |
-      grep ' DROP .* match-set tor-ddos'$v'-' | awk '{ print $1, $11 }' |
+      grep ' DROP .* match-set tor-ddos'$v'-' |
+      awk '{ print $1, $11 }' |
       while read -r pkts dport; do
         orport=$(cut -f 2 -d ':' <<<$dport)
         nickname=${NICKNAME:-$(_orport2nickname $orport)}
@@ -120,7 +121,10 @@ function printMetricsIpsets() {
   var="torutils_ipset_total"
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
   for v in "" 6; do
-    ipset list -t | grep "^N" | xargs -L 2 | awk '/^Name: tor-/ { print $2, $6 }' |
+    ipset list -t |
+      grep "^N" |
+      xargs -L 2 |
+      awk '/^Name: tor-/ { print $2, $6 }' |
       if [[ -z $v ]]; then
         grep -v -E -e "-[a-z]+6[ -]"
       else
@@ -132,7 +136,7 @@ function printMetricsIpsets() {
           echo "$var{ipver=\"${v:-4}\",mode=\"$mode\"} $size"
         else
           nickname=${NICKNAME:-$(_ipset2nickname $name)}
-          echo "$var{ipver=\"${v:-4}\",mode=\"$mode\",nickname=\"$nickname\"} $size"
+          echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\",mode=\"$mode\"} $size"
         fi
       done
   done
@@ -144,8 +148,7 @@ function printMetricsIpsets() {
   var="torutils_hashlimit_total"
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
   for v in "" 6; do
-    wc -l /proc/net/ip${v}t_hashlimit/tor-$mode-* |
-      grep -v ' total' |
+    wc -l --total=never /proc/net/ip${v}t_hashlimit/tor-$mode-* |
       while read -r count name; do
         nickname=${NICKNAME:-$(_ipset2nickname $name)}
         echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\",mode=\"$mode\"} $count"
@@ -173,29 +176,30 @@ trap 'rm -f $lockfile' INT QUIT TERM EXIT
 
 intervall=${1:-0}
 export datadir=${2:-/var/lib/node_exporter}
-export NICKNAME=${3:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')} # if neither given nor found then use _orport2nickname()
+export NICKNAME=${3:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')} # if neither given nor found then _orport2nickname() is used in _ipset2nickname()
 
 cd $datadir
 
-# check whether the regular iptables works or if the legacy variant is needed
+# check if iptables works or if the legacy variant is needed
 ipt="iptables"
 ip6t="ip6tables"
 set +e
-$ipt -nv -L INPUT &>/dev/null
+$ipt -nv -L INPUT 1>/dev/null
 rc=$?
+set -e
 if [[ $rc -ne 0 ]]; then
   if [[ $rc -eq 4 ]]; then
     ipt+="-legacy"
     ip6t+="-legacy"
-  fi
-  $ipt -nv -L INPUT &>/dev/null
-  rc=$?
-  if [[ $rc -ne 0 ]]; then
-    echo " $ipt is not working as expected" >&2
+    if ! $ipt -nv -L INPUT 1>/dev/null; then
+      echo " $ipt is not working" >&2
+      exit 1
+    fi
+  else
+    echo " $ipt is not working, rc=$rc" >&2
     exit 1
   fi
 fi
-set -e
 
 export cpus=$(((1 + $(nproc)) / 2))
 export -f _histogram _ipset2nickname _orport2nickname
