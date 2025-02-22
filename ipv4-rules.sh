@@ -231,21 +231,21 @@ umask 066
 # check if regular iptables works or if the legacy variant is explicitly needed
 ipt="iptables"
 set +e
-$ipt -nv -L INPUT &>/dev/null
+$ipt -nv -L INPUT 1>/dev/null
 rc=$?
+set -e
 if [[ $rc -ne 0 ]]; then
   if [[ $rc -eq 4 ]]; then
     ipt+="-legacy"
     if ! $ipt -nv -L INPUT 1>/dev/null; then
-      echo " $ipt is not working as expected" >&2
+      echo " $ipt is not working" >&2
       exit 1
     fi
   else
-    echo " $ipt is not working as expected" >&2
+    echo " $ipt is not working, rc=$rc" >&2
     exit 1
   fi
 fi
-set -e
 
 trustlist="tor-trust"      # Tor authorities and snowflake servers
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
