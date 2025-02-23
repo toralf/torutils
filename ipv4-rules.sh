@@ -7,11 +7,14 @@
 # https://github.com/toralf/torutils
 
 function relay_2_ip_and_port() {
-  if [[ $relay =~ '[' || $relay =~ ']' || ! $relay =~ '.' || ! $relay =~ ':' ]]; then
+  if [[ $relay =~ '[' || $relay =~ ']' || ! $relay =~ '.' ]]; then
     echo " relay '$relay' is invalid" >&2
     return 1
   fi
   read -r orip orport <<<$(tr ':' ' ' <<<$relay)
+  if [[ -z $orip || -z $orport ]]; then
+    return 1
+  fi
 }
 
 function addCommon() {
