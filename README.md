@@ -103,10 +103,7 @@ Finally, create cron jobs (via `crontab -e`) like these:
 Ensure, that the package _iptables-persistent_ is either de-installed or at least disabled.
 
 More hints are in the [Installation](#installation) section.
-I do appreciate [issue](https://github.com/toralf/torutils/issues) reports
-and GitHub [PR](https://github.com/toralf/torutils/pulls).
-
-That's all.
+I highly appreciate [issue](https://github.com/toralf/torutils/issues) reports about any findings.
 
 ### Details
 
