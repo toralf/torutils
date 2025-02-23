@@ -148,7 +148,9 @@ function printMetricsIpsets() {
   var="torutils_hashlimit_total"
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
   for v in "" 6; do
-    wc -l --total=never /proc/net/ip${v}t_hashlimit/tor-$mode-* |
+    # --total=never is not (yet) implemented in Debian version of wc
+    wc -l /proc/net/ip${v}t_hashlimit/tor-$mode-* |
+      grep -v 'total' |
       while read -r count name; do
         nickname=${NICKNAME:-$(_ipset2nickname $name)}
         echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\",mode=\"$mode\"} $count"
