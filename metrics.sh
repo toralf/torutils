@@ -176,7 +176,7 @@ echo $$ >"$lockfile"
 
 trap 'rm -f $lockfile' INT QUIT TERM EXIT
 
-intervall=${1:-0}
+intervall=${1:-0} # 0 == finish after running once
 export datadir=${2:-/var/lib/node_exporter}
 export NICKNAME=${3:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')} # if neither given nor found then _orport2nickname() is used in _ipset2nickname()
 
