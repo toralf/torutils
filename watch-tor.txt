@@ -17,6 +17,7 @@ Circuit handshake stats since last time:
 Clean shutdown finished. Exiting.
 Configured to measure statistics. Look for the *-stats files that will first be written to the data directory in 24 hours from now.
 DoS mitigation since startup:
+External address seen and suggested by a directory authority:
 Heartbeat:
 I learned some more directory information, but not enough to build a circuit
 Included configuration file or directory at recursion level
