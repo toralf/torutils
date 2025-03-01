@@ -1,53 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_PROMETHEUS",
-      "label": "Prometheus",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "prometheus",
-      "pluginName": "Prometheus"
-    }
-  ],
-  "__elements": {},
-  "__requires": [
-    {
-      "type": "panel",
-      "id": "bargauge",
-      "name": "Bar gauge",
-      "version": ""
-    },
-    {
-      "type": "panel",
-      "id": "gauge",
-      "name": "Gauge",
-      "version": ""
-    },
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "11.3.0"
-    },
-    {
-      "type": "datasource",
-      "id": "prometheus",
-      "name": "Prometheus",
-      "version": "1.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "stat",
-      "name": "Stat",
-      "version": ""
-    },
-    {
-      "type": "panel",
-      "id": "timeseries",
-      "name": "Time series",
-      "version": ""
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -71,7 +22,7 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "XbGvg5aVz"
         },
         "enable": true,
         "expr": "changes(node_boot_time_seconds[$__rate_interval])",
@@ -84,7 +35,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": null,
+  "id": 4,
   "links": [
     {
       "asDropdown": false,
@@ -140,7 +91,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "description": "",
       "fieldConfig": {
@@ -198,12 +149,12 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.3.0",
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -224,7 +175,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "description": "",
       "fieldConfig": {
@@ -277,12 +228,12 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.3.0",
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -305,7 +256,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "description": "",
       "fieldConfig": {
@@ -358,12 +309,12 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.3.0",
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -386,7 +337,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "description": "",
       "fieldConfig": {
@@ -439,12 +390,12 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.3.0",
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -467,7 +418,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "description": "",
       "fieldConfig": {
@@ -523,12 +474,12 @@
         "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "11.3.0",
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -564,7 +515,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -640,17 +591,18 @@
           "width": 100
         },
         "tooltip": {
+          "hideZeros": false,
           "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "11.3.0",
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -665,7 +617,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -685,7 +637,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -761,17 +713,18 @@
           "width": 100
         },
         "tooltip": {
+          "hideZeros": false,
           "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "11.3.0",
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -786,7 +739,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -806,7 +759,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -885,17 +838,18 @@
           "width": 100
         },
         "tooltip": {
+          "hideZeros": false,
           "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "11.3.0",
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -910,7 +864,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -926,7 +880,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -942,7 +896,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -962,7 +916,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -1038,17 +992,18 @@
           "width": 100
         },
         "tooltip": {
+          "hideZeros": false,
           "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "11.3.0",
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1064,7 +1019,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1085,7 +1040,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -1156,16 +1111,18 @@
           "width": 100
         },
         "tooltip": {
+          "hideZeros": false,
           "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1197,7 +1154,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -1273,16 +1230,18 @@
           "width": 100
         },
         "tooltip": {
+          "hideZeros": false,
           "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1301,7 +1260,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -1376,16 +1335,18 @@
           "width": 100
         },
         "tooltip": {
+          "hideZeros": false,
           "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1404,7 +1365,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -1480,16 +1441,18 @@
           "width": 100
         },
         "tooltip": {
+          "hideZeros": false,
           "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1521,7 +1484,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -1596,16 +1559,18 @@
           "width": 100
         },
         "tooltip": {
+          "hideZeros": false,
           "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1621,7 +1586,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1641,7 +1606,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -1716,16 +1681,18 @@
           "width": 100
         },
         "tooltip": {
+          "hideZeros": false,
           "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1741,7 +1708,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1774,7 +1741,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -1849,36 +1816,22 @@
           "width": 100
         },
         "tooltip": {
+          "hideZeros": false,
           "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
           "expr": "sum by(nickname) (rate(torutils_dropped_ddos_packets{ipver=\"4\", nickname=~\"$Nickname\"}[$__rate_interval]))",
-          "fullMetaSearch": false,
-          "hide": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{dpt}}",
-          "range": true,
-          "refId": "D",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "sum(rate(torutils_syn_packets{ipver=\"4\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -1894,7 +1847,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -1969,36 +1922,22 @@
           "width": 100
         },
         "tooltip": {
+          "hideZeros": false,
           "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
           "expr": "sum by(nickname) (rate(torutils_dropped_ddos_packets{ipver=\"6\", nickname=~\"$Nickname\"}[$__rate_interval]))",
-          "fullMetaSearch": false,
-          "hide": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{dpt}}",
-          "range": true,
-          "refId": "D",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "sum by() (rate(torutils_syn_packets{ipver=\"6\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -2013,8 +1952,9 @@
     },
     {
       "datasource": {
+        "default": true,
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -2072,7 +2012,35 @@
           },
           "unit": "none"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "fuchs1",
+                  "fuchs2",
+                  "fuchs3",
+                  "fuchs5"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 7,
@@ -2090,16 +2058,18 @@
           "width": 100
         },
         "tooltip": {
+          "hideZeros": false,
           "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -2117,8 +2087,9 @@
     },
     {
       "datasource": {
+        "default": true,
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -2194,16 +2165,18 @@
           "width": 100
         },
         "tooltip": {
+          "hideZeros": false,
           "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -2221,8 +2194,9 @@
     },
     {
       "datasource": {
+        "default": true,
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -2298,16 +2272,18 @@
           "width": 100
         },
         "tooltip": {
+          "hideZeros": false,
           "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -2325,8 +2301,9 @@
     },
     {
       "datasource": {
+        "default": true,
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -2402,16 +2379,18 @@
           "width": 100
         },
         "tooltip": {
+          "hideZeros": false,
           "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -2442,8 +2421,9 @@
     },
     {
       "datasource": {
+        "default": true,
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -2471,6 +2451,12 @@
       "id": 96,
       "options": {
         "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
         "maxVizHeight": 300,
         "minVizHeight": 10,
         "minVizWidth": 0,
@@ -2488,12 +2474,12 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -2512,8 +2498,9 @@
     },
     {
       "datasource": {
+        "default": true,
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
         "defaults": {
@@ -2541,6 +2528,12 @@
       "id": 44,
       "options": {
         "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
         "maxVizHeight": 300,
         "minVizHeight": 10,
         "minVizWidth": 0,
@@ -2558,12 +2551,12 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "11.5.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -2581,16 +2574,20 @@
       "type": "bargauge"
     }
   ],
+  "preload": false,
   "refresh": "auto",
   "schemaVersion": 40,
   "tags": [],
   "templating": {
     "list": [
       {
-        "current": {},
+        "current": {
+          "text": "localhost",
+          "value": "localhost"
+        },
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "XbGvg5aVz"
         },
         "definition": "label_values(torutils_dropped_state_packets,instance)",
         "includeAll": false,
@@ -2608,10 +2605,13 @@
         "type": "query"
       },
       {
-        "current": {},
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "XbGvg5aVz"
         },
         "definition": "label_values(tor_relay_connections{instance=~\"$Instance\"},nickname)",
         "includeAll": true,
@@ -2638,6 +2638,6 @@
   "timezone": "utc",
   "title": "Tor DDoS",
   "uid": "FgvRNta4k",
-  "version": 523,
+  "version": 528,
   "weekStart": ""
 }
