@@ -1,11 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 # -*- coding: utf-8 -*-
 
-
-# shows open exit port stats:
+# show open exit port stats:
 #
-#   ps.py --address ::1 --ctrlport 39051 --suffix data3
+#   ps.py --address 127.0.0.1 --ctrlport 39051 --suffix data3
 
 import argparse
 import glob
@@ -31,7 +30,9 @@ def parse_consensus(relays, filename):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--address", type=str, help="default: 127.0.0.1", default="127.0.0.1")
+    parser.add_argument(
+        "-a", "--address", type=str, help="default: 127.0.0.1", default="127.0.0.1"
+    )
     parser.add_argument(
         "-c", "--ctrlport", type=int, help="default: 9051", default=9051
     )
@@ -53,7 +54,7 @@ def main():
                     ORPort6 = port
 
         except:
-            print("Woops, control ports aren't configured")
+            print("Woops, control ports aren't configured, pls check ControlPort")
             return
 
         relays = {}  # address => [orports...]

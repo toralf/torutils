@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 # -*- coding: utf-8 -*-
 
@@ -47,7 +47,9 @@ def parse_consensus(relays, filename):
 
 def main(args=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--address", type=str, help="default: 127.0.0.1", default="127.0.0.1")
+    parser.add_argument(
+        "-a", "--address", type=str, help="default: 127.0.0.1", default="127.0.0.1"
+    )
     parser.add_argument(
         "-c", "--ctrlport", type=int, help="default: 9051", default=9051
     )
@@ -58,7 +60,7 @@ def main(args=None):
     try:
         controller = connect(control_port=(args.address, args.ctrlport))
     except:
-        print("Woops, controller connect failed")
+        print("Woops, controller connect failed, pls check ControlPort")
         sys.exit(1)
 
     try:

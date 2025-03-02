@@ -1,12 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 # -*- coding: utf-8 -*-
 
-
 # dump OR closing event reasons:
 #
-#   orstatus.py --address ::1 --ctrlport 39051
-
+#   orstatus.py --address 127.0.0.1 --ctrlport 39051
 
 import argparse
 import functools
@@ -21,7 +19,9 @@ from stem.util.connection import is_valid_ipv4_address
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--address", type=str, help="default: ::1", default="::1")
+    parser.add_argument(
+        "-a", "--address", type=str, help="default: 127.0.0.1", default="127.0.0.1"
+    )
     parser.add_argument(
         "-c", "--ctrlport", type=int, help="default: 9051", default=9051
     )

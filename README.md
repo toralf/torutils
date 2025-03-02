@@ -241,7 +241,7 @@ sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
 [orstatus-stats.sh](./orstatus-stats.sh) prints/plots statistics ([see this example](./doc/orstatus-stats.sh.txt)) from that.
 
 ```bash
-orstatus.py --ctrlport 9051 --address ::1 >> /tmp/orstatus &
+orstatus.py --ctrlport 9051 --address 127.0.0.1 >> /tmp/orstatus &
 sleep 3600
 orstatus-stats.sh /tmp/orstatus
 ```
@@ -271,11 +271,16 @@ Configure it in _torrc_, e.g.:
 
 ```console
 ControlPort 127.0.0.1:9051
-ControlPort [::1]:9051
 ```
 
 The python library [Stem](https://stem.torproject.org/index.html) is needed.
-Install it either by your package manager -or- use the git sources, e.g.:
+Install it either by your package manager, e.g. for Ubuntu:
+
+```bash
+sudo apt install python3-stem
+```
+
+-or- use the git sources, e.g.:
 
 ```bash
 git clone https://github.com/torproject/stem.git
