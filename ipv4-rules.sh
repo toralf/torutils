@@ -179,11 +179,13 @@ function printRuleStatistics() {
 function getConfiguredRelays() {
   # shellcheck disable=SC2045
   for f in $(ls /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null); do
-    if orport=$(grep "^ORPort *" $f | grep -v -F -e ' NoListen' -e '[' -e ':auto' | grep -P "^ORPort\s+.+\s*"); then
-      if grep -q -Po "^ORPort\s+\d+\.\d+\.\d+\.\d+\:\d+\s*" <<<$orport; then
-        awk '{ print $2 }' <<<$orport
-      elif address=$(grep -P "^Address\s+\d+\.\d+\.\d+\.\d+\s*" $f); then
-        echo $(awk '{ print $2 }' <<<$address):$(awk '{ print $2 }' <<<$orport)
+    if ! grep -q "^ServerTransportListenAddr" $f; then
+      if orport=$(grep "^ORPort *" $f | grep -v -F -e ' NoListen' -e '[' -e ':auto' | grep -P "^ORPort\s+.+\s*"); then
+        if grep -q -Po "^ORPort\s+\d+\.\d+\.\d+\.\d+\:\d+\s*" <<<$orport; then
+          awk '{ print $2 }' <<<$orport
+        elif address=$(grep -P "^Address\s+\d+\.\d+\.\d+\.\d+\s*" $f); then
+          echo $(awk '{ print $2 }' <<<$address):$(awk '{ print $2 }' <<<$orport)
+        fi
       fi
     fi
   done

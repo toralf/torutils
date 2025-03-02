@@ -168,10 +168,14 @@ function printRuleStatistics() {
 
 # OR port + address are defined in 1 line
 function getConfiguredRelays6() {
-  grep -h -e "^ORPort *" /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null |
-    grep -v -F -e ' NoListen' -e ':auto' |
-    grep -P "^ORPort\s+\[[0-9a-f]*:[0-9a-f:]*:[0-9a-f]*\]:\d+\s*" |
-    awk '{ print $2 }'
+  # shellcheck disable=SC2045
+  for f in $(ls /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null); do
+    if ! grep -q "^ServerTransportListenAddr" $f; then
+      grep -v -F -e ' NoListen' -e ':auto' $f |
+        grep -P "^ORPort\s+\[[0-9a-f]*:[0-9a-f:]*:[0-9a-f]*\]:\d+\s*" |
+        awk '{ print $2 }'
+    fi
+  done
 }
 
 function bailOut() {
