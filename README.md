@@ -110,10 +110,10 @@ I highly appreciate [issue](https://github.com/toralf/torutils/issues) reports a
 Generic filter rules for the local network, ICMP, ssh, DHCP and additional services are created.
 Then the following rules are applied:
 
-1. trust connection attempt to any port from trusted Tor authorities/Snowflake servers
-2. block the source¹ for 24 hours if the connection attempt rate to the ORPort exceeds > 9/min² within last 2 minutes
-3. ignore the connection attempt if there are already 9 established connections to the ORPort
-4. accept the connection attempt to the ORPort
+1. trust connection attempt from trusted Tor authorities/Snowflake servers
+2. block the source¹ for 24 hours if the connection attempt rate to the Tor port exceeds > 9/min² within last 2 minutes
+3. ignore the connection attempt if there are already 9 established connections to the Tor port
+4. accept the connection attempt to the Tor port
 
 ¹ for IPv4 the "source" is a regular ip, for IPv6 the corresponding /80 CIDR block
 
@@ -141,7 +141,7 @@ If the parsing of the Tor and/or of the SSH config fails then:
    (`CONFIGURED_RELAYS6` for IPv6).
 
 A command line argument takes precedence over its environment variable.
-The same syntax is used to allow inbound traffic to additional <address:port> destinations, e.g.:
+Allow inbound traffic to additional <address:port> destinations by e.g.:
 
 ```bash
 export ADD_LOCAL_SERVICES="2.71.82.81:828 3.141.59.26:53"
@@ -156,7 +156,7 @@ export ADD_LOCAL_SERVICES="4.3.2.1>4711"
 export ADD_LOCAL_SERVICES6="[cafe::abba]>4711"
 ```
 
-allows traffic, i.e. from the remote address "4.3.2.1" to the local port "4711".
+RThe above allows traffic from the specified remote address to the local port 4711.
 
 The script sets few _sysctl_ values.
 If unwanted then please comment out the call of _setSysctlValues()_.
