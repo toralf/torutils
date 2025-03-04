@@ -216,7 +216,7 @@ function saveIpset() {
 
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
   if ipset list $name | sed -e '1,8d' >$tmpfile; then
-    if [[ -s $tmpfile ]]; then
+    if [[ -s $tmpfile || ! -f $tmpdir/$name ]]; then
       cp $tmpfile $tmpdir/$name
     fi
   fi
