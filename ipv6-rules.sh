@@ -166,11 +166,14 @@ function printRuleStatistics() {
   $ipt -nv -L INPUT
 }
 
-# OR port + address are defined in 1 line
 function getConfiguredRelays6() {
   # shellcheck disable=SC2045
   for f in $(ls /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null); do
-    if ! grep -q "^ServerTransportListenAddr" $f; then
+    if grep -q "^ServerTransportListenAddr " $f; then
+      grep "^ServerTransportListenAddr " $f |
+        awk '{ print $3 }' |
+        grep -P "^\[[0-9a-f]*:[0-9a-f:]*:[0-9a-f]*\]:\d+$"
+    else
       grep -v -F -e ' NoListen' -e ':auto' $f |
         grep -P "^ORPort\s+\[[0-9a-f]*:[0-9a-f:]*:[0-9a-f]*\]:\d+\s*" |
         awk '{ print $2 }'

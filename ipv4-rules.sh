@@ -175,11 +175,15 @@ function printRuleStatistics() {
   $ipt -nv -L INPUT
 }
 
-# OR port and address are defined in 1 or 2 lines
 function getConfiguredRelays() {
   # shellcheck disable=SC2045
   for f in $(ls /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null); do
-    if ! grep -q "^ServerTransportListenAddr" $f; then
+    if grep -q "^ServerTransportListenAddr " $f; then
+      grep "^ServerTransportListenAddr " $f |
+        awk '{ print $3 }' |
+        grep -P "^\d+\.\d+\.\d+\.\d+:\d+$"
+    else
+      # OR port and address are defined either together in 1 line or in 2 different lines
       if orport=$(grep "^ORPort *" $f | grep -v -F -e ' NoListen' -e '[' -e ':auto' | grep -P "^ORPort\s+.+\s*"); then
         if grep -q -Po "^ORPort\s+\d+\.\d+\.\d+\.\d+\:\d+\s*" <<<$orport; then
           awk '{ print $2 }' <<<$orport

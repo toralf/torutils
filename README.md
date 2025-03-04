@@ -141,18 +141,19 @@ If the parsing of the Tor and/or of the SSH config fails then:
    (`CONFIGURED_RELAYS6` for IPv6).
 
 A command line argument takes precedence over its environment variable.
-The same syntax is sued to allow inbound traffic to additional <address:port> destinations, e.g.:
+The same syntax is used to allow inbound traffic to additional <address:port> destinations, e.g.:
 
 ```bash
 export ADD_LOCAL_SERVICES="2.71.82.81:828 3.141.59.26:53"
+export ADD_LOCAL_SERVICES6="[cafe::abba]:1234"
 ```
 
-(`ADD_LOCAL_SERVICES6` appropriately) before running the script.
-
-A slightly different syntax can be used for `ADD_REMOTE_SERVICES` and its IPv6 variant to allow inbound traffic, e.g.:
+A slightly different syntax (separator `>` instead `:`, because the address is _src_, only the port is _dst_)
+is used for `ADD_REMOTE_SERVICES` to allow inbound traffic, e.g.:
 
 ```bash
 export ADD_LOCAL_SERVICES="4.3.2.1>4711"
+export ADD_LOCAL_SERVICES6="[cafe::abba]>4711"
 ```
 
 allows traffic, i.e. from the remote address "4.3.2.1" to the local port "4711".
