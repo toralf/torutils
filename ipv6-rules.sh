@@ -112,10 +112,8 @@ function __fill_trustlist() {
 
 function __fill_ddoslist() {
   if [[ -s $tmpdir/$ddoslist ]]; then
-    ipset flush $ddoslist
     xargs -r -L 1 -P $jobs ipset add -exist $ddoslist <$tmpdir/$ddoslist # -L 1 b/c the inputs are tuples
   fi
-  rm -f $tmpdir/$ddoslist
 }
 
 function addServices() {
@@ -202,9 +200,7 @@ function saveIpset() {
 
   local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
   if ipset list $name | sed -e '1,8d' >$tmpfile; then
-    if [[ -s $tmpfile || ! -f $tmpdir/$name ]]; then
-      cp $tmpfile $tmpdir/$name
-    fi
+    sed -e '1,8d' <$tmpfile >$tmpdir/$name
   fi
   rm $tmpfile
 }
