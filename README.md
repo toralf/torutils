@@ -93,7 +93,7 @@ Finally, create cron jobs (via `crontab -e`) like these:
 # DDoS prevention
 @reboot /root/ipv4-rules.sh start; /root/ipv6-rules.sh start
 
-# keep ips during reboot
+# have recent content of ipsets after a reboot
 @hourly /root/ipv4-rules.sh save; /root/ipv6-rules.sh save
 
 # update Tor authorities
