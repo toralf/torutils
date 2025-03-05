@@ -219,29 +219,8 @@ export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 umask 066
-
-# check if iptables works or if its legacy variant is needed
-ipt="ip6tables"
-set +e
-$ipt -nv -L INPUT 1>/dev/null
-rc=$?
-set -e
-if [[ $rc -ne 0 ]]; then
-  if [[ $rc -eq 4 ]]; then
-    ipt+="-legacy"
-    if ! $ipt -nv -L INPUT 1>/dev/null; then
-      echo " $ipt is not working" >&2
-      exit 1
-    fi
-  else
-    echo " $ipt is not working, rc=$rc" >&2
-    exit 1
-  fi
-fi
-
-type ipset $ipt jq 1>/dev/null
-
 trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
+type ipset jq 1>/dev/null
 
 trustlist="tor-trust6"     # Tor authorities and snowflake servers
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
@@ -259,6 +238,28 @@ tmpdir=${TORUTILS_TMPDIR:-/var/tmp}
 
 action=${1-}
 [[ $# -gt 0 ]] && shift
+
+if [[ $action != "update" && $action != "save" ]]; then
+  # check if iptables works or if its legacy variant is needed
+  ipt="ip6tables"
+  set +e
+  $ipt -nv -L INPUT 1>/dev/null
+  rc=$?
+  set -e
+  if [[ $rc -ne 0 ]]; then
+    if [[ $rc -eq 4 ]]; then
+      ipt+="-legacy"
+      if ! $ipt -nv -L INPUT 1>/dev/null; then
+        echo " $ipt is not working" >&2
+        exit 1
+      fi
+    else
+      echo " $ipt is not working, rc=$rc" >&2
+      exit 1
+    fi
+  fi
+fi
+
 case $action in
 start)
   trap bailOut INT QUIT TERM EXIT
