@@ -207,23 +207,17 @@ function bailOut() {
   exit $rc
 }
 
-function saveIpset() {
-  local name=${1?IPSET NAME IS UNSET}
-
+function saveCertainIpsets() {
   [[ -d $tmpdir ]] || return 1
 
-  local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
-  if ipset list $name >$tmpfile; then
-    sed -e '1,8d' <$tmpfile >$tmpdir/$name
-  fi
-  rm $tmpfile
-}
-
-function saveCertainIpsets() {
   ipset list -n |
     grep -e '^tor-ddos-[0-9]*$' -e '^tor-trust$' |
     while read -r name; do
-      saveIpset $name
+      tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
+      if ipset list $name >$tmpfile; then
+        sed -e '1,8d' <$tmpfile >$tmpdir/$name
+      fi
+      rm $tmpfile
     done
 }
 
