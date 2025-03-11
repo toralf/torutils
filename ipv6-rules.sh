@@ -170,7 +170,8 @@ function getConfiguredRelays6() {
     if grep -q "^ServerTransportListenAddr " $f; then
       grep "^ServerTransportListenAddr " $f |
         awk '{ print $3 }' |
-        grep -P "^\[[0-9a-f]*:[0-9a-f:]*:[0-9a-f]*\]:\d+$"
+        grep -P "^\[[0-9a-f]*:[0-9a-f:]*:[0-9a-f]*\]:\d+$" |
+        grep -v '::1'
     else
       grep -v -F -e ' NoListen' -e ':auto' $f |
         grep -P "^ORPort\s+\[[0-9a-f]*:[0-9a-f:]*:[0-9a-f]*\]:\d+\s*" |

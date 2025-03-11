@@ -179,7 +179,8 @@ function getConfiguredRelays() {
     if grep -q "^ServerTransportListenAddr " $f; then
       grep "^ServerTransportListenAddr " $f |
         awk '{ print $3 }' |
-        grep -P "^\d+\.\d+\.\d+\.\d+:\d+$"
+        grep -P "^\d+\.\d+\.\d+\.\d+:\d+$" |
+        grep -v '0.0.0.0'
     else
       # OR port and address are defined either together in 1 line or in 2 different lines
       if orport=$(grep "^ORPort *" $f | grep -v -F -e ' NoListen' -e '[' -e ':auto' | grep -P "^ORPort\s+.+\s*"); then
