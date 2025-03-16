@@ -15,10 +15,6 @@ function relay_2_ip_and_port() {
   if [[ -z $orip || -z $orport ]]; then
     return 1
   fi
-  if [[ $orip == "::" ]]; then
-    orip+="/0"
-    echo " notice: got global unicast IPv6 address [::]" >&2
-  fi
 }
 
 function addCommon() {
@@ -31,6 +27,7 @@ function addCommon() {
   # make sure NEW incoming tcp connections are SYN packets
   $ipt -A INPUT -p tcp ! --syn -m state --state NEW -j $jump
   $ipt -A INPUT -m conntrack --ctstate INVALID -j $jump
+
   # do not touch established connections
   $ipt -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 
