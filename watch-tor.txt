@@ -1,4 +1,5 @@
 #################### harmless
+All current guards excluded by path restriction type 2; using an additional guard.
 Bootstrapped 0%: Starting
 Bootstrapped 0% (starting): Starting
 Bootstrapped 100% (done): Done
