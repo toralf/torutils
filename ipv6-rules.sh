@@ -201,7 +201,7 @@ function saveCertainIpsets() {
     grep -e '^tor-ddos6-[0-9]*$' -e '^tor-trust6$' |
     while read -r name; do
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
-      if ipset list $name | sed -e '1,8d' >$tmpfile; then
+      if ipset list $name >$tmpfile; then
         sed -e '1,8d' <$tmpfile >$tmpdir/$name
       fi
       rm $tmpfile
