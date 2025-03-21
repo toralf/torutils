@@ -238,17 +238,15 @@ if [[ $action != "update" && $action != "save" ]]; then
   $ipt -nv -L INPUT 1>/dev/null
   rc=$?
   set -e
-  if [[ $rc -ne 0 ]]; then
-    if [[ $rc -eq 4 ]]; then
-      ipt+="-legacy"
-      if ! $ipt -nv -L INPUT 1>/dev/null; then
-        echo " $ipt is not working" >&2
-        exit 1
-      fi
-    else
-      echo " $ipt is not working, rc=$rc" >&2
+  if [[ $rc -eq 4 ]]; then
+    ipt+="-legacy"
+    if ! $ipt -nv -L INPUT 1>/dev/null; then
+      echo " $ipt is not working" >&2
       exit 1
     fi
+  elif [[ $rc -ne 0 ]]; then
+    echo " $ipt is not working, rc=$rc" >&2
+    exit 1
   fi
 fi
 
