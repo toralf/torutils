@@ -147,7 +147,7 @@ function setSysctlValues() {
     modprobe nf_conntrack
   fi
 
-  sysctl -q -w net.netfilter.nf_conntrack_max=$((2 ** 21)) || sysctl -q -w net.nf_conntrack_max=$((2 ** 21))
+  sysctl -q -w net.netfilter.nf_conntrack_max=$max || sysctl -q -w net.nf_conntrack_max=$max
   sysctl -q -w net.ipv4.tcp_syncookies=1
 
   # make tcp_max_syn_backlog big enough to have ListenDrops being low or 0:
