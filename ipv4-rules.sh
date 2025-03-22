@@ -132,6 +132,7 @@ function addHetzner() {
   local sysmon="hetzner-sysmon"
 
   __create_ipset $sysmon
+  $ipt -A INPUT -m set --match-set $sysmon src -j ACCEPT
   {
     (
       echo 188.40.24.211 213.133.113.82 213.133.113.83 213.133.113.84 213.133.113.86
@@ -139,7 +140,6 @@ function addHetzner() {
     ) |
       xargs -r -n 1 -P $jobs ipset add -exist $sysmon
   } &
-  $ipt -A INPUT -m set --match-set $sysmon src -j ACCEPT
 }
 
 function setSysctlValues() {
