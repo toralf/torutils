@@ -21,11 +21,12 @@ function restart() {
         echo -e "\n skipped"
       else
         if ! rc-service $service restart; then
+          sleep 5
           if pid=$(cat /run/tor/$service.pid); then
             if kill -0 $pid; then
               echo " kill pid $pid"
               kill -9 $pid
-              sleep 1
+              sleep 5
             else
               rm /run/tor/$service.pid
               echo " stale pid $pid"
