@@ -46,6 +46,7 @@ Received circuit padding stop command for unknown machine.
 Received directory with skewed time
 Received http status code 404
 Received reload signal (hup). Reloading config and resetting internal state.
+Set list of supported TLS groups to:
 Since last heartbeat message
 Since our last heartbeat,
 Since startup we initiated
