@@ -174,8 +174,8 @@ function printRuleStatistics() {
 }
 
 function getConfiguredRelays() {
-  # shellcheck disable=SC2045
-  for f in $(ls /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null); do
+  # shellcheck disable=SC2045 disable=SC2010
+  for f in $(ls /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null | grep -v -F -e '.sample' -e '.bak' -e '~' -e '@'); do
     if grep -q "^ServerTransportListenAddr " $f; then
       grep "^ServerTransportListenAddr " $f |
         awk '{ print $3 }' |
