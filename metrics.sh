@@ -2,9 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# use node_exporter's "textfile" feature to send metrics to Prometheus
-
-# local hack at mr-fox to set the Prometheus label "nickname" to the value of the torrc
+# local hack (at system mr-fox) to set the Prometheus label "nickname" to the value of the torrc
 function _orport2nickname() {
   local orport=${1?PORT IS UNSET}
 
@@ -18,12 +16,10 @@ function _orport2nickname() {
 }
 
 function printMetricsIptables() {
-  local var
-  local tables4
-  local tables6
+  local tables4=$($ipt -nvx -L INPUT -t filter 2>/dev/null)
+  local tables6=$($ip6t -nvx -L INPUT -t filter 2>/dev/null)
 
-  tables4=$($ipt -nvx -L INPUT -t filter 2>/dev/null) || return 1
-  tables6=$($ip6t -nvx -L INPUT -t filter 2>/dev/null) || return 1
+  local var
 
   var="torutils_dropped_state_packets"
   echo -e "# HELP $var Total number of dropped packets due to wrong TCP state\n# TYPE $var gauge"
@@ -217,7 +213,7 @@ trap 'rm -f $lockfile' INT QUIT TERM EXIT
 
 intervall=${1:-0} # 0 == finish after running once
 export datadir=${2:-/var/lib/node_exporter}
-export NICKNAME=${3:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')} # if neither given nor found then _orport2nickname() is used in _ipset2nickname()
+export NICKNAME=${3:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')} # if neither given nor found then use  _orport2nickname() which is called in _ipset2nickname()
 
 cd $datadir
 
