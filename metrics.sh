@@ -115,30 +115,6 @@ function printMetricsIpsets() {
   # ipset sizes
   #
 
-  # torutils_ipset_total non-counter metrics should not have "_total" suffix
-  var="torutils_ipset_total"
-  echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
-  for v in "" 6; do
-    ipset list -t |
-      grep "^N" |
-      xargs -L 2 |
-      awk '/^Name: tor-/ { print $2, $6 }' |
-      if [[ -z $v ]]; then
-        grep -v -E -e "-[a-z]+6[ -]"
-      else
-        grep -E -e "-[a-z]+6[ -]"
-      fi |
-      while read -r name size; do
-        mode=$(cut -f 2 -d '-' -s <<<$name | tr -d '6')
-        if [[ $name =~ 'trust' ]]; then
-          echo "$var{ipver=\"${v:-4}\",mode=\"$mode\"} $size"
-        else
-          nickname=${NICKNAME:-$(_ipset2nickname $name)}
-          echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\",mode=\"$mode\"} $size"
-        fi
-      done
-  done
-
   var="torutils_ipset"
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
   for v in "" 6; do
@@ -166,19 +142,6 @@ function printMetricsIpsets() {
   # hashlimit sizes
   #
   mode="ddos"
-
-  # torutils_hashlimit_total non-counter metrics should not have "_total" suffix
-  var="torutils_hashlimit_total"
-  echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
-  for v in "" 6; do
-    # --total=never is not (yet) implemented in Debian version of wc
-    wc -l /proc/net/ip${v}t_hashlimit/tor-$mode-* |
-      grep -v 'total' |
-      while read -r count name; do
-        nickname=${NICKNAME:-$(_ipset2nickname $name)}
-        echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\",mode=\"$mode\"} $count"
-      done
-  done
 
   var="torutils_hashlimit"
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
