@@ -198,6 +198,12 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
+# jump out if tor is not running
+if ! pgrep -f /usr/bin/tor 1>/dev/null; then
+  rm -f $datadir/torutils.prom
+  exit 0
+fi
+
 lockfile="/tmp/torutils-$(basename $0).lock"
 if [[ -s $lockfile ]]; then
   pid=$(cat $lockfile)
