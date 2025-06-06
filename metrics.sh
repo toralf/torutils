@@ -161,6 +161,9 @@ set -eu
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
+intervall=${1:-0} # 0 == finish after running once
+export datadir=${2:-/var/lib/node_exporter}
+
 # jump out if tor is not running
 if ! pgrep -f /usr/bin/tor 1>/dev/null; then
   rm -f $datadir/torutils.prom
@@ -180,8 +183,6 @@ echo $$ >"$lockfile"
 
 trap 'rm -f $lockfile' INT QUIT TERM EXIT
 
-intervall=${1:-0} # 0 == finish after running once
-export datadir=${2:-/var/lib/node_exporter}
 export NICKNAME=${3:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')} # if neither given nor found then use  _orport2nickname() which is called in _ipset2nickname()
 
 cd $datadir
