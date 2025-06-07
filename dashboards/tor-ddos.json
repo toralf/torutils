@@ -56,18 +56,6 @@
       "keepTime": false,
       "tags": [],
       "targetBlank": true,
-      "title": "Family",
-      "tooltip": "",
-      "type": "link",
-      "url": "https://metrics.torproject.org/rs.html#search/family:4FC26DC244109105AE131628BDB0C84F2D710941"
-    },
-    {
-      "asDropdown": false,
-      "icon": "external link",
-      "includeVars": false,
-      "keepTime": false,
-      "tags": [],
-      "targetBlank": true,
       "title": "Homepage",
       "tooltip": "",
       "type": "link",
@@ -104,8 +92,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "super-light-blue",
@@ -149,7 +136,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -190,8 +177,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
-                "value": null
+                "color": "blue"
               },
               {
                 "color": "yellow",
@@ -204,7 +190,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 6,
         "w": 8,
         "x": 8,
         "y": 1
@@ -228,7 +214,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -271,8 +257,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
-                "value": null
+                "color": "blue"
               },
               {
                 "color": "yellow",
@@ -309,7 +294,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -319,7 +304,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "torutils_ipset_total{ipver=\"4\", mode=\"ddos\"}",
+          "expr": "torutils_ipset{ipver=\"4\", mode=\"ddos\"}",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -352,8 +337,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "blue",
-                "value": null
+                "color": "blue"
               },
               {
                 "color": "yellow",
@@ -390,7 +374,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -400,7 +384,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "torutils_ipset_total{ipver=\"6\", mode=\"ddos\"}",
+          "expr": "torutils_ipset{ipver=\"6\", mode=\"ddos\"}",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -434,8 +418,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
-                "value": null
+                "color": "red"
               },
               {
                 "color": "#EAB839",
@@ -452,10 +435,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 3,
+        "h": 4,
         "w": 8,
         "x": 8,
-        "y": 8
+        "y": 7
       },
       "id": 83,
       "options": {
@@ -474,7 +457,7 @@
         "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -562,8 +545,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -597,7 +579,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -684,8 +666,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -719,7 +700,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -809,8 +790,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -844,7 +824,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -963,8 +943,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -998,7 +977,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -1117,7 +1096,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -1236,7 +1215,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -1341,7 +1320,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -1447,7 +1426,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -1565,7 +1544,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -1687,7 +1666,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -1822,7 +1801,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -1928,7 +1907,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -2012,35 +1991,7 @@
           },
           "unit": "none"
         },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "fuchs1",
-                  "fuchs2",
-                  "fuchs3",
-                  "fuchs5"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 7,
@@ -2048,7 +1999,7 @@
         "x": 0,
         "y": 64
       },
-      "id": 27,
+      "id": 100,
       "options": {
         "legend": {
           "calcs": [],
@@ -2064,7 +2015,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -2073,7 +2024,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_hashlimit_total{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
+          "expr": "torutils_hashlimit{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -2171,7 +2122,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -2180,7 +2131,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_hashlimit_total{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
+          "expr": "torutils_hashlimit{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -2278,7 +2229,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -2287,7 +2238,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_total{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -2385,7 +2336,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -2394,7 +2345,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_total{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -2471,10 +2422,12 @@
         },
         "showUnfilled": true,
         "sizing": "manual",
-        "text": {},
+        "text": {
+          "titleSize": 11
+        },
         "valueMode": "color"
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -2548,10 +2501,12 @@
         },
         "showUnfilled": true,
         "sizing": "manual",
-        "text": {},
+        "text": {
+          "titleSize": 11
+        },
         "valueMode": "color"
       },
-      "pluginVersion": "11.5.2",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
@@ -2576,7 +2531,7 @@
   ],
   "preload": false,
   "refresh": "auto",
-  "schemaVersion": 40,
+  "schemaVersion": 41,
   "tags": [],
   "templating": {
     "list": [
@@ -2590,7 +2545,7 @@
           "uid": "XbGvg5aVz"
         },
         "definition": "label_values(torutils_dropped_state_packets,instance)",
-        "includeAll": false,
+        "includeAll": true,
         "label": "Instance",
         "name": "Instance",
         "options": [],
@@ -2613,14 +2568,14 @@
           "type": "prometheus",
           "uid": "XbGvg5aVz"
         },
-        "definition": "label_values(tor_relay_connections{instance=~\"$Instance\"},nickname)",
+        "definition": "label_values(torutils_dropped_ddos_packets{instance=~\"$Instance\"},nickname)",
         "includeAll": true,
         "label": "Nickname",
         "name": "Nickname",
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(tor_relay_connections{instance=~\"$Instance\"},nickname)",
+          "query": "label_values(torutils_dropped_ddos_packets{instance=~\"$Instance\"},nickname)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
@@ -2638,6 +2593,5 @@
   "timezone": "utc",
   "title": "Tor DDoS",
   "uid": "FgvRNta4k",
-  "version": 528,
-  "weekStart": ""
+  "version": 543
 }
