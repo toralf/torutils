@@ -164,12 +164,6 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 intervall=${1:-0} # 0 == finish after running once
 export datadir=${2:-/var/lib/node_exporter}
 
-# jump out if tor is not running
-if ! pgrep -f /usr/bin/tor 1>/dev/null; then
-  rm -f $datadir/torutils.prom
-  exit 0
-fi
-
 lockfile="/tmp/torutils-$(basename $0).lock"
 if [[ -s $lockfile ]]; then
   pid=$(cat $lockfile)
@@ -212,6 +206,13 @@ export cpus=$(((1 + $(nproc)) / 2))
 export -f _histogram _ipset2nickname _orport2nickname
 
 while :; do
+  # clean old data if tor is not running
+  if ! pgrep -f /usr/bin/tor 1>/dev/null; then
+    rm -f $datadir/torutils.prom
+    sleep $intervall
+    continue
+  fi
+
   now=$EPOCHSECONDS
 
   export tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.tmp)
