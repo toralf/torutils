@@ -206,23 +206,21 @@ export cpus=$(((1 + $(nproc)) / 2))
 export -f _histogram _ipset2nickname _orport2nickname
 
 while :; do
+  now=$EPOCHSECONDS
+
   # clean old data if tor is not running
   if ! pgrep -f /usr/bin/tor 1>/dev/null; then
     rm -f $datadir/torutils.prom
-    sleep $intervall
-    continue
+  else
+    export tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.tmp)
+    echo "# $0   $(date -R)" >$tmpfile
+    printMetricsIptables >>$tmpfile
+    if type ipset 1>/dev/null 2>&1; then
+      printMetricsIpsets >>$tmpfile
+    fi
+    chmod a+r $tmpfile
+    mv $tmpfile $datadir/torutils.prom
   fi
-
-  now=$EPOCHSECONDS
-
-  export tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.tmp)
-  echo "# $0   $(date -R)" >$tmpfile
-  printMetricsIptables >>$tmpfile
-  if type ipset 1>/dev/null 2>&1; then
-    printMetricsIpsets >>$tmpfile
-  fi
-  chmod a+r $tmpfile
-  mv $tmpfile $datadir/torutils.prom
 
   if [[ $intervall -eq 0 ]]; then
     break
