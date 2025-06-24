@@ -92,15 +92,15 @@ function __fill_trustlist() {
   # this is intentionally not filled from a saved set at reboot
   (
     # snowflakes
-    echo 2607:f018:600:8:be30:5bff:fef1:c6fa 2a0c:dd40:1:b::42
+    echo 2a0c:dd40:1:b::42 2607:f018:600:8:be30:5bff:fef1:c6fa
     # Tor authorities
     echo 2001:470:164:2::2 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2610:1c0:0:5::131 2620:13:4000:6000::1000:118 2a02:16a8:662:2203::1
-    getent ahostsv6 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }' | sort -u
+    getent ahostsv6 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }' | sort -uV
     if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o -); then
       if [[ $relays =~ 'relays_published' ]]; then
         jq -r '.relays[] | .a | select(length > 1) | .[1:]' <<<$relays |
           tr ',' '\n' | grep -F ':' | tr -d ']["' |
-          sort
+          sort -V
       fi
     fi
   ) |

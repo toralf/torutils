@@ -88,14 +88,14 @@ function __fill_trustlist() {
   # this is intentionally not filled from a saved set at reboot
   (
     # snowflakes
-    echo 193.187.88.42 193.187.88.43 193.187.88.44 193.187.88.45 193.187.88.46 141.212.118.18
+    echo 141.212.118.18 193.187.88.42 193.187.88.43 193.187.88.44 193.187.88.45 193.187.88.46
     # Tor authorities
     echo 45.66.35.11 66.111.2.131 128.31.0.39 131.188.40.189 171.25.193.9 193.23.244.244 199.58.81.140 204.13.164.118 216.218.219.41 217.196.147.77
-    getent ahostsv4 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }' | sort -u
+    getent ahostsv4 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }' | sort -uV
     if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o -); then
       if [[ $relays =~ 'relays_published' ]]; then
         jq -r '.relays[] | .a[0]' <<<$relays |
-          sort
+          sort -V
       fi
     fi
   ) |
