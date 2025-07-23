@@ -235,9 +235,9 @@ umask 066
 trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
 type ipset jq 1>/dev/null
 
-trustlist="tor-trust"      # Tor authorities and snowflake servers
-jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding ips to an ipset
-prefix=32                  # any ipv4 address of this CIDR block is considered to belong to the same source/owner
+trustlist="tor-trust"            # Tor authorities and snowflake servers
+jobs=$((1 + ($(nproc) - 1) / 2)) # parallel jobs of adding ips to an ipset
+prefix=32                        # any ipv4 address of this CIDR block is considered to belong to the same source/owner
 # hashes and ipset sizes do depend on available RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
 if [[ ${ram} -gt 32 ]]; then
