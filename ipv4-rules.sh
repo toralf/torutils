@@ -293,8 +293,7 @@ update)
   ;;
 test)
   ipset list -n 1>/dev/null
-  export RUN_ME_WITH_SAFE_JUMP_TARGET="ACCEPT"
-  $0 start $*
+  RUN_ME_WITH_SAFE_JUMP_TARGET="ACCEPT" $0 start $*
   ;;
 save)
   saveCertainIpsets
