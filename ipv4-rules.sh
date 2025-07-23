@@ -77,8 +77,12 @@ function __create_ipset() {
   local name=$1
   local cmd="ipset create -exist $name hash:ip family inet ${2-}"
 
-  if ! $cmd 2>/dev/null; then
-    if ! saveIpset $name && ipset destroy $name && $cmd; then
+  if $cmd 2>/dev/null; then
+    return 0
+  else
+    if saveIpset $name && ipset destroy $name && $cmd; then
+      return 0
+    else
       return 1
     fi
   fi
