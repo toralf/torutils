@@ -1,6 +1,6 @@
 #################### harmless
 All current guards excluded by path restriction type 2; using an additional guard.
-Average channel padding delay of delays that exceeded the allowed time window since startup
+Average channel padding delay of delays that exceeded the allowed time window since
 Bootstrapped 0%: Starting
 Bootstrapped 0% (starting): Starting
 Bootstrapped 100% (done): Done
@@ -12,6 +12,7 @@ Bootstrapped 25% (requesting_status): Asking for networkstatus consensus
 Bootstrapped 45% (requesting_descriptors): Asking for relay descriptors
 Bootstrapped 5% (conn): Connecting to a relay
 Bootstrapped 50% (loading_descriptors): Loading relay descriptors
+Bootstrapped 55% (loading_descriptors): Loading relay descriptors
 Bootstrapped 75% (enough_dirinfo): Loaded enough directory info to build circuits
 Bootstrapped 85% (ap_conn_done): Connected to a relay to build circuits
 Bootstrapped 89% (ap_handshake): Finishing handshake with a relay to build circuits
