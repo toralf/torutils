@@ -19,11 +19,11 @@ of the [Tor project](https://www.torproject.org/).
 
 ### Idea
 
-Mark an ip as malicious if its connection attempts over a short time period exceed a given threshold.
-Block that ip for a much longer time period.
+Mark an IP address as malicious if its connection attempts over a short time period exceed a given threshold.
+Block that IP for a much longer time period.
 
-Therefore a simple network rule won't make it. However _ipset_ helps to achieve the goal.
-
+Therefore a simple network rule won't make it.
+However _ipset_ helps to achieve the goal.
 Further considerations:
 
 - never touch established connections
@@ -31,98 +31,97 @@ Further considerations:
 
 ### Quick start
 
-Install _jq_, _ipset_ and _iptables_, e.g. for Ubuntu 22.04:
+Install _jq_, _ipset_ and _iptables_, e.g. for Debian or Ubuntu do:
 
 ```bash
 sudo apt update
 sudo apt install -y jq ipset iptables
 ```
 
-Download the script
+Download the DDoS prevention scripts
 
 ```bash
 wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
-chmod +x ./ipv4-rules.sh
+wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv6-rules.sh -O ipv6-rules.sh
+chmod +x ./ipv4-rules.sh ./ipv6-rules.sh
 ```
 
 Make a backup of the current iptables _filter_ table:
 
 ```bash
-sudo /usr/sbin/iptables-save > ./rules.v4
-sudo /usr/sbin/ip6tables-save > ./rules.v6
+sudo /usr/sbin/iptables-save >./rules.v4
+sudo /usr/sbin/ip6tables-save >./rules.v6
 ```
 
 Run a quick test
 
 ```bash
 sudo ./ipv4-rules.sh test
+sudo ./ipv6-rules.sh test
 ```
 
 Best is to stop the Tor service(s) now.
-Flush the connection tracking table
+Then flush the connection tracking table
 
 ```bash
 sudo /usr/sbin/conntrack -F
 ```
 
 and (re-)start the Tor service.
-Check that your ssh login and other services are still working.
+Check that your ssh login and your other services are still working.
 Watch the iptables live statistics by:
 
 ```bash
-sudo watch -t ./ipv4-rules.sh
+sudo watch -t ./ipv4-rules.sh # replace 4 with 6 for IPv6
 ```
 
 If something failed then restore the backuped state:
 
 ```bash
 sudo ./ipv4-rules.sh stop
-sudo /usr/sbin/iptables-restore < ./rules.v4
-sudo /usr/sbin/ip6tables-restore < ./rules.v6
+sudo ./ipv6-rules.sh stop
+sudo /usr/sbin/iptables-restore <./rules.v4
+sudo /usr/sbin/ip6tables-restore <./rules.v6
 ```
 
-Otherwise, if all is fine then run the script again, but with the parameter `start`:
+But if everything looks uk, run the script again, but now with the parameter `start`:
 
 ```bash
 sudo ./ipv4-rules.sh start
+sudo ./ipv6-rules.sh start
 ```
 
-Finally, create cron jobs (via `crontab -e`) like these:
+Finally, ensure, that the package _iptables-persistent_ is either de-installed or at least disabled
+and create cron jobs (via `crontab -e`)e.g.:
 
 ```cron
 # DDoS prevention
 @reboot /root/ipv4-rules.sh start; /root/ipv6-rules.sh start
 
-# have recent content of ipsets after a reboot
+# have recent ipset data after a reboot available
 @hourly /root/ipv4-rules.sh save; /root/ipv6-rules.sh save
 
 # update Tor authorities
 @daily  /root/ipv4-rules.sh update; /root/ipv6-rules.sh update
 ```
 
-Ensure, that the package _iptables-persistent_ is either de-installed or at least disabled.
-
-More hints are in the [Installation](#installation) section.
-I highly appreciate [issue](https://github.com/toralf/torutils/issues) reports about any findings.
+[issue](https://github.com/toralf/torutils/issues) reports about any findings are welcome.
 
 ### Details
 
-Generic filter rules for the local network, ICMP, ssh, DHCP and additional services are created.
-Then the following rules are applied:
+The DDoS scripts creates generic filter rules for the local network, ICMP, ssh, DHCP and (if defined) additional services.
+Then this rule set is applied ¹:
 
 1. trust connection attempt from trusted Tor authorities/Snowflake servers
-2. block the source¹ for 24 hours if the connection attempt rate to the Tor port exceeds > 9/min² within last 2 minutes
-3. ignore the connection attempt if there are already 9 established connections to the Tor port
+2. block the source ² for 24 hours if the connection attempt rate from the source to the Tor port exceeds > 6/min ³ within last 2 minutes
+3. ignore the connection attempt if there are already 6 established connections to the Tor port
 4. accept the connection attempt to the Tor port
 
-¹ for IPv4 the "source" is a regular ip, for an IPv6 address its /80 block
+¹ for IPv4 with "source" a single ip address is meant, for IPv6 a /80 block is meant
 
 ² the value is derived from [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
 
-Basically just these rules were be implemented, for IPv4 [here](./ipv4-rules.sh#L56),
-the rest of the script deals with all the stuff around that.
-
-### Installation
+³ for IPv4 look [here](./ipv4-rules.sh#L45), for IPv6 [here](./ipv6-rules.sh#L49)
 
 If the parsing of the Tor config and/or of the SSH config fails then:
 
@@ -157,7 +156,7 @@ export ADD_LOCAL_SERVICES="4.3.2.1>4711"
 export ADD_LOCAL_SERVICES6="[cafe::abba]>4711"
 ```
 
-RThe above allows traffic from the specified remote address to the local port 4711.
+The above allows traffic from the specified remote address to the local port 4711.
 
 The script sets few _sysctl_ values.
 If unwanted then please comment out the call of _setSysctlValues()_.
@@ -189,7 +188,7 @@ Look [here](./misc/README.md) for details.
 ```bash
 # create the SVG file
 svg=/tmp/graph.svg
-sadf -g -t /var/log/sa/sa${DAY:-`date +%d`} -O skipempty,oneday -- -n DEV,SOCK,SOCK6 --iface=enp8s0 > $svg
+sadf -g -t /var/log/sa/sa${DAY:-`date +%d`} -O skipempty,oneday -- -n DEV,SOCK,SOCK6 --iface=enp8s0 >$svg
 # fix SVG canvas size
 h=$(tail -n 2 $svg | head -n 1 | cut -f 5 -d ' ')
 sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
@@ -231,7 +230,7 @@ sudo ./info.py --address 127.0.0.1 --ctrlport 9051
 
 ### Watch Tor Exit connections
 
-If your Tor relay is running as an _Exit_ then [ps.py](./ps.py) gives live statistics:
+If your Tor relay is an _Exit_ then [ps.py](./ps.py) gives live statistics about those network connections:
 
 ```bash
 sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
@@ -243,7 +242,7 @@ sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
 [orstatus-stats.sh](./orstatus-stats.sh) prints/plots statistics ([see this example](./doc/orstatus-stats.sh.txt)) from that.
 
 ```bash
-orstatus.py --ctrlport 9051 --address 127.0.0.1 >> /tmp/orstatus &
+orstatus.py --ctrlport 9051 --address 127.0.0.1 >>/tmp/orstatus &
 sleep 3600
 orstatus-stats.sh /tmp/orstatus
 ```
