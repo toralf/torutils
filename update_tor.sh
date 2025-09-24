@@ -22,7 +22,7 @@ function restart() {
       else
         if ! rc-service $service restart; then
           sleep 5
-          if pid=$(cat /run/tor/$service.pid); then
+          if pid=$(</run/tor/$service.pid); then
             if kill -0 $pid; then
               echo " kill pid $pid"
               kill -9 $pid
