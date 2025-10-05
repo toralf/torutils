@@ -12,17 +12,6 @@
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
         "type": "dashboard"
-      },
-      {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "XbGvg5aVz"
-        },
-        "enable": false,
-        "expr": "changes(node_boot_time_seconds[$__rate_interval])",
-        "hide": false,
-        "iconColor": "red",
-        "name": "Reboot"
       }
     ]
   },
@@ -165,11 +154,11 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum(rate(tor_snowflake_proxy_connections_total{instance=~\"$Instance\"}[$__rate_interval])) * 3600",
+          "expr": "sum by(job) (rate(tor_snowflake_proxy_connections_total{job=~\"$Job\", instance=~\"$Instance\"}[$__rate_interval])) * 3600",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "instant": false,
-          "legendFormat": "{{label_name}}",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -273,11 +262,11 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum(rate(tor_snowflake_proxy_traffic_inbound_bytes_total{instance=~\"$Instance\"}[$__rate_interval]))",
+          "expr": "sum by(job) (rate(tor_snowflake_proxy_traffic_inbound_bytes_total{job=~\"$Job\", instance=~\"$Instance\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "instant": false,
-          "legendFormat": "{{country}}",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -357,7 +346,7 @@
         "x": 0,
         "y": 9
       },
-      "id": 23,
+      "id": 26,
       "options": {
         "legend": {
           "calcs": [],
@@ -381,31 +370,13 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum(rate(tor_snowflake_proxy_failed_connections_total{instance=~\"$Instance\"}[$__rate_interval])) * 3600",
+          "expr": "sum by(job) (rate(tor_snowflake_proxy_connection_timeouts_total{job=~\"$Job\", instance=~\"$Instance\"}[$__rate_interval])) * 3600",
           "fullMetaSearch": false,
-          "hide": false,
           "includeNullMetadata": false,
           "instant": false,
-          "legendFormat": "{{label_name}}",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "XbGvg5aVz"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "sum(rate(tor_snowflake_proxy_connection_timeouts_total{instance=~\"$Instance\", job=~\"$Job\"}[$__rate_interval])) * 3600",
-          "fullMetaSearch": false,
-          "hide": false,
-          "includeNullMetadata": false,
-          "instant": false,
-          "legendFormat": "{{label_name}}",
-          "range": true,
-          "refId": "B",
           "useBackend": false
         }
       ],
@@ -507,11 +478,11 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum(rate(tor_snowflake_proxy_traffic_outbound_bytes_total{instance=~\"$Instance\"}[$__rate_interval]))",
+          "expr": "sum by(job) (rate(tor_snowflake_proxy_traffic_outbound_bytes_total{job=~\"$Job\", instance=~\"$Instance\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "instant": false,
-          "legendFormat": "{{country}}",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -615,7 +586,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(country) (rate(tor_snowflake_proxy_connections_total{instance=~\"$Instance\", country=~\"$Country\"}[$__rate_interval])) * 3600",
+          "expr": "sum by(country, job) (rate(tor_snowflake_proxy_connections_total{job=~\"$Job\", instance=~\"$Instance\"}[$__rate_interval])) * 3600",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "instant": false,
@@ -728,7 +699,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -737,7 +708,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(instance) (rate(tor_snowflake_proxy_connections_total{instance=~\"$Instance\"}[5m])) * 3600",
+          "expr": "sum by(instance) (rate(tor_snowflake_proxy_connections_total{job=~\"$Job\", instance=~\"$Instance\"}[5m])) * 3600",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "instant": false,
@@ -836,7 +807,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -845,7 +816,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(instance) (rate(tor_snowflake_proxy_traffic_inbound_bytes_total{instance=~\"$Instance\"}[5m]))",
+          "expr": "sum by(instance) (rate(tor_snowflake_proxy_traffic_inbound_bytes_total{job=~\"$Job\", instance=~\"$Instance\"}[5m]))",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "instant": false,
@@ -943,7 +914,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -952,7 +923,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "process_open_fds{instance=~\"$Instance\", job=~\"$Job\"}",
+          "expr": "process_open_fds{job=~\"$Job\", instance=~\"$Instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -1036,7 +1007,7 @@
         "x": 12,
         "y": 34
       },
-      "id": 5,
+      "id": 28,
       "options": {
         "legend": {
           "calcs": [],
@@ -1051,7 +1022,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -1060,7 +1031,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(instance) (rate(tor_snowflake_proxy_traffic_outbound_bytes_total{instance=~\"$Instance\"}[5m]))",
+          "expr": "sum by(instance) (rate(tor_snowflake_proxy_traffic_outbound_bytes_total{job=~\"$Job\", instance=~\"$Instance\"}[5m]))",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "instant": false,
@@ -1156,7 +1127,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -1165,7 +1136,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "process_resident_memory_bytes{instance=~\"$Instance\", job=~\"$Job\"}",
+          "expr": "process_resident_memory_bytes{job=~\"$Job\", instance=~\"$Instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -1248,7 +1219,7 @@
         "x": 12,
         "y": 42
       },
-      "id": 7,
+      "id": 27,
       "options": {
         "legend": {
           "calcs": [],
@@ -1263,7 +1234,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.0",
+      "pluginVersion": "12.1.1",
       "targets": [
         {
           "datasource": {
@@ -1272,8 +1243,9 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(process_cpu_seconds_total{instance=~\"$Instance\", job=~\"$Job\"}[5m])",
+          "expr": "rate(process_cpu_seconds_total{job=~\"$Job\", instance=~\"$Instance\"}[$__rate_interval])",
           "fullMetaSearch": false,
+          "fullMetaSet3": false,
           "includeNullMetadata": false,
           "instant": false,
           "legendFormat": "{{instance}}",
@@ -1331,31 +1303,8 @@
         "name": "Instance",
         "options": [],
         "query": {
-          "query": "label_values(tor_snowflake_proxy_connections_total{job=~\"$Job\"},instance)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 2,
-        "regex": "",
-        "sort": 1,
-        "type": "query"
-      },
-      {
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "XbGvg5aVz"
-        },
-        "definition": "label_values(tor_snowflake_proxy_connections_total{job=~\"$Job\", instance=~\"$Instance\"},country)",
-        "includeAll": true,
-        "label": "Country",
-        "name": "Country",
-        "options": [],
-        "query": {
           "qryType": 1,
-          "query": "label_values(tor_snowflake_proxy_connections_total{job=~\"$Job\", instance=~\"$Instance\"},country)",
+          "query": "label_values(tor_snowflake_proxy_connections_total{job=~\"$Job\"},instance)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
@@ -1373,5 +1322,5 @@
   "timezone": "",
   "title": "Tor Snowflake",
   "uid": "bdsk0bz0y9n9cc",
-  "version": 154
+  "version": 183
 }

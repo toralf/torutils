@@ -18,17 +18,6 @@
           "type": "dashboard"
         },
         "type": "dashboard"
-      },
-      {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "XbGvg5aVz"
-        },
-        "enable": false,
-        "expr": "changes(node_boot_time_seconds[$__rate_interval])",
-        "hide": false,
-        "iconColor": "red",
-        "name": "Reboot"
       }
     ]
   },
@@ -594,10 +583,10 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(device) (rate(node_network_receive_packets_total{instance=~\"$Instance\", device!=\"lo\"}[$__rate_interval]))",
+          "expr": "sum by(device) (rate(node_network_receive_packets_total{instance=~\"$Instance\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "rx",
+          "legendFormat": "rx {{ device }}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -609,11 +598,11 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(device) (rate(node_network_transmit_packets_total{instance=~\"$Instance\", device!=\"lo\"}[$__rate_interval]))",
+          "expr": "sum by(device) (rate(node_network_transmit_packets_total{instance=~\"$Instance\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
-          "legendFormat": "tx",
+          "legendFormat": "tx {{ device }}",
           "range": true,
           "refId": "B",
           "useBackend": false
@@ -716,10 +705,10 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(device) (rate(node_network_receive_bytes_total{instance=~\"$Instance\", device!=\"lo\"}[$__rate_interval]))",
+          "expr": "sum by(device) (rate(node_network_receive_bytes_total{instance=~\"$Instance\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "rx",
+          "legendFormat": "rx {{ device }}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -731,11 +720,11 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(device) (rate(node_network_transmit_bytes_total{instance=~\"$Instance\", device!=\"lo\"}[$__rate_interval]))",
+          "expr": "sum by(device) (rate(node_network_transmit_bytes_total{instance=~\"$Instance\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
-          "legendFormat": "tx",
+          "legendFormat": "tx {{ device }}",
           "range": true,
           "refId": "B",
           "useBackend": false
@@ -806,7 +795,7 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "percentunit"
         },
         "overrides": []
       },
@@ -2629,5 +2618,5 @@
   "timezone": "utc",
   "title": "Tor DDoS",
   "uid": "FgvRNta4k",
-  "version": 559
+  "version": 564
 }
