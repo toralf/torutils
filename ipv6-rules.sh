@@ -261,7 +261,7 @@ start)
   addCommon
   addHetzner
   addServices
-  addTor ${*:-${CONFIGURED_RELAYS6:-$(getConfiguredRelays6)}}
+  addTor ${*:-${CONFIGURED_RELAYS6-$(getConfiguredRelays6)}}
   $ipt -P INPUT $jump
   trap - INT QUIT TERM EXIT
   ;;
