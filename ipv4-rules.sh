@@ -233,7 +233,7 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 umask 066
 trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
-type ipset jq 1>/dev/null
+type ipset jq >/dev/null
 
 trustlist="tor-trust"            # Tor authorities and snowflake servers
 jobs=$((1 + ($(nproc) - 1) / 2)) # parallel jobs of adding ips to an ipset
@@ -256,12 +256,12 @@ if [[ $action != "update" && $action != "save" ]]; then
   # check if iptables works or if its legacy variant is needed
   ipt="iptables"
   set +e
-  $ipt -nv -L INPUT 1>/dev/null
+  $ipt -nv -L INPUT >/dev/null
   rc=$?
   set -e
   if [[ $rc -eq 4 ]]; then
     ipt+="-legacy"
-    if ! $ipt -nv -L INPUT 1>/dev/null; then
+    if ! $ipt -nv -L INPUT >/dev/null; then
       echo " $ipt is not working" >&2
       exit 1
     fi
@@ -292,7 +292,7 @@ update)
   __fill_trustlist
   ;;
 test)
-  ipset list -n 1>/dev/null
+  ipset list -n >/dev/null
   RUN_ME_WITH_SAFE_JUMP_TARGET="ACCEPT" $0 start $*
   ;;
 save)
