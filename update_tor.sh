@@ -8,7 +8,10 @@ function restart() {
   export GRACEFUL_TIMEOUT=20
 
   # shellcheck disable=SC2011
-  ls /etc/init.d/tor{,?} |
+  (
+    set +f
+    ls /etc/init.d/tor{,?}
+  ) |
     xargs -r -n 1 basename |
     while read -r service; do
       echo
@@ -42,46 +45,20 @@ function restart() {
 }
 
 #######################################################################
-set -eu
+set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-export GIT_PAGER="cat"
+hash -r rc-service smart-live-rebuild
 
-if [[ ! -d ~/tor ]]; then
-  cd ~
-  git clone https://git.torproject.org/tor.git/
-
-# any parameter forces a rebuild
-elif [[ $# -eq 0 ]]; then
-  tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
-  cd ~/tor
-  git pull &>$tmpfile
-  range=$(grep -e "^Updating .*\.\..*$" $tmpfile | cut -f 2 -d ' ' -s)
-  if [[ -n $range ]]; then
-    cat $tmpfile
-    echo
-    git log $range
-    echo
-
-    rm $tmpfile
-  else
-    rm $tmpfile
-    # test if rebuild is not needed
-    # e.g. libevent was updated and tor refuses to start
-    # or:  if git pull succeeded but a emerge failed, then there's a version mismatch
-    if tor --version | grep -q $(git show --quiet --oneline 'HEAD' | cut -f 1 -d ' '); then
-      exit 0
-    fi
-  fi
+if smart-live-rebuild --no-color --pretend -f net-vpn/tor 2>&1 | grep -q 'No updates found'; then
+  exit 0
 fi
 
 echo
 date
-emerge -1 net-vpn/tor
-
+smart-live-rebuild --no-color -f net-vpn/tor
 restart
-
 echo
 date
 echo " all work done"
