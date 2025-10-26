@@ -33,7 +33,9 @@ Including configuration file "/etc/tor/conf.d//
 New control connection opened from
 No circuits are opened. Relaxed timeout for circuit
 Now checking whether IPv4 DirPort
+Now checking whether IPv6 DirPort
 Now checking whether IPv4 ORPort
+Now checking whether IPv6 ORPort
 Opened Control listener connection
 Opening Control listener on
 opening log file
