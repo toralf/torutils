@@ -30,18 +30,18 @@ if [[ ${1-} == "start" ]]; then
   $ipt -A OUTPUT --out-interface lo -m comment --comment "egress IPv4 $(date -R)" -j ACCEPT
 
   # do not touch established connections
-  $ipt -A OUTPUT -m conntrack --ctstate ESTABLISHED -j ACCEPT
+  $ipt -A OUTPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 
   # block entirely
   for item in ${EGRESS_SUBNET_DROP-}; do
     read -r net mask <<<$(tr '/' ' ' <<<$item)
-    $ipt -A OUTPUT -p tcp --dst $net/${mask:-24} -m conntrack --ctstate NEW,RELATED -j DROP
+    $ipt -A OUTPUT -p tcp --dst $net/${mask:-24} -m conntrack --ctstate NEW -j DROP
   done
 
   # slew ramp on phase e.g. after a reboot
   for item in ${EGRESS_SUBNET_SLEW-}; do
     read -r net mask <<<$(tr '/' ' ' <<<$item)
-    $ipt -A OUTPUT -p tcp --dst $net/${mask:-24} -m conntrack --ctstate NEW,RELATED -m hashlimit --hashlimit-name tor-egress --hashlimit-mode dstip,dstport --hashlimit-dstmask ${mask:-24} --hashlimit-above ${2:-24}/minute --hashlimit-burst 1 -j REJECT
+    $ipt -A OUTPUT -p tcp --dst $net/${mask:-24} -m conntrack --ctstate NEW -m hashlimit --hashlimit-name tor-egress --hashlimit-mode dstip,dstport --hashlimit-dstmask ${mask:-24} --hashlimit-above ${2:-24}/minute --hashlimit-burst 1 -j REJECT
     $ipt -A OUTPUT -p tcp --dst $net/${mask:-24} -j ACCEPT # for stats
   done
 fi
