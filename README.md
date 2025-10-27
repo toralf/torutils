@@ -202,9 +202,9 @@ I used [this](https://github.com/toralf/tor-relays/) Ansible role to deploy and 
 
 ## Avoid server blocking due to netscan hits (egress)
 
-Every then and when I got abuse complaints about scanning a remote /24 network
-To avoid this I either block certain hosts or subnets using [ipv4-rules-egress.sh](./ipv4-rules-egress.sh).
-Use this as the last resort if otherwise your server gets being blocked too often by your provider.
+Every then and when I get an abuse complaint about malicious scanning of a remote network segment.
+To avoid this I developed [ipv4-rules-egress.sh](./ipv4-rules-egress.sh).
+Use this with caution and as the very last resort.
 
 ## Query Tor via its API
 
