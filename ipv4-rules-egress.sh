@@ -30,7 +30,7 @@ if [[ ${1-} == "start" ]]; then
   # block entirely
   for item in ${EGRESS_SUBNET_DROP-}; do
     read -r net mask <<<$(tr '/' ' ' <<<$item)
-    $ipt -A OUTPUT -p tcp --destination $net/$mask -j DROP
+    $ipt -A OUTPUT -p tcp --destination $net/${mask:-24} -j DROP
   done
 
   # ramp on slowly
