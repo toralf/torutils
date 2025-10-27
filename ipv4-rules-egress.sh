@@ -7,8 +7,7 @@
 # examples:
 #
 # /opt/torutils/ipv4-rules-egress.sh
-# EGRESS_SUBNET_DROP="1.2.3.4/24" /opt/torutils/ipv4-rules-egress.sh start
-# EGRESS_SUBNET_SLEW="5.6.7.8/20" /opt/torutils/ipv4-rules-egress.sh start 16
+# EGRESS_SUBNET_DROP="1.2.3.4/32 5.6.7.8" EGRESS_SUBNET_SLEW="9.10.11.12/20" /opt/torutils/ipv4-rules-egress.sh start 16
 
 #######################################################################
 set -euf
@@ -27,6 +26,9 @@ $ipt -F OUTPUT
 $ipt -Z OUTPUT
 
 if [[ ${1-} == "start" ]]; then
+  # allow loopback
+  $ipt -A OUTPUT --out-interface lo -m comment --comment "egress IPv4 $(date -R)" -j ACCEPT
+
   # do not touch established connections
   $ipt -A OUTPUT -m conntrack --ctstate ESTABLISHED -j ACCEPT
 
