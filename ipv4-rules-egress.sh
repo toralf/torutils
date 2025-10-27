@@ -41,7 +41,7 @@ if [[ ${1-} == "start" ]]; then
   # slew ramp on phase e.g. after a reboot
   for item in ${EGRESS_SUBNET_SLEW-}; do
     read -r net mask <<<$(tr '/' ' ' <<<$item)
-    $ipt -A OUTPUT -p tcp --destination $net/${mask:-24} -m conntrack --ctstate NEW,RELATED -m hashlimit --hashlimit-name tor-egress --hashlimit-mode dstip,dstport --hashlimit-dstmask ${mask:-24} --hashlimit-above ${2:-8}/minute -j REJECT
+    $ipt -A OUTPUT -p tcp --destination $net/${mask:-24} -m conntrack --ctstate NEW,RELATED -m hashlimit --hashlimit-name tor-egress --hashlimit-mode dstip,dstport --hashlimit-dstmask ${mask:-24} --hashlimit-above ${2:-8}/minute --hashlimit-burst 1 -j REJECT
     $ipt -A OUTPUT -p tcp --destination $net/${mask:-24} -j ACCEPT # for stats
   done
 fi
