@@ -19,14 +19,17 @@ umask 066
 
 ipt="iptables"
 
+# default policy
+$ipt -P OUTPUT ACCEPT
+
 # flush and clear stats
 $ipt -F OUTPUT
 $ipt -Z OUTPUT
 
-# default policy
-$ipt -P OUTPUT ACCEPT
-
 if [[ ${1-} == "start" ]]; then
+  # do not touch established connections
+  $ipt -A OUTPUT -m conntrack --ctstate ESTABLISHED -j ACCEPT
+
   # block entirely
   for item in ${EGRESS_SUBNET_DROP-}; do
     read -r net mask <<<$(tr '/' ' ' <<<$item)
