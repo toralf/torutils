@@ -4,7 +4,7 @@
 
 Few tools for a Tor relay.
 
-## Block DDoS
+## Block DDoS (ingress)
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
 against DDoS attacks¹ at the IP [network](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) layer, as seen in this metrics:
@@ -199,6 +199,12 @@ firefox $svg
 ### More
 
 I used [this](https://github.com/toralf/tor-relays/) Ansible role to deploy and configure Tor relays and Snowflake stahndalone proxies.
+
+## Avoid server blocking due to netscan hits (egress)
+
+Every then and when I got abuse complaints about scanning a remote /24 network
+To avoid this I either block certain hosts or subnets using [ipv4-rules-egress.sh](./ipv4-rules-egress.sh).
+Use this as the last resort if otherwise your server gets being blocked too often by your provider.
 
 ## Query Tor via its API
 
