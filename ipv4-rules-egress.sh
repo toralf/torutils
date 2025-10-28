@@ -6,8 +6,11 @@
 
 # examples:
 #
+# flush OUTPUT:
 # /opt/torutils/ipv4-rules-egress.sh
-# EGRESS_SUBNET_SLEW="9.10.11.12/20" /opt/torutils/ipv4-rules-egress.sh start 15
+#
+# slew 2 class C network segments
+# EGRESS_SUBNET_SLEW="1.2.3.4/24 5.6.7.8/24" /opt/torutils/ipv4-rules-egress.sh start
 
 #######################################################################
 set -euf
@@ -32,10 +35,10 @@ if [[ ${1-} == "start" ]]; then
   # do not touch established connections
   $ipt -A OUTPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 
-  # slew ramp on phase e.g. after a reboot
+  # slew bursts e.g. after a reboot
   for item in ${EGRESS_SUBNET_SLEW-}; do
     read -r net mask <<<$(tr '/' ' ' <<<$item)
-    $ipt -A OUTPUT -p tcp --dst $net/${mask:-24} -m conntrack --ctstate NEW -m hashlimit --hashlimit-name tor-egress --hashlimit-mode dstip,dstport --hashlimit-dstmask ${mask:-24} --hashlimit-above ${2:-24}/minute --hashlimit-burst 1 -j REJECT
+    $ipt -A OUTPUT -p tcp --dst $net/${mask:-24} -m conntrack --ctstate NEW -m hashlimit --hashlimit-name tor-egress --hashlimit-mode dstip,dstport --hashlimit-dstmask ${mask:-24} --hashlimit-above ${2:-50}/minute --hashlimit-burst 1 -j REJECT
     # $ipt -A OUTPUT -p tcp --dst $net/${mask:-24} -j ACCEPT # stats for debug purpose
   done
 fi
