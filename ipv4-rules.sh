@@ -166,9 +166,8 @@ function setSysctlValues() {
 function clearRules() {
   $ipt -P INPUT ACCEPT
 
-  $ipt -F
-  $ipt -X
-  $ipt -Z
+  $ipt -F INPUT
+  $ipt -Z INPUT
 }
 
 function printRuleStatistics() {
