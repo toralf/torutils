@@ -36,6 +36,12 @@ def main():
     parser.add_argument(
         "-c", "--ctrlport", type=int, help="default: 9051", default=9051
     )
+    parser.add_argument(
+        "-l", "--relay_ipv4", type=str, help="default: 127.0.0.1", default="127.0.0.1"
+    )
+    parser.add_argument(
+        "-k", "--relay_ipv6", type=str, help="default: ::1", default="::1"
+    )
     parser.add_argument("-r", "--resolver", help="default: autodetect", default="")
     parser.add_argument("-s", "--suffix", help="default: empty", default="")
     args = parser.parse_args()
@@ -116,11 +122,11 @@ def main():
                     #
                     if conn.is_ipv6:
                         if lport == ORPort6:
-                            if laddr == my_ipv6:
+                            if laddr == ipaddress.IPv6Address(relay_ipv6).exploded:
                                 continue
                     else:
                         if lport == ORPort:
-                            if laddr == my_ipv4:
+                            if laddr == relay_ipv4:
                                 continue
 
                     if raddr in relays:
@@ -194,7 +200,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # TODO: get this from torrc
-    my_ipv4 = "65.21.94.13"
-    my_ipv6 = ipaddress.IPv6Address("2a01:4f9:3b:468e::13").exploded
     main()
