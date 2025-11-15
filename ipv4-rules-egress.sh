@@ -6,11 +6,11 @@
 
 # examples:
 #
-# flush OUTPUT:
+# clear chain OUTPUT:
 # /opt/torutils/ipv4-rules-egress.sh
 #
-# slew 2 class C network segments
-# EGRESS_SUBNET_SLEW="1.2.3.4/24 5.6.7.8/24" /opt/torutils/ipv4-rules-egress.sh start
+# apply to a /22 and a /24 network segment, limit the amount of new connection per minute to 20
+# EGRESS_SUBNET_SLEW="1.2.3.4/22 5.6.7.8" /opt/torutils/ipv4-rules-egress.sh start 20
 
 #######################################################################
 set -euf
