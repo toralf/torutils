@@ -38,7 +38,7 @@ if [[ ${1-} == "start" ]]; then
   # slew bursts e.g. after a reboot
   for item in ${EGRESS_SUBNET_SLEW-}; do
     read -r net mask <<<$(tr '/' ' ' <<<$item)
-    $ipt -A OUTPUT -p tcp --dst $net/${mask:-24} -m conntrack --ctstate NEW -m hashlimit --hashlimit-name tor-egress --hashlimit-mode dstip,dstport --hashlimit-dstmask ${mask:-24} --hashlimit-above ${2:-50}/minute --hashlimit-burst 1 -j REJECT
+    $ipt -A OUTPUT -p tcp --dst $net/${mask:-24} -m conntrack --ctstate NEW -m hashlimit --hashlimit-name tor-egress --hashlimit-mode dstip,dstport --hashlimit-dstmask ${mask:-24} --hashlimit-above ${2:-25}/minute --hashlimit-burst 1 -j REJECT
     # $ipt -A OUTPUT -p tcp --dst $net/${mask:-24} -j ACCEPT # stats for debug purpose
   done
 fi
