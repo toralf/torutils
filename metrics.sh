@@ -177,7 +177,8 @@ echo $$ >"$lockfile"
 
 trap 'rm -f $lockfile' INT QUIT TERM EXIT
 
-export NICKNAME=${3:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')} # if neither given nor found then use  _orport2nickname() which is called in _ipset2nickname()
+# if nickname is not given nor found then use _orport2nickname() called in _ipset2nickname()
+export NICKNAME=${3:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')}
 
 cd $datadir
 
@@ -202,17 +203,17 @@ if [[ $rc -ne 0 ]]; then
   fi
 fi
 
-export cpus=$(((1 + $(nproc)) / 2))
 export -f _histogram _ipset2nickname _orport2nickname
 
+cpus=$(((1 + $(nproc)) / 2))
 while :; do
   now=$EPOCHSECONDS
 
   # clean old data if tor is not running
   if ! pgrep -f /usr/bin/tor 1>/dev/null; then
-    rm -f $datadir/torutils.prom
+    truncate -s 0 $datadir/torutils.prom
   else
-    export tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.tmp)
+    tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.tmp)
     echo "# $0   $(date -R)" >$tmpfile
     printMetricsIptables >>$tmpfile
     if type ipset 1>/dev/null 2>&1; then
