@@ -162,7 +162,7 @@ export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 intervall=${1:-0} # 0 == finish after running once
-export datadir=${2:-/var/lib/node_exporter}
+datadir=${2:-/var/lib/node_exporter}
 
 lockfile="/tmp/torutils-$(basename $0).lock"
 if [[ -s $lockfile ]]; then
