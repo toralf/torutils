@@ -221,12 +221,10 @@ jobs=$((1 + ($(nproc) - 1) / 2)) # parallel jobs of adding ips to an ipset
 prefix=80                        # any ipv6 address of this CIDR block is considered to belong to the same source/owner
 # hashes and ipset sizes do depend on available RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
-if [[ ${ram} -gt 32 ]]; then
+if [[ ${ram} -gt 4 ]]; then
   max=$((2 ** 20)) # 1M
-elif [[ ${ram} -gt 2 ]]; then
-  max=$((2 ** 18)) # 256K
 else
-  max=$((2 ** 16)) # 64K
+  max=$((2 ** 18)) # 256K
 fi
 tmpdir=${TORUTILS_TMPDIR:-/var/tmp}
 
