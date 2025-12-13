@@ -62,7 +62,7 @@ function _ipset2nickname() {
 }
 
 function _histogram() {
-  perl -wane '
+  LC_ALL=$LANG perl -wane '
     BEGIN {
       @arr = (0) x 24;  # 0-23 hour
       $inf = 0;         # anything above
