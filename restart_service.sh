@@ -32,7 +32,7 @@ export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 if [[ "$(runlevel)" == "N 3" ]]; then
-  for s in ssh unbound $(find /etc/init.d -name 'tor*' -print0 | xargs -r -n 1 --null basename); do
+  for s in unbound ssh $(find /etc/init.d -name 'tor*' -print0 | xargs -r -n 1 --null basename); do
     rc-service -qq $s status
     if [[ $? -eq 32 ]]; then
       healService $s &
