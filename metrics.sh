@@ -106,7 +106,7 @@ function printMetricsIpsets() {
       grep '^tor-'${mode}${v}'-' |
       while read -r name; do
         export nickname=${NICKNAME:-$(_ipset2nickname $name)}
-        echo "\"nickname=$nickname; v=$v; ipset list -s $name | sed -e '1,8d' | _histogram\""
+        echo "\"nickname=$nickname; v=$v; ipset list $name | sed -e '1,8d' | _histogram\""
       done |
       xargs -r -P $cpus -L 1 bash -c
   done
