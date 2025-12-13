@@ -84,7 +84,7 @@ function __create_ipset() {
   if $cmd 2>/dev/null; then
     return 0
   else
-    if saveIpset $name && ipset destroy $name && $cmd; then
+    if ipset destroy $name && $cmd; then
       return 0
     else
       return 1
