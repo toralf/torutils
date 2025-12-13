@@ -16,8 +16,8 @@ function _orport2nickname() {
 }
 
 function printMetricsIptables() {
-  local tables4=$($ipt -nvx -L INPUT -t filter 2>/dev/null)
-  local tables6=$($ip6t -nvx -L INPUT -t filter 2>/dev/null)
+  local tables4=$($ipt -nvx -L INPUT -t filter)
+  local tables6=$($ip6t -nvx -L INPUT -t filter)
 
   local var
 
