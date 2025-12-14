@@ -24,15 +24,16 @@ function anonymiseIp6() {
     sed -e "s,$,::/80,"
 }
 
-# plot a histogram about ip address occurrences within ipset dump
+# plot a histogram about ip address occurrences of an ipset dump file
 function plotIpOccurrences() {
   local files=$*
 
-  local N
-  if ! N=$(wc -l < <(cat $files)); then
-    echo " no files given" >&2
+  if [[ -z $files ]]; then
+    echo " no input files" >&2
     return 1
   fi
+
+  local N=$(wc -l < <(cat $files))
   if [[ $N -eq 0 ]]; then
     echo " no input data" >&2
     return 1
