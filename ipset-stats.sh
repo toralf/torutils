@@ -5,7 +5,7 @@
 # goal: dump or plot the content (a little bit anonymized before) of an ipset
 
 function dumpIpset() {
-  ipset list -s $1 |
+  ipset list $1 |
     # kick off the header of the ipset
     sed -e '1,8d'
 }
