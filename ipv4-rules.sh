@@ -66,7 +66,7 @@ function addTor() {
     $common -m set --match-set $ddoslist src -j $jump
 
     # rule 3
-    $common -m connlimit --connlimit-mask $prefix --connlimit-above 4 -j $jump
+    $common -m connlimit --connlimit-mask $prefix --connlimit-above 8 -j $jump
 
     # rule 4
     $common --syn -j ACCEPT

@@ -114,7 +114,7 @@ Then this rule set is applied ¹:
 
 1. trust connection attempt from trusted Tor authorities/Snowflake servers
 2. block the source ² for 24 hours if the connection attempt rate from the source to the Tor port exceeds > 4/min ³ within last 2 minutes
-3. ignore the connection attempt if there are already 4 established connections to the Tor port
+3. ignore the connection attempt if there are already 8 established connections to the Tor port (max allowed relays per ip address)
 4. accept the connection attempt to the Tor port
 
 ¹ for IPv4 with "source" a single ip address is meant, for IPv6 a /80 block is meant
