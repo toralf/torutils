@@ -28,6 +28,10 @@ $ipt -P OUTPUT ACCEPT
 $ipt -F OUTPUT
 $ipt -Z OUTPUT
 
+# current Hetzner limit seems to be 150 connections within 3 min, use 85% of it
+# shellcheck disable=SC2017
+limit=$((150 / 3 * 85 / 100))
+
 if [[ ${1-} == "start" ]]; then
   # allow loopback
   $ipt -A OUTPUT --out-interface lo -m comment --comment "egress IPv4 $(date -R)" -j ACCEPT
@@ -38,7 +42,7 @@ if [[ ${1-} == "start" ]]; then
   # slew bursts e.g. after a reboot
   for item in ${EGRESS_SUBNET_SLEW-}; do
     read -r net mask <<<$(tr '/' ' ' <<<$item)
-    $ipt -A OUTPUT -p tcp --dst $net/${mask:-24} -m conntrack --ctstate NEW -m hashlimit --hashlimit-name tor-egress --hashlimit-mode dstip,dstport --hashlimit-dstmask ${mask:-24} --hashlimit-above ${2:-25}/minute --hashlimit-burst 1 -j REJECT
+    $ipt -A OUTPUT -p tcp --dst $net/${mask:-24} -m conntrack --ctstate NEW -m hashlimit --hashlimit-name tor-egress --hashlimit-mode dstip,dstport --hashlimit-dstmask ${mask:-24} --hashlimit-above ${2:-$limit}/minute --hashlimit-burst 1 -j REJECT
     # $ipt -A OUTPUT -p tcp --dst $net/${mask:-24} -j ACCEPT # stats for debug purpose
   done
 fi
