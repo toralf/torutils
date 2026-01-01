@@ -28,8 +28,8 @@ $ipt -P OUTPUT ACCEPT
 $ipt -F OUTPUT
 $ipt -Z OUTPUT
 
-# current Hetzner limit seems to be 150 connections within 3 min, use 50% of that
-limit=$((150 / 3 / 2))
+# current Hetzner limit seems to be 150 connections within 4 min, use 50% of that
+limit=$((150 / 4 * 2 / 3))
 
 if [[ ${1-} == "start" ]]; then
   # allow loopback
