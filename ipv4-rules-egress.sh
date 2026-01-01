@@ -29,7 +29,6 @@ $ipt -F OUTPUT
 $ipt -Z OUTPUT
 
 # current Hetzner limit seems to be 150 connections within 3 min, use 50% of that
-# shellcheck disable=SC2017
 limit=$((150 / 3 / 2))
 
 if [[ ${1-} == "start" ]]; then
