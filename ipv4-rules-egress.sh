@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# handle netscan abuse cases
+# prevent netscan abuse hits
 
 # examples:
 #
