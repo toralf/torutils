@@ -209,6 +209,7 @@ function saveCertainIpsets() {
 
 #######################################################################
 set -eu
+set -m # allow fg in shell scripts
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
@@ -280,3 +281,7 @@ save)
   printRuleStatistics
   ;;
 esac
+
+while fg 2>/dev/null; do
+  :
+done
