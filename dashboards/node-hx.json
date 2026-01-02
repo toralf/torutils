@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 22,
+  "id": 31,
   "links": [
     {
       "asDropdown": false,
@@ -54,14 +54,13 @@
         "x": 0,
         "y": 0
       },
-      "id": 20,
+      "id": 26,
       "panels": [],
-      "title": "All",
+      "title": "Targets",
       "type": "row"
     },
     {
       "datasource": {
-        "default": true,
         "type": "prometheus",
         "uid": "XbGvg5aVz"
       },
@@ -77,7 +76,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
-            "axisWidth": 80,
+            "axisWidth": 100,
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
@@ -96,6 +95,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -119,8 +119,7 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "none"
+          }
         },
         "overrides": []
       },
@@ -130,13 +129,14 @@
         "x": 0,
         "y": 1
       },
-      "id": 10,
+      "id": 24,
       "options": {
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+          "placement": "right",
+          "showLegend": true,
+          "width": 250
         },
         "tooltip": {
           "hideZeros": false,
@@ -145,7 +145,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
@@ -154,22 +154,21 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(job) (rate(tor_snowflake_proxy_connections_total{job=~\"$Job\", instance=~\"$Instance\"}[$__rate_interval])) * 3600",
-          "fullMetaSearch": false,
+          "expr": "prometheus_sd_discovered_targets{config=~\"$Job\"}",
+          "fullMetaSet3": false,
           "includeNullMetadata": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{config}}",
           "range": true,
           "refId": "A",
           "useBackend": false
         }
       ],
-      "title": "Connections per hr",
+      "title": "Targets",
       "type": "timeseries"
     },
     {
       "datasource": {
-        "default": true,
         "type": "prometheus",
         "uid": "XbGvg5aVz"
       },
@@ -179,106 +178,67 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "axisWidth": 80,
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
             }
           },
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "KiBs"
+          "fieldMinMax": false,
+          "mappings": []
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 17,
         "w": 12,
         "x": 12,
         "y": 1
       },
-      "id": 12,
+      "id": 34,
       "options": {
+        "displayLabels": [
+          "value"
+        ],
         "legend": {
-          "calcs": [],
           "displayMode": "list",
-          "placement": "bottom",
+          "placement": "right",
           "showLegend": true
         },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "sort": "desc",
         "tooltip": {
-          "hideZeros": false,
-          "maxHeight": 600,
+          "hideZeros": true,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "XbGvg5aVz"
-          },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(job) (rate(tor_snowflake_proxy_traffic_inbound_bytes_total{job=~\"$Job\", instance=~\"$Instance\"}[$__rate_interval]))",
+          "expr": "count by(release) (node_uname_info{instance=~\"$Instance\", job=~\"$Job\"})",
           "fullMetaSearch": false,
-          "includeNullMetadata": false,
-          "instant": false,
+          "includeNullMetadata": true,
           "legendFormat": "__auto",
           "range": true,
           "refId": "A",
           "useBackend": false
         }
       ],
-      "title": "Traffic inbound",
-      "type": "timeseries"
+      "title": "Uname Last known",
+      "type": "piechart"
     },
     {
       "datasource": {
-        "default": true,
-        "type": "prometheus",
         "uid": "XbGvg5aVz"
       },
       "fieldConfig": {
@@ -293,7 +253,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
-            "axisWidth": 80,
+            "axisWidth": 100,
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
@@ -312,6 +272,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -335,268 +296,46 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "none"
+          }
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 0,
         "y": 9
       },
-      "id": 26,
+      "id": 33,
       "options": {
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+          "placement": "right",
+          "showLegend": true,
+          "width": 250
         },
         "tooltip": {
           "hideZeros": false,
-          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "XbGvg5aVz"
-          },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(job) (rate(tor_snowflake_proxy_connection_timeouts_total{job=~\"$Job\", instance=~\"$Instance\"}[$__rate_interval])) * 3600",
+          "expr": "sum by(release) (node_uname_info{instance=~\"$Instance\", job=~\"$Job\"})",
           "fullMetaSearch": false,
-          "includeNullMetadata": false,
-          "instant": false,
+          "includeNullMetadata": true,
           "legendFormat": "__auto",
           "range": true,
           "refId": "A",
           "useBackend": false
         }
       ],
-      "title": "Connection Timeouts per hr",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "default": true,
-        "type": "prometheus",
-        "uid": "XbGvg5aVz"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "axisWidth": 80,
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "KiBs"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 9
-      },
-      "id": 19,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "maxHeight": 600,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.1.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "XbGvg5aVz"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "sum by(job) (rate(tor_snowflake_proxy_traffic_outbound_bytes_total{job=~\"$Job\", instance=~\"$Instance\"}[$__rate_interval]))",
-          "fullMetaSearch": false,
-          "includeNullMetadata": false,
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "Traffic outbound",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "default": true,
-        "type": "prometheus",
-        "uid": "XbGvg5aVz"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "axisWidth": 80,
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 0,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 17
-      },
-      "id": 18,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "maxHeight": 600,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.1.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "XbGvg5aVz"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "sum by(country, job) (rate(tor_snowflake_proxy_connections_total{job=~\"$Job\", instance=~\"$Instance\"}[$__rate_interval])) * 3600",
-          "fullMetaSearch": false,
-          "includeNullMetadata": false,
-          "instant": false,
-          "legendFormat": "{{country}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "Connections per hr per country",
+      "title": "Uname",
       "type": "timeseries"
     },
     {
@@ -605,16 +344,15 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 18
       },
-      "id": 8,
+      "id": 25,
       "panels": [],
-      "title": "Nodes",
+      "title": "Node",
       "type": "row"
     },
     {
       "datasource": {
-        "default": true,
         "type": "prometheus",
         "uid": "XbGvg5aVz"
       },
@@ -629,9 +367,8 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 150,
             "axisSoftMin": 0,
-            "axisWidth": 80,
+            "axisWidth": 100,
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
@@ -650,6 +387,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -659,7 +397,6 @@
               "mode": "off"
             }
           },
-          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -674,7 +411,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "pps"
         },
         "overrides": []
       },
@@ -682,15 +419,16 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 26
+        "y": 19
       },
-      "id": 24,
+      "id": 32,
       "options": {
         "legend": {
           "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 250
         },
         "tooltip": {
           "hideZeros": false,
@@ -699,7 +437,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
@@ -708,22 +446,36 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(instance) (rate(tor_snowflake_proxy_connections_total{job=~\"$Job\", instance=~\"$Instance\"}[5m])) * 3600",
+          "expr": "sum by(device) (rate(node_network_receive_packets_total{instance=~\"$Instance\", job=~\"$Job\"}[$__rate_interval]))",
           "fullMetaSearch": false,
-          "includeNullMetadata": false,
-          "instant": false,
-          "legendFormat": "{{instance}}",
+          "includeNullMetadata": true,
+          "legendFormat": "rx {{ device }}",
           "range": true,
           "refId": "A",
           "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "XbGvg5aVz"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "sum by(device) (rate(node_network_transmit_packets_total{instance=~\"$Instance\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "legendFormat": "tx {{ device }}",
+          "range": true,
+          "refId": "B",
+          "useBackend": false
         }
       ],
-      "title": "Connections per hr",
+      "title": "Packets",
       "type": "timeseries"
     },
     {
       "datasource": {
-        "default": true,
         "type": "prometheus",
         "uid": "XbGvg5aVz"
       },
@@ -738,8 +490,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "axisWidth": 80,
+            "axisWidth": 100,
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
@@ -752,12 +503,16 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -769,433 +524,6 @@
           },
           "mappings": [],
           "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "KiBs"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 26
-      },
-      "id": 3,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "maxHeight": 600,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.1.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "XbGvg5aVz"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "sum by(instance) (rate(tor_snowflake_proxy_traffic_inbound_bytes_total{job=~\"$Job\", instance=~\"$Instance\"}[5m]))",
-          "fullMetaSearch": false,
-          "includeNullMetadata": false,
-          "instant": false,
-          "legendFormat": "{{instance}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "Traffic Inbound",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "XbGvg5aVz"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "axisWidth": 80,
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 0,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 34
-      },
-      "id": 4,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "maxHeight": 600,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.1.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "XbGvg5aVz"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "process_open_fds{job=~\"$Job\", instance=~\"$Instance\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "{{instance}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "Open Fds",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "default": true,
-        "type": "prometheus",
-        "uid": "XbGvg5aVz"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "axisWidth": 80,
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "KiBs"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 34
-      },
-      "id": 28,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "maxHeight": 600,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.1.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "XbGvg5aVz"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "sum by(instance) (rate(tor_snowflake_proxy_traffic_outbound_bytes_total{job=~\"$Job\", instance=~\"$Instance\"}[5m]))",
-          "fullMetaSearch": false,
-          "includeNullMetadata": false,
-          "instant": false,
-          "legendFormat": "{{instance}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "Traffic Outbound",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "XbGvg5aVz"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 42
-      },
-      "id": 6,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "maxHeight": 600,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.1.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "XbGvg5aVz"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "process_resident_memory_bytes{job=~\"$Job\", instance=~\"$Instance\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "{{instance}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "Process Resident Memory",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "default": true,
-        "type": "prometheus",
-        "uid": "XbGvg5aVz"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "axisWidth": 80,
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1217,15 +545,16 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 42
+        "y": 19
       },
-      "id": 27,
+      "id": 29,
       "options": {
         "legend": {
           "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 250
         },
         "tooltip": {
           "hideZeros": false,
@@ -1234,7 +563,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
@@ -1243,44 +572,558 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(process_cpu_seconds_total{job=~\"$Job\", instance=~\"$Instance\"}[$__rate_interval])",
+          "expr": "(sum(rate(node_cpu_seconds_total{mode=\"user\", instance=~\"$Instance\", job=~\"$Job\"}[$__rate_interval]) * 100)) / on(label) (sum(rate(node_cpu_seconds_total[$__rate_interval])))",
           "fullMetaSearch": false,
-          "fullMetaSet3": false,
-          "includeNullMetadata": false,
-          "instant": false,
-          "legendFormat": "{{instance}}",
+          "includeNullMetadata": true,
+          "legendFormat": "user",
           "range": true,
           "refId": "A",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "XbGvg5aVz"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "(sum(rate(node_cpu_seconds_total{mode=\"system\", instance=~\"$Instance\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "legendFormat": "system",
+          "range": true,
+          "refId": "B",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "XbGvg5aVz"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "(sum(rate(node_cpu_seconds_total{mode=\"iowait\", instance=~\"$Instance\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "legendFormat": "iowait",
+          "range": true,
+          "refId": "C",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "XbGvg5aVz"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "(sum(rate(node_cpu_seconds_total{mode=\"irq\", instance=~\"$Instance\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "legendFormat": "irq",
+          "range": true,
+          "refId": "D",
           "useBackend": false
         }
       ],
       "title": "CPU",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "XbGvg5aVz"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "axisWidth": 100,
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "binBps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 27
+      },
+      "id": 28,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 250
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "XbGvg5aVz"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "sum by(device) (rate(node_network_receive_bytes_total{instance=~\"$Instance\", job=~\"$Job\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "rx {{ device }}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "XbGvg5aVz"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "sum by(device) (rate(node_network_transmit_bytes_total{instance=~\"$Instance\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "legendFormat": "tx {{ device }}",
+          "range": true,
+          "refId": "B",
+          "useBackend": false
+        }
+      ],
+      "title": "Traffic",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "XbGvg5aVz"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "axisWidth": 100,
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 27
+      },
+      "id": 31,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 250
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "XbGvg5aVz"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "node_nf_conntrack_entries{instance=~\"$Instance\", job=~\"$Job\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "{{ instance }}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Conntrack",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "XbGvg5aVz"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "axisWidth": 100,
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 35
+      },
+      "id": 35,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 250
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "XbGvg5aVz"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "node_sockstat_TCP_inuse{instance=~\"$Instance\", job=~\"$Job\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "{{instance }}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "TCP v4 Socket Stats Inuse",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "XbGvg5aVz"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "axisWidth": 100,
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 35
+      },
+      "id": 30,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 250
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "XbGvg5aVz"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "node_sockstat_TCP6_inuse{instance=~\"$Instance\", job=~\"$Job\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "{{instance }}",
+          "range": true,
+          "refId": "B",
+          "useBackend": false
+        }
+      ],
+      "title": "TCP v6 Socket Stats Inuse",
+      "type": "timeseries"
     }
   ],
   "preload": false,
   "refresh": "auto",
-  "schemaVersion": 41,
+  "schemaVersion": 42,
   "tags": [],
   "templating": {
     "list": [
       {
         "current": {
-          "text": "Tor-Snowflake",
-          "value": "Tor-Snowflake"
+          "text": "Nodes",
+          "value": "Nodes"
         },
         "datasource": {
           "type": "prometheus",
           "uid": "XbGvg5aVz"
         },
-        "definition": "label_values(tor_snowflake_proxy_connections_total,job)",
+        "definition": "label_values(node_uname_info,job)",
         "includeAll": true,
         "label": "Job",
         "name": "Job",
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(tor_snowflake_proxy_connections_total,job)",
+          "query": "label_values(node_uname_info,job)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "/Nodes.*/",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "XbGvg5aVz"
+        },
+        "definition": "label_values(node_uname_info{job=~\"$Job\"},t1)",
+        "includeAll": true,
+        "label": "Prefix",
+        "name": "t1",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(node_uname_info{job=~\"$Job\"},t1)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -1297,17 +1140,180 @@
           "type": "prometheus",
           "uid": "XbGvg5aVz"
         },
-        "definition": "label_values(tor_snowflake_proxy_connections_total{job=~\"$Job\"},instance)",
+        "definition": "label_values(node_uname_info{job=~\"$Job\", t1=~\"$t1\"},t2)",
         "includeAll": true,
-        "label": "Instance",
+        "label": "OS",
+        "name": "t2",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(node_uname_info{job=~\"$Job\", t1=~\"$t1\"},t2)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "XbGvg5aVz"
+        },
+        "definition": "label_values(node_uname_info{job=~\"$Job\", t1=~\"$t1\", t2=~\"$t2\"},t3)",
+        "includeAll": true,
+        "label": "Arch",
+        "name": "t3",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(node_uname_info{job=~\"$Job\", t1=~\"$t1\", t2=~\"$t2\"},t3)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "XbGvg5aVz"
+        },
+        "definition": "label_values(node_uname_info{job=~\"$Job\", t1=~\"$t1\", t2=~\"$t2\", t3=~\"$t3\"},t4)",
+        "includeAll": true,
+        "label": "Kernel",
+        "name": "t4",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(node_uname_info{job=~\"$Job\", t1=~\"$t1\", t2=~\"$t2\", t3=~\"$t3\"},t4)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "XbGvg5aVz"
+        },
+        "definition": "label_values(node_uname_info{job=~\"$Job\", t1=~\"$t1\", t2=~\"$t2\", t3=~\"$t3\", t4=~\"$t4\"},t5)",
+        "includeAll": true,
+        "name": "t5",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(node_uname_info{job=~\"$Job\", t1=~\"$t1\", t2=~\"$t2\", t3=~\"$t3\", t4=~\"$t4\"},t5)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "XbGvg5aVz"
+        },
+        "definition": "label_values(node_uname_info{job=~\"$Job\", t1=~\"$t1\", t2=~\"$t2\", t3=~\"$t3\", t4=~\"$t4\", t5=~\"$t5\"},t6)",
+        "includeAll": true,
+        "name": "t6",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(node_uname_info{job=~\"$Job\", t1=~\"$t1\", t2=~\"$t2\", t3=~\"$t3\", t4=~\"$t4\", t5=~\"$t5\"},t6)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "XbGvg5aVz"
+        },
+        "definition": "label_values(node_uname_info{job=~\"$Job\", t1=~\"$t1\", t2=~\"$t2\", t3=~\"$t3\", t4=~\"$t4\", t5=~\"$t5\", t6=~\"$t6\"},t7)",
+        "includeAll": true,
+        "name": "t7",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(node_uname_info{job=~\"$Job\", t1=~\"$t1\", t2=~\"$t2\", t3=~\"$t3\", t4=~\"$t4\", t5=~\"$t5\", t6=~\"$t6\"},t7)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "XbGvg5aVz"
+        },
+        "definition": "label_values(node_uname_info{job=~\"$Job\", t1=~\"$t1\", t2=~\"$t2\", t3=~\"$t3\", t4=~\"$t4\", t5=~\"$t5\", t6=~\"$t6\", t7=~\"$t7\"},t8)",
+        "includeAll": true,
+        "name": "t8",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(node_uname_info{job=~\"$Job\", t1=~\"$t1\", t2=~\"$t2\", t3=~\"$t3\", t4=~\"$t4\", t5=~\"$t5\", t6=~\"$t6\", t7=~\"$t7\"},t8)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "XbGvg5aVz"
+        },
+        "definition": "label_values(node_uname_info{job=~\"$Job\", t1=~\"$t1\", t2=~\"$t2\", t3=~\"$t3\", t4=~\"$t4\", t5=~\"$t5\", t6=~\"$t6\", t7=~\"$t7\", t8=~\"$t8\"},instance)",
+        "includeAll": true,
         "name": "Instance",
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(tor_snowflake_proxy_connections_total{job=~\"$Job\"},instance)",
+          "query": "label_values(node_uname_info{job=~\"$Job\", t1=~\"$t1\", t2=~\"$t2\", t3=~\"$t3\", t4=~\"$t4\", t5=~\"$t5\", t6=~\"$t6\", t7=~\"$t7\", t8=~\"$t8\"},instance)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
-        "refresh": 2,
+        "refresh": 1,
         "regex": "",
         "sort": 1,
         "type": "query"
@@ -1315,12 +1321,12 @@
     ]
   },
   "time": {
-    "from": "now-7d",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Tor Snowflake",
-  "uid": "bdsk0bz0y9n9cc",
-  "version": 183
+  "title": "Node hx",
+  "uid": "9fa768c0-eb54-434e-85f5-bc4653f66e5c",
+  "version": 96
 }

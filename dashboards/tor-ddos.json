@@ -126,7 +126,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
@@ -186,12 +186,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 5,
         "w": 8,
         "x": 8,
         "y": 1
       },
-      "id": 83,
+      "id": 102,
       "options": {
         "minVizHeight": 75,
         "minVizWidth": 75,
@@ -208,7 +208,7 @@
         "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
@@ -216,9 +216,9 @@
             "uid": "XbGvg5aVz"
           },
           "disableTextWrap": false,
-          "editorMode": "builder",
+          "editorMode": "code",
           "exemplar": false,
-          "expr": "(tor_relay_signing_cert_expiry_timestamp{instance=~\"$Instance\"} / 86400) - time() / 86400",
+          "expr": "(tor_relay_signing_cert_expiry_timestamp{instance=~\"$Instance\", nickname=~\"$Nickname\"}-time())/86400",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -289,7 +289,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
@@ -299,7 +299,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "torutils_ipset{ipver=\"4\", mode=\"ddos\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset{ipver=\"4\", mode=\"ddos\", instance=~\"$Instance\", nickname=~\"$Nickname\"}",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -346,10 +346,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 8,
         "x": 8,
-        "y": 5
+        "y": 6
       },
       "id": 93,
       "options": {
@@ -370,7 +370,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
@@ -380,7 +380,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "tor_bug_reached_count{instance=~\"$Instance\"}",
+          "expr": "tor_bug_reached_count{instance=~\"$Instance\", nickname=~\"$Nickname\"}",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -451,7 +451,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
@@ -461,7 +461,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "torutils_ipset{ipver=\"6\", mode=\"ddos\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset{ipver=\"6\", mode=\"ddos\", instance=~\"$Instance\", nickname=~\"$Nickname\"}",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -525,6 +525,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -574,7 +575,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
@@ -647,6 +648,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -696,7 +698,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
@@ -771,6 +773,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -821,7 +824,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -926,6 +929,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -975,7 +979,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -1050,6 +1054,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1095,7 +1100,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -1166,6 +1171,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1215,7 +1221,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -1272,6 +1278,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1321,7 +1328,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -1379,6 +1386,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1428,7 +1436,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -1498,6 +1506,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1547,7 +1556,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -1621,6 +1630,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1670,7 +1680,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -1757,6 +1767,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1806,7 +1817,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -1864,6 +1875,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1913,7 +1925,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -1972,6 +1984,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -2022,7 +2035,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -2031,7 +2044,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_hashlimit{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
+          "expr": "torutils_hashlimit{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\", job=~\"$Job\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -2080,6 +2093,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -2130,7 +2144,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -2139,7 +2153,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_hashlimit{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
+          "expr": "torutils_hashlimit{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\", job=~\"$Job\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -2188,6 +2202,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -2238,7 +2253,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -2247,7 +2262,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset{ipver=\"4\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\", job=~\"$Job\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -2296,6 +2311,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -2346,7 +2362,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -2355,7 +2371,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\"}",
+          "expr": "torutils_ipset{ipver=\"6\", mode=\"ddos\", nickname=~\"$Nickname\", instance=~\"$Instance\", job=~\"$Job\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{nickname}}",
@@ -2436,7 +2452,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -2445,7 +2461,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=~\"$Nickname\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"4\", nickname=~\"$Nickname\", mode=\"ddos\", job=~\"$Job\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -2514,7 +2530,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -2523,7 +2539,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=~\"$Nickname\", mode=\"ddos\"}",
+          "expr": "torutils_ipset_timeout_bucket{ipver=\"6\", nickname=~\"$Nickname\", mode=\"ddos\", job=~\"$Job\"}",
           "format": "heatmap",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -2539,7 +2555,7 @@
   ],
   "preload": false,
   "refresh": "auto",
-  "schemaVersion": 41,
+  "schemaVersion": 42,
   "tags": [],
   "templating": {
     "list": [
@@ -2618,5 +2634,5 @@
   "timezone": "utc",
   "title": "Tor DDoS",
   "uid": "FgvRNta4k",
-  "version": 564
+  "version": 579
 }

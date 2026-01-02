@@ -95,6 +95,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -143,7 +144,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
@@ -152,7 +153,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "sum by(direction) (rate(tor_relay_traffic_bytes{nickname=~\"$Nickname\", direction=~\"$Dir_traf\"}[$__rate_interval]))",
+          "expr": "sum by(direction) (rate(tor_relay_traffic_bytes{nickname=~\"$Nickname\", direction=~\"$Dir_traf\", job=~\"$Job\"}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -200,6 +201,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -244,7 +246,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
@@ -314,6 +316,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -362,7 +365,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
@@ -420,6 +423,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -464,7 +468,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
@@ -521,6 +525,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -570,7 +575,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -628,6 +633,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -676,7 +682,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.1.1",
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "datasource": {
@@ -2776,7 +2782,7 @@
   ],
   "preload": false,
   "refresh": "auto",
-  "schemaVersion": 41,
+  "schemaVersion": 42,
   "tags": [],
   "templating": {
     "list": [
@@ -3324,5 +3330,5 @@
   "timezone": "",
   "title": "Tor Relay",
   "uid": "bb0ac200-1fab-4d04-a3b0-859d35ec9ee6",
-  "version": 398
+  "version": 399
 }
