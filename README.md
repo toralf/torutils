@@ -19,15 +19,15 @@ of the [Tor project](https://www.torproject.org/).
 
 ### Idea
 
-Mark an IP address as malicious if its connection attempts over a short time period exceed a given threshold.
-Block that IP for a much longer time period.
+Mark an IP address as malicious if its connection attempts over a short time interval exceed a given threshold.
+Then block that IP for a long time interval.
 
 Therefore a simple network rule won't make it.
 However _ipset_ helps to achieve the goal.
 Further considerations:
 
 - never touch established connections
-- try to not overblock
+- avoid to not overblock
 
 ### Quick start
 
@@ -84,15 +84,15 @@ sudo /usr/sbin/iptables-restore <./rules.v4
 sudo /usr/sbin/ip6tables-restore <./rules.v6
 ```
 
-But if everything looks uk, run the script again, but now with the parameter `start`:
+But if everything looks ok, then run the DDoS script with the parameter `start`:
 
 ```bash
 sudo ./ipv4-rules.sh start
 sudo ./ipv6-rules.sh start
 ```
 
-Finally, ensure, that the package _iptables-persistent_ is either de-installed or at least disabled
-and create cron jobs (via `crontab -e`)e.g.:
+Now ensure, that the package _iptables-persistent_ is either de-installed or at least disabled.
+Create cron jobs (via `crontab -e`) e.g.:
 
 ```cron
 # DDoS prevention
@@ -105,25 +105,26 @@ and create cron jobs (via `crontab -e`)e.g.:
 @daily  /root/ipv4-rules.sh update; /root/ipv6-rules.sh update
 ```
 
-[issue](https://github.com/toralf/torutils/issues) reports about any findings are welcome.
+I appreciate reports about any findings via the [issue](https://github.com/toralf/torutils/issues) tracker.
 
 ### Details
 
-The DDoS scripts creates generic filter rules for the local network, ICMP, ssh, DHCP and (if defined) additional services.
-Then this rule set is applied ¹:
+The DDoS scripts creates generic filter rules for the local network, ICMP, ssh, DHCP and (if given) additional services.
 
-1. trust connection attempt from trusted Tor authorities/Snowflake servers
-2. block the source ² for 36 hours if the connection attempt rate from the source to the Tor port exceeds > 4/min ³ within last 2 minutes
-3. ignore the connection attempt if there are already 8 established connections to the Tor port (max allowed relays per ip address)
+Then this rule set is applied¹:
+
+1. trust any connection attempt from a trusted Tor authority server
+2. block the source² for 36 hours if the connection attempt rate from the source to the Tor port exceeds > 4/min³ within last 2 minutes
+3. ignore the connection attempt if there are already 8 established connections to the Tor port (8 is the allowed relay amount per ip address)
 4. accept the connection attempt to the Tor port
 
-¹ for IPv4 with "source" a single ip address is meant, for IPv6 a /80 block is meant
+¹ for IPv4 with "source" a single ip address is meant, for IPv6 a /72 CIDR block is meant
 
 ² the value is derived from [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
 
 ³ for IPv4 look [here](./ipv4-rules.sh#L45), for IPv6 [here](./ipv6-rules.sh#L49)
 
-If the parsing of the Tor config and/or of the SSH config fails then:
+If the DDoS script fails to parse either the Tor/SSH config then report this please and overrule parsing by:
 
 1. define the local running relay/s explicitly at the command line after the keyword `start`, e.g.:
 
@@ -148,26 +149,26 @@ export ADD_LOCAL_SERVICES="2.71.82.81:828 3.141.59.26:53"
 export ADD_LOCAL_SERVICES6="[cafe::abba]:1234"
 ```
 
-A slightly different syntax (as the separator `>` is used instead `:` to highlight that
-the address is _src_, and the port is _dst_) is used for `ADD_REMOTE_SERVICES` to allow inbound traffic, e.g.:
+A slightly different syntax is used for `ADD_REMOTE_SERVICES` to allow inbound traffic, e.g.:
 
 ```bash
 export ADD_LOCAL_SERVICES="4.3.2.1>4711"
 export ADD_LOCAL_SERVICES6="[cafe::abba]>4711"
 ```
 
+(the separator `>` is used instead `:` to highlight that the address is _src_, and the port is _dst_)
+
 The above allows traffic from the specified remote address to the local port 4711.
 
-The script sets few _sysctl_ values.
-If unwanted then please comment out the call of _setSysctlValues()_.
+Please note: The script sets few _sysctl_ values.
+If unwanted then comment out the code around _setSysctlValues()_.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then comment out _addHetzner()_.
-To append rules onto existing _iptables_ rule set (overwrite is the default) please comment out the call _clearRules()_.
+then comment out _addHetzner()_ too.
+To append rules onto an existing _iptables_ rule set (overwrite is the default) comment out the call _clearRules()_.
 
 ### Metrics
 
-The script [metrics.sh](./metrics.sh) exports DDoS metrics into a Prometheus-formatted file.
-The scrape of it is handled by [node_exporter](https://github.com/prometheus/node_exporter).
+The script [metrics.sh](./metrics.sh) exports DDoS metrics into a Prometheus readable file.
 More details plus few Grafana dashboards are [here](./dashboards/README.md).
 
 ### DDoS examples
@@ -198,13 +199,13 @@ firefox $svg
 
 ### More
 
-I used [this](https://github.com/toralf/tor-relays/) Ansible role to deploy and configure Tor relays and Snowflake stahndalone proxies.
+I used [this](https://github.com/toralf/tor-relays/) Ansible code to deploy and configure Tor relays and Snowflake standalone proxies.
 
 ## Avoid server blocking due to netscan hits (egress)
 
-Every then and when I get an abuse complaint about malicious scanning of a remote network segment.
+Every then and when I get an undesired abuse complaint from my hoster.
 To avoid this I developed [ipv4-rules-egress.sh](./ipv4-rules-egress.sh).
-Use this with caution and as the very last resort.
+Details are tracked [here](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105)
 
 ## Query Tor via its API
 
