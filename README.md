@@ -205,7 +205,7 @@ I used [this](https://github.com/toralf/tor-relays/) Ansible code to deploy and 
 
 Every then and when I get an undesired abuse complaint from my hoster.
 To avoid this I developed [ipv4-rules-egress.sh](./ipv4-rules-egress.sh).
-Details are tracked [here](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105)
+Details are tracked [here](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105).
 
 ## Query Tor via its API
 
