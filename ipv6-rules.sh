@@ -219,7 +219,7 @@ type ipset jq >/dev/null
 
 trustlist="tor-trust6"           # Tor authorities and snowflake servers
 jobs=$((1 + ($(nproc) - 1) / 2)) # parallel jobs of adding ips to an ipset
-prefix=72                        # any ipv6 address of this CIDR block is considered to belong to the same source/owner
+prefix=64                        # any ipv6 address of this CIDR block is considered to belong to the same source/owner
 # hashes and ipset sizes do depend on available RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
 if [[ ${ram} -gt 1 ]]; then
