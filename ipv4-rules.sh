@@ -43,7 +43,7 @@ function addCommon() {
 }
 
 function addTor() {
-  __create_ipset $trustlist "maxelem $((2 ** 6))"
+  __create_ipset $trustlist "maxelem 64"
   __fill_trustlist &
 
   local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask $prefix"
@@ -135,7 +135,7 @@ function addServices() {
 function addHetzner() {
   local sysmon="hetzner-sysmon"
 
-  __create_ipset $sysmon
+  __create_ipset $sysmon "maxelem 64"
   $ipt -A INPUT -m set --match-set $sysmon src -j ACCEPT
   {
     (
