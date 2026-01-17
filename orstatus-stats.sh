@@ -30,7 +30,7 @@ fi
 
 # count per reason
 awk '{ print $2 }' $files | sort | uniq -c |
-  perl -wane 'BEGIN { $sum = 0 } { $sum += $F[0]; print } END { printf("%7i\n", $sum) }'
+  LC_ALL=$LANG perl -wane 'BEGIN { $sum = 0 } { $sum += $F[0]; print } END { printf("%7i\n", $sum) }'
 
 if [[ -n $reason ]]; then
   # plot for given reason
