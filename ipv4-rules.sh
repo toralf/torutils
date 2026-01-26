@@ -46,7 +46,7 @@ function addTor() {
   __create_ipset $trustlist "maxelem 64"
   __fill_trustlist &
 
-  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask $prefix"
+  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask $netmask"
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
@@ -66,7 +66,7 @@ function addTor() {
     $common -m set --match-set $ddoslist src -j $jump
 
     # rule 3
-    $common -m connlimit --connlimit-mask $prefix --connlimit-above 8 -j $jump
+    $common -m connlimit --connlimit-mask $netmask --connlimit-above 8 -j $jump
 
     # rule 4
     $common --syn -j ACCEPT
@@ -236,8 +236,8 @@ type ipset jq >/dev/null
 
 trustlist="tor-trust"            # Tor authorities and snowflake servers
 jobs=$((1 + ($(nproc) - 1) / 2)) # parallel jobs of adding ips to an ipset
-prefix=32                        # any ipv4 address of this CIDR block is considered to belong to the same source/owner
-# hashes and ipset sizes do depend on available RAM in GiB
+netmask=32
+# hashes and ipsets are sized with respect to the available RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
 if [[ ${ram} -gt 1 ]]; then
   max=$((2 ** 18)) # 256K
