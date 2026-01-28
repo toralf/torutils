@@ -62,7 +62,7 @@ function addTor() {
     fi
 
     # rule 2
-    $common $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 4/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
+    $common $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 8/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
     $common -m set --match-set $ddoslist src -j $jump
 
     # rule 3
