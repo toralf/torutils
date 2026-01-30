@@ -52,7 +52,7 @@ function addTor() {
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
 
     local ddoslist="tor-ddos-$orport" # this holds ips classified as DDoS'ing the local OR port
-    __create_ipset $ddoslist "maxelem $max timeout $((36 * 3600))"
+    __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600))"
     __fill_ddoslist &
 
     # rule 1
@@ -62,7 +62,7 @@ function addTor() {
     fi
 
     # rule 2
-    $common $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 4/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
+    $common $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
     $common -m set --match-set $ddoslist src -j $jump
 
     # rule 3

@@ -114,7 +114,7 @@ The DDoS scripts creates generic filter rules for the local network, ICMP, ssh, 
 Then this rule set is applied¹:
 
 1. trust any connection attempt from a trusted Tor authority server
-2. block the source² for 36 hours if the connection attempt rate from the source to the Tor port exceeds > 4/min³ within last 2 minutes
+2. block the source² for 24 hours if the connection attempt rate from the source to the Tor port exceeds 9/min³ within last 2 minutes
 3. ignore the connection attempt if there are already 8 established connections to the Tor port (8 is the allowed relay amount per ip address)
 4. accept the connection attempt to the Tor port
 
