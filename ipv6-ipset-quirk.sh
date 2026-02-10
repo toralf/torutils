@@ -10,7 +10,7 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 type ipset jq >/dev/null
 
-jobs=$(($(nproc) / 2)) # parallel jobs of adding entries to an ipset
+jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding entries to an ipset
 
 # Hetzner provides a /64 hostmask
 ipset list -n ${1-} |
