@@ -56,7 +56,7 @@ function addTor() {
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
 
     local ddoslist="tor-ddos6-$orport" # this holds ips classified as DDoS'ing the local OR port
-    __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600)) netmask $netmask"
+    __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600))"
     __fill_ddoslist &
 
     # rule 1
@@ -79,7 +79,8 @@ function addTor() {
 
 function __create_ipset() {
   local name=$1
-  local cmd="ipset create -exist $name hash:ip family inet6 ${2-}"
+  local hash=${3:-"hash:ip netmask $netmask"}
+  local cmd="ipset create -exist $name $hash family inet6 $2"
 
   if $cmd 2>/dev/null; then
     return 0
@@ -217,9 +218,9 @@ umask 066
 trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
 type ipset jq >/dev/null
 
-trustlist="tor-trust6"           # Tor authorities and snowflake servers
-jobs=$((1 + ($(nproc) - 1) / 2)) # parallel jobs of adding ips to an ipset
-netmask=72                       # assumed hostmask for the owner of an IPv6 address: /56
+trustlist="tor-trust6" # Tor authorities and snowflake servers
+jobs=$(($(nproc) / 2)) # parallel jobs of adding entries to an ipset
+netmask=72             # assumed hostmask for the owner of an IPv6 address: /56
 # hashes and ipsets are sized with respect to the available RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
 if [[ ${ram} -gt 1 ]]; then
