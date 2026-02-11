@@ -13,8 +13,6 @@ if pgrep -f $(basename $0) | grep -v $$ | grep -q .; then
   exit 0
 fi
 
-type ipset jq >/dev/null
-
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding entries to an ipset
 
 # Hetzner provides a /64 hostmask
