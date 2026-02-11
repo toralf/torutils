@@ -8,6 +8,11 @@ set -euf
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
+# do not run twice
+if pgrep -f $(basename $0) | grep -v $$ | grep -q .; then
+  exit 0
+fi
+
 type ipset jq >/dev/null
 
 jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding entries to an ipset
@@ -16,7 +21,7 @@ jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding entries to an ipset
 ipset list -n ${1-} |
   grep "^tor-ddos6-" |
   while read -r s; do
-    before=$(
+    entries=$(
       ipset list $s |
         sed '1,8d' |
         awk '{ print $1 }' |
@@ -26,11 +31,11 @@ ipset list -n ${1-} |
         sort -u
     )
 
-    # replace all entries of the same /64 CIDR block with one entry
-    cut -f 1-4 -d ':' <<<$before |
+    # superseed entries of the same /64 CIDR block with one entry
+    cut -f 1-4 -d ':' <<<$entries |
       uniq |
       xargs -r -P $jobs -I{} ipset add $s {}::/64 -exist
 
-    # shrink now the ipset
-    xargs -r -P $jobs -I{} ipset del $s {}:: -exist <<<$before
+    # shrink now the ipset by superseeded entries
+    xargs -r -P $jobs -I{} ipset del $s {}:: -exist <<<$entries
   done
