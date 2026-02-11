@@ -16,11 +16,19 @@ jobs=$((1 + $(nproc) / 2)) # parallel jobs of adding entries to an ipset
 ipset list -n ${1-} |
   grep "^tor-ddos6-" |
   while read -r s; do
-    ipset list $s |
-      sed '1,8d' |
-      grep "^2a01:4f[89]" |
-      cut -f 1-5 -d ':' -s |
-      cut -f 1-4 -d ':' |
-      sort -u |
+    before=$(
+      ipset list $s |
+        sed '1,8d' |
+        grep "^2a01:4f[89]" |
+        sort -u |
+        cut -f 1-5 -d ':' -s
+    )
+
+    # replace all /56 of the same /64 with 1 entry
+    cut -f 1-4 -d ':' <<<$before |
+      uniq |
       xargs -r -P $jobs -I{} ipset add $s {}::/64 -exist
+
+    # shrink now the ipset
+    xargs -r -P $jobs -I{} ipset del $s {} -exist <<<$before
   done
