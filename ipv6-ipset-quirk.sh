@@ -19,16 +19,18 @@ ipset list -n ${1-} |
     before=$(
       ipset list $s |
         sed '1,8d' |
+        awk '{ print $1 }' |
         grep "^2a01:4f[89]" |
-        sort -u |
-        cut -f 1-5 -d ':' -s
+        cut -f 1-5 -d ':' -s |
+        grep -v -e '/' -e ':$' |
+        sort -u
     )
 
-    # replace all /56 of the same /64 with 1 entry
+    # replace all entries of the same /64 CIDR block with one entry
     cut -f 1-4 -d ':' <<<$before |
       uniq |
       xargs -r -P $jobs -I{} ipset add $s {}::/64 -exist
 
     # shrink now the ipset
-    xargs -r -P $jobs -I{} ipset del $s {} -exist <<<$before
+    xargs -r -P $jobs -I{} ipset del $s {}:: -exist <<<$before
   done
