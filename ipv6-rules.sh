@@ -224,9 +224,9 @@ netmask=72                 # assumed hostmask for the owner of an IPv6 address: 
 # hashes and ipsets are sized with respect to the available RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
 if [[ ${ram} -gt 1 ]]; then
-  max=$((2 ** 18)) # 256K
+  max=$((2 ** 19)) # 512K
 else
-  max=$((2 ** 16)) # 64K
+  max=$((2 ** 17)) # 128K
 fi
 tmpdir=${TORUTILS_TMPDIR:-/var/tmp}
 
