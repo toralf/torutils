@@ -123,9 +123,13 @@ function __fill_ddoslist() {
   fi
 }
 
-# Hetzner provides /64 CIDR blocks for each VPS
-# iptables works hash:ip but not with hash:net so rule 1 cannot be splitted into a /56 and a/64 part easily
-# fill that gap by adding appropriate /64 CIDR blocks manually for the new rule 4
+# Hetzner provides a /64 CIDR block for a VPS
+# iptables works with hash:ip only and not with hash:net
+# so rule 1 cannot handle different hostmasks (e.g. /56 and a/64) in an easy manner
+#
+# work around that by adding the /64 CIDR block manually to the "manual" ipset;
+# actually this blocks an affected system for one additional day after the last
+# /56 entry is gone from the DDoS ipset
 function fillManualIpsets() {
   ipset list -n ${1-} |
     grep "^tor-ddos6-" |
@@ -134,13 +138,13 @@ function fillManualIpsets() {
         ipset list $ddoslist |
           sed '1,8d' |
           grep "^2a01:4f[89]" |
-          awk '{ print $1 }'
+          awk '{ print $1 }' |
+          cut -f 1-4 -d ':' |
+          sort -u
       )
 
       manuallist=${ddoslist//ddos/manual}
-      cut -f 1-4 -d ':' <<<$entries |
-        sort -u |
-        xargs -r -P $jobs -I{} ipset add $manuallist {}::/64 -exist
+      xargs -r -P $jobs -I{} ipset add -exist $manuallist {}::/64 <<<$entries
     done
 }
 
