@@ -1,4 +1,53 @@
 {
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "panel",
+      "id": "bargauge",
+      "name": "Bar gauge",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "gauge",
+      "name": "Gauge",
+      "version": ""
+    },
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "12.3.2"
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    }
+  ],
   "annotations": {
     "list": [
       {
@@ -24,7 +73,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 4,
+  "id": null,
   "links": [
     {
       "asDropdown": false,
@@ -68,7 +117,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "",
       "fieldConfig": {
@@ -126,12 +175,12 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -152,7 +201,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "",
       "fieldConfig": {
@@ -208,12 +257,12 @@
         "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "code",
@@ -236,7 +285,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "",
       "fieldConfig": {
@@ -289,12 +338,12 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -317,7 +366,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "",
       "fieldConfig": {
@@ -370,12 +419,12 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -398,7 +447,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "",
       "fieldConfig": {
@@ -451,12 +500,12 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -492,7 +541,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -575,12 +624,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -595,7 +644,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -615,7 +664,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -698,12 +747,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -718,7 +767,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -738,7 +787,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -824,12 +873,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -844,7 +893,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -860,7 +909,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -876,7 +925,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -896,7 +945,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -979,12 +1028,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1000,7 +1049,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1021,7 +1070,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1100,12 +1149,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1137,7 +1186,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1221,12 +1270,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1245,7 +1294,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1328,12 +1377,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1352,7 +1401,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1436,12 +1485,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1473,7 +1522,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1556,12 +1605,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1577,7 +1626,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1597,7 +1646,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1680,12 +1729,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1701,7 +1750,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1734,7 +1783,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1817,12 +1866,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1842,7 +1891,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1925,12 +1974,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -1949,9 +1998,8 @@
     },
     {
       "datasource": {
-        "default": true,
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2019,7 +2067,7 @@
         "x": 0,
         "y": 64
       },
-      "id": 100,
+      "id": 107,
       "options": {
         "legend": {
           "calcs": [],
@@ -2035,12 +2083,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -2058,9 +2106,8 @@
     },
     {
       "datasource": {
-        "default": true,
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2144,12 +2191,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -2167,9 +2214,8 @@
     },
     {
       "datasource": {
-        "default": true,
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2253,12 +2299,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -2276,9 +2322,8 @@
     },
     {
       "datasource": {
-        "default": true,
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2362,12 +2407,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -2384,12 +2429,444 @@
       "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "axisWidth": 100,
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 78
+      },
+      "id": 105,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 100
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "torutils_ipset{ipver=\"4\", mode=\"manual\", nickname=~\"$Nickname\", instance=~\"$Instance\", job=~\"$Job\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "{{nickname}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Ipset Manual IPv4",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "axisWidth": 100,
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 78
+      },
+      "id": 103,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 100
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "torutils_ipset{ipver=\"6\", mode=\"manual\", nickname=~\"$Nickname\", instance=~\"$Instance\", job=~\"$Job\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "{{nickname}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Ipset Manual IPv6",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "axisWidth": 100,
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 85
+      },
+      "id": 106,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 100
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "sum by(nickname) (rate(torutils_dropped_ipset_packets{ipver=\"4\", mode=\"manual\", nickname=~\"$Nickname\", job=~\"$Job\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "{{nickname}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Dropped Manual IPv4",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "axisWidth": 100,
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 85
+      },
+      "id": 104,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 100
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "sum by(nickname) (rate(torutils_dropped_ipset_packets{ipver=\"6\", mode=\"manual\", nickname=~\"$Nickname\", job=~\"$Job\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "{{nickname}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Dropped Manual IPv6",
+      "type": "timeseries"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 78
+        "y": 92
       },
       "id": 39,
       "panels": [],
@@ -2398,9 +2875,8 @@
     },
     {
       "datasource": {
-        "default": true,
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2424,7 +2900,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 79
+        "y": 93
       },
       "id": 96,
       "options": {
@@ -2452,12 +2928,12 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -2476,9 +2952,8 @@
     },
     {
       "datasource": {
-        "default": true,
         "type": "prometheus",
-        "uid": "XbGvg5aVz"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2502,7 +2977,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 79
+        "y": 93
       },
       "id": 44,
       "options": {
@@ -2530,12 +3005,12 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "12.2.1",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "XbGvg5aVz"
+            "uid": "${DS_PROMETHEUS}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -2560,10 +3035,7 @@
   "templating": {
     "list": [
       {
-        "current": {
-          "text": "Node localhost",
-          "value": "Node localhost"
-        },
+        "current": {},
         "definition": "label_values(torutils_dropped_state_packets,job)",
         "name": "Job",
         "options": [],
@@ -2577,13 +3049,10 @@
         "type": "query"
       },
       {
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
+        "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "XbGvg5aVz"
+          "uid": "${DS_PROMETHEUS}"
         },
         "definition": "label_values(torutils_dropped_state_packets{job=~\"$Job\"},instance)",
         "includeAll": true,
@@ -2601,13 +3070,10 @@
         "type": "query"
       },
       {
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
+        "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "XbGvg5aVz"
+          "uid": "${DS_PROMETHEUS}"
         },
         "definition": "label_values(torutils_dropped_ddos_packets{job=~\"$Job\", instance=~\"$Instance\"},nickname)",
         "includeAll": true,
@@ -2634,5 +3100,6 @@
   "timezone": "utc",
   "title": "Tor DDoS",
   "uid": "FgvRNta4k",
-  "version": 579
+  "version": 589,
+  "weekStart": ""
 }
