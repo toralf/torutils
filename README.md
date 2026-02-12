@@ -119,9 +119,9 @@ Then this rule set is applied¹:
 4. ignore the connection attempt if the source is in the ipset `tor_manual[6]_<Tor port>` (this ipset needs to be filled manually)
 5. accept the connection attempt to the Tor port
 
-¹ For IPv4 "source" means a single ip address, for IPv6 a /72 CIDR block is considered to belong to the same system (== /56 hostmask),
-To handle hosters providing an IPv6 /64 block for each single system, please take a look [here](./ipv6-rules.sh#L133)
-e.g. create a cronjob and run it every 5 min
+¹ For IPv4 "source" means a single ip address, for IPv6 a /72 CIDR block is considered to belong to the same system (== /56 hostmask).
+To handle hosters providing an IPv6 /64 block for a system, please take a look [here](./ipv6-rules.sh#L133),
+create a cronjob and run it, e.g. every 5 min
 
 ² the value is derived from [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
 
