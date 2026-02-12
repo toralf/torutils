@@ -116,11 +116,12 @@ Then this rule set is applied¹:
 1. trust any connection attempt from a trusted Tor authority server
 2. block the source² for 24 hours if the connection attempt rate from the source to the Tor port exceeds 9/min³ within last 2 minutes
 3. ignore the connection attempt if there are already 8 established connections to the Tor port (8 is the allowed relay amount per ip address)
-4. ignore the connection attempt if the source is in the ipset `tor_manual[6]_<Tor port>`
-   (the ipset needs to be filled manually, for IPv6 is [here](./ipv6-rules.sh#L125) an example use case)
+4. ignore the connection attempt if the source is in the ipset `tor_manual[6]_<Tor port>` (this ipset needs to be filled manually)
 5. accept the connection attempt to the Tor port
 
-¹ for IPv4 "source" means a single ip address, for IPv6 a /72 CIDR block is meant (== /56 hostmask)
+¹ for IPv4 "source" means a single ip address, for IPv6 a /72 CIDR block is considered to belong to the same system (== /56 hostmask)
+to handle hosters providing an IPv6 /64 block for each single system, please take a look [here](./ipv6-rules.sh#L133)
+and create a cronjob, running .e.g. every 5 min
 
 ² the value is derived from [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146)
 
