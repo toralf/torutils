@@ -52,6 +52,25 @@ function printMetricsIptables() {
         echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\"} $pkts"
       done
   done
+
+  var="torutils_dropped_ipset_packets"
+  echo -e "# HELP $var Total number of dropped packets by ipset\n# TYPE $var gauge"
+  for mode in "ddos" "manual"; do
+    for v in "" 6; do
+      if [[ -z $v ]]; then
+        echo "$tables4"
+      else
+        echo "$tables6"
+      fi |
+        grep " DROP .* match-set tor-${mode}$v-" |
+        awk '{ print $1, $11 }' |
+        while read -r pkts dport; do
+          orport=$(cut -f 2 -d ':' <<<$dport)
+          nickname=${NICKNAME:-$(_orport2nickname $orport)}
+          echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\",mode=\"$mode\"} $pkts"
+        done
+    done
+  done
 }
 
 function _ipset2nickname() {
