@@ -166,7 +166,7 @@ function printMetricsIpsets() {
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
   for v in "" 6; do
     # --total=never is not known in Debians (bookworm) "wc"
-    wc -l /proc/net/ip${v}t_hashlimit/tor-$mode-* |
+    wc -l /proc/net/ip${v}t_hashlimit/tor-$mode-* 2>/dev/null |
       grep -v 'total' |
       while read -r count name; do
         nickname=${NICKNAME:-$(_ipset2nickname $name)}
