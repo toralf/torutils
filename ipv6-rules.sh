@@ -56,7 +56,7 @@ function addTor() {
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
 
     local ddoslist="tor-ddos6-$orport" # this holds ips classified as DDoS'ing the local OR port
-    __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600)) netmask $netmask"
+    __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600))"
     __fill_ddoslist &
 
     # rule 1
@@ -73,13 +73,19 @@ function addTor() {
     $common -m connlimit --connlimit-mask $netmask --connlimit-above 8 -j $jump
 
     # rule 4
+    local manuallist=${ddoslist//ddos/manual}
+    __create_ipset $manuallist "maxelem $max timeout $((24 * 3600))" "hash:net"
+    $common -m set --match-set $manuallist src -j $jump
+
+    # rule 5
     $common --syn -j ACCEPT
   done
 }
 
 function __create_ipset() {
   local name=$1
-  local cmd="ipset create -exist $name hash:ip family inet6 ${2-}"
+  local hash=${3:-"hash:ip netmask $netmask"}
+  local cmd="ipset create -exist $name $hash family inet6 $2"
 
   if $cmd 2>/dev/null; then
     return 0
@@ -115,6 +121,27 @@ function __fill_ddoslist() {
   if [[ -s $tmpdir/$ddoslist ]]; then
     xargs -r -L 1 -P $jobs ipset add -exist $ddoslist <$tmpdir/$ddoslist # -L 1 b/c the inputs are tuples
   fi
+}
+
+# Hetzner provides /64 CIDR blocks for each VPS
+# iptables works hash:ip but not with hash:net so rule 1 cannot be splitted into a /56 and a/64 part easily
+# fill that gap by adding appropriate /64 CIDR blocks manually for the new rule 4
+function fillManualIpsets() {
+  ipset list -n ${1-} |
+    grep "^tor-ddos6-" |
+    while read -r ddoslist; do
+      entries=$(
+        ipset list $ddoslist |
+          sed '1,8d' |
+          grep "^2a01:4f[89]" |
+          awk '{ print $1 }'
+      )
+
+      manuallist=${ddoslist//ddos/manual}
+      cut -f 1-4 -d ':' <<<$entries |
+        sort -u |
+        xargs -r -P $jobs -I{} ipset add $manuallist {}::/64 -exist
+    done
 }
 
 function addServices() {
@@ -276,6 +303,9 @@ test)
   ;;
 save)
   saveCertainIpsets
+  ;;
+manual)
+  fillManualIpsets
   ;;
 *)
   printRuleStatistics

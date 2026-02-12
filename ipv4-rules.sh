@@ -69,13 +69,19 @@ function addTor() {
     $common -m connlimit --connlimit-mask $netmask --connlimit-above 8 -j $jump
 
     # rule 4
+    local manuallist=${ddoslist//ddos/manual}
+    __create_ipset $manuallist "maxelem $max timeout $((24 * 3600))" "hash:net"
+    $common -m set --match-set $manuallist src -j $jump
+
+    # rule 5
     $common --syn -j ACCEPT
   done
 }
 
 function __create_ipset() {
   local name=$1
-  local cmd="ipset create -exist $name hash:ip family inet ${2-}"
+  local hash=${3:-"hash:ip"}
+  local cmd="ipset create -exist $name $hash family inet ${2-}"
 
   if $cmd 2>/dev/null; then
     return 0
