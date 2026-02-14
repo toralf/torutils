@@ -36,6 +36,7 @@ function printMetricsIptables() {
       done
   done
 
+  # DEPRECATED
   var="torutils_dropped_ddos_packets"
   echo -e "# HELP $var Total number of dropped packets due to being classified as DDoS\n# TYPE $var gauge"
   for v in "" 6; do
