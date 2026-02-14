@@ -249,7 +249,7 @@ trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
 type ipset jq >/dev/null
 
 trustlist="tor-trust6"           # Tor authorities and snowflake servers
-jobs=$((1 + ($(nproc) - 1) / 2)) # parallel jobs of adding ips to an ipset
+jobs=$((1 + ($(nproc) - 1) / 8)) # parallel jobs of adding ips to an ipset
 netmask=72                       # assumed hostmask for the owner of an IPv6 address: /56
 # hashes and ipsets are sized with respect to the available RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
