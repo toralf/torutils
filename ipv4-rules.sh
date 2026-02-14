@@ -53,9 +53,9 @@ function addTor() {
 
     local ddoslist="tor-ddos-$orport" # this holds ips classified as DDoS'ing the local OR port
     __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600))"
-    __fill_ddoslist &
+    __load_ipset $ddoslist &
 
-    # rule 1
+    # rule 1 (only once for all up to 8 Tor instances)
     local trust_rule="INPUT -p tcp --dst $orip --syn -m set --match-set $trustlist src -j ACCEPT"
     if ! $ipt -C $trust_rule 2>/dev/null; then
       $ipt -A $trust_rule
@@ -72,6 +72,7 @@ function addTor() {
     local manuallist=${ddoslist//ddos/manual}
     __create_ipset $manuallist "maxelem $max timeout $((24 * 3600))" "hash:net"
     $common -m set --match-set $manuallist src -j $jump
+    __load_ipset $manuallist &
 
     # rule 5
     $common --syn -j ACCEPT
@@ -112,9 +113,9 @@ function __fill_trustlist() {
     xargs -r -n 1 -P $jobs ipset add -exist $trustlist
 }
 
-function __fill_ddoslist() {
-  if [[ -s $tmpdir/$ddoslist ]]; then
-    xargs -r -L 1 -P $jobs ipset add -exist $ddoslist <$tmpdir/$ddoslist # -L 1 b/c the inputs are tuples
+function __load_ipset() {
+  if [[ -s $tmpdir/$1 ]]; then
+    xargs -r -L 1 -P $jobs ipset add -exist $1 <$tmpdir/$1 # -L 1 b/c the inputs are tuples
   fi
 }
 
@@ -220,7 +221,7 @@ function saveCertainIpsets() {
   [[ -d $tmpdir ]] || return 1
 
   ipset list -n |
-    grep -e '^tor-ddos-[0-9]*$' -e '^tor-trust$' |
+    grep -e '^tor-ddos-[0-9]*$' -e '^tor-manual-[0-9]*$' -e '^tor-trust$' |
     while read -r name; do
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       if ipset list $name >$tmpfile; then
