@@ -116,16 +116,16 @@ Then this rule set is applied:
 1. trust any connection attempt from a trusted Tor authority server
 2. block the source¹ for 24 hours if the connection attempt rate from it to the Tor port exceeds 9/min² within last 2 minutes
 3. ignore the connection attempt if there are already 8 established connections to the Tor port (8 is the allowed relay amount per ip address)
-4. ignore the connection attempt if the source is in a special ipset
+4. ignore the connection attempt if the source is in a special ipset³
 5. accept the connection attempt to the Tor port
 
-¹ For IPv4 _source_ means a single ip address, for IPv6 a /56 hostmask is considered asd default for a system
+¹ For IPv4 _source_ means a single ip address, for IPv6 a /56 hostmask is considered as default for a system
 
 ² The value is roughly derived from [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 
-³ Hosters providing an IPv6 /64 hostmask for a system can be handled by [this](./ipv6-rules.sh#L127) quirk,
-just create a cronjob like `*/5 * * * * /opt/torutils/ipv6-rules.sh manual`;
-entries to this ipset can be adeed/removed from outside too, its name is `tor_manual[6]_<Tor port>`
+³ Hosters providing an IPv6 /64 hostmask for a system are handled by [this](./ipv6-rules.sh#L127) quirk,
+just create a cronjob like `*/5 * * * * /opt/torutils/ipv6-rules.sh manual` to activate it;
+entries to this ipset can be added/removed from outside too, its name is `tor_manual[6]_<Tor port>`
 
 If the DDoS script fails to parse the Tor and/or the SSH config then overrule the parsing either by:
 
