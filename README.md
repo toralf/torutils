@@ -123,8 +123,8 @@ Then this rule set is applied:
 
 ² The value is roughly derived from [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 
-³ Hosters providing an IPv6 /64 hostmask for a system can be handled by [this](./ipv6-rules.sh#L133),
-create a cronjob and run it, e.g. every 5 min.
+³ Hosters providing an IPv6 /64 hostmask for a system can be handled by [this](./ipv6-rules.sh#L127) quirk,
+just create a cronjob like `*/5 * * * * /opt/torutils/ipv6-rules.sh manual`
 
 If the DDoS script fails to parse the Tor and/or the SSH config then overrule the parsing either by:
 

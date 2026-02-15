@@ -124,21 +124,23 @@ function __load_ipset() {
   fi
 }
 
-# Hetzner provides a /64 CIDR block for a VPS
-# iptables works with hash:ip only and not with hash:net
-# so rule 1 cannot handle different hostmasks (e.g. /56 and a/64) in an easy manner
+# few hoster provide a /64 CIDR block for IPv6 instead /56 for each system
+# iptables works with hash:ip only, not with hash:net, so rule 1 cannot handle different
+# hostmasks (e.g. /56 and a/64) in an easy backward-compatible manner
 #
-# work around that by adding the /64 CIDR block manually to the "manual" ipset;
-# actually this blocks an affected system for one additional day after the last
+# solution:
+# add the corresponding /64 CIDR blocks regularly to the "manual" ipset;
+# actually this blocks an affected system for one day longer after the last
 # /56 entry is gone from the DDoS ipset
 function fillManualIpsets() {
   ipset list -n ${1-} |
     grep "^tor-ddos6-" |
     while read -r ddoslist; do
       entries=$(
+        # Hetzner, GOIAS CONECT TELECOM EIRELI
         ipset list $ddoslist |
           sed '1,8d' |
-          grep "^2a01:4f[89]" |
+          grep -e "^2a01:4f[89]" -e "^2804:4310" |
           awk '{ print $1 }' |
           cut -f 1-4 -d ':' |
           sort -u
