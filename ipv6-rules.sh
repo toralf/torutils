@@ -50,7 +50,6 @@ function addTor() {
   __create_ipset $trustlist "maxelem 64"
   __fill_trustlist &
 
-  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 72"
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
@@ -68,16 +67,17 @@ function addTor() {
     # rule 2
     local manuallist=${ddoslist//ddos/manual}
     __create_ipset $manuallist "maxelem $max timeout $((24 * 3600))" "hash:net"
+    # "refresh" an /64 entry in this ipset before (partially rule 3)
+    $common -m set --match-set $manuallist src -m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 64 --hashlimit-name tor-ddos6-$orport-64 --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $manuallist src --exist
     $common -m set --match-set $manuallist src -j $jump
     __load_ipset $manuallist &
 
     # rule 3
-    $common $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
+    $common -m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 72 --hashlimit-name tor-ddos6-$orport-72 --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
     $common -m set --match-set $ddoslist src -j $jump
 
     # rule 4
     $common -m connlimit --connlimit-mask 72 --connlimit-above 8 -j $jump
-    $common -m connlimit --connlimit-mask 64 --connlimit-above 8 -m set --match-set $ddoslist src -j $jump
 
     # rule 5
     $common --syn -j ACCEPT

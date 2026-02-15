@@ -46,7 +46,6 @@ function addTor() {
   __create_ipset $trustlist "maxelem 64"
   __fill_trustlist &
 
-  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport"
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
@@ -68,7 +67,7 @@ function addTor() {
     __load_ipset $manuallist &
 
     # rule 3
-    $common $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
+    $common -m hashlimit --hashlimit-mode srcip,dstport --hashlimit-name tor-ddos-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
     $common -m set --match-set $ddoslist src -j $jump
 
     # rule 4
