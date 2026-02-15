@@ -124,12 +124,14 @@ function __load_ipset() {
   fi
 }
 
-# few hoster provide a /64 CIDR block for IPv6 instead /56 for each system
-# iptables works with hash:ip only, not with hash:net, so rule 1 cannot handle different
+# certain hosters provide a /64 CIDR block for IPv6 instead /56 for each system
+# iptables works with hash:ip only, not with hash:net, so rule 2 cannot handle different
 # hostmasks (e.g. /56 and a/64) in an easy backward-compatible manner
 #
 # solution:
-# add the corresponding /64 CIDR blocks regularly to the "manual" ipset;
+# if more than one /56 entry of the same /64 was caught
+# then add that /64 entry to the ipset for rule 4
+#
 # actually this blocks an affected system for one day longer after the last
 # /56 entry is gone from the DDoS ipset
 function fillManualIpsets() {
@@ -143,7 +145,10 @@ function fillManualIpsets() {
           grep -e "^2a01:4f[89]" -e "^2804:4310" |
           awk '{ print $1 }' |
           cut -f 1-4 -d ':' |
-          sort -u
+          sort |
+          uniq -c |
+          grep -v ' 1 ' |
+          awk '{ print $2 }'
       )
 
       manuallist=${ddoslist//ddos/manual}
