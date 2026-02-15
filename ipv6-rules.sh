@@ -50,7 +50,7 @@ function addTor() {
   __create_ipset $trustlist "maxelem 64"
   __fill_trustlist &
 
-  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask $netmask"
+  local hashlimit="-m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 72"
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
@@ -76,7 +76,8 @@ function addTor() {
     $common -m set --match-set $ddoslist src -j $jump
 
     # rule 4
-    $common -m connlimit --connlimit-mask $netmask --connlimit-above 8 -j $jump
+    $common -m connlimit --connlimit-mask 72 --connlimit-above 8 -j $jump
+    $common -m connlimit --connlimit-mask 64 --connlimit-above 8 -m set --match-set $ddoslist src -j $jump
 
     # rule 5
     $common --syn -j ACCEPT
@@ -85,7 +86,7 @@ function addTor() {
 
 function __create_ipset() {
   local name=$1
-  local hash=${3:-"hash:ip netmask $netmask"}
+  local hash=${3:-"hash:ip netmask 72"}
   local cmd="ipset create -exist $name $hash family inet6 $2"
 
   if $cmd 2>/dev/null; then
@@ -252,7 +253,6 @@ type ipset jq >/dev/null
 
 trustlist="tor-trust6"           # Tor authorities and snowflake servers
 jobs=$((1 + ($(nproc) - 1) / 8)) # parallel jobs of adding ips to an ipset
-netmask=72                       # assumed hostmask for the owner of an IPv6 address: /56
 # hashes and ipsets are sized with respect to the available RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
 if [[ ${ram} -gt 1 ]]; then
