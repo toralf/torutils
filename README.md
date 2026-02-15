@@ -109,9 +109,9 @@ I appreciate reports about any findings via the [issue](https://github.com/toral
 
 ### Details
 
-The DDoS scripts creates generic filter rules for the local network, ICMP, ssh, DHCP and (if given) additional services.
+The DDoS script creates generic filter rules for the local network, ICMP, ssh, DHCP and additional services (if given).
 
-Then this rule set is applied:
+Then this rule set is applied to prevent DDoS attampts against the Tor port:
 
 1. trust any connection attempt from a trusted Tor authority server
 2. block the source¹ for 24 hours if the connection attempt rate from it to the Tor port exceeds 9/min² within last 2 minutes
