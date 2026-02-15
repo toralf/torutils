@@ -59,24 +59,24 @@ function addTor() {
     __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600))"
     __load_ipset $ddoslist &
 
-    # rule 1 (only once for all up to 8 Tor instances)
+    # rule 1 (only once for all Tor instances at the same ip)
     local trust_rule="INPUT -p tcp --dst $orip --syn -m set --match-set $trustlist src -j ACCEPT"
     if ! $ipt -C $trust_rule 2>/dev/null; then
       $ipt -A $trust_rule
     fi
 
     # rule 2
-    $common $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
-    $common -m set --match-set $ddoslist src -j $jump
-
-    # rule 3
-    $common -m connlimit --connlimit-mask $netmask --connlimit-above 8 -j $jump
-
-    # rule 4
     local manuallist=${ddoslist//ddos/manual}
     __create_ipset $manuallist "maxelem $max timeout $((24 * 3600))" "hash:net"
     $common -m set --match-set $manuallist src -j $jump
     __load_ipset $manuallist &
+
+    # rule 3
+    $common $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
+    $common -m set --match-set $ddoslist src -j $jump
+
+    # rule 4
+    $common -m connlimit --connlimit-mask $netmask --connlimit-above 8 -j $jump
 
     # rule 5
     $common --syn -j ACCEPT
@@ -129,11 +129,7 @@ function __load_ipset() {
 # hostmasks (e.g. /56 and a/64) in an easy backward-compatible manner
 #
 # solution:
-# if more than one /56 entry of the same /64 was caught
-# then add that /64 entry to the ipset for rule 4
-#
-# actually this blocks an affected system for one day longer after the last
-# /56 entry is gone from the DDoS ipset
+# if a /56 entry of the same /64 was caught then add that /64 entry to the "manual" ipset
 function fillManualIpsets() {
   ipset list -n ${1-} |
     grep "^tor-ddos6-" |
@@ -145,10 +141,7 @@ function fillManualIpsets() {
           grep -e "^2a01:4f[89]" -e "^2804:4310" |
           awk '{ print $1 }' |
           cut -f 1-4 -d ':' |
-          sort |
-          uniq -c |
-          grep -v ' 1 ' |
-          awk '{ print $2 }'
+          sort -u
       )
 
       manuallist=${ddoslist//ddos/manual}

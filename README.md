@@ -130,7 +130,6 @@ using the data of rule 3
 
 ³ The value is derived from [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 
-
 If the DDoS script fails to parse the Tor and/or the SSH config then overrule automatic parsing by either:
 
 1. define the local running relay/s explicitly at the command line after the keyword `start`, e.g.:

@@ -55,24 +55,24 @@ function addTor() {
     __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600))"
     __load_ipset $ddoslist &
 
-    # rule 1 (only once for all up to 8 Tor instances)
+    # rule 1 (only once for all Tor instances at the same ip)
     local trust_rule="INPUT -p tcp --dst $orip --syn -m set --match-set $trustlist src -j ACCEPT"
     if ! $ipt -C $trust_rule 2>/dev/null; then
       $ipt -A $trust_rule
     fi
 
     # rule 2
-    $common $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
-    $common -m set --match-set $ddoslist src -j $jump
-
-    # rule 3
-    $common -m connlimit --connlimit-mask $netmask --connlimit-above 8 -j $jump
-
-    # rule 4
     local manuallist=${ddoslist//ddos/manual}
     __create_ipset $manuallist "maxelem $max timeout $((24 * 3600))" "hash:net"
     $common -m set --match-set $manuallist src -j $jump
     __load_ipset $manuallist &
+
+    # rule 3
+    $common $hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
+    $common -m set --match-set $ddoslist src -j $jump
+
+    # rule 4
+    $common -m connlimit --connlimit-mask $netmask --connlimit-above 8 -j $jump
 
     # rule 5
     $common --syn -j ACCEPT
