@@ -124,12 +124,12 @@ function __load_ipset() {
   fi
 }
 
-# certain hosters provide a /64 CIDR block for IPv6 instead /56 for each system
-# iptables works with hash:ip only, not with hash:net, so rule 2 cannot handle different
-# hostmasks (e.g. /56 and a/64) in an easy backward-compatible manner
+# certain hosters provide for each system a /64 hostmask instead of the /56 hostmask of rule 3
+# but iptables works with hash:ip only, not with hash:net, so rule 3 cannot be implemented
+# to handle different hostmasks (e.g. /56 and a/64) in an easily backward-compatible manner
 #
 # solution:
-# if a /56 entry of the same /64 was caught then add that /64 entry to the "manual" ipset
+# for all /56 hostmask entries of the same /64 hostmask add this /64 entry to the "manual" ipset
 function fillManualIpsets() {
   ipset list -n ${1-} |
     grep "^tor-ddos6-" |
