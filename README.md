@@ -144,7 +144,7 @@ If the DDoS script fails to parse the Tor and/or the SSH config then overrule au
 
 A command line argument takes precedence over the corresponding environment variable.
 
-Allow inbound traffic to additional <address:port> destinations by e.g.:
+Allow inbound traffic to additional \<address:port\> destinations by e.g.:
 
 ```bash
 export ADD_LOCAL_SERVICES="2.71.82.81:828 3.141.59.26:53"
@@ -207,7 +207,7 @@ I used [this](https://github.com/toralf/tor-relays/) Ansible code to deploy and 
 
 Every then and when I get an undesired abuse complaint from my hoster.
 To avoid this I developed [ipv4-rules-egress.sh](./ipv4-rules-egress.sh).
-Details are tracked [here](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105).
+Details are tracked in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
 
 ## Query Tor via its API
 
