@@ -68,12 +68,12 @@ function addTor() {
     local manuallist=${ddoslist//ddos/manual}
     __create_ipset $manuallist "maxelem $max timeout $((24 * 3600))" "hash:net"
     # "refresh" an /64 entry in this ipset before (partially rule 3)
-    $common -m set --match-set $manuallist src -m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 64 --hashlimit-name tor-ddos6-$orport-64 --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $manuallist src --exist
+    $common -m set --match-set $manuallist src -m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 64 --hashlimit-name tor-manual-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $manuallist src --exist
     $common -m set --match-set $manuallist src -j $jump
     __load_ipset $manuallist &
 
     # rule 3
-    $common -m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 72 --hashlimit-name tor-ddos6-$orport-72 --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
+    $common -m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 72 --hashlimit-name tor-ddos-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
     $common -m set --match-set $ddoslist src -j $jump
 
     # rule 4
