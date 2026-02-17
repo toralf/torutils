@@ -145,7 +145,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
@@ -190,7 +190,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 17,
+        "h": 8,
         "w": 12,
         "x": 12,
         "y": 1
@@ -220,7 +220,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "disableTextWrap": false,
@@ -321,7 +321,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "disableTextWrap": false,
@@ -437,7 +437,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
@@ -563,7 +563,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
@@ -718,7 +718,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
@@ -837,7 +837,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
@@ -944,7 +944,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
@@ -1053,7 +1053,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
@@ -1328,5 +1328,5 @@
   "timezone": "",
   "title": "Node hx",
   "uid": "9fa768c0-eb54-434e-85f5-bc4653f66e5c",
-  "version": 96
+  "version": 97
 }

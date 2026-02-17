@@ -144,7 +144,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
@@ -246,7 +246,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
@@ -365,7 +365,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {
@@ -468,7 +468,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "datasource": {

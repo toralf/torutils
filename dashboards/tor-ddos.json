@@ -99,7 +99,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
+        "h": 14,
         "w": 8,
         "x": 0,
         "y": 1
@@ -186,7 +186,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 8,
         "x": 8,
         "y": 1
@@ -265,7 +265,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 3,
+        "h": 5,
         "w": 8,
         "x": 16,
         "y": 1
@@ -311,7 +311,7 @@
           "useBackend": false
         }
       ],
-      "title": "ipset DDoS IPv4",
+      "title": "ipset IPv4",
       "type": "stat"
     },
     {
@@ -346,91 +346,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 3,
-        "w": 8,
-        "x": 16,
-        "y": 4
-      },
-      "id": 99,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.3.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "XbGvg5aVz"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "exemplar": false,
-          "expr": "torutils_ipset{ipver=\"6\", instance=~\"$Instance\", nickname=~\"$Nickname\", netmask=\"64\"}",
-          "format": "time_series",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "{{nickname}}",
-          "range": false,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "ipset /64 IPv6",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "XbGvg5aVz"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 0,
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
+        "h": 5,
         "w": 8,
         "x": 8,
-        "y": 7
+        "y": 6
       },
       "id": 93,
       "options": {
@@ -508,10 +427,91 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 3,
+        "h": 5,
         "w": 8,
         "x": 16,
-        "y": 7
+        "y": 6
+      },
+      "id": 99,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "XbGvg5aVz"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "torutils_ipset{ipver=\"6\", instance=~\"$Instance\", nickname=~\"$Nickname\", netmask=\"64\"}",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "{{nickname}}",
+          "range": false,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "ipset /64 IPv6",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "XbGvg5aVz"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 11
       },
       "id": 114,
       "options": {
@@ -563,7 +563,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 10
+        "y": 16
       },
       "id": 35,
       "panels": [],
@@ -638,7 +638,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 11
+        "y": 17
       },
       "id": 20,
       "options": {
@@ -761,7 +761,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 11
+        "y": 17
       },
       "id": 18,
       "options": {
@@ -887,7 +887,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 18
+        "y": 24
       },
       "id": 22,
       "options": {
@@ -1038,7 +1038,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 18
+        "y": 24
       },
       "id": 90,
       "options": {
@@ -1145,7 +1145,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 25
+        "y": 31
       },
       "id": 63,
       "options": {
@@ -1208,7 +1208,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 38
       },
       "id": 33,
       "panels": [],
@@ -1284,7 +1284,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 33
+        "y": 39
       },
       "id": 94,
       "options": {
@@ -1391,7 +1391,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 33
+        "y": 39
       },
       "id": 2,
       "options": {
@@ -1499,7 +1499,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 40
+        "y": 46
       },
       "id": 87,
       "options": {
@@ -1544,11 +1544,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 47
+        "y": 53
       },
       "id": 37,
       "panels": [],
-      "title": "Torutils Iptables",
+      "title": "Torutils Iptables Dropped Packages",
       "type": "row"
     },
     {
@@ -1619,7 +1619,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 48
+        "y": 54
       },
       "id": 79,
       "options": {
@@ -1743,7 +1743,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 48
+        "y": 54
       },
       "id": 80,
       "options": {
@@ -1805,11 +1805,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 55
+        "y": 61
       },
-      "id": 97,
+      "id": 116,
       "panels": [],
-      "title": "Torutils Ipsets",
+      "title": "Torutils Ipset Dropped Packages",
       "type": "row"
     },
     {
@@ -1874,7 +1874,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "pps"
         },
         "overrides": []
       },
@@ -1882,7 +1882,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 56
+        "y": 62
       },
       "id": 106,
       "options": {
@@ -1983,7 +1983,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "pps"
         },
         "overrides": []
       },
@@ -1991,116 +1991,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 56
-      },
-      "id": 31,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "width": 100
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "maxHeight": 600,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.3.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "XbGvg5aVz"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "torutils_ipset{ipver=\"4\", nickname=~\"$Nickname\", instance=~\"$Instance\", job=~\"$Job\", netmask=\"32\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{nickname}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "Ipset IPv4",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "default": true,
-        "type": "prometheus",
-        "uid": "XbGvg5aVz"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "axisWidth": 100,
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 0,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 63
+        "y": 62
       },
       "id": 104,
       "options": {
@@ -2201,6 +2092,239 @@
               }
             ]
           },
+          "unit": "pps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 69
+      },
+      "id": 108,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 100
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "XbGvg5aVz"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "sum by(nickname) (rate(torutils_dropped_ipset_packets{ipver=\"6\", nickname=~\"$Nickname\", job=~\"$Job\", netmask=\"72\"}[$__rate_interval]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "{{nickname}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Dropped /72 IPv6",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 76
+      },
+      "id": 97,
+      "panels": [],
+      "title": "Torutils Ipsets Size",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "default": true,
+        "type": "prometheus",
+        "uid": "XbGvg5aVz"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "axisWidth": 100,
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 77
+      },
+      "id": 31,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "width": 100
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "XbGvg5aVz"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "torutils_ipset{ipver=\"4\", nickname=~\"$Nickname\", instance=~\"$Instance\", job=~\"$Job\", netmask=\"32\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "{{nickname}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Ipset IPv4",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "default": true,
+        "type": "prometheus",
+        "uid": "XbGvg5aVz"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMax": 100,
+            "axisSoftMin": 0,
+            "axisWidth": 100,
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "max": 150,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
           "unit": "none"
         },
         "overrides": []
@@ -2209,7 +2333,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 63
+        "y": 77
       },
       "id": 111,
       "options": {
@@ -2297,115 +2421,7 @@
           },
           "decimals": 0,
           "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 70
-      },
-      "id": 108,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "width": 100
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "maxHeight": 600,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.3.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "XbGvg5aVz"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "sum by(nickname) (rate(torutils_dropped_ipset_packets{ipver=\"6\", nickname=~\"$Nickname\", job=~\"$Job\", netmask=\"72\"}[$__rate_interval]))",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{nickname}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "Dropped /72 IPv6",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "default": true,
-        "type": "prometheus",
-        "uid": "XbGvg5aVz"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "axisSoftMin": 0,
-            "axisWidth": 100,
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 0,
-          "mappings": [],
+          "max": 100,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -2427,7 +2443,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 70
+        "y": 84
       },
       "id": 112,
       "options": {
@@ -2472,7 +2488,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 77
+        "y": 91
       },
       "id": 115,
       "panels": [],
@@ -2549,7 +2565,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 78
+        "y": 92
       },
       "id": 107,
       "options": {
@@ -2585,7 +2601,7 @@
           "useBackend": false
         }
       ],
-      "title": "Hashlimit DDoS IPv4",
+      "title": "Hashlimit IPv4",
       "type": "timeseries"
     },
     {
@@ -2658,7 +2674,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 78
+        "y": 92
       },
       "id": 109,
       "options": {
@@ -2767,7 +2783,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 85
+        "y": 99
       },
       "id": 110,
       "options": {
@@ -2812,7 +2828,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 92
+        "y": 106
       },
       "id": 39,
       "panels": [],
@@ -2847,7 +2863,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 93
+        "y": 107
       },
       "id": 96,
       "options": {
@@ -2925,7 +2941,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 93
+        "y": 107
       },
       "id": 44,
       "options": {
@@ -3003,7 +3019,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 100
+        "y": 114
       },
       "id": 113,
       "options": {
@@ -3062,8 +3078,8 @@
     "list": [
       {
         "current": {
-          "text": "Node localhost",
-          "value": "Node localhost"
+          "text": "Tor-DDoS",
+          "value": "Tor-DDoS"
         },
         "definition": "label_values(torutils_dropped_ipset_packets,job)",
         "name": "Job",
@@ -3128,12 +3144,12 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-7d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "utc",
   "title": "Tor DDoS",
   "uid": "FgvRNta4k",
-  "version": 613
+  "version": 628
 }
