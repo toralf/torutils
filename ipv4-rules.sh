@@ -61,27 +61,20 @@ function addTor() {
     fi
 
     # rule 2
-    local manuallist=${ddoslist//ddos/manual}
-    __create_ipset $manuallist "maxelem $max timeout $((24 * 3600))" "hash:net"
-    $common -m set --match-set $manuallist src -j $jump
-    __load_ipset $manuallist &
-
-    # rule 3
     $common -m hashlimit --hashlimit-mode srcip,dstport --hashlimit-name tor-ddos-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
     $common -m set --match-set $ddoslist src -j $jump
 
-    # rule 4
+    # rule 3
     $common -m connlimit --connlimit-above 8 -j $jump
 
-    # rule 5
+    # rule 4
     $common --syn -j ACCEPT
   done
 }
 
 function __create_ipset() {
   local name=$1
-  local hash=${3:-"hash:ip"}
-  local cmd="ipset create -exist $name $hash family inet ${2-}"
+  local cmd="ipset create -exist $name hash:ip family inet ${2-}"
 
   if $cmd 2>/dev/null; then
     return 0
@@ -220,7 +213,7 @@ function saveCertainIpsets() {
   [[ -d $tmpdir ]] || return 1
 
   ipset list -n |
-    grep -e '^tor-ddos-[0-9]*$' -e '^tor-manual-[0-9]*$' -e '^tor-trust$' |
+    grep -e '^tor-ddos-[0-9]*$' -e '^tor-trust$' |
     while read -r name; do
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       if ipset list $name >$tmpfile; then

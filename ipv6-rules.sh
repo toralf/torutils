@@ -47,47 +47,59 @@ function addCommon() {
 }
 
 function addTor() {
-  __create_ipset $trustlist "maxelem 64"
+  # trust them, so do not narrow down to the Tor ORport
+  __create_ipset $trustlist "hash:ip maxelem 64"
   __fill_trustlist &
 
+  # those do provide a /64 hostmask instead of a /56
+  hoster64list="tor_hoster64"
+  __create_ipset $hoster64list "hash:net maxelem 64"
+  for h in "2a01:4f8::/29" "2804:4310::/32"; do
+    ipset add -exist $hoster64list $h
+  done
+
+  # run over all (up to 8 in moment) relays
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
 
-    local ddoslist="tor-ddos6-$orport" # this holds ips classified as DDoS'ing the local OR port
-    __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600))"
-    __load_ipset $ddoslist &
+    # rule 1 (trust Tor authorities)
 
-    # rule 1 (only once for all Tor instances at the same ip)
     local trust_rule="INPUT -p tcp --dst $orip --syn -m set --match-set $trustlist src -j ACCEPT"
     if ! $ipt -C $trust_rule 2>/dev/null; then
       $ipt -A $trust_rule
     fi
 
-    # rule 2
-    local manuallist=${ddoslist//ddos/manual}
-    __create_ipset $manuallist "maxelem $max timeout $((24 * 3600))" "hash:net"
-    # "refresh" an /64 entry in this ipset before (partially rule 3)
-    $common -m set --match-set $manuallist src -m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 64 --hashlimit-name tor-manual-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $manuallist src --exist
-    $common -m set --match-set $manuallist src -j $jump
-    __load_ipset $manuallist &
+    # rule 2 (DDoS'ing the local OR port)
 
-    # rule 3
-    $common -m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 72 --hashlimit-name tor-ddos-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
-    $common -m set --match-set $ddoslist src -j $jump
+    local ddoslist64="tor-ddos64-$orport"
+    __create_ipset $ddoslist64 "hash:ip netmask 64 maxelem $max timeout $((24 * 3600))"
+    __load_ipset $ddoslist64 &
+
+    $common -m set --match-set $hoster64list src -m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 64 --hashlimit-name tor-ddos64-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist64 src --exist
+    $common -m set --match-set $ddoslist64 src -j $jump
+
+    local ddoslist72="tor-ddos72-$orport"
+    __create_ipset $ddoslist72 "hash:ip netmask 72 maxelem $max timeout $((24 * 3600))"
+    __load_ipset $ddoslist72 &
+
+    $common -m set ! --match-set $hoster64list src -m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 72 --hashlimit-name tor-ddos72-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist72 src --exist
+    $common -m set --match-set $ddoslist72 src -j $jump
+
+    # rule 3 (N connection for N allowed Tor relays per ip)
+
+    $common -m set --match-set $hoster64list src -m connlimit --connlimit-mask 64 --connlimit-above 8 -j $jump
+    $common -m set ! --match-set $hoster64list src -m connlimit --connlimit-mask 72 --connlimit-above 8 -j $jump
 
     # rule 4
-    $common -m connlimit --connlimit-mask 72 --connlimit-above 8 -j $jump
 
-    # rule 5
     $common --syn -j ACCEPT
   done
 }
 
 function __create_ipset() {
   local name=$1
-  local hash=${3:-"hash:ip netmask 72"}
-  local cmd="ipset create -exist $name $hash family inet6 $2"
+  local cmd="ipset create -exist $name $2 family inet6"
 
   if $cmd 2>/dev/null; then
     return 0
@@ -101,7 +113,7 @@ function __create_ipset() {
 }
 
 function __fill_trustlist() {
-  # this is intentionally not filled from a saved set at reboot
+  # this is intentionally not loaded from a saved set
   (
     # snowflakes
     echo 2a0c:dd40:1:b::42 2607:f018:600:8:be30:5bff:fef1:c6fa
@@ -123,31 +135,6 @@ function __load_ipset() {
   if [[ -s $tmpdir/$1 ]]; then
     xargs -r -L 1 -P $jobs ipset add -exist $1 <$tmpdir/$1 # -L 1 b/c the inputs are tuples
   fi
-}
-
-# certain hosters provide for each system a /64 hostmask instead of the /56 hostmask of rule 3
-# but iptables works with hash:ip only, not with hash:net, so rule 3 cannot be implemented
-# to handle different hostmasks (e.g. /56 and a/64) in an easily backward-compatible manner
-#
-# solution:
-# for all /56 hostmask entries of the same /64 hostmask add this /64 entry to the "manual" ipset
-function fillManualIpsets() {
-  ipset list -n ${1-} |
-    grep "^tor-ddos6-" |
-    while read -r ddoslist; do
-      entries=$(
-        # Hetzner, GOIAS CONECT TELECOM EIRELI
-        ipset list $ddoslist |
-          sed '1,8d' |
-          grep -e "^2a01:4f[89]" -e "^2804:4310" |
-          awk '{ print $1 }' |
-          cut -f 1-4 -d ':' |
-          sort -u
-      )
-
-      manuallist=${ddoslist//ddos/manual}
-      xargs -r -P $jobs -I{} ipset add -exist $manuallist {}::/64 <<<$entries
-    done
 }
 
 function addServices() {
@@ -173,7 +160,7 @@ function addServices() {
 function addHetzner() {
   local sysmon="hetzner-sysmon6"
 
-  __create_ipset $sysmon "maxelem 64"
+  __create_ipset $sysmon "hash:ip maxelem 64"
   $ipt -A INPUT -m set --match-set $sysmon src -j ACCEPT
   {
     (
@@ -230,7 +217,7 @@ function saveCertainIpsets() {
   [[ -d $tmpdir ]] || return 1
 
   ipset list -n |
-    grep -e '^tor-ddos6-[0-9]*$' -e '^tor-manual6-[0-9]*$' -e '^tor-trust6$' |
+    grep -e '^tor-trust6$' -e '^tor-ddos64-[0-9]*$' -e '^tor-ddos72-[0-9]*$' |
     while read -r name; do
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       if ipset list $name >$tmpfile; then
@@ -309,9 +296,6 @@ test)
   ;;
 save)
   saveCertainIpsets
-  ;;
-manual)
-  fillManualIpsets
   ;;
 *)
   printRuleStatistics

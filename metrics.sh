@@ -23,54 +23,42 @@ function printMetricsIptables() {
 
   var="torutils_dropped_state_packets"
   echo -e "# HELP $var Total number of dropped packets due to wrong TCP state\n# TYPE $var gauge"
-  for v in "" 6; do
-    if [[ -z $v ]]; then
-      echo "$tables4"
-    else
-      echo "$tables6"
-    fi |
-      grep 'DROP .*state [NEW|INVALID]' |
-      awk '{ print $1, $NF }' |
-      while read -r pkts state; do
-        echo "$var{ipver=\"${v:-4}\",state=\"$state\"} $pkts"
-      done
-  done
 
-  # DEPRECATED
-  var="torutils_dropped_ddos_packets"
-  echo -e "# HELP $var Total number of dropped packets due to being classified as DDoS\n# TYPE $var gauge"
-  for v in "" 6; do
-    if [[ -z $v ]]; then
-      echo "$tables4"
-    else
-      echo "$tables6"
-    fi |
-      grep ' DROP .* match-set tor-ddos'$v'-' |
+  echo "$tables4" |
+    grep 'DROP .*state [NEW|INVALID]' |
+    awk '{ print $1, $NF }' |
+    while read -r pkts state; do
+      echo "$var{ipver=\"4\",state=\"$state\"} $pkts"
+    done
+
+  echo "$tables6" |
+    grep 'DROP .*state [NEW|INVALID]' |
+    awk '{ print $1, $NF }' |
+    while read -r pkts state; do
+      echo "$var{ipver=\"6\",state=\"$state\"} $pkts"
+    done
+
+  var="torutils_dropped_ipset_packets"
+  echo -e "# HELP $var Total number of dropped packets by ipset\n# TYPE $var gauge"
+
+  echo "$tables4" |
+    grep " DROP .* match-set tor-ddos-" |
+    awk '{ print $1, $11 }' |
+    while read -r pkts dport; do
+      orport=$(cut -f 2 -d ':' <<<$dport)
+      nickname=${NICKNAME:-$(_orport2nickname $orport)}
+      echo "$var{ipver=\"4\",nickname=\"$nickname\",netmask=\"32\"} $pkts"
+    done
+
+  for netmask in 64 72; do
+    echo "$tables6" |
+      grep " DROP .* match-set tor-ddos$netmask-" |
       awk '{ print $1, $11 }' |
       while read -r pkts dport; do
         orport=$(cut -f 2 -d ':' <<<$dport)
         nickname=${NICKNAME:-$(_orport2nickname $orport)}
-        echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\"} $pkts"
+        echo "$var{ipver=\"6\",nickname=\"$nickname\",netmask=\"$netmask\"} $pkts"
       done
-  done
-
-  var="torutils_dropped_ipset_packets"
-  echo -e "# HELP $var Total number of dropped packets by ipset\n# TYPE $var gauge"
-  for mode in "ddos" "manual"; do
-    for v in "" 6; do
-      if [[ -z $v ]]; then
-        echo "$tables4"
-      else
-        echo "$tables6"
-      fi |
-        grep " DROP .* match-set tor-${mode}$v-" |
-        awk '{ print $1, $11 }' |
-        while read -r pkts dport; do
-          orport=$(cut -f 2 -d ':' <<<$dport)
-          nickname=${NICKNAME:-$(_orport2nickname $orport)}
-          echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\",mode=\"$mode\"} $pkts"
-        done
-    done
   done
 }
 
@@ -82,6 +70,7 @@ function _ipset2nickname() {
 }
 
 function _histogram() {
+  # shellcheck disable=SC2154
   LC_ALL=$LANG perl -wane '
     BEGIN {
       @arr = (0) x 24;  # 0-23 hour
@@ -101,32 +90,39 @@ function _histogram() {
       my $N = 0;
       for (my $i = 0; $i <= $#arr; $i++) {
         $N += $arr[$i];
-        print "'${var}'_bucket{ipver=\"'${v:-4}'\",nickname=\"'$nickname'\",mode=\"'$mode'\",le=\"$i\"} $N\n";
+        print "'$var'_bucket{ipver=\"'$v'\",nickname=\"'$nickname'\",netmask=\"'$netmask'\",le=\"$i\"} $N\n";
       }
       my $count = $N + $inf;
-      print "'${var}'_bucket{ipver=\"'${v:-4}'\",nickname=\"'$nickname'\",mode=\"'$mode'\",le=\"+Inf\"} $count\n";
-      print "'${var}'_count{ipver=\"'${v:-4}'\",nickname=\"'$nickname'\",mode=\"'$mode'\"} $count\n";
+      print "'$var'_bucket{ipver=\"'$v'\",nickname=\"'$nickname'\",netmask=\"'$netmask'\",le=\"+Inf\"} $count\n";
+      print "'$var'_count{ipver=\"'$v'\",nickname=\"'$nickname'\",netmask=\"'$netmask'\"} $count\n";
     }'
 }
 
 function printMetricsIpsets() {
   local count
-  local mode
   local name
   local var
 
   ###############################
-  # ipset timeout values
+  # ipset timeout values (for histogram)
   #
-  export mode="ddos"
+
   export var="torutils_ipset_timeout"
   echo -e "# HELP $var A histogram of ipset timeout values\n# TYPE $var histogram"
-  for v in "" 6; do
+  ipset list -n |
+    grep '^tor-ddos-' |
+    while read -r name; do
+      nickname=${NICKNAME:-$(_ipset2nickname $name)}
+      echo "\"nickname=$nickname; v=4; netmask=32; ipset list $name | sed -e '1,8d' | _histogram\""
+    done |
+    xargs -r -P $cpus -L 1 bash -c
+
+  for netmask in 64 72; do
     ipset list -n |
-      grep '^tor-'${mode}${v}'-' |
+      grep "^tor-ddos$netmask-" |
       while read -r name; do
-        export nickname=${NICKNAME:-$(_ipset2nickname $name)}
-        echo "\"nickname=$nickname; v=$v; ipset list $name | sed -e '1,8d' | _histogram\""
+        nickname=${NICKNAME:-$(_ipset2nickname $name)}
+        echo "\"nickname=$nickname; v=6; netmask=$netmask; ipset list $name | sed -e '1,8d' | _histogram\""
       done |
       xargs -r -P $cpus -L 1 bash -c
   done
@@ -137,41 +133,45 @@ function printMetricsIpsets() {
 
   var="torutils_ipset"
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
-  for v in "" 6; do
+
+  ipset list -t |
+    grep "^N" |
+    xargs -L 2 |
+    awk '/^Name: tor-ddos-/ { print $2, $6 }' |
+    while read -r name size; do
+      nickname=${NICKNAME:-$(_ipset2nickname $name)}
+      echo "$var{ipver=\"4\",nickname=\"$nickname\",netmask=\"32\"} $size"
+    done
+
+  for netmask in 64 72; do
     ipset list -t |
       grep "^N" |
       xargs -L 2 |
-      awk '/^Name: tor-/ { print $2, $6 }' |
-      if [[ -z $v ]]; then
-        grep -v -E -e "-[a-z]+6[ -]"
-      else
-        grep -E -e "-[a-z]+6[ -]"
-      fi |
+      awk '/^Name: tor-ddos'$netmask'-/ { print $2, $6 }' |
       while read -r name size; do
-        mode=$(cut -f 2 -d '-' -s <<<$name | tr -d '6')
-        if [[ $name =~ 'trust' ]]; then
-          echo "$var{ipver=\"${v:-4}\",mode=\"$mode\"} $size"
-        else
-          nickname=${NICKNAME:-$(_ipset2nickname $name)}
-          echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\",mode=\"$mode\"} $size"
-        fi
+        nickname=${NICKNAME:-$(_ipset2nickname $name)}
+        echo "$var{ipver=\"6\",nickname=\"$nickname\",netmask=\"$netmask\"} $size"
       done
   done
 
   ###############################
   # hashlimit sizes
   #
-  mode="ddos"
-
   var="torutils_hashlimit"
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
-  for v in "" 6; do
-    # --total=never is not known in Debians (bookworm) "wc"
-    wc -l /proc/net/ip${v}t_hashlimit/tor-$mode-* 2>/dev/null |
+  wc -l /proc/net/ipt_hashlimit/tor-ddos-* 2>/dev/null |
+    grep -v 'total' |
+    while read -r count name; do
+      nickname=${NICKNAME:-$(_ipset2nickname $name)}
+      echo "$var{ipver=\"4\",nickname=\"$nickname\",netmask=\"32\"} $count"
+    done
+
+  for netmask in 64 72; do
+    wc -l /proc/net/ip6t_hashlimit/tor-ddos$netmask-* 2>/dev/null |
       grep -v 'total' |
       while read -r count name; do
         nickname=${NICKNAME:-$(_ipset2nickname $name)}
-        echo "$var{ipver=\"${v:-4}\",nickname=\"$nickname\",mode=\"$mode\"} $count"
+        echo "$var{ipver=\"6\",nickname=\"$nickname\",netmask=\"$netmask\"} $count"
       done
   done
 }
