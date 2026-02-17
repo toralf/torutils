@@ -1094,7 +1094,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
-            "axisWidth": 79,
+            "axisWidth": 100,
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
@@ -3078,8 +3078,8 @@
     "list": [
       {
         "current": {
-          "text": "Tor-DDoS",
-          "value": "Tor-DDoS"
+          "text": "Node localhost",
+          "value": "Node localhost"
         },
         "definition": "label_values(torutils_dropped_ipset_packets,job)",
         "name": "Job",
@@ -3151,5 +3151,5 @@
   "timezone": "utc",
   "title": "Tor DDoS",
   "uid": "FgvRNta4k",
-  "version": 628
+  "version": 629
 }
