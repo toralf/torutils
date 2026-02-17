@@ -54,7 +54,7 @@ function addTor() {
   # suspects found in the /72 ipsets
   hoster64list="tor_hoster64"
   __create_ipset $hoster64list "hash:net maxelem 64"
-  for h in "2405:acc0::/48" "2605:59c8::/32" "2804:389::/32" "2806:370::/32" "2a01:4f8::/29" "2a03:d000::/36" "2c0f:3d0::/32"; do
+  for h in "2a01:4f8::/29"; do
     ipset add -exist $hoster64list $h
   done
 
