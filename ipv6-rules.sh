@@ -51,14 +51,14 @@ function addTor() {
   __create_ipset $trustlist "hash:ip maxelem 64"
   __fill_trustlist &
 
-  # those do provide a /64 hostmask instead of a /56
+  # suspects found in the /72 ipsets
   hoster64list="tor_hoster64"
   __create_ipset $hoster64list "hash:net maxelem 64"
-  for h in "2a01:4f8::/29" "2804:4310::/32"; do
+  for h in "2405:acc0::/48" "2605:59c8::/32" "2804:389::/32" "2806:370::/32" "2a01:4f8::/29" "2a03:d000::/36" "2c0f:3d0::/32"; do
     ipset add -exist $hoster64list $h
   done
 
-  # run over all (up to 8 in moment) relays
+  # run over all relays
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
@@ -86,7 +86,7 @@ function addTor() {
     $common -m set ! --match-set $hoster64list src -m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 72 --hashlimit-name tor-ddos72-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist72 src --exist
     $common -m set --match-set $ddoslist72 src -j $jump
 
-    # rule 3 (N connection for N allowed Tor relays per ip)
+    # rule 3 (only 1 conenction to each of N allowed Tor relays)
 
     $common -m set --match-set $hoster64list src -m connlimit --connlimit-mask 64 --connlimit-above 8 -j $jump
     $common -m set ! --match-set $hoster64list src -m connlimit --connlimit-mask 72 --connlimit-above 8 -j $jump
