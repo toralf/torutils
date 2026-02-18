@@ -62,7 +62,8 @@ function addTor() {
   # ipv6 prefixes known to hold systems with a /56 hostmask
   hoster72list="tor-hoster72"
   __create_ipset $hoster72list "hash:net maxelem 64"
-  for h in "2001:ba0:280::/37" "2607:f1c0:f023::/38" "2a00:da00:f408::/38" "2a01:239:2ea::/37" "2a02:2479:7b::/41"; do
+  # shellcheck disable=SC2043
+  for h in ; do
     ipset add -exist $hoster72list $h
   done
 
