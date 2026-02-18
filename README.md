@@ -121,7 +121,7 @@ Then this rule set is applied to prevent DDoS attampts against the Tor port:
 3. ignore the connection attempt if there are already 8 established connections to the Tor port (max 8 relays are allowed per ip address)
 4. accept the connection attempt to the Tor port
 
-¹ For IPv4 _source_ is a single ip address, for IPv6 a /56 hostmask (/64 for hard coded hosters respectively)
+¹ For IPv4 the _source_ is a single ip address, for IPv6 _source_ is a hostmask of either /64, /56 or /48, see [here](./ipv6-rules.sh#L49).
 
 ² The value is derived from [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 

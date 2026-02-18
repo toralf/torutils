@@ -51,45 +51,72 @@ function addTor() {
   __create_ipset $trustlist "hash:ip maxelem 64"
   __fill_trustlist &
 
-  # suspects found in the /72 ipsets
-  hoster64list="tor_hoster64"
+  # ipv6 prefixes known to hold systems with a /64 hostmask
+  hoster64list="tor-hoster64"
   __create_ipset $hoster64list "hash:net maxelem 64"
+  # shellcheck disable=SC2043
   for h in "2a01:4f8::/29"; do
     ipset add -exist $hoster64list $h
   done
+
+  # ipv6 prefixes known to hold systems with a /56 hostmask
+  hoster72list="tor-hoster72"
+  __create_ipset $hoster72list "hash:net maxelem 64"
+  for h in "2001:ba0:280::/37" "2607:f1c0:f023::/38" "2a00:da00:f408::/38" "2a01:239:2ea::/37" "2a02:2479:7b::/41"; do
+    ipset add -exist $hoster72list $h
+  done
+
+  # common for each hostmask
+  hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire 120000"
 
   # run over all relays
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
 
-    # rule 1 (trust Tor authorities)
+    # rule 1 (trust Tor authorities independed of the ORport)
 
     local trust_rule="INPUT -p tcp --dst $orip --syn -m set --match-set $trustlist src -j ACCEPT"
     if ! $ipt -C $trust_rule 2>/dev/null; then
       $ipt -A $trust_rule
     fi
 
-    # rule 2 (DDoS'ing the local OR port)
+    # rule 2 (catch DDoS)
 
+    # idea: check wrt known hosters providing /64 or /56 hostmask respectively, otherwise assume a /48 hostmask
+
+    # /64 hostmask
     local ddoslist64="tor-ddos64-$orport"
-    __create_ipset $ddoslist64 "hash:ip netmask 64 maxelem $max timeout $((24 * 3600))"
+    __create_ipset $ddoslist64 "hash:ip netmask 64 maxelem $max timeout 86400"
     __load_ipset $ddoslist64 &
 
-    $common -m set --match-set $hoster64list src -m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 64 --hashlimit-name tor-ddos64-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist64 src --exist
+    $common -m set --match-set $hoster64list src \
+      -m hashlimit --hashlimit-srcmask 64 --hashlimit-name $ddoslist64 $hashlimit_opts -j SET --add-set $ddoslist64 src --exist
     $common -m set --match-set $ddoslist64 src -j $jump
 
+    # /56 hostmask
     local ddoslist72="tor-ddos72-$orport"
-    __create_ipset $ddoslist72 "hash:ip netmask 72 maxelem $max timeout $((24 * 3600))"
+    __create_ipset $ddoslist72 "hash:ip netmask 72 maxelem $max timeout 86400"
     __load_ipset $ddoslist72 &
 
-    $common -m set ! --match-set $hoster64list src -m hashlimit --hashlimit-mode srcip,dstport --hashlimit-srcmask 72 --hashlimit-name tor-ddos72-$orport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist72 src --exist
+    $common -m set --match-set $hoster72list src \
+      -m hashlimit --hashlimit-srcmask 72 --hashlimit-name $ddoslist72 $hashlimit_opts -j SET --add-set $ddoslist72 src --exist
     $common -m set --match-set $ddoslist72 src -j $jump
 
-    # rule 3 (only 1 conenction to each of N allowed Tor relays)
+    # /48 hostmask
+    local ddoslist80="tor-ddos80-$orport"
+    __create_ipset $ddoslist80 "hash:ip netmask 80 maxelem $max timeout 86400"
+    __load_ipset $ddoslist80 &
+
+    $common -m set ! --match-set $hoster64list src -m set ! --match-set $hoster72list src \
+      -m hashlimit --hashlimit-srcmask 80 --hashlimit-name $ddoslist80 $hashlimit_opts -j SET --add-set $ddoslist80 src --exist
+    $common -m set --match-set $ddoslist80 src -j $jump
+
+    # rule 3 (only 1 connection from up to 8 (currently allowed) Tor relays originating from the same source)
 
     $common -m set --match-set $hoster64list src -m connlimit --connlimit-mask 64 --connlimit-above 8 -j $jump
-    $common -m set ! --match-set $hoster64list src -m connlimit --connlimit-mask 72 --connlimit-above 8 -j $jump
+    $common -m set --match-set $hoster72list src -m connlimit --connlimit-mask 72 --connlimit-above 8 -j $jump
+    $common -m set ! --match-set $hoster64list src -m set ! --match-set $hoster72list src -m connlimit --connlimit-mask 80 --connlimit-above 8 -j $jump
 
     # rule 4
 
@@ -217,7 +244,7 @@ function saveCertainIpsets() {
   [[ -d $tmpdir ]] || return 1
 
   ipset list -n |
-    grep -e '^tor-trust6$' -e '^tor-ddos64-[0-9]*$' -e '^tor-ddos72-[0-9]*$' |
+    grep -e '^tor-trust6$' -e '^tor-ddos64-[0-9]*$' -e '^tor-ddos72-[0-9]*$' -e '^tor-ddos80-[0-9]*$' |
     while read -r name; do
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       if ipset list $name >$tmpfile; then
