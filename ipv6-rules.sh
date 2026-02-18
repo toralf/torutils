@@ -55,7 +55,8 @@ function addTor() {
   hoster64list="tor-hoster64"
   __create_ipset $hoster64list "hash:net maxelem 64"
   # shellcheck disable=SC2043
-  for h in "2a01:4f8::/29"; do
+  for h in "2a01:4f8::/32"; do
+    ipset flush $hoster64list
     ipset add -exist $hoster64list $h
   done
 
@@ -64,6 +65,7 @@ function addTor() {
   __create_ipset $hoster72list "hash:net maxelem 64"
   # shellcheck disable=SC2043
   for h in ; do
+    ipset flush $hoster72list
     ipset add -exist $hoster72list $h
   done
 
