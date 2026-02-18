@@ -55,7 +55,7 @@ function addTor() {
   hoster64list="tor-hoster64"
   __create_ipset $hoster64list "hash:net maxelem 64"
   ipset flush $hoster64list
-  for h in "2a01:4f8::/31" "2a12:a800::/29"; do
+  for h in "2a01:4f8::/31"; do
     ipset add -exist $hoster64list $h
   done
 
