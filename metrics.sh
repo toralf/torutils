@@ -50,7 +50,7 @@ function printMetricsIptables() {
       echo "$var{ipver=\"4\",nickname=\"$nickname\",netmask=\"32\"} $pkts"
     done
 
-  for netmask in 64 72 80; do
+  for netmask in 64 80 128; do
     echo "$tables6" |
       grep " DROP .* match-set tor-ddos$netmask-" |
       awk '{ print $1, $11 }' |
@@ -117,7 +117,7 @@ function printMetricsIpsets() {
     done |
     xargs -r -P $cpus -L 1 bash -c
 
-  for netmask in 64 72 80; do
+  for netmask in 64 80 128; do
     ipset list -n |
       grep "^tor-ddos$netmask-" |
       while read -r name; do
@@ -143,7 +143,7 @@ function printMetricsIpsets() {
       echo "$var{ipver=\"4\",nickname=\"$nickname\",netmask=\"32\"} $size"
     done
 
-  for netmask in 64 72 80; do
+  for netmask in 64 80 128; do
     ipset list -t |
       grep "^N" |
       xargs -L 2 |
@@ -166,7 +166,7 @@ function printMetricsIpsets() {
       echo "$var{ipver=\"4\",nickname=\"$nickname\",netmask=\"32\"} $count"
     done
 
-  for netmask in 64 72 80; do
+  for netmask in 64 80 128; do
     wc -l /proc/net/ip6t_hashlimit/tor-ddos$netmask-* 2>/dev/null |
       grep -v 'total' |
       while read -r count name; do
