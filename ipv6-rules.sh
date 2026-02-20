@@ -86,7 +86,7 @@ function addTor() {
 
     # rule 2 (catch DDoS)
 
-    # idea: check for hosters providing e.g. a /64 or /80 hostmask, otherwise assume a single IPv6 ip
+    # idea: check for hosters providing e.g. a /64 or /80 netmask, otherwise assume /128
 
     # /64 netmask, e.g. Hetzner
     local ddoslist64="tor-ddos64-$orport"
