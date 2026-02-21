@@ -51,21 +51,21 @@ function addTor() {
   __create_ipset $trustlist "hash:ip maxelem 64"
   __fill_trustlist &
 
-  # known ipv6 prefixes for systems with a /64 hostmask
+  # known ipv6 prefixes for systems with a /64 hostmask (e.g. Hetzner)
   hoster64list="tor-hoster64"
   __create_ipset $hoster64list "hash:net maxelem 64"
   ipset flush $hoster64list
   # shellcheck disable=SC2043
-  for h in "2a01:4f8::/31"; do
+  for h in 2a01:4f8::/32 2a01:4f9::/32 2a01:4ff:ff01::/48 2a06:be80::/29 2a11:e980::/29 2a12:2240::/29; do
     ipset add -exist $hoster64list $h
   done
 
-  # known ipv6 prefixes for systems with a /80 hostmask
+  # known ipv6 prefixes for systems with a /80 hostmask (e.g. IONOS)
   hoster80list="tor-hoster80"
   __create_ipset $hoster80list "hash:net maxelem 64"
   # shellcheck disable=SC2043
   ipset flush $hoster80list
-  for h in ; do
+  for h in 2a0d:7f00::/29 2a00:1a68::/32 2a00:da00:8000::/34 2607:f1c0::/32; do
     ipset add -exist $hoster80list $h
   done
 
