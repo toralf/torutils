@@ -95,8 +95,6 @@ function _histogram() {
 }
 
 function printMetricsIpsets() {
-  local count
-  local name
   local var
 
   ###############################
@@ -150,6 +148,10 @@ function printMetricsIpsets() {
         echo "$var{ipver=\"6\",nickname=\"$nickname\",netmask=\"$netmask\"} $size"
       done
   done
+}
+
+function printMetricsHashes() {
+  local var
 
   ###############################
   # hashlimit sizes
@@ -236,6 +238,7 @@ while :; do
     printMetricsIptables >>$tmpfile
     if type ipset 1>/dev/null 2>&1; then
       printMetricsIpsets >>$tmpfile
+      printMetricsHashes >>$tmpfile
     fi
     chmod a+r $tmpfile
     mv $tmpfile $datadir/torutils.prom
