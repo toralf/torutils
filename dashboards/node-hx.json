@@ -587,7 +587,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "(sum(rate(node_cpu_seconds_total{mode=\"system\", instance=~\"$Instance\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total[$__rate_interval]))",
+          "expr": "(sum(rate(node_cpu_seconds_total{mode=\"system\", instance=~\"$Instance\"}[$__rate_interval]) * 100)) / on(label) (sum(rate(node_cpu_seconds_total[$__rate_interval])))",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -1328,5 +1328,5 @@
   "timezone": "",
   "title": "Node hx",
   "uid": "9fa768c0-eb54-434e-85f5-bc4653f66e5c",
-  "version": 97
+  "version": 103
 }
