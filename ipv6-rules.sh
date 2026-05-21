@@ -70,7 +70,7 @@ function addTor() {
   done
 
   # common for each hostmask
-  hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-above 9/minute --hashlimit-burst 1 --hashlimit-htable-expire 120000"
+  hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-above 9/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000))"
 
   # run over all relays
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
