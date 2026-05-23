@@ -22,9 +22,10 @@ function healService() {
   if [[ $? -eq 32 ]]; then
     log "restarting: $service"
     rc-service $service zap start
-    rc=123
+    rc=32
   else
     log "healed w/o our help: $service"
+    rc=123
   fi
 }
 
