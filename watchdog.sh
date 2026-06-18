@@ -17,16 +17,22 @@ type mpstat >/dev/null
 # 18:37:05     all   15.37    0.22   13.23    1.80    0.00   13.23    0.00    0.00    0.00   56.15
 # 18:37:05       0   15.37    0.22   13.23    1.80    0.00   13.23    0.00    0.00    0.00   56.15
 
-# test $1 times that idle is not higher than $2 before triggering a restart
-i=${1:-1}
-while ((i--)); do
-  if [[ $(mpstat -P "ALL" | awk '/ all / { printf ("%i", $12) }') -gt ${2:-5} ]]; then
-    exit 0
+# Trigger a restart if idle is lower than $2 for $1 consecutive times.
+max=${1:-15}
+i=0
+while :; do
+  if [[ $(mpstat -P "ALL" | awk '/ all / { printf ("%i", $12) }') -lt ${2:-5} ]]; then
+    if ((i++ > max)); then
+      logger -s -t watchdog "WARNING: restarting Tor"
+      service tor stop
+      sleep 30
+      service tor start
+      i=0
+    fi
+
+  else
+    i=0
   fi
+
   sleep 60
 done
-
-logger -s -t watchdog "WARNING: restarting Tor"
-service tor stop
-sleep 30
-service tor start
