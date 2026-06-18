@@ -10,17 +10,21 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 type logger mpstat service tor >/dev/null
 
-# $> mpstat -P ALL
-# Linux 7.0.10+deb13-cloud-amd64 ...
+# $> mpstat --dec=0 -P "ALL" 10 1
+# Linux 7.0.10+deb13-cloud-amd64 (i30)    06/18/26        _x86_64_        (1 CPU)
 #
-# 18:37:05     CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
-# 18:37:05     all   15.37    0.22   13.23    1.80    0.00   13.23    0.00    0.00    0.00   56.15
-# 18:37:05       0   15.37    0.22   13.23    1.80    0.00   13.23    0.00    0.00    0.00   56.15
+# 20:52:22     CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+# 20:52:32     all      38       0      28       1       0      33       0       0       0       0
+# 20:52:32       0      38       0      28       1       0      33       0       0       0       0
+#
+# Average:     CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+# Average:     all      38       0      28       1       0      33       0       0       0       0
+# Average:       0      38       0      28       1       0      33       0       0       0       0
 
 max=${1:-15}
 i=0
 while :; do
-  if [[ $(mpstat -P "ALL" | awk '/ all / { printf ("%i", $12) }') -lt ${2:-5} ]]; then
+  if [[ $(mpstat --dec=0 -P "ALL" 10 1 | awk '/^Average:.* all / { print $12 }') -lt ${2:-5} ]]; then
     if ((i++ > max)); then
       logger -s -t watchdog "WARNING: restarting Tor"
       service tor stop
