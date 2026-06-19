@@ -26,7 +26,7 @@ i=0
 while :; do
   if [[ $(mpstat --dec=0 -P "ALL" 10 1 | awk '/^Average:.* all / { print $12 }') -lt ${2:-5} ]]; then
     if ((i++ > max)); then
-      logger -s -t watchdog "WARNING: restarting Tor"
+      logger -s -t watchdog.sh "WARNING: restarting Tor"
       service tor stop
       sleep 30
       service tor start
