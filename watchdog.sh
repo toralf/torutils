@@ -21,19 +21,18 @@ type logger mpstat service tor >/dev/null
 # Average:     all      38       0      28       1       0      33       0       0       0       0
 # Average:       0      38       0      28       1       0      33       0       0       0       0
 
-max=${1:-15}
+max=${1:-10}
 i=0
 while :; do
   if [[ $(mpstat --dec=0 -P "ALL" 10 1 | awk '/^Average:.* all / { print $12 }') -lt ${2:-5} ]]; then
     if ((i++ > max)); then
-      logger -s -t watchdog.sh "WARNING: restarting Tor"
+      logger -s "WARNING: watchdog.sh is restarting Tor"
       service tor stop
       sleep 30
       service tor start
       sleep 120
       i=0
     fi
-
   else
     i=0
   fi
