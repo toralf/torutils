@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# restart Tor if CPU idle is lower than $2 for $1 minutes.(usually at tiny systems)
+# restart Tor if CPU idle is lower than $2 for (cumulated) $1 minutes
 
 set -euf
 export LANG=C.utf8
@@ -32,8 +32,8 @@ while :; do
       service tor start
       i=0
     fi
-  else
-    i=0
+  elif [[ ${i} -gt 0 ]]; then
+    ((i--))
   fi
 
   sleep 60
