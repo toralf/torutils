@@ -21,33 +21,29 @@ type logger mpstat service tor >/dev/null
 # Average:     all      38       0      28       1       0      33       0       0       0       0
 # Average:       0      38       0      28       1       0      33       0       0       0       0
 
-max=${1:-10} # minutes
 i=0
 while :; do
-  read -r iowait idle < <(mpstat --dec=0 -P 'ALL' 10 1 | awk '/^Average:  *all / { print $6, $12 }')
-  # detect stress
+  read -r iowait idle < <(mpstat --dec=0 -P 'ALL' 59 1 | awk '/^Average:  *all / { print $6, $12 }')
+
   if ((idle < 5)); then
     ((i++))
     if ((iowait > 40)); then
       ((i++))
     fi
+
     if ((i > max)); then
       logger -s "WARNING: $(basename $0) is restarting Tor"
       service tor stop
       sleep 30
       service tor start
       i=0
+      sleep 30
     fi
 
-  elif ((idle > 10)); then
-    # reset
-    if ((idle > 20)); then
-      i=0
-    # credit a little bit
-    elif ((i > 0)); then
+  elif ((idle > 20)); then
+    if ((i > 0)); then
       ((i--))
     fi
   fi
 
-  sleep 60
 done
