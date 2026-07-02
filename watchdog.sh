@@ -31,7 +31,7 @@ while :; do
       ((i++))
     fi
 
-    if ((i > max)); then
+    if ((i > 15)); then
       logger -s "WARNING: $(basename $0) is restarting Tor"
       service tor stop
       sleep 30
