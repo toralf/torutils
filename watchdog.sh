@@ -24,7 +24,7 @@ type logger mpstat service tor >/dev/null
 max=${1:-10} # minutes
 i=0
 while :; do
-  read -r iowait idle < <(mpstat --dec=0 -P 'ALL' 10 1 | awk '/^Average:  *all / { print $5, $12 }')
+  read -r iowait idle < <(mpstat --dec=0 -P 'ALL' 10 1 | awk '/^Average:  *all / { print $6, $12 }')
   # detect stress
   if ((idle < 5)); then
     ((i++))
@@ -39,13 +39,14 @@ while :; do
       i=0
     fi
 
-  # reset
-  elif ((idle > 20)); then
-    i=0
-
-  # credit it
-  elif ((i > 0)); then
-    ((i--))
+  elif ((idle > 10)); then
+    # reset
+    if ((idle > 20)); then
+      i=0
+    # credit a little bit
+    elif ((i > 0)); then
+      ((i--))
+    fi
   fi
 
   sleep 60
