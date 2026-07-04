@@ -10,26 +10,24 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 type logger mpstat service tor >/dev/null
 
-# $> mpstat --dec=0 -P "ALL" 10 1
-# Linux 7.0.10+deb13-cloud-amd64 (i30)    06/18/26        _x86_64_        (1 CPU)
+# $ ssh i30 "mpstat --dec=0 -P 'ALL' 59 1"
+# Linux 7.0.12+deb13-cloud-amd64 (i30)    07/04/26        _x86_64_        (1 CPU)
 #
-# 20:52:22     CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
-# 20:52:32     all      38       0      28       1       0      33       0       0       0       0
-# 20:52:32       0      38       0      28       1       0      33       0       0       0       0
+# 09:45:50     CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+# 09:46:49     all      25       0      17      18       0      22       0       0       0      18
+# 09:46:49       0      25       0      17      18       0      22       0       0       0      18
 #
 # Average:     CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
-# Average:     all      38       0      28       1       0      33       0       0       0       0
-# Average:       0      38       0      28       1       0      33       0       0       0       0
+# Average:     all      25       0      17      18       0      22       0       0       0      18
+# Average:       0      25       0      17      18       0      22       0       0       0      18
 
-max=${1:-15} # minutes
 i=0
 while :; do
-  idle=$(mpstat --dec=0 -P "ALL" 59 1 | awk '/^Average:  *all / { print $12 }')
+  read -r iowait idle < <(mpstat --dec=0 -P 'ALL' 60 1 | awk '/^Average:  *all / { print $6, $12 }')
 
-  # watch
-  if [[ ${idle} -lt 5 ]]; then
-    ((i++))
-    if [[ $i -ge ${max} ]]; then
+  if ((idle <= 5 || iowait >= 30)); then
+    ((++i))
+    if ((i >= 10)); then
       logger -s "WARNING: $(basename $0) is restarting Tor"
       service tor stop
       sleep 30
@@ -38,9 +36,7 @@ while :; do
       i=0
     fi
 
-  # credit decrease
-  elif [[ $i -gt 0 && ${idle} -gt 20 ]]; then
+  elif ((idle >= 20 && iowait <= 20 && i > 0)); then
     ((i--))
   fi
-
 done
