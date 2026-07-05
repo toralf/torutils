@@ -27,7 +27,7 @@ while :; do
 
   if ((idle <= 5 || iowait >= 30)); then
     ((++i))
-    if ((i >= 10)); then
+    if ((i >= 10 + RANDOM % 10)); then
       logger -s "WARNING: $(basename $0) is restarting Tor"
       service tor stop
       sleep 30
