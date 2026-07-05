@@ -54,20 +54,24 @@ function addTor() {
     __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600))"
     __load_ipset $ddoslist &
 
-    # rule 1 (only once for all Tor instances at the same ip)
+    # rule 1 (trust Tor authorities)
+
     local trust_rule="INPUT -p tcp --dst $orip --syn -m set --match-set $trustlist src -j ACCEPT"
     if ! $ipt -C $trust_rule 2>/dev/null; then
       $ipt -A $trust_rule
     fi
 
-    # rule 2
+    # rule 2 (catch DDoS)
+
     $common -m hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-mode srcip,dstport --hashlimit-above 9/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
     $common -m set --match-set $ddoslist src -j $jump
 
-    # rule 3
+    # rule 3 (only 1 connection from up to 8 (currently allowed) Tor relays originating from the same source)
+
     $common -m connlimit --connlimit-above 8 -j $jump
 
     # rule 4
+
     $common --syn -j ACCEPT
   done
 }
@@ -112,6 +116,8 @@ function __load_ipset() {
 }
 
 function addServices() {
+  local addr port service
+
   # local-address:local-port
   for service in ${ADD_LOCAL_SERVICES-}; do
     read -r addr port <<<$(tr ':' ' ' <<<$service)

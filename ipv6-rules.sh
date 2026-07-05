@@ -52,7 +52,7 @@ function addTor() {
   __fill_trustlist &
 
   # known ipv6 prefixes for systems with a /64 hostmask (e.g. Hetzner)
-  hoster64list="tor-hoster64"
+  local hoster64list="tor-hoster64"
   __create_ipset $hoster64list "hash:net maxelem 64"
   ipset flush $hoster64list
   # shellcheck disable=SC2043
@@ -61,7 +61,7 @@ function addTor() {
   done
 
   # known ipv6 prefixes for systems with a /80 hostmask (e.g. IONOS)
-  hoster80list="tor-hoster80"
+  local hoster80list="tor-hoster80"
   __create_ipset $hoster80list "hash:net maxelem 64"
   # shellcheck disable=SC2043
   ipset flush $hoster80list
@@ -70,14 +70,14 @@ function addTor() {
   done
 
   # common for each hostmask
-  hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-above 9/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000))"
+  local hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-above 9/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000))"
 
   # run over all relays
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
 
-    # rule 1 (trust Tor authorities independed of the ORport)
+    # rule 1 (trust Tor authorities)
 
     local trust_rule="INPUT -p tcp --dst $orip --syn -m set --match-set $trustlist src -j ACCEPT"
     if ! $ipt -C $trust_rule 2>/dev/null; then
@@ -168,6 +168,8 @@ function __load_ipset() {
 }
 
 function addServices() {
+  local addr port service
+
   # local-address:local-port
   for service in ${ADD_LOCAL_SERVICES6-}; do
     read -r addr port <<<$(sed -e 's,]:, ,' -e 's,\[, ,' <<<$service)
