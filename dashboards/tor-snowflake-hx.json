@@ -364,7 +364,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.4.0",
+      "pluginVersion": "12.4.3+security-02",
       "targets": [
         {
           "datasource": {
@@ -474,7 +474,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.4.0",
+      "pluginVersion": "12.4.3+security-02",
       "targets": [
         {
           "datasource": {
@@ -600,7 +600,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.4.0",
+      "pluginVersion": "12.4.3+security-02",
       "targets": [
         {
           "datasource": {
@@ -708,7 +708,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.4.0",
+      "pluginVersion": "12.4.3+security-02",
       "targets": [
         {
           "datasource": {
