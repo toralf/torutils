@@ -12,7 +12,12 @@ function relay_2_ip_and_port() {
     return 1
   fi
   read -r orip orport <<<$(tr ':' ' ' <<<$relay)
-  if [[ -z $orip || -z $orport ]]; then
+  if [[ -z $orip ]]; then
+    echo " relay '$relay' has no valid ip" >&2
+    return 1
+  fi
+  if [[ -z $orport ]]; then
+    echo " relay '$relay' has no valid port" >&2
     return 1
   fi
 }
