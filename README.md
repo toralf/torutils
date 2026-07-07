@@ -91,8 +91,7 @@ sudo ./ipv4-rules.sh start
 sudo ./ipv6-rules.sh start
 ```
 
-Ensure that the package _iptables-persistent_ is either de-installed or at least disabled.
-Create cron jobs like:
+Create cron jobs, e.g.:
 
 ```cron
 # DDoS prevention
@@ -104,11 +103,19 @@ Create cron jobs like:
 # update Tor authorities
 @daily  /root/ipv4-rules.sh update; /root/ipv6-rules.sh update
 
-# DDoS for /64 IPv6 hostmask
-*/5 * * * * /opt/torutils/ipv6-rules.sh manual
+# slew to subnets causing Hetzner abuse complaints everey then and when
+@reboot EGRESS_SUBNET_SLEW="45.84.107.0 64.65.0.0/23 64.65.60.0/22 96.9.98.0 109.70.100 171.25.193.0 185.220.101.0 192.42.116.0" /root/ipv4-rules-egress.sh start
 ```
 
+Ensure that the package _iptables-persistent_ is either de-installed or at least is disabled.
+
 I appreciate reports about any findings via the [issue](https://github.com/toralf/torutils/issues) tracker.
+
+## Avoid server blocking due to netscan hits (egress)
+
+Every then and when I get an undesired abuse complaint from my hoster.
+To avoid this I developed [ipv4-rules-egress.sh](./ipv4-rules-egress.sh).
+Details are tracked in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
 
 ### Details
 
@@ -201,12 +208,6 @@ firefox $svg
 ### More
 
 I used [this](https://github.com/toralf/tor-relays/) Ansible code to deploy and configure Tor relays and Snowflake standalone proxies.
-
-## Avoid server blocking due to netscan hits (egress)
-
-Every then and when I get an undesired abuse complaint from my hoster.
-To avoid this I developed [ipv4-rules-egress.sh](./ipv4-rules-egress.sh).
-Details are tracked in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
 
 ## Query Tor via its API
 
