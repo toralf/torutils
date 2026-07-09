@@ -250,9 +250,9 @@ jobs=$((1 + ($(nproc) - 1) / 8)) # parallel jobs of adding ips to an ipset
 # hashes and ipsets are sized with respect to the available RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
 if [[ ${ram} -gt 1 ]]; then
-  max=$((2 ** 19)) # 512K
+  max=$((2 ** 20)) # 1M
 else
-  max=$((2 ** 17)) # 128K
+  max=$((2 ** 18)) # 256K
 fi
 tmpdir=${TORUTILS_TMPDIR:-/var/tmp}
 
