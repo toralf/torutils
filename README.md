@@ -4,10 +4,10 @@
 
 Few tools for a Tor relay.
 
-## Block DDoS (ingress)
+## Block DDoS
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
-against DDoS attacks ¹ at the IP [network](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) layer, as seen in this metrics:
+against DDoS ingress attacks ¹ at the IP [network](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) layer, as seen in this metrics:
 
 ![image](./doc/dopped_ipv4_2024-03.jpg)
 
@@ -87,7 +87,7 @@ sudo ./ipv4-rules.sh start
 sudo ./ipv6-rules.sh start
 ```
 
-### Avoid server blocking
+### Avoid abuse complaints / server blocking
 
 Every then and when I get an undesired abuse complaint from my hoster.
 To avoid this I developed [ipv4-rules-egress.sh](./ipv4-rules-egress.sh).
@@ -129,7 +129,9 @@ Then this rule set is applied to prevent DDoS attampts against the Tor port:
 
 ² The value is derived from [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 
-³ The idea is to block sources flying under the 2 min radar but allowing up to 2 reboots per hour for sources hosting 8 Tor instances
+³ The idea is to block sources flying under the 2 min radar but to avoid overblocking by assuming to have up to 2 restarts per hour at the remote site
+
+### Tweaks
 
 If the DDoS script fails to parse the Tor and/or the SSH config then overrule automatic parsing by either:
 
