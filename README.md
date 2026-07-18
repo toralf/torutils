@@ -92,11 +92,10 @@ sudo ./ipv6-rules.sh start
 Every then and when I get an undesired abuse complaint from my hoster.
 To avoid this I developed [ipv4-rules-egress.sh](./ipv4-rules-egress.sh).
 Details are tracked in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
-Considere using that script too.
 
-### Make it persistent
+### Prepare for reboot
 
-Createcron jobs, e.g.:
+Create cron jobs, e.g.:
 
 ```cron
 # DDoS prevention
