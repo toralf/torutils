@@ -21,24 +21,21 @@ of the [Tor project](https://www.torproject.org/).
 
 Mark an IP address as malicious if its connection attempts over a short time interval exceed a given threshold.
 Then block that IP for a long time interval.
-
-Therefore a simple network rule won't make it.
-However _ipset_ helps to achieve the goal.
 Further considerations:
 
 - never touch established connections
-- avoid to not overblock
+- avoid overblock
 
 ### Quick start
 
-Install _jq_, _ipset_ and _iptables_, e.g. for Debian or Ubuntu do:
+Install _jq_, _ipset_ and _iptables_, e.g. for Debian or Ubuntu use _apt_:
 
 ```bash
 sudo apt update
 sudo apt install -y jq ipset iptables
 ```
 
-Download the DDoS prevention scripts
+Get the DDoS prevention scripts
 
 ```bash
 wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
@@ -53,29 +50,28 @@ sudo /usr/sbin/iptables-save >./rules.v4
 sudo /usr/sbin/ip6tables-save >./rules.v6
 ```
 
-Run a quick test
+Run in dry-run mode
 
 ```bash
 sudo ./ipv4-rules.sh test
 sudo ./ipv6-rules.sh test
 ```
 
-Best is to stop the Tor service(s) now.
-Then flush the connection tracking table
+Stop the Tor service(s), flush the connection tracking table
 
 ```bash
 sudo /usr/sbin/conntrack -F
 ```
 
 and (re-)start the Tor service.
-Check that your ssh login and your other services are still working.
+Check that your ssh login and other services are still working.
 Watch the iptables live statistics by:
 
 ```bash
 sudo watch -t ./ipv4-rules.sh # replace 4 with 6 for IPv6
 ```
 
-If something failed then restore the backuped state:
+If something looks wrong then restore the backuped state:
 
 ```bash
 sudo ./ipv4-rules.sh stop
@@ -84,14 +80,23 @@ sudo /usr/sbin/iptables-restore <./rules.v4
 sudo /usr/sbin/ip6tables-restore <./rules.v6
 ```
 
-But if everything looks ok, then run the DDoS script with the parameter `start`:
+Otherwise run the DDoS script with the parameter `start`:
 
 ```bash
 sudo ./ipv4-rules.sh start
 sudo ./ipv6-rules.sh start
 ```
 
-Create cron jobs, e.g.:
+### Avoid server blocking
+
+Every then and when I get an undesired abuse complaint from my hoster.
+To avoid this I developed [ipv4-rules-egress.sh](./ipv4-rules-egress.sh).
+Details are tracked in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
+Considere using that script too.
+
+### Make it persistent
+
+Createcron jobs, e.g.:
 
 ```cron
 # DDoS prevention
@@ -103,19 +108,11 @@ Create cron jobs, e.g.:
 # update Tor authorities
 @daily  /root/ipv4-rules.sh update; /root/ipv6-rules.sh update
 
-# slew to subnets causing Hetzner abuse complaints everey then and when
+# slew Tor egress to subnets know causing abuse complaints
 @reboot EGRESS_SUBNET_SLEW="45.84.107.0 64.65.0.0/23 64.65.60.0/22 96.9.98.0 109.70.100 171.25.193.0 185.220.101.0 192.42.116.0" /root/ipv4-rules-egress.sh start
 ```
 
-Ensure that the package _iptables-persistent_ is either de-installed or at least is disabled.
-
-I appreciate reports about any findings via the [issue](https://github.com/toralf/torutils/issues) tracker.
-
-## Avoid server blocking due to netscan hits (egress)
-
-Every then and when I get an undesired abuse complaint from my hoster.
-To avoid this I developed [ipv4-rules-egress.sh](./ipv4-rules-egress.sh).
-Details are tracked in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
+Ensure that the package _iptables-persistent_ is either de-installed or disabled.
 
 ### Details
 
@@ -149,7 +146,6 @@ If the DDoS script fails to parse the Tor and/or the SSH config then overrule au
    (`CONFIGURED_RELAYS6` for IPv6).
 
 A command line argument takes precedence over the corresponding environment variable.
-
 Allow inbound traffic to additional \<address:port\> destinations by e.g.:
 
 ```bash
@@ -207,7 +203,7 @@ firefox $svg
 
 ### More
 
-I used [this](https://github.com/toralf/tor-relays/) Ansible code to deploy and configure Tor relays and Snowflake standalone proxies.
+I used [this](https://github.com/toralf/tor-relays/) project to deploy and configure Tor relays and Snowflake standalone proxies.
 
 ## Query Tor via its API
 
@@ -311,3 +307,7 @@ log=/tmp/${0##*/}.log
 # watch Tor
 /opt/torutils/watch.sh /var/log/tor/notice.log /opt/torutils/watch-tor.txt -v &>>$log &
 ```
+
+## Issue tracker
+
+I appreciate reports about any findings via the [issue](https://github.com/toralf/torutils/issues) tracker.
