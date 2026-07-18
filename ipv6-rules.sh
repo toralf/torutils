@@ -262,7 +262,7 @@ function saveCertainIpsets() {
           mv $tmpfile $tmpdir/$name
         fi
       fi
-      rm $tmpfile
+      rm -f $tmpfile
     done
 }
 
