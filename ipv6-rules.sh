@@ -258,8 +258,9 @@ function saveCertainIpsets() {
     while read -r name; do
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       if ipset list $name >$tmpfile; then
-        sed -e '1,8d' <$tmpfile |
-          sort >$tmpdir/$name
+        if sed -i -e '1,8d' $tmpfile; then
+          mv $tmpfile $tmpdir/$name
+        fi
       fi
       rm $tmpfile
     done
