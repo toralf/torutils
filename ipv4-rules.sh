@@ -68,7 +68,10 @@ function addTor() {
 
     # rule 2 (catch DDoS)
 
-    $common -m hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-mode srcip,dstport --hashlimit-above 9/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
+    $common -m hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-mode srcip,dstport --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
+
+    $common -m hashlimit --hashlimit-name tor-ddos-$orport-x --hashlimit-mode srcip,dstport --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((60 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
+
     $common -m set --match-set $ddoslist src -j $jump
 
     # rule 3 (only 1 connection from up to 8 (currently allowed) Tor relays originating from the same source)

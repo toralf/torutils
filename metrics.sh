@@ -12,7 +12,17 @@ function _orport2nickname() {
   8443) echo "fuchs3" ;;
   9443) echo "fuchs4" ;;
   5443) echo "fuchs5" ;;
+  *)
+    echo "unknown"
+    exit 2
+    ;;
   esac
+}
+
+function _ipset2nickname() {
+  local name=${1?NAME IS UNSET}
+
+  _orport2nickname $(cut -f 3 -d '-' -s <<<$name)
 }
 
 function printMetricsIptables() {
@@ -56,13 +66,6 @@ function printMetricsIptables() {
         echo "$var{ipver=\"6\",nickname=\"$nickname\",netmask=\"$netmask\"} $pkts"
       done
   done
-}
-
-function _ipset2nickname() {
-  local name=${1?NAME IS UNSET}
-
-  local orport=$(cut -f 3 -d '-' -s <<<$name)
-  _orport2nickname $orport
 }
 
 function _histogram() {
@@ -163,7 +166,8 @@ function printMetricsHashes() {
     grep -v 'total' |
     while read -r count name; do
       nickname=${NICKNAME:-$(_ipset2nickname $name)}
-      echo "$var{ipver=\"4\",nickname=\"$nickname\",netmask=\"32\"} $count"
+      suffix=$(cut -f 4 -d '-' -s <<<$name)
+      echo "$var{ipver=\"4\",nickname=\"$nickname\",netmask=\"32\",suffix=\"${suffix-}\"} $count"
     done
 
   for netmask in 64 80 128; do
@@ -171,7 +175,8 @@ function printMetricsHashes() {
       grep -v 'total' |
       while read -r count name; do
         nickname=${NICKNAME:-$(_ipset2nickname $name)}
-        echo "$var{ipver=\"6\",nickname=\"$nickname\",netmask=\"$netmask\"} $count"
+        suffix=$(cut -f 4 -d '-' -s <<<$name)
+        echo "$var{ipver=\"6\",nickname=\"$nickname\",netmask=\"$netmask\",suffix=\"${suffix-}\"} $count"
       done
   done
 }

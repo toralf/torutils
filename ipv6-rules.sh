@@ -61,7 +61,7 @@ function addTor() {
   __create_ipset $hoster64list "hash:net maxelem 64"
   ipset flush $hoster64list
   # shellcheck disable=SC2043
-  for h in 2a01:4f8::/32 2a01:4f9::/32 2a01:4ff:ff01::/48 2a06:be80::/29 2a11:e980::/29 2a12:2240::/29; do
+  for h in 2a01:4f8::/32 2a01:4f9::/32 2a01:4ff:ff01::/48 2a03:4000::/32 2a06:be80::/29 2a0b:f4c2::/40 2a11:e980::/29 2a12:2240::/29; do
     ipset add -exist $hoster64list $h
   done
 
@@ -70,12 +70,13 @@ function addTor() {
   __create_ipset $hoster80list "hash:net maxelem 64"
   # shellcheck disable=SC2043
   ipset flush $hoster80list
-  for h in 2a0d:7f00::/29 2a00:1a68::/32 2a00:da00:8000::/34 2607:f1c0::/32; do
+  for h in 2001:67c:e60::/48 2607:f1c0::/32 2a00:1a68::/32 2a00:da00:8000::/34 2a0d:7f00::/29; do
     ipset add -exist $hoster80list $h
   done
 
   # common for each hostmask
-  local hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-above 9/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000))"
+  local hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((2 * 60 * 1000))"
+  local hashlimit_opts_x="--hashlimit-mode srcip,dstport --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((60 * 60 * 1000))"
 
   # run over all relays
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
@@ -100,6 +101,8 @@ function addTor() {
 
     $common -m set --match-set $hoster64list src \
       -m hashlimit --hashlimit-srcmask 64 --hashlimit-name $ddoslist64 $hashlimit_opts -j SET --add-set $ddoslist64 src --exist
+    $common -m set --match-set $hoster64list src \
+      -m hashlimit --hashlimit-srcmask 64 --hashlimit-name $ddoslist64-x $hashlimit_opts_x -j SET --add-set $ddoslist64 src --exist
     $common -m set --match-set $ddoslist64 src -j $jump
 
     # /80 netmask, e.g. IONOS
@@ -109,6 +112,8 @@ function addTor() {
 
     $common -m set --match-set $hoster80list src \
       -m hashlimit --hashlimit-srcmask 80 --hashlimit-name $ddoslist80 $hashlimit_opts -j SET --add-set $ddoslist80 src --exist
+    $common -m set --match-set $hoster80list src \
+      -m hashlimit --hashlimit-srcmask 80 --hashlimit-name $ddoslist80-x $hashlimit_opts_x -j SET --add-set $ddoslist80 src --exist
     $common -m set --match-set $ddoslist80 src -j $jump
 
     # /128 netmask, e.g. ASN 201814 (quetzalcoatl-relays.org)
@@ -118,6 +123,8 @@ function addTor() {
 
     $common -m set ! --match-set $hoster64list src -m set ! --match-set $hoster80list src \
       -m hashlimit --hashlimit-srcmask 128 --hashlimit-name $ddoslist128 $hashlimit_opts -j SET --add-set $ddoslist128 src --exist
+    $common -m set ! --match-set $hoster64list src -m set ! --match-set $hoster80list src \
+      -m hashlimit --hashlimit-srcmask 128 --hashlimit-name $ddoslist128-x $hashlimit_opts_x -j SET --add-set $ddoslist128 src --exist
     $common -m set --match-set $ddoslist128 src -j $jump
 
     # rule 3 (only 1 connection from up to 8 (currently allowed) Tor relays originating from the same source)

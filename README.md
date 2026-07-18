@@ -7,7 +7,7 @@ Few tools for a Tor relay.
 ## Block DDoS (ingress)
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
-against DDoS attacks¹ at the IP [network](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) layer, as seen in this metrics:
+against DDoS attacks ¹ at the IP [network](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) layer, as seen in this metrics:
 
 ![image](./doc/dopped_ipv4_2024-03.jpg)
 
@@ -19,8 +19,8 @@ of the [Tor project](https://www.torproject.org/).
 
 ### Idea
 
-Mark an IP address as malicious if its connection attempts over a short time interval exceed a given threshold.
-Then block that IP for a long time interval.
+Consider an IP address as malicious if its number of connection attempts over a short time interval exceeds a given threshold.
+Block that IP then for a long time interval.
 Further considerations:
 
 - never touch established connections
@@ -107,26 +107,29 @@ Create cron jobs, e.g.:
 # update Tor authorities
 @daily  /root/ipv4-rules.sh update; /root/ipv6-rules.sh update
 
-# slew Tor egress to subnets know causing abuse complaints
-@reboot EGRESS_SUBNET_SLEW="45.84.107.0 64.65.0.0/23 64.65.60.0/22 96.9.98.0 109.70.100 171.25.193.0 185.220.101.0 192.42.116.0" /root/ipv4-rules-egress.sh start
+# slew Tor egress to subnets which are known being the source of abuse complaints by the provider
+0" /root/ipv4-rules-egress.sh start
 ```
 
 Ensure that the package _iptables-persistent_ is either de-installed or disabled.
 
-### Details
+### The Rule Set
 
 The DDoS script creates generic filter rules for the local network, ICMP, ssh, DHCP and additional services (if given).
-
 Then this rule set is applied to prevent DDoS attampts against the Tor port:
 
 1. trust any connection attempt from a Tor authority node
-2. block the source¹ for 24 hours if the connection attempt rate from it to the Tor port exceeds 9/min² within last 2 minutes
+2. block the source ¹ for 24 hours if the connection attempt rate from it to the Tor port exceeds
+   - 8/min ² within last 2 minutes - or -
+   - 16/hour within last hour after allowing the first 16 connection attempts ³
 3. ignore the connection attempt if there are already 8 established connections to the Tor port (max 8 relays are allowed per ip address)
 4. accept the connection attempt to the Tor port
 
 ¹ For IPv4 the _source_ is a single ip address, for IPv6 _source_ is a netmask of either /64, /80 or /128, see implementation details [here](./ipv6-rules.sh#L87).
 
 ² The value is derived from [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
+
+³ The idea is to block sources flying under the 2 min radar but allowing up to 2 reboots per hour for sources hosting 8 Tor instances
 
 If the DDoS script fails to parse the Tor and/or the SSH config then overrule automatic parsing by either:
 
@@ -160,14 +163,13 @@ export ADD_LOCAL_SERVICES6="[cafe::abba]>4711"
 ```
 
 (the separator `>` is used instead `:` to highlight that the address is _src_, and the port is _dst_)
-
 The above allows traffic from the specified remote address to the local port 4711.
 
 Please note: The script sets few _sysctl_ values.
 If unwanted then comment out the code around _setSysctlValues()_.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
 then comment out _addHetzner()_ too.
-To append rules onto an existing _iptables_ rule set (overwrite is the default) comment out the call _clearRules()_.
+To append rules onto an existing _iptables_ rule set (to overwrite it is the default) comment out the call _clearRules()_.
 
 ### Metrics
 
@@ -178,9 +180,8 @@ More details plus few Grafana dashboards are [here](./dashboards/README.md).
 
 Graphs¹ of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
 [6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov
-show the results for few DDoS attacks over 3 days
-for 2 relays.
-A more heavier attack was observed at [12th](./doc/network-metric-Nov-12th.svg) of Nov.
+show the results for few DDoS attacks over 3 days for 2 relays.
+A heavy attack was observed at [12th](./doc/network-metric-Nov-12th.svg) of Nov.
 A periodic drop down of the socket count metric, vanishing over time, appeared at
 [5th](./doc/network-metric-Dec-05th.svg) of Dec.
 Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are still handled well.
