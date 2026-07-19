@@ -51,6 +51,8 @@ function addTor() {
   __create_ipset $trustlist "maxelem 64"
   __fill_trustlist &
 
+  local hashlimit_opts=" --hashlimit-mode srcip,dstport --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4))"
+
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
@@ -68,13 +70,15 @@ function addTor() {
 
     # rule 2 (catch DDoS)
 
-    $common -m hashlimit --hashlimit-name tor-ddos-$orport --hashlimit-mode srcip,dstport --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
+    $common -m hashlimit --hashlimit-name tor-ddos-$orport $hashlimit_opts \
+      --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
 
-    $common -m hashlimit --hashlimit-name tor-ddos-$orport-x --hashlimit-mode srcip,dstport --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((60 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
+    $common -m hashlimit --hashlimit-name tor-ddos-$orport-x $hashlimit_opts \
+      --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-expire $((60 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
 
     $common -m set --match-set $ddoslist src -j $jump
 
-    # rule 3 (only 1 connection from up to 8 (currently allowed) Tor relays originating from the same source)
+    # rule 3 (only 1 connection from each of up to 8 currently allowed Tor relays per ip address)
 
     $common -m connlimit --connlimit-above 8 -j $jump
 

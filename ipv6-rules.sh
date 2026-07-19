@@ -127,7 +127,7 @@ function addTor() {
       -m hashlimit --hashlimit-srcmask 128 --hashlimit-name $ddoslist128-x $hashlimit_opts_x -j SET --add-set $ddoslist128 src --exist
     $common -m set --match-set $ddoslist128 src -j $jump
 
-    # rule 3 (only 1 connection from up to 8 (currently allowed) Tor relays originating from the same source)
+    # rule 3 (only 1 connection from each of up to 8 currently allowed Tor relays per ip address)
 
     $common -m set --match-set $hoster64list src -m connlimit --connlimit-mask 64 --connlimit-above 8 -j $jump
     $common -m set --match-set $hoster80list src -m connlimit --connlimit-mask 80 --connlimit-above 8 -j $jump
