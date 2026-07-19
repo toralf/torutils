@@ -98,7 +98,7 @@ function _histogram() {
 }
 
 function printMetricsIpsets() {
-  local var
+  local lists var
 
   ###############################
   # ipset timeout values (for histogram)
