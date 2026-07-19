@@ -121,7 +121,7 @@ Then this rule set is applied to prevent DDoS attampts against the Tor port:
 1. trust any connection attempt from a Tor authority node
 2. block the source ¹ for 24 hours if the connection attempt rate from it to the Tor port exceeds
    - 8/min ² within last 2 minutes - or -
-   - 16/hour within last hour after allowing the first 16 connection attempts ³
+   - 16/hour within last hour ³
 3. ignore the connection attempt if there are already 8 established connections to the Tor port (max 8 relays are allowed per ip address)
 4. accept the connection attempt to the Tor port
 
@@ -129,7 +129,7 @@ Then this rule set is applied to prevent DDoS attampts against the Tor port:
 
 ² The value is derived from [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 
-³ The idea is to block sources flying under the 2 min radar but to avoid overblocking by assuming to have up to 2 restarts per hour at the remote site
+³ The intention is to block sources flying under the 2 min radar, but avoid overblocking a source where 2 restarts within 1 hour happened
 
 ### Tweaks
 
