@@ -2765,7 +2765,7 @@
           "expr": "torutils_hashlimit{ipver=\"4\", nickname=~\"$Nickname\", instance=~\"$Instance\", job=~\"$Job\", netmask=\"32\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{nickname}}",
+          "legendFormat": "{{nickname}} {{suffix}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -2874,7 +2874,7 @@
           "expr": "torutils_hashlimit{ipver=\"6\", nickname=~\"$Nickname\", instance=~\"$Instance\", job=~\"$Job\", netmask=\"64\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{nickname}}",
+          "legendFormat": "{{nickname}} {{suffix}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -2983,7 +2983,7 @@
           "expr": "torutils_hashlimit{ipver=\"6\", nickname=~\"$Nickname\", instance=~\"$Instance\", job=~\"$Job\", netmask=\"80\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{nickname}}",
+          "legendFormat": "{{nickname}} {{suffix}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -3092,7 +3092,7 @@
           "expr": "torutils_hashlimit{ipver=\"6\", nickname=~\"$Nickname\", instance=~\"$Instance\", job=~\"$Job\", netmask=\"128\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{nickname}}",
+          "legendFormat": "{{nickname}} {{suffix}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -3511,6 +3511,6 @@
   "timezone": "utc",
   "title": "Tor DDoS",
   "uid": "FgvRNta4k",
-  "version": 656,
+  "version": 660,
   "weekStart": ""
 }
