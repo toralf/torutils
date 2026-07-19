@@ -90,7 +90,7 @@ sudo ./ipv6-rules.sh start
 ### Avoid abuse complaints / server blocking
 
 Every then and when I get an undesired abuse complaint from my hoster.
-To avoid this I developed [ipv4-rules-egress.sh](./ipv4-rules-egress.sh).
+To avoid this I developed [ipv4-rules-egress.sh](./ipv4-rules-egress.sh) for my Tor instances running at Hetzner.
 Details are tracked in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
 
 ### Prepare for reboot
