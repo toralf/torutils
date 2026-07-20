@@ -28,7 +28,7 @@ Further considerations:
 
 ### Quick start
 
-Install _jq_, _ipset_ and _iptables_, e.g. for Debian or Ubuntu use _apt_:
+Install _jq_, _ipset_ and _iptables_, e.g. for Debian OS family use _apt_:
 
 ```bash
 sudo apt update
@@ -50,7 +50,7 @@ sudo /usr/sbin/iptables-save >./rules.v4
 sudo /usr/sbin/ip6tables-save >./rules.v6
 ```
 
-Run in dry-run mode
+Run in dry-run mode using the parameter `test`:
 
 ```bash
 sudo ./ipv4-rules.sh test
@@ -65,12 +65,6 @@ sudo /usr/sbin/conntrack -F
 
 and (re-)start the Tor service.
 Check that your ssh login and other services are still working.
-Watch the iptables live statistics by:
-
-```bash
-sudo watch -t ./ipv4-rules.sh # replace 4 with 6 for IPv6
-```
-
 If something looks wrong then restore the backuped state:
 
 ```bash
@@ -86,12 +80,6 @@ Otherwise run the DDoS script with the parameter `start`:
 sudo ./ipv4-rules.sh start
 sudo ./ipv6-rules.sh start
 ```
-
-### Avoid abuse complaints / server blocking
-
-Every then and when I get an undesired abuse complaint from my hoster.
-To avoid this I developed [ipv4-rules-egress.sh](./ipv4-rules-egress.sh) for my Tor instances running at Hetzner.
-Details are tracked in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
 
 ### Prepare for reboot
 
@@ -203,8 +191,11 @@ sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
 
-### More
+### Avoid abuse complaints / server blocking
 
+Every then and when I get an undesired abuse complaint from my hoster.
+To avoid this I developed [ipv4-rules-egress.sh](./ipv4-rules-egress.sh) for my Tor instances running at Hetzner.
+Details are tracked in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
 I used [this](https://github.com/toralf/tor-relays/) project to deploy and configure Tor relays and Snowflake standalone proxies.
 
 ## Query Tor via its API
