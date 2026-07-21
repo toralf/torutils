@@ -57,10 +57,10 @@ function addTor() {
   __fill_trustlist &
 
   # strategy:
-  #   - block whole subnets of a single system based on the its hostmask (hint: this is not the whole provider subnet itself)
+  #   - block whole subnets of a single system based on the its netmask (hint: this is not the whole provider subnet itself)
   #   - the lists here are almost incomplete, collected are only those where attack were observed in the wild
 
-  # /64 hostmask (e.g. Hetzner)
+  # /64 netmask (e.g. Hetzner)
   local hoster64list="tor-hoster64"
   __create_ipset $hoster64list "hash:net maxelem 64"
   ipset flush $hoster64list
@@ -69,7 +69,7 @@ function addTor() {
     ipset add -exist $hoster64list $h
   done
 
-  # /80 hostmask (e.g. IONOS)
+  # /80 netmask (e.g. IONOS)
   local hoster80list="tor-hoster80"
   __create_ipset $hoster80list "hash:net maxelem 64"
   # shellcheck disable=SC2043
@@ -78,7 +78,7 @@ function addTor() {
     ipset add -exist $hoster80list $h
   done
 
-  # common for each hostmask
+  # common
   local hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((2 * 60 * 1000))"
   local hashlimit_opts_x="--hashlimit-mode srcip,dstport --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((60 * 60 * 1000))"
 
