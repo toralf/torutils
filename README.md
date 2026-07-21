@@ -86,7 +86,7 @@ Don't forget to [persist](#persist-the-solution) it.
 ### The Rule Set
 
 The DDoS script creates generic filter rules for the local network, ICMP, ssh, DHCP and additional services (if given).
-Then this rule set is applied to prevent DDoS attampts against the Tor port:
+Then this rule set is applied to prevent DDoS attempts against the Tor port:
 
 1. trust any connection attempt from a Tor authority node
 2. block the source ¹ for 24 hours if the connection attempt rate from it to the Tor port exceeds
@@ -95,11 +95,11 @@ Then this rule set is applied to prevent DDoS attampts against the Tor port:
 3. ignore the connection attempt if there are already 8 established connections to the Tor port (max 8 relays are allowed per ip address)
 4. accept the connection attempt to the Tor port
 
-¹ For IPv4 the _source_ is a single ip address, for IPv6 _source_ is a netmask, either /64, /80 or /128, see implementation details [here](./ipv6-rules.sh#L59).
+¹ For IPv4 _source_ is a single ip address, for IPv6 _source_ is a /64, /80 or /128 netmask, see the [code](./ipv6-rules.sh#L59).
 
-² The value is derived from [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
+² Possible values were discussed in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 
-³ The intention is to block sources flying under the 2 min radar, but avoid overblocking a source where 2 restarts within 1 hour happened
+³ No overblocking even if a system has 2 restarts within 1 hour for up to 8 Tor instances.
 
 ### Persist the solution
 
