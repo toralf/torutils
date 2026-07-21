@@ -19,8 +19,8 @@ of the [Tor project](https://www.torproject.org/).
 
 ### Idea
 
-Consider an IP address as malicious if its number of connection attempts over a short time interval exceeds a given threshold.
-Block that IP then for a long time interval.
+Consider a system as malicious if its connection attempts to the local Tor over a short time interval exceeds the expected one for Tor.
+Block that system then for a long time interval.
 Further considerations:
 
 - never touch established connections
@@ -35,7 +35,7 @@ sudo apt update
 sudo apt install -y jq ipset iptables
 ```
 
-Get the DDoS prevention scripts
+Get the scripts
 
 ```bash
 wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
@@ -50,21 +50,21 @@ sudo /usr/sbin/iptables-save >./rules.v4
 sudo /usr/sbin/ip6tables-save >./rules.v6
 ```
 
-Run in dry-run mode using the parameter `test`:
+Run the scripts in dry-run mode:
 
 ```bash
 sudo ./ipv4-rules.sh test
 sudo ./ipv6-rules.sh test
 ```
 
-Stop the Tor service(s), flush the connection tracking table
+Stop Tor, flush the connection tracking table
 
 ```bash
 sudo /usr/sbin/conntrack -F
 ```
 
-and (re-)start the Tor service.
-Check that your ssh login and other services are still working.
+and (re-)start Tor.
+Check that your ssh login and any other service.
 If something looks wrong then restore the backuped state:
 
 ```bash
@@ -74,14 +74,34 @@ sudo /usr/sbin/iptables-restore <./rules.v4
 sudo /usr/sbin/ip6tables-restore <./rules.v6
 ```
 
-Otherwise run the DDoS script with the parameter `start`:
+Otherwise run the solution with the parameter `start`:
 
 ```bash
 sudo ./ipv4-rules.sh start
 sudo ./ipv6-rules.sh start
 ```
 
-### Prepare for reboot
+Don't forget to [persist](#persist-the-solution) it.
+
+### The Rule Set
+
+The DDoS script creates generic filter rules for the local network, ICMP, ssh, DHCP and additional services (if given).
+Then this rule set is applied to prevent DDoS attampts against the Tor port:
+
+1. trust any connection attempt from a Tor authority node
+2. block the source ¹ for 24 hours if the connection attempt rate from it to the Tor port exceeds
+   - 8/min ² within last 2 minutes - or -
+   - 16/hour within last hour ³
+3. ignore the connection attempt if there are already 8 established connections to the Tor port (max 8 relays are allowed per ip address)
+4. accept the connection attempt to the Tor port
+
+¹ For IPv4 the _source_ is a single ip address, for IPv6 _source_ is a netmask, either /64, /80 or /128, see implementation details [here](./ipv6-rules.sh#L59).
+
+² The value is derived from [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
+
+³ The intention is to block sources flying under the 2 min radar, but avoid overblocking a source where 2 restarts within 1 hour happened
+
+### Persist the solution
 
 Create cron jobs, e.g.:
 
@@ -100,24 +120,6 @@ Create cron jobs, e.g.:
 ```
 
 Ensure that the package _iptables-persistent_ is either de-installed or disabled.
-
-### The Rule Set
-
-The DDoS script creates generic filter rules for the local network, ICMP, ssh, DHCP and additional services (if given).
-Then this rule set is applied to prevent DDoS attampts against the Tor port:
-
-1. trust any connection attempt from a Tor authority node
-2. block the source ¹ for 24 hours if the connection attempt rate from it to the Tor port exceeds
-   - 8/min ² within last 2 minutes - or -
-   - 16/hour within last hour ³
-3. ignore the connection attempt if there are already 8 established connections to the Tor port (max 8 relays are allowed per ip address)
-4. accept the connection attempt to the Tor port
-
-¹ For IPv4 the _source_ is a single ip address, for IPv6 _source_ is a netmask of either /64, /80 or /128, see implementation details [here](./ipv6-rules.sh#L87).
-
-² The value is derived from [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
-
-³ The intention is to block sources flying under the 2 min radar, but avoid overblocking a source where 2 restarts within 1 hour happened
 
 ### Tweaks
 
