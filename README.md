@@ -121,6 +121,30 @@ Create cron jobs, e.g.:
 
 Ensure that the package _iptables-persistent_ is either de-installed or disabled.
 
+### Example
+
+The result for e.g. IPv4 of the relay [i32](https://metrics.torproject.org/rs.html#details/4356DDFC83F8335E2AF395D5EA4CA28CC9E57C58) looks like this:
+
+```text
+$ ssh i32 iptables -nvL INPUT
+Chain INPUT (policy DROP 214 packets, 14307 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+ 3892 4109K ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0            /* DDoS IPv4 Wed, 22 Jul 2026 18:25:45 +0000 */
+   67 48559 DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp flags:!0x17/0x02 state NEW
+   21 12641 DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate INVALID
+4511K 4635M ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED
+   15   880 ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22 flags:0x17/0x02
+   10   605 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8 limit: avg 6/sec burst 5
+    0     0 ACCEPT     udp  --  *      *       0.0.0.0/0            0.0.0.0/0            udp dpt:68
+    0     0 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set hetzner-sysmon src
+   23  1380 ACCEPT     tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp flags:0x17/0x02 match-set tor-trust src
+   36  2160 SET        tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 limit: above 8/min burst 8 mode srcip-dstport htable-size 65536 htable-max 262144 htable-expire 120000 add-set tor-ddos-40242 src exist
+12047  723K SET        tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 limit: above 16/hour burst 16 mode srcip-dstport htable-size 65536 htable-max 262144 add-set tor-ddos-40242 src exist
+14539  872K DROP       tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 match-set tor-ddos-40242 src
+    0     0 DROP       tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 #conn src/32 > 8
+  753 44948 ACCEPT     tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 flags:0x17/0x02
+```
+
 ### Tweaks
 
 If the DDoS script fails to parse the Tor and/or the SSH config then overrule automatic parsing by either:
