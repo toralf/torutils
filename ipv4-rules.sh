@@ -48,6 +48,7 @@ function addCommon() {
 }
 
 function addTor() {
+  # Tor authorities
   __create_ipset $trustlist "maxelem 64"
   __fill_trustlist &
 
@@ -61,7 +62,7 @@ function addTor() {
     __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600))"
     __load_ipset $ddoslist &
 
-    # rule 1 (trust Tor authorities)
+    # rule 1 (trust Tor authorities) is independend from Tor ORPort
 
     local trust_rule="INPUT -p tcp --dst $orip --syn -m set --match-set $trustlist src -j ACCEPT"
     if ! $ipt -C $trust_rule 2>/dev/null; then

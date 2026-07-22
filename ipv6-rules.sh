@@ -52,7 +52,7 @@ function addCommon() {
 }
 
 function addTor() {
-  # trust them, so do not narrow down to the Tor ORport
+  # Tor authorities
   __create_ipset $trustlist "hash:ip maxelem 64"
   __fill_trustlist &
 
@@ -87,7 +87,7 @@ function addTor() {
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
 
-    # rule 1 (trust Tor authorities)
+    # rule 1 (trust Tor authorities) is independend from Tor ORPort
 
     local trust_rule="INPUT -p tcp --dst $orip --syn -m set --match-set $trustlist src -j ACCEPT"
     if ! $ipt -C $trust_rule 2>/dev/null; then
