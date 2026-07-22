@@ -49,10 +49,10 @@ function addCommon() {
   $ipt -A INPUT -p ipv6-icmp --icmpv6-type parameter-problem -j ACCEPT
 
   # Neighbor Discovery Protocol - prevent Remote-Spoofing
-  # $ipt -A INPUT -p ipv6-icmp --icmpv6-type router-solicitation -m hl --hl-eq 255 -j ACCEPT
-  # $ipt -A INPUT -p ipv6-icmp --icmpv6-type router-advertisement -m hl --hl-eq 255 -j ACCEPT
-  # $ipt -A INPUT -p ipv6-icmp --icmpv6-type neighbor-solicitation -m hl --hl-eq 255 -j ACCEPT
-  # $ipt -A INPUT -p ipv6-icmp --icmpv6-type neighbor-advertisement -m hl --hl-eq 255 -j ACCEPT
+  $ipt -A INPUT -p ipv6-icmp --icmpv6-type router-solicitation -m hl --hl-eq 255 -j ACCEPT
+  $ipt -A INPUT -p ipv6-icmp --icmpv6-type router-advertisement -m hl --hl-eq 255 -j ACCEPT
+  $ipt -A INPUT -p ipv6-icmp --icmpv6-type neighbor-solicitation -m hl --hl-eq 255 -j ACCEPT
+  $ipt -A INPUT -p ipv6-icmp --icmpv6-type neighbor-advertisement -m hl --hl-eq 255 -j ACCEPT
 
   # ping
   $ipt -A INPUT -p ipv6-icmp --icmpv6-type echo-request -m limit --limit 6/s --limit-burst 10 -j ACCEPT
