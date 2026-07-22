@@ -279,7 +279,7 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 umask 066
 trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
-type ipset jq >/dev/null
+type curl ipset jq >/dev/null
 
 trustlist="tor-trust6"           # Tor authorities and snowflake servers
 jobs=$((1 + ($(nproc) - 1) / 8)) # parallel jobs of adding ips to an ipset
