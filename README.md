@@ -147,7 +147,7 @@ Chain INPUT (policy DROP 214 packets, 14307 bytes)
 
 ### Tweaks
 
-If the DDoS script fails to parse the Tor and/or the SSH config then overrule automatic parsing by either:
+If the parsing of the Tor and/or the SSH config fails then overrule it by:
 
 1. define the local running relay/s explicitly at the command line after the keyword `start`, e.g.:
 
@@ -163,7 +163,8 @@ If the DDoS script fails to parse the Tor and/or the SSH config then overrule au
 
    (`CONFIGURED_RELAYS6` for IPv6).
 
-A command line argument takes precedence over the corresponding environment variable.
+Any command line argument takes precedence over the corresponding environment variable.
+
 Allow inbound traffic to additional \<address:port\> destinations by e.g.:
 
 ```bash
@@ -171,18 +172,17 @@ export ADD_LOCAL_SERVICES="2.71.82.81:828 3.141.59.26:53"
 export ADD_LOCAL_SERVICES6="[cafe::abba]:1234"
 ```
 
-A slightly different syntax is used for `ADD_REMOTE_SERVICES` to allow inbound traffic, e.g.:
+A slightly different syntax is used to allow inbound traffic from a remote ip to e.g.: the local port 4711:
 
 ```bash
 export ADD_LOCAL_SERVICES="4.3.2.1>4711"
 export ADD_LOCAL_SERVICES6="[cafe::abba]>4711"
 ```
 
-(the separator `>` is used instead `:` to highlight that the address is _src_, and the port is _dst_)
-The above allows traffic from the specified remote address to the local port 4711.
+The separator `>` is used to highlight that the address is _src_, but the port is _dst_).
 
-Please note: The script sets few _sysctl_ values.
-If unwanted then comment out the code around _setSysctlValues()_.
+The script sets few _sysctl_ values. If this is not wanted then comment out the code around _setSysctlValues()_.
+
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
 then comment out _addHetzner()_ too.
 To append rules onto an existing _iptables_ rule set (to overwrite it is the default) comment out the call _clearRules()_.
