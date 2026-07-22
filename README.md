@@ -147,6 +147,10 @@ Chain INPUT (policy DROP 214 packets, 14307 bytes)
 
 ### Tweaks
 
+The script sets few _sysctl_ values. If this is not wanted then comment out the code around _setSysctlValues()_.
+If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
+then comment out _addHetzner()_ too.
+To append rules onto an existing _iptables_ rule set (to overwrite it is the default) comment out the call _clearRules()_.
 If the parsing of the Tor and/or the SSH config fails then overrule it by:
 
 1. define the local running relay/s explicitly at the command line after the keyword `start`, e.g.:
@@ -172,20 +176,14 @@ export ADD_LOCAL_SERVICES="2.71.82.81:828 3.141.59.26:53"
 export ADD_LOCAL_SERVICES6="[cafe::abba]:1234"
 ```
 
-A slightly different syntax is used to allow inbound traffic from a remote ip to e.g.: the local port 4711:
+A slightly different syntax is used to allow inbound traffic from a remote ip to e.g. the local port 4711:
 
 ```bash
 export ADD_LOCAL_SERVICES="4.3.2.1>4711"
 export ADD_LOCAL_SERVICES6="[cafe::abba]>4711"
 ```
 
-The separator `>` is used to highlight that the address is _src_, but the port is _dst_).
-
-The script sets few _sysctl_ values. If this is not wanted then comment out the code around _setSysctlValues()_.
-
-If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then comment out _addHetzner()_ too.
-To append rules onto an existing _iptables_ rule set (to overwrite it is the default) comment out the call _clearRules()_.
+The separator `>` is used to highlight that the address part is _src_, but the port is _dst_).
 
 ### Metrics
 
