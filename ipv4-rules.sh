@@ -28,10 +28,10 @@ function addCommon() {
 
   # make sure NEW incoming tcp connections are SYN packets
   $ipt -A INPUT -p tcp ! --syn -m state --state NEW -j $jump
-  $ipt -A INPUT -m conntrack --ctstate INVALID -j $jump
 
   # do not touch established connections
   $ipt -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+  $ipt -A INPUT -m conntrack --ctstate INVALID -j $jump
 
   # ssh
   local addr=$(grep -E "^ListenAddress\s+.+\..+\..+\..+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
@@ -40,8 +40,13 @@ function addCommon() {
     $ipt -A INPUT -p tcp --dst $i --dport ${port:-22} --syn -j ACCEPT
   done
 
-  # ratelimit ICMP echo
-  $ipt -A INPUT -p icmp --icmp-type echo-request -m limit --limit 6/s -j ACCEPT
+  # PMTUD
+  $ipt -A INPUT -p icmp --icmp-type destination-unreachable -j ACCEPT
+  $ipt -A INPUT -p icmp --icmp-type time-exceeded -j ACCEPT
+  $ipt -A INPUT -p icmp --icmp-type parameter-problem -j ACCEPT
+
+  # ping
+  $ipt -A INPUT -p icmp --icmp-type echo-request -m limit --limit 6/s --limit-burst 10 -j ACCEPT
 
   # DHCPv4
   $ipt -A INPUT -p udp --dport 68 -j ACCEPT

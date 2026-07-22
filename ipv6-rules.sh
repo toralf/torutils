@@ -23,18 +23,15 @@ function relay_2_ip_and_port() {
 }
 
 function addCommon() {
-  # allow loopback
+  # loopback
   $ipt -A INPUT --in-interface lo -m comment --comment "DDoS IPv6 $(date -R)" -j ACCEPT
-
-  # IPv6 Multicast
-  $ipt -A INPUT -p udp --source fe80::/10 --dst ff02::/80 -j ACCEPT
 
   # make sure NEW incoming tcp connections are SYN packets
   $ipt -A INPUT -p tcp ! --syn -m state --state NEW -j $jump
-  $ipt -A INPUT -m conntrack --ctstate INVALID -j $jump
 
   # do not touch established connections
   $ipt -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+  $ipt -A INPUT -m conntrack --ctstate INVALID -j $jump
 
   # ssh
   local addr=$(grep -E "^ListenAddress\s+.*:.*:.*$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
@@ -43,12 +40,31 @@ function addCommon() {
     $ipt -A INPUT -p tcp --dst $i --dport ${port:-22} --syn -j ACCEPT
   done
 
-  # ratelimit ICMP echo
-  $ipt -A INPUT -p ipv6-icmp --icmpv6-type echo-request -m limit --limit 6/s -j ACCEPT
-  $ipt -A INPUT -p ipv6-icmp -j ACCEPT
+  # see RFC 4890
+
+  # IPv6 Path MTU Discovery
+  $ipt -A INPUT -p ipv6-icmp --icmpv6-type destination-unreachable -j ACCEPT
+  $ipt -A INPUT -p ipv6-icmp --icmpv6-type packet-too-big -j ACCEPT
+  $ipt -A INPUT -p ipv6-icmp --icmpv6-type time-exceeded -j ACCEPT
+  $ipt -A INPUT -p ipv6-icmp --icmpv6-type parameter-problem -j ACCEPT
+
+  # Neighbor Discovery Protocol - prevent Remote-Spoofing
+  # $ipt -A INPUT -p ipv6-icmp --icmpv6-type router-solicitation -m hl --hl-eq 255 -j ACCEPT
+  # $ipt -A INPUT -p ipv6-icmp --icmpv6-type router-advertisement -m hl --hl-eq 255 -j ACCEPT
+  # $ipt -A INPUT -p ipv6-icmp --icmpv6-type neighbor-solicitation -m hl --hl-eq 255 -j ACCEPT
+  # $ipt -A INPUT -p ipv6-icmp --icmpv6-type neighbor-advertisement -m hl --hl-eq 255 -j ACCEPT
+
+  # ping
+  $ipt -A INPUT -p ipv6-icmp --icmpv6-type echo-request -m limit --limit 6/s --limit-burst 10 -j ACCEPT
+
+  # not at a server
+  $ipt -A INPUT -p ipv6-icmp --icmpv6-type redirect -j $jump
 
   # DHCPv6
   $ipt -A INPUT -p udp --dport 546 -j ACCEPT
+
+  # IPv6 Multicast
+  $ipt -A INPUT -p udp --source fe80::/10 --dst ff02::/80 -j ACCEPT
 }
 
 function addTor() {
