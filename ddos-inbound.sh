@@ -34,12 +34,13 @@ function show() {
 }
 
 function getConfiguredRelays() {
-  # shellcheck disable=SC2045
-  for f in $(ls /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null); do
-    if orport=$(grep "^ORPort *" $f | grep -v -F -e ' NoListen' -e '[' -e ':auto' | grep -P "^ORPort\s+.+\s*"); then
-      if grep -q -Po "^ORPort\s+\d+\.\d+\.\d+\.\d+\:\d+\s*" <<<$orport; then
+  # shellcheck disable=SC2045 disable=SC2010
+  for f in $(ls /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null | grep -v -F -e '.sample' -e '.bak' -e '~' -e '@'); do
+    # OR port and address are defined either together in 1 line or in 2 different lines
+    if orport=$(grep "^ORPort *" $f | grep -v -F -e ' NoListen' -e '[' -e ':auto' | grep -E "^ORPort[[:space:]]+.+[[:space:]]*"); then
+      if grep -q -E "^ORPort[[:space:]]+[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+[[:space:]]*" <<<$orport; then
         awk '{ print $2 }' <<<$orport
-      elif address=$(grep -P "^Address\s+\d+\.\d+\.\d+\.\d+\s*" $f); then
+      elif address=$(grep -E "^Address[[:space:]]+[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+[[:space:]]*" $f); then
         echo $(awk '{ print $2 }' <<<$address):$(awk '{ print $2 }' <<<$orport)
       fi
     fi
@@ -47,10 +48,12 @@ function getConfiguredRelays() {
 }
 
 function getConfiguredRelays6() {
-  grep -h -e "^ORPort *" /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null |
-    grep -v -F -e ' NoListen' -e ':auto' |
-    grep -P "^ORPort\s+\[[0-9a-f]*:[0-9a-f:]*:[0-9a-f]*\]:\d+\s*" |
-    awk '{ print $2 }'
+  # shellcheck disable=SC2045 disable=SC2010
+  for f in $(ls /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null | grep -v -F -e '.sample' -e '.bak' -e '~' -e '@'); do
+    grep -v -F -e ' NoListen' -e ':auto' $f |
+      grep -E "^ORPort[[:space:]]+\[[0-9a-fA-F]*:[0-9a-fA-F:]*:[0-9a-fA-F]*\]:[0-9]+[[:space:]]*" |
+      awk '{ print $2 }'
+  done
 }
 
 #######################################################################

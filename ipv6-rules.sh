@@ -251,7 +251,7 @@ function getConfiguredRelays6() {
         grep -E "^\[[0-9a-fA-F:]{2,39}\]:[0-9]+$"
     else
       grep -v -F -e ' NoListen' -e ':auto' $f |
-        grep -P "^ORPort\s+\[[0-9a-f]*:[0-9a-f:]*:[0-9a-f]*\]:\d+\s*" |
+        grep -E "^ORPort[[:space:]]+\[[0-9a-fA-F]*:[0-9a-fA-F:]*:[0-9a-fA-F]*\]:[0-9]+[[:space:]]*" |
         awk '{ print $2 }'
     fi
   done

@@ -204,10 +204,10 @@ function getConfiguredRelays() {
         grep -E "^([0-9]+\.){3}[0-9]+:[0-9]+$"
     else
       # OR port and address are defined either together in 1 line or in 2 different lines
-      if orport=$(grep "^ORPort *" $f | grep -v -F -e ' NoListen' -e '[' -e ':auto' | grep -P "^ORPort\s+.+\s*"); then
-        if grep -q -Po "^ORPort\s+\d+\.\d+\.\d+\.\d+\:\d+\s*" <<<$orport; then
+      if orport=$(grep "^ORPort *" $f | grep -v -F -e ' NoListen' -e '[' -e ':auto' | grep -E "^ORPort[[:space:]]+.+[[:space:]]*"); then
+        if grep -q -E "^ORPort[[:space:]]+[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+[[:space:]]*" <<<$orport; then
           awk '{ print $2 }' <<<$orport
-        elif address=$(grep -P "^Address\s+\d+\.\d+\.\d+\.\d+\s*" $f); then
+        elif address=$(grep -E "^Address[[:space:]]+[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+[[:space:]]*" $f); then
           echo $(awk '{ print $2 }' <<<$address):$(awk '{ print $2 }' <<<$orport)
         fi
       fi
