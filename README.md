@@ -147,10 +147,11 @@ Chain INPUT (policy DROP 214 packets, 14307 bytes)
 
 ### Tweaks
 
-The script sets few _sysctl_ values. If this is not wanted then comment out the code around _setSysctlValues()_.
+To append rules onto the own _iptables_ rules, comment out _clearRules_ (at the end of the script).
+To have only the Tor port part, comment out the call _addCommon_.
+The script sets few _sysctl_ values. If not wanted then comment out the call _setSysctlValues_.
 If Hetzners [system monitor](https://docs.hetzner.com/robot/dedicated-server/security/system-monitor/) isn't used,
-then comment out _addHetzner()_ too.
-To append rules onto an existing _iptables_ rule set (to overwrite it is the default) comment out the call _clearRules()_.
+then comment out _addHetzner_.
 If the parsing of the Tor and/or the SSH config fails then overrule it by:
 
 1. define the local running relay/s explicitly at the command line after the keyword `start`, e.g.:
