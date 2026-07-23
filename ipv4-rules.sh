@@ -26,12 +26,12 @@ function addCommon() {
   # allow loopback
   $ipt -A INPUT --in-interface lo -m comment --comment "DDoS IPv4 $(date -R)" -j ACCEPT
 
-  # make sure NEW incoming tcp connections are SYN packets
-  $ipt -A INPUT -p tcp ! --syn -m state --state NEW -j $jump
-
   # do not touch established connections
   $ipt -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   $ipt -A INPUT -m conntrack --ctstate INVALID -j $jump
+
+  # make sure NEW incoming tcp connections are SYN packets
+  $ipt -A INPUT -p tcp ! --syn -m state --state NEW -j $jump
 
   # ssh
   local addr=$(grep -E "^ListenAddress\s+.+\..+\..+\..+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
