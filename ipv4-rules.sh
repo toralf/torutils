@@ -50,6 +50,8 @@ function addCommon() {
 
   # DHCPv4
   $ipt -A INPUT -p udp --dport 68 -j ACCEPT
+
+  $ipt -P INPUT $jump
 }
 
 function addTor() {
@@ -184,7 +186,6 @@ function setSysctlValues() {
 
 function clearRules() {
   $ipt -P INPUT ACCEPT
-
   $ipt -F INPUT
   $ipt -Z INPUT
 }
@@ -298,7 +299,6 @@ start)
   addHetzner
   addServices
   addTor ${*:-${CONFIGURED_RELAYS-$(getConfiguredRelays)}}
-  $ipt -P INPUT $jump
   trap - INT QUIT TERM EXIT
   ;;
 stop)

@@ -65,6 +65,8 @@ function addCommon() {
 
   # IPv6 Multicast
   $ipt -A INPUT -p udp --source fe80::/10 --dst ff02::/80 -j ACCEPT
+
+  $ipt -P INPUT $jump
 }
 
 function addTor() {
@@ -231,7 +233,6 @@ function addHetzner() {
 
 function clearRules() {
   $ipt -P INPUT ACCEPT
-
   $ipt -F INPUT
   $ipt -Z INPUT
 }
@@ -339,7 +340,6 @@ start)
   addHetzner
   addServices
   addTor ${*:-${CONFIGURED_RELAYS6-$(getConfiguredRelays6)}}
-  $ipt -P INPUT $jump
   trap - INT QUIT TERM EXIT
   ;;
 stop)
