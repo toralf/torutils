@@ -79,24 +79,36 @@ function addTor() {
   #   - fallback is a /128 netmask (can be overruled by NETMASK6_OVERRULE)
   #   - the hoster lists here are almost incomplete, collected are hosters from where attacks were observed in the past
 
-  # /64 netmask (e.g. Hetzner)
+  # /64 netmask
   local hoster64list="tor-hoster64"
   __create_ipset $hoster64list "hash:net maxelem 64"
   ipset flush $hoster64list
-  # shellcheck disable=SC2043
-  for h in 2a01:4f8::/32 2a01:4f9::/32 2a01:4ff:ff01::/48 2a03:4000::/32 2a06:be80::/29 2a0b:f4c2::/40 2a11:e980::/29 2a12:2240::/29; do
+  while read -r h; do
     ipset add -exist $hoster64list $h
-  done
+  done <<EOF
+2a01:4f8::/32
+2a01:4f9::/32
+2a01:4ff:ff01::/48
+2a03:4000::/32
+2a06:be80::/29
+2a0b:f4c2::/40
+2a11:e980::/29
+2a12:2240::/29
+EOF
 
-  # /80 netmask (e.g. IONOS)
+  # /80 netmask
   local hoster80list="tor-hoster80"
   __create_ipset $hoster80list "hash:net maxelem 64"
-  # shellcheck disable=SC2043
   ipset flush $hoster80list
-  for h in 2001:67c:e60::/48 2607:f1c0::/32 2a00:1a68::/32 2a00:da00:8000::/34 2a0d:7f00::/29; do
+  while read -r h; do
     ipset add -exist $hoster80list $h
-  done
-
+  done <<EOF
+2001:67c:e60::/48
+2607:f1c0::/32
+2a00:1a68::/32
+2a00:da00:8000::/34
+2a0d:7f00::/29
+EOF
   # common
   local hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((2 * 60 * 1000))"
   local hashlimit_opts_x="--hashlimit-mode srcip,dstport --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((60 * 60 * 1000))"
