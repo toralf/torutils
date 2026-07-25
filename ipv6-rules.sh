@@ -2,8 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# addCommon() and addTor() implement a DDoS solution for a Tor relay for IPv6
-# the remaining code just parses the config and maintains ipset content
+# implement a DDoS solution for a Tor relay for IPv6
 # https://github.com/toralf/torutils
 
 function relay_2_ip_and_port() {
@@ -66,6 +65,7 @@ function addCommon() {
   # IPv6 Multicast
   $ipt -A INPUT -p udp --source fe80::/10 --dst ff02::/80 -j ACCEPT
 
+  # default policy
   $ipt -P INPUT $jump
 }
 
@@ -76,7 +76,8 @@ function addTor() {
 
   # strategy:
   #   - block whole subnets of a single system based on the its netmask (hint: this is not the whole provider subnet itself)
-  #   - the lists here are almost incomplete, collected are only those where attack were observed in the wild
+  #   - fallback is a /128 netmask (can be overruled by NETMASK6_OVERRULE)
+  #   - the hoster lists here are almost incomplete, collected are hosters from where attacks were observed in the past
 
   # /64 netmask (e.g. Hetzner)
   local hoster64list="tor-hoster64"
@@ -138,20 +139,20 @@ function addTor() {
 
     # /128 netmask, e.g. ASN 201814 (quetzalcoatl-relays.org)
     local ddoslist128="tor-ddos128-$orport"
-    __create_ipset $ddoslist128 "hash:ip netmask 128 maxelem $max timeout 86400"
+    __create_ipset $ddoslist128 "hash:ip netmask ${NETMASK6_OVERRULE:-128} maxelem $max timeout 86400"
     __load_ipset $ddoslist128 &
 
     $common -m set ! --match-set $hoster64list src -m set ! --match-set $hoster80list src \
-      -m hashlimit --hashlimit-srcmask 128 --hashlimit-name $ddoslist128 $hashlimit_opts -j SET --add-set $ddoslist128 src --exist
+      -m hashlimit --hashlimit-srcmask ${NETMASK6_OVERRULE:-128} --hashlimit-name $ddoslist128 $hashlimit_opts -j SET --add-set $ddoslist128 src --exist
     $common -m set ! --match-set $hoster64list src -m set ! --match-set $hoster80list src \
-      -m hashlimit --hashlimit-srcmask 128 --hashlimit-name $ddoslist128-x $hashlimit_opts_x -j SET --add-set $ddoslist128 src --exist
+      -m hashlimit --hashlimit-srcmask ${NETMASK6_OVERRULE:-128} --hashlimit-name $ddoslist128-x $hashlimit_opts_x -j SET --add-set $ddoslist128 src --exist
     $common -m set --match-set $ddoslist128 src -j $jump
 
     # rule 3 (only 1 connection from each of up to 8 currently allowed Tor relays per ip address)
 
     $common -m set --match-set $hoster64list src -m connlimit --connlimit-mask 64 --connlimit-above 8 -j $jump
     $common -m set --match-set $hoster80list src -m connlimit --connlimit-mask 80 --connlimit-above 8 -j $jump
-    $common -m set ! --match-set $hoster64list src -m set ! --match-set $hoster80list src -m connlimit --connlimit-mask 128 --connlimit-above 8 -j $jump
+    $common -m set ! --match-set $hoster64list src -m set ! --match-set $hoster80list src -m connlimit --connlimit-mask ${NETMASK6_OVERRULE:-128} --connlimit-above 8 -j $jump
 
     # rule 4
 
@@ -289,8 +290,8 @@ function saveCertainIpsets() {
 }
 
 #######################################################################
-set -eu
-set -m # allow fg in shell scripts
+set -eu # no -f
+set -m  # allow fg in shell scripts
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 

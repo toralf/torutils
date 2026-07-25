@@ -2,8 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# addCommon() and addTor() implement a DDoS solution for a Tor relay for IPv4
-# the remaining code just parses the config and maintains ipset content
+# implement a DDoS solution for a Tor relay for IPv4
 # https://github.com/toralf/torutils
 
 function relay_2_ip_and_port() {
@@ -51,6 +50,7 @@ function addCommon() {
   # DHCPv4
   $ipt -A INPUT -p udp --dport 68 -j ACCEPT
 
+  # default policy
   $ipt -P INPUT $jump
 }
 
@@ -59,14 +59,17 @@ function addTor() {
   __create_ipset $trustlist "maxelem 64"
   __fill_trustlist &
 
-  local hashlimit_opts=" --hashlimit-mode srcip,dstport --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4))"
+  # strategy:
+  #   - block single IPv4 addresses (can be overruled by NETMASK_OVERRULE)
+
+  local hashlimit_opts=" --hashlimit-srcmask ${NETMASK_OVERRULE:-32} --hashlimit-mode srcip,dstport --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4))"
 
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
 
     local ddoslist="tor-ddos-$orport" # this holds ips classified as DDoS'ing the local OR port
-    __create_ipset $ddoslist "maxelem $max timeout $((24 * 3600))"
+    __create_ipset $ddoslist "netmask ${NETMASK_OVERRULE:-32} maxelem $max timeout $((24 * 3600))"
     __load_ipset $ddoslist &
 
     # rule 1 (trust Tor authorities) is independend from Tor ORPort
@@ -88,7 +91,7 @@ function addTor() {
 
     # rule 3 (only 1 connection from each of up to 8 currently allowed Tor relays per ip address)
 
-    $common -m connlimit --connlimit-above 8 -j $jump
+    $common -m connlimit --connlimit-mask ${NETMASK_OVERRULE:-32} --connlimit-above 8 -j $jump
 
     # rule 4
 
@@ -247,8 +250,8 @@ function saveCertainIpsets() {
 }
 
 #######################################################################
-set -eu
-set -m # allow fg in shell scripts
+set -eu # no -f
+set -m  # allow fg in shell scripts
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
