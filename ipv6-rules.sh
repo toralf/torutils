@@ -109,7 +109,8 @@ EOF
 2a00:da00:8000::/34
 2a0d:7f00::/29
 EOF
-  # common
+
+  # common hash limit options
   local hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((2 * 60 * 1000))"
   local hashlimit_opts_x="--hashlimit-mode srcip,dstport --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((60 * 60 * 1000))"
 
