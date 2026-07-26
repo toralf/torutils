@@ -75,9 +75,13 @@ function addTor() {
   __fill_trustlist &
 
   # strategy:
-  #   - block whole subnets of a single system based on the its netmask (hint: this is not the whole provider subnet itself)
+  #   - block a single system based on its netmask (hint: this is not the whole provider subnet itself)
   #   - fallback is a /128 netmask (can be overruled by NETMASK6_OVERRULE)
   #   - the hoster lists here are almost incomplete, collected are hosters from where attacks were observed in the past
+  #   - regular check the /128 ipset for updates of the hoster64/80 list:
+  #     awk '{ print $1 }' /var/tmp/tor-ddos128-* | sort -V
+  #     but watch the /128 hash too:
+  #     cat /proc/net/ip6t_hashlimit/tor-ddos128-*-x | cut -f 2 -d ' ' | cut -f 1 -d '-' | sort -V | uniq -c | sort -bn
 
   # /64 netmask
   local hoster64list="tor-hoster64"
