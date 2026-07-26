@@ -63,10 +63,7 @@ function addTor() {
   # rule 1 (trust Tor authorities) is ORPort independend
   __create_ipset $trustlist "hash:ip maxelem 64"
   __fill_trustlist &
-  local trust_rule="INPUT -p tcp -m set --match-set $trustlist src -j ACCEPT"
-  if ! $ipt -C $trust_rule 2>/dev/null; then
-    $ipt -A $trust_rule
-  fi
+  $ipt -A INPUT -p tcp -m set --match-set $trustlist src -j ACCEPT
 
   # strategy:
   #   - block single IPv4 addresses (can be overruled by NETMASK_OVERRULE)
