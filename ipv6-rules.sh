@@ -112,7 +112,7 @@ EOF
   local hashlimit_opts_x="--hashlimit-mode srcip,dstport --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((60 * 60 * 1000))"
 
   # run over all relays
-  # a separate CHAIN for each relay is an option at least for readability b/c the majority of packets is handled by ct already
+  # a separate CHAIN for each relay is an option, but rather wrt readability b/c the majority of packets is handled by ct
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
@@ -126,7 +126,7 @@ EOF
 
     # rule 2 (catch DDoS)
 
-    # /64 netmask, e.g. Hetzner
+    # /64 netmask
     local ddoslist64="tor-ddos64-$orport"
     __create_ipset $ddoslist64 "hash:ip netmask 64 maxelem $max timeout 86400"
     __load_ipset $ddoslist64 &
@@ -137,7 +137,7 @@ EOF
       -m hashlimit --hashlimit-srcmask 64 --hashlimit-name $ddoslist64-x $hashlimit_opts_x -j SET --add-set $ddoslist64 src --exist
     $common -m set --match-set $ddoslist64 src -j $jump
 
-    # /80 netmask, e.g. IONOS
+    # /80 netmask
     local ddoslist80="tor-ddos80-$orport"
     __create_ipset $ddoslist80 "hash:ip netmask 80 maxelem $max timeout 86400"
     __load_ipset $ddoslist80 &
@@ -148,7 +148,7 @@ EOF
       -m hashlimit --hashlimit-srcmask 80 --hashlimit-name $ddoslist80-x $hashlimit_opts_x -j SET --add-set $ddoslist80 src --exist
     $common -m set --match-set $ddoslist80 src -j $jump
 
-    # /128 netmask, e.g. ASN 201814 (quetzalcoatl-relays.org)
+    # default netmask, usually /128
     local ddoslist128="tor-ddos128-$orport"
     __create_ipset $ddoslist128 "hash:ip netmask ${NETMASK6_OVERRULE:-128} maxelem $max timeout 86400"
     __load_ipset $ddoslist128 &

@@ -65,7 +65,7 @@ function addTor() {
   local hashlimit_opts=" --hashlimit-srcmask ${NETMASK_OVERRULE:-32} --hashlimit-mode srcip,dstport --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4))"
 
   # run over all relays
-  # a separate CHAIN for each relay is an option at least for readability b/c the majority of packets is handled by ct already
+  # a separate CHAIN for each relay is an option, but rather wrt readability b/c the majority of packets is handled by ct
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
