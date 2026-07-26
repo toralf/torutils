@@ -39,6 +39,11 @@ function addCommon() {
     $ipt -A INPUT -p tcp --dst $i --dport ${port:-22} -j ACCEPT
   done
 
+  # manually filled from outsite
+  local manuallist="tor-manual6"
+  __create_ipset $manuallist "hash:net timeout $((24 * 3600))"
+  $ipt -A INPUT -m set --match-set $manuallist src -j $jump
+
   # see RFC 4890
 
   # IPv6 Path MTU Discovery
@@ -70,14 +75,13 @@ function addCommon() {
 }
 
 function addTor() {
-  # # manually filled from outsite
-  local manuallist="tor-manual64"
-  __create_ipset $manuallist "hash:ip netmask 64 maxelem $max timeout $((24 * 3600))"
-  $ipt -A INPUT -p tcp -m set --match-set $manuallist src -j $jump
-
-  # Tor authorities
+  # rule 1 (trust Tor authorities) is ORPort independend
   __create_ipset $trustlist "hash:ip maxelem 64"
   __fill_trustlist &
+  local trust_rule="INPUT -p tcp -m set --match-set $trustlist src -j ACCEPT"
+  if ! $ipt -C $trust_rule 2>/dev/null; then
+    $ipt -A $trust_rule
+  fi
 
   # strategy:
   #   - block a single system based on its netmask (hint: this is not the whole provider subnet itself)
@@ -123,13 +127,6 @@ EOF
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
-
-    # rule 1 (trust Tor authorities) is independend from Tor ORPort
-
-    local trust_rule="INPUT -p tcp --dst $orip -m set --match-set $trustlist src -j ACCEPT"
-    if ! $ipt -C $trust_rule 2>/dev/null; then
-      $ipt -A $trust_rule
-    fi
 
     # rule 2 (catch DDoS)
 

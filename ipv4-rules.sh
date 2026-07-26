@@ -39,6 +39,11 @@ function addCommon() {
     $ipt -A INPUT -p tcp --dst $i --dport ${port:-22} -j ACCEPT
   done
 
+  # manually filled from outsite
+  local manuallist="tor-manual4"
+  __create_ipset $manuallist "hash:net timeout $((24 * 3600))"
+  $ipt -A INPUT -m set --match-set $manuallist src -j $jump
+
   # PMTUD
   $ipt -A INPUT -p icmp --icmp-type destination-unreachable -j ACCEPT
   $ipt -A INPUT -p icmp --icmp-type time-exceeded -j ACCEPT
@@ -55,14 +60,13 @@ function addCommon() {
 }
 
 function addTor() {
-  # # manually filled from outsite
-  local manuallist="tor-manual"
-  __create_ipset $manuallist "netmask 24 maxelem $max timeout $((24 * 3600))"
-  $ipt -A INPUT -p tcp -m set --match-set $manuallist src -j $jump
-
-  # Tor authorities
-  __create_ipset $trustlist "maxelem 64"
+  # rule 1 (trust Tor authorities) is ORPort independend
+  __create_ipset $trustlist "hash:ip maxelem 64"
   __fill_trustlist &
+  local trust_rule="INPUT -p tcp -m set --match-set $trustlist src -j ACCEPT"
+  if ! $ipt -C $trust_rule 2>/dev/null; then
+    $ipt -A $trust_rule
+  fi
 
   # strategy:
   #   - block single IPv4 addresses (can be overruled by NETMASK_OVERRULE)
@@ -76,15 +80,8 @@ function addTor() {
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
 
     local ddoslist="tor-ddos-$orport"
-    __create_ipset $ddoslist "netmask ${NETMASK_OVERRULE:-32} maxelem $max timeout $((24 * 3600))"
+    __create_ipset $ddoslist "hash:ip netmask ${NETMASK_OVERRULE:-32} maxelem $max timeout $((24 * 3600))"
     __load_ipset $ddoslist &
-
-    # rule 1 (trust Tor authorities) is independend from Tor ORPort
-
-    local trust_rule="INPUT -p tcp --dst $orip -m set --match-set $trustlist src -j ACCEPT"
-    if ! $ipt -C $trust_rule 2>/dev/null; then
-      $ipt -A $trust_rule
-    fi
 
     # rule 2 (catch DDoS)
 
@@ -108,7 +105,7 @@ function addTor() {
 
 function __create_ipset() {
   local name=$1
-  local cmd="ipset create -exist $name hash:ip family inet ${2-}"
+  local cmd="ipset create -exist $name $2 family inet"
 
   if ! $cmd 2>/dev/null; then
     if ! ipset destroy $name || ! $cmd; then
@@ -166,7 +163,7 @@ function addServices() {
 function addHetzner() {
   local sysmon="hetzner-sysmon"
 
-  __create_ipset $sysmon "maxelem 64"
+  __create_ipset $sysmon "hash:ip maxelem 64"
   $ipt -A INPUT -m set --match-set $sysmon src -j ACCEPT
   {
     (
