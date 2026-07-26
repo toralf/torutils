@@ -36,7 +36,7 @@ function addCommon() {
   local addr=$(grep -E "^ListenAddress\s+.*:.*:.*$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
   for i in ${addr:-"::/0"}; do
-    $ipt -A INPUT -p tcp --dst $i --dport ${port:-22} --syn -j ACCEPT
+    $ipt -A INPUT -p tcp --dst $i --dport ${port:-22} -j ACCEPT
   done
 
   # see RFC 4890
@@ -112,13 +112,14 @@ EOF
   local hashlimit_opts_x="--hashlimit-mode srcip,dstport --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((60 * 60 * 1000))"
 
   # run over all relays
+  # a separate CHAIN for each relay is an option at least for readability b/c the majority of packets is handled by ct already
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
 
     # rule 1 (trust Tor authorities) is independend from Tor ORPort
 
-    local trust_rule="INPUT -p tcp --dst $orip --syn -m set --match-set $trustlist src -j ACCEPT"
+    local trust_rule="INPUT -p tcp --dst $orip -m set --match-set $trustlist src -j ACCEPT"
     if ! $ipt -C $trust_rule 2>/dev/null; then
       $ipt -A $trust_rule
     fi
@@ -166,7 +167,7 @@ EOF
 
     # rule 4
 
-    $common --syn -j ACCEPT
+    $common -j ACCEPT
   done
 }
 
@@ -215,7 +216,7 @@ function addServices() {
     if [[ $addr == "::" ]]; then
       addr+="/0"
     fi
-    $ipt -A INPUT -p tcp --dst $addr --dport $port --syn -j ACCEPT
+    $ipt -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
   done
 
   # remote-address>local-port
@@ -224,7 +225,7 @@ function addServices() {
     if [[ $addr == "::" ]]; then
       addr+="/0"
     fi
-    $ipt -A INPUT -p tcp --src $addr --dport $port --syn -j ACCEPT
+    $ipt -A INPUT -p tcp --src $addr --dport $port -j ACCEPT
   done
 }
 
