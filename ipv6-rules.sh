@@ -86,6 +86,7 @@ function addTor() {
   while read -r h; do
     ipset add -exist $hoster64list $h
   done <<EOF
+2607:8500::/32
 2a01:4f8::/32
 2a01:4f9::/32
 2a01:4ff:ff01::/48
@@ -103,7 +104,6 @@ EOF
   while read -r h; do
     ipset add -exist $hoster80list $h
   done <<EOF
-2001:67c:e60::/48
 2607:f1c0::/32
 2a00:1a68::/32
 2a00:da00:8000::/34
