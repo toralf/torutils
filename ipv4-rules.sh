@@ -55,6 +55,11 @@ function addCommon() {
 }
 
 function addTor() {
+  # # manually filled from outsite
+  local manuallist="tor-manual"
+  __create_ipset $manuallist "netmask 24 maxelem $max timeout $((24 * 3600))"
+  $ipt -A INPUT -p tcp -m set --match-set $manuallist src -j $jump
+
   # Tor authorities
   __create_ipset $trustlist "maxelem 64"
   __fill_trustlist &
@@ -70,7 +75,7 @@ function addTor() {
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
 
-    local ddoslist="tor-ddos-$orport" # this holds ips classified as DDoS'ing the local OR port
+    local ddoslist="tor-ddos-$orport"
     __create_ipset $ddoslist "netmask ${NETMASK_OVERRULE:-32} maxelem $max timeout $((24 * 3600))"
     __load_ipset $ddoslist &
 
@@ -91,7 +96,7 @@ function addTor() {
 
     $common -m set --match-set $ddoslist src -j $jump
 
-    # rule 3 (only 1 connection from each of up to 8 currently allowed Tor relays per ip address)
+    # rule 3 (only 1 connection from each of up to 8 Tor relays per ip address)
 
     $common -m connlimit --connlimit-mask ${NETMASK_OVERRULE:-32} --connlimit-above 8 -j $jump
 

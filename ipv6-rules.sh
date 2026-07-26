@@ -70,6 +70,11 @@ function addCommon() {
 }
 
 function addTor() {
+  # # manually filled from outsite
+  local manuallist="tor-manual64"
+  __create_ipset $manuallist "hash:ip netmask 64 maxelem $max timeout $((24 * 3600))"
+  $ipt -A INPUT -p tcp -m set --match-set $manuallist src -j $jump
+
   # Tor authorities
   __create_ipset $trustlist "hash:ip maxelem 64"
   __fill_trustlist &
@@ -87,6 +92,7 @@ function addTor() {
   local hoster64list="tor-hoster64"
   __create_ipset $hoster64list "hash:net maxelem 64"
   ipset flush $hoster64list
+  # shellcheck disable=SC2034
   while read -r h comment; do
     ipset add -exist $hoster64list $h
   done <<EOF
@@ -102,6 +108,7 @@ EOF
   local hoster80list="tor-hoster80"
   __create_ipset $hoster80list "hash:net maxelem 64"
   ipset flush $hoster80list
+  # shellcheck disable=SC2034
   while read -r h comment; do
     ipset add -exist $hoster80list $h
   done <<EOF
@@ -159,7 +166,7 @@ EOF
       -m hashlimit --hashlimit-srcmask ${NETMASK6_OVERRULE:-128} --hashlimit-name $ddoslist128-x $hashlimit_opts_x -j SET --add-set $ddoslist128 src --exist
     $common -m set --match-set $ddoslist128 src -j $jump
 
-    # rule 3 (only 1 connection from each of up to 8 currently allowed Tor relays per ip address)
+    # rule 3 (only 1 connection from each of up to 8 Tor relays per ip address)
 
     $common -m set --match-set $hoster64list src -m connlimit --connlimit-mask 64 --connlimit-above 8 -j $jump
     $common -m set --match-set $hoster80list src -m connlimit --connlimit-mask 80 --connlimit-above 8 -j $jump
