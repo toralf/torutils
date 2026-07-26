@@ -87,31 +87,24 @@ function addTor() {
   local hoster64list="tor-hoster64"
   __create_ipset $hoster64list "hash:net maxelem 64"
   ipset flush $hoster64list
-  while read -r h; do
+  while read -r h comment; do
     ipset add -exist $hoster64list $h
   done <<EOF
-2607:8500::/32
-2a01:4f8::/32
-2a01:4f9::/32
-2a01:4ff:ff01::/48
-2a03:4000::/32
-2a06:be80::/29
-2a0d:bbc7::/32
-2a11:e980::/29
-2a12:2240::/29
+2a00:1fa0:8000::/33 # MTS PJSC
+2607:8500::/32 # Rethem Hosting LLC
+2a00:63c0::/29 # IPAX GmbH
+2a01:4f8::/31 # Hetzner
+2a0d:bbc7::/32 # QuxLabs AB
+2c0f:fc89::/32 # Etisalat Misr (e& Egypt)
 EOF
 
   # /80 netmask
   local hoster80list="tor-hoster80"
   __create_ipset $hoster80list "hash:net maxelem 64"
   ipset flush $hoster80list
-  while read -r h; do
+  while read -r h comment; do
     ipset add -exist $hoster80list $h
   done <<EOF
-2607:f1c0::/32
-2a00:1a68::/32
-2a00:da00:8000::/34
-2a0d:7f00::/29
 EOF
 
   # common hash limit options
