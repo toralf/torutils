@@ -40,9 +40,9 @@ function addCommon() {
   done
 
   # manually filled from outsite
-  local manuallist="tor-manual4"
   __create_ipset $manuallist "hash:net timeout $((24 * 3600))"
   $ipt -A INPUT -m set --match-set $manuallist src -j $jump
+  __load_ipset $manuallist &
 
   # PMTUD
   $ipt -A INPUT -p icmp --icmp-type destination-unreachable -j ACCEPT
@@ -238,7 +238,7 @@ function saveCertainIpsets() {
   [[ -d $tmpdir ]] || return 1
 
   ipset list -n |
-    grep -e '^tor-ddos-[0-9]*$' -e '^tor-trust$' |
+    grep -E -e '^tor-ddos-[0-9]+$' -e "^$manuallist$" -e "^$trustlist$" |
     while read -r name; do
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       if ipset list $name >$tmpfile; then
@@ -260,7 +260,8 @@ umask 066
 trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
 type curl ipset jq >/dev/null
 
-trustlist="tor-trust"            # Tor authorities and snowflake servers
+manuallist="tor-manual4"         # to be filled manually from outside
+trustlist="tor-trust4"           # Tor authorities and snowflake servers
 jobs=$((1 + ($(nproc) - 1) / 8)) # parallel jobs of adding ips to an ipset
 # hashes and ipsets are sized with respect to the available RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)

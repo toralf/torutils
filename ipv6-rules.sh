@@ -40,9 +40,9 @@ function addCommon() {
   done
 
   # manually filled from outsite
-  local manuallist="tor-manual6"
   __create_ipset $manuallist "hash:net timeout $((24 * 3600))"
   $ipt -A INPUT -m set --match-set $manuallist src -j $jump
+  __load_ipset $manuallist &
 
   # see RFC 4890
 
@@ -90,9 +90,7 @@ function addTor() {
   #     cat /proc/net/ip6t_hashlimit/tor-ddos128-*-x | cut -f 2 -d ' ' | cut -f 1 -d '-' | sort -V | uniq -c | sort -bn
 
   # /64 netmask
-  local hoster64list="tor-hoster64"
   __create_ipset $hoster64list "hash:net maxelem 64"
-  ipset flush $hoster64list
   # shellcheck disable=SC2034
   while read -r h comment; do
     ipset add -exist $hoster64list $h
@@ -104,6 +102,7 @@ function addTor() {
 2a0d:bbc7::/32 # QuxLabs AB
 2c0f:fc89::/32 # Etisalat Misr (e& Egypt)
 EOF
+  __load_ipset $hoster64list &
 
   # common hash limit options
   local hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((2 * 60 * 1000))"
@@ -267,7 +266,7 @@ function saveCertainIpsets() {
   [[ -d $tmpdir ]] || return 1
 
   ipset list -n |
-    grep -e '^tor-ddos64-[0-9]*$' -e '^tor-ddos128-[0-9]*$' |
+    grep -E -e '^tor-ddos64-[0-9]+$' -e '^tor-ddos128-[0-9]+$' -e "^$manuallist$" -e "^$hoster64list$" -e "^$trustlist$" |
     while read -r name; do
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       if ipset list $name >$tmpfile; then
@@ -289,6 +288,8 @@ umask 066
 trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
 type curl ipset jq >/dev/null
 
+hoster64list="tor-hoster64"      # network from where ip addreses are considerd to have /64 network prefix
+manuallist="tor-manual6"         # to be filled manually from outside
 trustlist="tor-trust6"           # Tor authorities and snowflake servers
 jobs=$((1 + ($(nproc) - 1) / 8)) # parallel jobs of adding ips to an ipset
 # hashes and ipsets are sized with respect to the available RAM in GiB
