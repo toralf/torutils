@@ -314,7 +314,6 @@ start)
   trap - INT QUIT TERM EXIT
   ;;
 stop)
-  saveCertainIpsets
   clearRules
   ;;
 update)
