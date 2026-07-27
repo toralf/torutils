@@ -26,7 +26,6 @@ function addCommon() {
   # manually filled from outsite
   __create_ipset $manuallist "hash:net timeout $((24 * 3600))"
   $ipt -A INPUT -m set --match-set $manuallist src -j $jump
-  __load_ipset $manuallist &
 
   # PMTUD
   $ipt -A INPUT -p icmp --icmp-type destination-unreachable -j ACCEPT
@@ -62,7 +61,6 @@ function addTor() {
 
     local ddoslist="tor-ddos-$orport"
     __create_ipset $ddoslist "hash:ip netmask ${NETMASK_OVERRULE:-32} maxelem $max timeout $((24 * 3600))"
-    __load_ipset $ddoslist &
 
     # rule 2 (catch DDoS)
 
@@ -104,9 +102,20 @@ function __create_ipset() {
   local name=$1
   local cmd="ipset create -exist $name $2 family inet"
 
+  local load=0 # whether to load from saved file or not
+  if ! ipset list -t $name &>/dev/null; then
+    load=1
+  fi
+
   if ! $cmd 2>/dev/null; then
     if ! ipset destroy $name || ! $cmd; then
       return 1
+    fi
+  fi
+
+  if [[ $load -eq 1 ]]; then
+    if [[ -s $tmpdir/$name ]]; then
+      xargs -r -L 1 -P $jobs ipset add -exist $1 <$tmpdir/$name & # -L 1 b/c the inputs are tuples
     fi
   fi
 }
@@ -127,12 +136,6 @@ function fill_trustlist() {
     fi
   ) |
     xargs -r -n 1 -P $jobs ipset add -exist $trustlist
-}
-
-function __load_ipset() {
-  if [[ -s $tmpdir/$1 ]]; then
-    xargs -r -L 1 -P $jobs ipset add -exist $1 <$tmpdir/$1 # -L 1 b/c the inputs are tuples
-  fi
 }
 
 function addServices() {
@@ -242,7 +245,7 @@ function saveCertainIpsets() {
   [[ -d $tmpdir ]] || return 1
 
   ipset list -n |
-    grep -E -e '^tor-ddos-[0-9]+$' -e "^$manuallist$" -e "^$trustlist$" |
+    grep -E -e '^tor-ddos-[0-9]+$' -e "^$manuallist$" |
     while read -r name; do
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       if ipset list $name >$tmpfile; then

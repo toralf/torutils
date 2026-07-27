@@ -26,7 +26,6 @@ function addCommon() {
   # manually filled from outsite
   __create_ipset $manuallist "hash:net timeout $((24 * 3600))"
   $ipt -A INPUT -m set --match-set $manuallist src -j $jump
-  __load_ipset $manuallist &
 
   # see RFC 4890
 
@@ -86,7 +85,6 @@ function addTor() {
 2a0d:bbc7::/32 # QuxLabs AB
 2c0f:fc89::/32 # Etisalat Misr (e& Egypt)
 EOF
-  __load_ipset $hoster64list &
 
   # common hash limit options
   local hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((2 * 60 * 1000))"
@@ -103,7 +101,6 @@ EOF
     # /64 netmask
     local ddoslist64="tor-ddos64-$orport"
     __create_ipset $ddoslist64 "hash:ip netmask 64 maxelem $max timeout 86400"
-    __load_ipset $ddoslist64 &
 
     $common -m set --match-set $hoster64list src \
       -m hashlimit --hashlimit-srcmask 64 --hashlimit-name $ddoslist64 $hashlimit_opts -j SET --add-set $ddoslist64 src --exist
@@ -114,7 +111,6 @@ EOF
     # default netmask, usually /128
     local ddoslist128="tor-ddos128-$orport"
     __create_ipset $ddoslist128 "hash:ip netmask ${NETMASK6_OVERRULE:-128} maxelem $max timeout 86400"
-    __load_ipset $ddoslist128 &
 
     $common -m set ! --match-set $hoster64list src \
       -m hashlimit --hashlimit-srcmask ${NETMASK6_OVERRULE:-128} --hashlimit-name $ddoslist128 $hashlimit_opts -j SET --add-set $ddoslist128 src --exist
@@ -153,9 +149,21 @@ function __create_ipset() {
   local name=$1
   local cmd="ipset create -exist $name $2 family inet6"
 
+  local load=0 # whether to load from saved file or not
+  if ! ipset list -t $name &>/dev/null; then
+    load=1
+  fi
+
   if ! $cmd 2>/dev/null; then
     if ! ipset destroy $name || ! $cmd; then
       return 1
+    fi
+    load=1
+  fi
+
+  if [[ $load -eq 1 ]]; then
+    if [[ -s $tmpdir/$name ]]; then
+      xargs -r -L 1 -P $jobs ipset add -exist $1 <$tmpdir/$name & # -L 1 b/c the inputs are tuples
     fi
   fi
 }
@@ -177,12 +185,6 @@ function fill_trustlist() {
     fi
   ) |
     xargs -r -n 1 -P $jobs ipset add -exist $trustlist
-}
-
-function __load_ipset() {
-  if [[ -s $tmpdir/$1 ]]; then
-    xargs -r -L 1 -P $jobs ipset add -exist $1 <$tmpdir/$1 # -L 1 b/c the inputs are tuples
-  fi
 }
 
 function addServices() {
@@ -266,7 +268,7 @@ function saveCertainIpsets() {
   [[ -d $tmpdir ]] || return 1
 
   ipset list -n |
-    grep -E -e '^tor-ddos64-[0-9]+$' -e '^tor-ddos128-[0-9]+$' -e "^$manuallist$" -e "^$hoster64list$" -e "^$trustlist$" |
+    grep -E -e '^tor-ddos64-[0-9]+$' -e '^tor-ddos128-[0-9]+$' -e "^$manuallist$" -e "^$hoster64list$" |
     while read -r name; do
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       if ipset list $name >$tmpfile; then
