@@ -261,7 +261,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 5,
         "w": 8,
         "x": 16,
         "y": 1
@@ -421,170 +421,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 5,
         "w": 8,
         "x": 16,
-        "y": 5
-      },
-      "id": 99,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.4.3+security-02",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "XbGvg5aVz"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "exemplar": false,
-          "expr": "torutils_ipset{ipver=\"6\", instance=~\"$Instance\", nickname=~\"$Nickname\", netmask=\"64\"}",
-          "format": "time_series",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "{{nickname}}",
-          "range": false,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "ipset /64 IPv6",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "XbGvg5aVz"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 0,
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 16,
-        "y": 9
-      },
-      "id": 114,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.4.3+security-02",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "XbGvg5aVz"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "exemplar": false,
-          "expr": "torutils_ipset{ipver=\"6\", instance=~\"$Instance\", nickname=~\"$Nickname\", netmask=\"80\"}",
-          "format": "time_series",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "{{nickname}}",
-          "range": false,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "ipset /80 IPv6",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "XbGvg5aVz"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 0,
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": 0
-              },
-              {
-                "color": "yellow",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 16,
-        "y": 13
+        "y": 6
       },
       "id": 121,
       "options": {
@@ -631,12 +471,92 @@
       "type": "stat"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "XbGvg5aVz"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 11
+      },
+      "id": 99,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.3+security-02",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "XbGvg5aVz"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "torutils_ipset{ipver=\"6\", instance=~\"$Instance\", nickname=~\"$Nickname\", netmask=\"64\"}",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "{{nickname}}",
+          "range": false,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "ipset /64 IPv6",
+      "type": "stat"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 17
+        "y": 16
       },
       "id": 35,
       "panels": [],
@@ -711,7 +631,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 18
+        "y": 17
       },
       "id": 20,
       "options": {
@@ -829,7 +749,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 18
+        "y": 17
       },
       "id": 90,
       "options": {
@@ -936,7 +856,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 25
+        "y": 24
       },
       "id": 18,
       "options": {
@@ -1058,7 +978,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 25
+        "y": 24
       },
       "id": 63,
       "options": {
@@ -1185,7 +1105,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 32
+        "y": 31
       },
       "id": 22,
       "options": {
@@ -1275,7 +1195,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 38
       },
       "id": 33,
       "panels": [],
@@ -1351,7 +1271,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 40
+        "y": 39
       },
       "id": 94,
       "options": {
@@ -1458,7 +1378,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 40
+        "y": 39
       },
       "id": 2,
       "options": {
@@ -1503,7 +1423,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 47
+        "y": 46
       },
       "id": 37,
       "panels": [],
@@ -1578,7 +1498,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 48
+        "y": 47
       },
       "id": 79,
       "options": {
@@ -1700,7 +1620,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 48
+        "y": 47
       },
       "id": 80,
       "options": {
@@ -1760,7 +1680,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 55
+        "y": 54
       },
       "id": 116,
       "panels": [],
@@ -1837,7 +1757,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 56
+        "y": 55
       },
       "id": 106,
       "options": {
@@ -1946,7 +1866,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 56
+        "y": 55
       },
       "id": 122,
       "options": {
@@ -2055,7 +1975,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 63
+        "y": 62
       },
       "id": 104,
       "options": {
@@ -2100,7 +2020,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 70
+        "y": 69
       },
       "id": 97,
       "panels": [],
@@ -2177,7 +2097,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 71
+        "y": 70
       },
       "id": 31,
       "options": {
@@ -2286,7 +2206,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 71
+        "y": 70
       },
       "id": 119,
       "options": {
@@ -2395,7 +2315,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 78
+        "y": 77
       },
       "id": 111,
       "options": {
@@ -2440,7 +2360,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 85
+        "y": 84
       },
       "id": 115,
       "panels": [],
@@ -2517,7 +2437,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 86
+        "y": 85
       },
       "id": 107,
       "options": {
@@ -2626,7 +2546,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 86
+        "y": 85
       },
       "id": 118,
       "options": {
@@ -2735,7 +2655,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 93
+        "y": 92
       },
       "id": 109,
       "options": {
@@ -2780,7 +2700,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 100
+        "y": 99
       },
       "id": 39,
       "panels": [],
@@ -2815,7 +2735,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 101
+        "y": 100
       },
       "id": 96,
       "options": {
@@ -2893,7 +2813,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 101
+        "y": 100
       },
       "id": 120,
       "options": {
@@ -2971,7 +2891,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 108
+        "y": 107
       },
       "id": 44,
       "options": {
@@ -3030,8 +2950,8 @@
     "list": [
       {
         "current": {
-          "text": "Tor-DDoS",
-          "value": "Tor-DDoS"
+          "text": "Node localhost",
+          "value": "Node localhost"
         },
         "definition": "label_values(torutils_dropped_ipset_packets,job)",
         "name": "Job",
@@ -3048,8 +2968,8 @@
       },
       {
         "current": {
-          "text": "i31",
-          "value": "i31"
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": {
           "type": "prometheus",
@@ -3099,13 +3019,13 @@
     ]
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-7d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "utc",
   "title": "Tor DDoS",
   "uid": "FgvRNta4k",
-  "version": 668,
+  "version": 669,
   "weekStart": ""
 }
