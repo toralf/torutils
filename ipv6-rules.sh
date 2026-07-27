@@ -169,7 +169,6 @@ function __create_ipset() {
 }
 
 function fill_trustlist() {
-  # this is intentionally not loaded from a saved set
   (
     # snowflakes
     echo 2a0c:dd40:1:b::42 2607:f018:600:8:be30:5bff:fef1:c6fa

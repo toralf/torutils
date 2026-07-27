@@ -121,7 +121,6 @@ function __create_ipset() {
 }
 
 function fill_trustlist() {
-  # this is intentionally not filled from a saved set at reboot
   (
     # snowflakes
     echo 141.212.118.18 193.187.88.42 193.187.88.43 193.187.88.44 193.187.88.45 193.187.88.46
