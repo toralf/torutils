@@ -97,7 +97,7 @@ Then this rule set is applied to prevent DDoS attempts against the Tor port:
 
 To apply only these rules to your own firewall solution look at [tweaks](#tweaks) how to achieve that.
 
-¹ For IPv4 _source_ is a single ip address, for IPv6 _source_ is a /64, /80 or /128 netmask, see the [code](./ipv6-rules.sh#L59).
+¹ For IPv4 _source_ is a single ip address, for IPv6 _source_ is a /128 netmask, but see the [code](./ipv6-rules.sh#L77) for the /64 exceptions.
 
 ² Possible values were discussed in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 

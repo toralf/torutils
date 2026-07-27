@@ -84,7 +84,7 @@ function addTor() {
   #   - block a single system based on its netmask (hint: this is not the whole provider subnet itself)
   #   - fallback is a /128 netmask (can be overruled by NETMASK6_OVERRULE)
   #   - the hoster lists here are almost incomplete, collected are hosters from where attacks were observed in the past
-  #   - regular check the /128 ipset for updates of the hoster64/80 list:
+  #   - regular check the /128 ipset for updates of the hoster64 list:
   #     awk '{ print $1 }' /var/tmp/tor-ddos128-* | sort -V
   #     but watch the /128 hash too:
   #     cat /proc/net/ip6t_hashlimit/tor-ddos128-*-x | cut -f 2 -d ' ' | cut -f 1 -d '-' | sort -V | uniq -c | sort -bn
@@ -103,16 +103,6 @@ function addTor() {
 2a01:4f8::/31 # Hetzner
 2a0d:bbc7::/32 # QuxLabs AB
 2c0f:fc89::/32 # Etisalat Misr (e& Egypt)
-EOF
-
-  # /80 netmask
-  local hoster80list="tor-hoster80"
-  __create_ipset $hoster80list "hash:net maxelem 64"
-  ipset flush $hoster80list
-  # shellcheck disable=SC2034
-  while read -r h comment; do
-    ipset add -exist $hoster80list $h
-  done <<EOF
 EOF
 
   # common hash limit options
@@ -138,33 +128,21 @@ EOF
       -m hashlimit --hashlimit-srcmask 64 --hashlimit-name $ddoslist64-x $hashlimit_opts_x -j SET --add-set $ddoslist64 src --exist
     $common -m set --match-set $ddoslist64 src -j $jump
 
-    # /80 netmask
-    local ddoslist80="tor-ddos80-$orport"
-    __create_ipset $ddoslist80 "hash:ip netmask 80 maxelem $max timeout 86400"
-    __load_ipset $ddoslist80 &
-
-    $common -m set --match-set $hoster80list src \
-      -m hashlimit --hashlimit-srcmask 80 --hashlimit-name $ddoslist80 $hashlimit_opts -j SET --add-set $ddoslist80 src --exist
-    $common -m set --match-set $hoster80list src \
-      -m hashlimit --hashlimit-srcmask 80 --hashlimit-name $ddoslist80-x $hashlimit_opts_x -j SET --add-set $ddoslist80 src --exist
-    $common -m set --match-set $ddoslist80 src -j $jump
-
     # default netmask, usually /128
     local ddoslist128="tor-ddos128-$orport"
     __create_ipset $ddoslist128 "hash:ip netmask ${NETMASK6_OVERRULE:-128} maxelem $max timeout 86400"
     __load_ipset $ddoslist128 &
 
-    $common -m set ! --match-set $hoster64list src -m set ! --match-set $hoster80list src \
+    $common -m set ! --match-set $hoster64list src \
       -m hashlimit --hashlimit-srcmask ${NETMASK6_OVERRULE:-128} --hashlimit-name $ddoslist128 $hashlimit_opts -j SET --add-set $ddoslist128 src --exist
-    $common -m set ! --match-set $hoster64list src -m set ! --match-set $hoster80list src \
+    $common -m set ! --match-set $hoster64list src \
       -m hashlimit --hashlimit-srcmask ${NETMASK6_OVERRULE:-128} --hashlimit-name $ddoslist128-x $hashlimit_opts_x -j SET --add-set $ddoslist128 src --exist
     $common -m set --match-set $ddoslist128 src -j $jump
 
     # rule 3 (only 1 connection from each of up to 8 Tor relays per ip address)
 
     $common -m set --match-set $hoster64list src -m connlimit --connlimit-mask 64 --connlimit-above 8 -j $jump
-    $common -m set --match-set $hoster80list src -m connlimit --connlimit-mask 80 --connlimit-above 8 -j $jump
-    $common -m set ! --match-set $hoster64list src -m set ! --match-set $hoster80list src -m connlimit --connlimit-mask ${NETMASK6_OVERRULE:-128} --connlimit-above 8 -j $jump
+    $common -m set ! --match-set $hoster64list src -m connlimit --connlimit-mask ${NETMASK6_OVERRULE:-128} --connlimit-above 8 -j $jump
 
     # rule 4
 
@@ -289,7 +267,7 @@ function saveCertainIpsets() {
   [[ -d $tmpdir ]] || return 1
 
   ipset list -n |
-    grep -e '^tor-ddos64-[0-9]*$' -e '^tor-ddos80-[0-9]*$' -e '^tor-ddos128-[0-9]*$' |
+    grep -e '^tor-ddos64-[0-9]*$' -e '^tor-ddos128-[0-9]*$' |
     while read -r name; do
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       if ipset list $name >$tmpfile; then

@@ -16,12 +16,12 @@ function anonymiseIp() {
     sed -e "s,\.[0-9]*$,.0/24,"
 }
 
-# 1:2:3:4:5:6:7:8 -> 0001:0002:0003:0004:0005::/80
+# 1:2:3:4:5:6:7:8 -> 0001:0002:0003:0004::/64
 function anonymiseIp6() {
   awk '{ print $1 }' |
     $(dirname $0)/expand_v6.py |
-    cut -f1-5 -d ':' |
-    sed -e "s,$,::/80,"
+    cut -f 1-4 -d ':' |
+    sed -e "s,$,::/64,"
 }
 
 # plot a histogram about ip address occurrences of an ipset dump file
