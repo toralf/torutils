@@ -5,22 +5,6 @@
 # implement a DDoS solution for a Tor relay for IPv6
 # https://github.com/toralf/torutils
 
-function relay_2_ip_and_port() {
-  if [[ ! $relay =~ '[' || ! $relay =~ ']' || $relay =~ '.' ]]; then
-    echo " relay '$relay' is invalid" >&2
-    return 1
-  fi
-  read -r orip orport <<<$(sed -e 's,]:, ,' -e 's,\[, ,' <<<$relay)
-  if [[ -z $orip ]]; then
-    echo " relay '$relay' has no valid ip" >&2
-    return 1
-  fi
-  if [[ -z $orport ]]; then
-    echo " relay '$relay' has no valid port" >&2
-    return 1
-  fi
-}
-
 function addCommon() {
   # loopback
   $ipt -A INPUT --in-interface lo -m comment --comment "DDoS IPv6 $(date -R)" -j ACCEPT
@@ -77,7 +61,7 @@ function addCommon() {
 function addTor() {
   # rule 1 (trust Tor authorities) is ORPort independend
   __create_ipset $trustlist "hash:ip maxelem 64"
-  __fill_trustlist &
+  fill_trustlist &
   $ipt -A INPUT -p tcp -m set --match-set $trustlist src -j ACCEPT
 
   # strategy:
@@ -149,6 +133,22 @@ EOF
   done
 }
 
+function relay_2_ip_and_port() {
+  if [[ ! $relay =~ '[' || ! $relay =~ ']' || $relay =~ '.' ]]; then
+    echo " relay '$relay' is invalid" >&2
+    return 1
+  fi
+  read -r orip orport <<<$(sed -e 's,]:, ,' -e 's,\[, ,' <<<$relay)
+  if [[ -z $orip ]]; then
+    echo " relay '$relay' has no valid ip" >&2
+    return 1
+  fi
+  if [[ -z $orport ]]; then
+    echo " relay '$relay' has no valid port" >&2
+    return 1
+  fi
+}
+
 function __create_ipset() {
   local name=$1
   local cmd="ipset create -exist $name $2 family inet6"
@@ -160,7 +160,7 @@ function __create_ipset() {
   fi
 }
 
-function __fill_trustlist() {
+function fill_trustlist() {
   # this is intentionally not loaded from a saved set
   (
     # snowflakes
@@ -339,7 +339,7 @@ stop)
   clearRules
   ;;
 update)
-  __fill_trustlist
+  fill_trustlist
   ;;
 test)
   ipset list -n >/dev/null
