@@ -209,6 +209,11 @@ function addServices() {
 }
 
 function addHetzner() {
+  # detect Hetzner
+  if ! host $(curl -6 --max-time 2 -s https://ip.hetzner.com) | grep -q -e 'your-server.de' -e 'hetzner'; then
+    return
+  fi
+
   local sysmon="hetzner-sysmon6"
 
   __create_ipset $sysmon "hash:ip maxelem 64"
