@@ -210,7 +210,7 @@ function addServices() {
 
 function addHetzner() {
   # detect Hetzner
-  if ! host $(curl -6 --max-time 2 -s https://ip.hetzner.com) | grep -q -e 'your-server.de' -e 'hetzner'; then
+  if ! host $(curl -4 --max-time 2 -s https://ip.hetzner.com) | grep -q -e 'your-server.de' -e 'hetzner'; then
     return
   fi
 
