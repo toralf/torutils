@@ -57,41 +57,29 @@ function addCommon() {
   $ipt -P INPUT $jump
 }
 
+# strategy:
+#   - block a single system based on its netmask (hint: this is not the whole provider subnet itself)
+#     fallback is a /128 netmask (can be overruled by NETMASK_OVERRULE6)
+#   - the hoster64 list items are collected from providers where attacks were observed
+#   - regular check the /128 ipset for possible updates of the hoster64 list:
+#       awk '{ print $1 }' /var/tmp/tor-ddos128-* | sort -V
+#     and watch the /128 hashes too:
+#       cat /proc/net/ip6t_hashlimit/tor-ddos128-*-x | cut -f 2 -d ' ' | cut -f 1 -d '-' | sort -V | uniq -c | sort -bn
 function addTor() {
   # rule 1 (trust Tor authorities) is ORPort independend
   __create_ipset $trustlist "hash:ip maxelem 64"
-  fill_trustlist &
   $ipt -A INPUT -p tcp -m set --match-set $trustlist src -j ACCEPT
+  fill_trustlist &
 
-  # strategy:
-  #   - block a single system based on its netmask (hint: this is not the whole provider subnet itself)
-  #   - fallback is a /128 netmask (can be overruled by NETMASK6_OVERRULE)
-  #   - the hoster lists here are almost incomplete, collected are hosters from where attacks were observed in the past
-  #   - regular check the /128 ipset for updates of the hoster64 list:
-  #     awk '{ print $1 }' /var/tmp/tor-ddos128-* | sort -V
-  #     but watch the /128 hash too:
-  #     cat /proc/net/ip6t_hashlimit/tor-ddos128-*-x | cut -f 2 -d ' ' | cut -f 1 -d '-' | sort -V | uniq -c | sort -bn
-
-  # /64 netmask
+  # provider who usually do provide a /64 netmask for each system
   __create_ipset $hoster64list "hash:net maxelem 64"
-  # shellcheck disable=SC2034
-  while read -r h comment; do
-    ipset add -exist $hoster64list $h
-  done <<EOF
-2a00:1fa0:8000::/33 # MTS PJSC
-2607:8500::/32 # Rethem Hosting LLC
-2a00:63c0::/29 # IPAX GmbH
-2a01:4f8::/31 # Hetzner
-2a0d:bbc7::/32 # QuxLabs AB
-2c0f:fc89::/32 # Etisalat Misr (e& Egypt)
-EOF
+  fill_hoster64list &
 
   # common hash limit options
   local hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((2 * 60 * 1000))"
   local hashlimit_opts_x="--hashlimit-mode srcip,dstport --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((60 * 60 * 1000))"
 
-  # run over all relays
-  # a separate CHAIN for each relay is an option, but rather wrt readability b/c the majority of packets is handled by ct
+  # run over all <relay, orport> tupels
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
@@ -103,25 +91,29 @@ EOF
     __create_ipset $ddoslist64 "hash:ip netmask 64 maxelem $max timeout 86400"
 
     $common -m set --match-set $hoster64list src \
-      -m hashlimit --hashlimit-srcmask 64 --hashlimit-name $ddoslist64 $hashlimit_opts -j SET --add-set $ddoslist64 src --exist
+      -m hashlimit --hashlimit-srcmask 64 --hashlimit-name $ddoslist64 $hashlimit_opts \
+      -j SET --add-set $ddoslist64 src --exist
     $common -m set --match-set $hoster64list src \
-      -m hashlimit --hashlimit-srcmask 64 --hashlimit-name $ddoslist64-x $hashlimit_opts_x -j SET --add-set $ddoslist64 src --exist
+      -m hashlimit --hashlimit-srcmask 64 --hashlimit-name $ddoslist64-x $hashlimit_opts_x \
+      -j SET --add-set $ddoslist64 src --exist
     $common -m set --match-set $ddoslist64 src -j $jump
 
     # default netmask, usually /128
     local ddoslist128="tor-ddos128-$orport"
-    __create_ipset $ddoslist128 "hash:ip netmask ${NETMASK6_OVERRULE:-128} maxelem $max timeout 86400"
+    __create_ipset $ddoslist128 "hash:ip netmask ${NETMASK_OVERRULE6:-128} maxelem $max timeout 86400"
 
     $common -m set ! --match-set $hoster64list src \
-      -m hashlimit --hashlimit-srcmask ${NETMASK6_OVERRULE:-128} --hashlimit-name $ddoslist128 $hashlimit_opts -j SET --add-set $ddoslist128 src --exist
+      -m hashlimit --hashlimit-srcmask ${NETMASK_OVERRULE6:-128} --hashlimit-name $ddoslist128 $hashlimit_opts \
+      -j SET --add-set $ddoslist128 src --exist
     $common -m set ! --match-set $hoster64list src \
-      -m hashlimit --hashlimit-srcmask ${NETMASK6_OVERRULE:-128} --hashlimit-name $ddoslist128-x $hashlimit_opts_x -j SET --add-set $ddoslist128 src --exist
+      -m hashlimit --hashlimit-srcmask ${NETMASK_OVERRULE6:-128} --hashlimit-name $ddoslist128-x $hashlimit_opts_x \
+      -j SET --add-set $ddoslist128 src --exist
     $common -m set --match-set $ddoslist128 src -j $jump
 
     # rule 3 (only 1 connection from each of up to 8 Tor relays per ip address)
 
     $common -m set --match-set $hoster64list src -m connlimit --connlimit-mask 64 --connlimit-above 8 -j $jump
-    $common -m set ! --match-set $hoster64list src -m connlimit --connlimit-mask ${NETMASK6_OVERRULE:-128} --connlimit-above 8 -j $jump
+    $common -m set ! --match-set $hoster64list src -m connlimit --connlimit-mask ${NETMASK_OVERRULE6:-128} --connlimit-above 8 -j $jump
 
     # rule 4
 
@@ -338,10 +330,10 @@ umask 066
 trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
 type curl ipset jq >/dev/null
 
-hoster64list="tor-hoster64"      # network from where ip addreses are considerd to have /64 network prefix
-manuallist="tor-manual6"         # to be filled manually from outside
-trustlist="tor-trust6"           # Tor authorities and snowflake servers
-jobs=$((1 + ($(nproc) - 1) / 8)) # parallel jobs of adding ips to an ipset
+hoster64list="tor-hoster64" # network from where ip addreses are considerd to have /64 network prefix
+manuallist="tor-manual6"    # to be filled manually from outside
+trustlist="tor-trust6"      # Tor authorities and snowflake servers
+jobs=$((1 + $(nproc) / 4))  # parallel jobs of adding ips to an ipset
 # hashes and ipsets are sized with respect to the available RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
 if [[ ${ram} -gt 8 ]]; then

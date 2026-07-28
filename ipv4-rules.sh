@@ -42,19 +42,18 @@ function addCommon() {
   $ipt -P INPUT $jump
 }
 
+# strategy:
+#   - block single IPv4 addresses
+#     (can be overruled by NETMASK_OVERRULE)
 function addTor() {
   # rule 1 (trust Tor authorities) is ORPort independend
   __create_ipset $trustlist "hash:ip maxelem 64"
-  fill_trustlist &
   $ipt -A INPUT -p tcp -m set --match-set $trustlist src -j ACCEPT
-
-  # strategy:
-  #   - block single IPv4 addresses (can be overruled by NETMASK_OVERRULE)
+  fill_trustlist &
 
   local hashlimit_opts=" --hashlimit-srcmask ${NETMASK_OVERRULE:-32} --hashlimit-mode srcip,dstport --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4))"
 
-  # run over all relays
-  # a separate CHAIN for each relay is an option, but rather wrt readability b/c the majority of packets is handled by ct
+  # run over all <relay, orport> tupels
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
@@ -65,10 +64,12 @@ function addTor() {
     # rule 2 (catch DDoS)
 
     $common -m hashlimit --hashlimit-name tor-ddos-$orport $hashlimit_opts \
-      --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
+      --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000)) \
+      -j SET --add-set $ddoslist src --exist
 
     $common -m hashlimit --hashlimit-name tor-ddos-$orport-x $hashlimit_opts \
-      --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-expire $((60 * 60 * 1000)) -j SET --add-set $ddoslist src --exist
+      --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-expire $((60 * 60 * 1000)) \
+      -j SET --add-set $ddoslist src --exist
 
     $common -m set --match-set $ddoslist src -j $jump
 
@@ -293,9 +294,9 @@ umask 066
 trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
 type curl ipset jq >/dev/null
 
-manuallist="tor-manual4"         # to be filled manually from outside
-trustlist="tor-trust4"           # Tor authorities and snowflake servers
-jobs=$((1 + ($(nproc) - 1) / 8)) # parallel jobs of adding ips to an ipset
+manuallist="tor-manual4"   # to be filled manually from outside
+trustlist="tor-trust4"     # Tor authorities and snowflake servers
+jobs=$((1 + $(nproc) / 4)) # parallel jobs of adding ips to an ipset
 # hashes and ipsets are sized with respect to the available RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
 if [[ ${ram} -gt 8 ]]; then

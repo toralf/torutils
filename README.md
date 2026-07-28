@@ -97,11 +97,11 @@ Then this rule set is applied to prevent DDoS attempts against the Tor port:
 
 To apply only these rules to your own firewall solution look at [tweaks](#tweaks) how to achieve that.
 
-¹ For IPv4 _source_ is a single ip address, for IPv6 _source_ is a /128 netmask, but see the [code](./ipv6-rules.sh#L77) for the /64 exceptions.
+¹ For IPv4 _source_ is a single ip address, for IPv6 _source_ is a /128 netmask, but see the [code](./ipv6-rules.sh#L60) for the /64 exceptions.
 
 ² Possible values were discussed in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 
-³ No overblocking even if a system has 2 restarts within 1 hour for up to 8 Tor instances.
+³ No overblocking even if a _source_ has 2 restarts within 1 hour for up to 8 Tor instances.
 
 ### Persist the solution
 
@@ -114,10 +114,10 @@ Create cron jobs, e.g.:
 # have recent ipset data after a reboot available
 @hourly /root/ipv4-rules.sh save; /root/ipv6-rules.sh save
 
-# update Tor authorities
+# update Tor authority list
 @daily  /root/ipv4-rules.sh update; /root/ipv6-rules.sh update
 
-# slew Tor egress to subnets which are known being the source of abuse complaints by the provider
+# slew Tor egress to subnets which are known being the source of abuse complaints
 0" /root/ipv4-rules-egress.sh start
 ```
 
