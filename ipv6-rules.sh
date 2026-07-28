@@ -146,26 +146,70 @@ function relay_2_ip_and_port() {
 }
 
 function __create_ipset() {
-  local name=$1
-  local cmd="ipset create -exist $name $2 family inet6"
+  local name=${1?NAME NOT GIVEN}
+  local cmd
+  local family="inet6"
 
-  local load=0 # whether to load from saved file or not
-  if ! ipset list -t $name &>/dev/null; then
-    load=1
-  fi
+  if ipset list -t $name &>/dev/null; then
+    # is known
+    cmd="ipset create -exist $name ${2?IPSET ARG NOT GIVEN} family $family"
+    if $cmd 2>/dev/null; then
+      return 0
+    fi
 
-  if ! $cmd 2>/dev/null; then
-    if ! ipset destroy $name || ! $cmd; then
+    # but config changed, so create a tmp one, fill it and swap
+    cmd="ipset create $name.tmp ${2?IPSET ARG NOT GIVEN} family $family"
+    if ! $cmd 2>/dev/null; then
       return 1
     fi
-    load=1
-  fi
-
-  if [[ $load -eq 1 ]]; then
+    {
+      local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
+      ipset save $name.tmp >$tmpfile
+      ipset save $name | sed -e '1d' | sed -e "s, $name , $name.tmp ," -e 's,^add,add -exist,' >>$tmpfile
+      if [[ -s $tmpdir/$name ]]; then
+        xargs -r -L 1 echo "add -exist $name.tmp" <$tmpdir/$name >>$tmpfile
+      fi
+      ipset destroy $name.tmp &>dev/null || true
+      ipset restore <$tmpfile
+      ipset swap $name $name.tmp
+      ipset destroy $name.tmp
+      rm $tmpfile
+    } &
+  else
+    # create a new one, and if saved content was found then create a tmp one, fill it and swap
+    cmd="ipset create $name ${2?IPSET ARG NOT GIVEN} family $family"
+    if ! $cmd 2>/dev/null; then
+      return 1
+    fi
     if [[ -s $tmpdir/$name ]]; then
-      xargs -r -L 1 -P $jobs ipset add -exist $1 <$tmpdir/$name & # -L 1 b/c the inputs are tuples
+      {
+        local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
+        ipset save $name | sed -e "s, $name , $name.tmp ," -e 's,^add,add -exist,' >$tmpfile
+        xargs -r -L 1 echo "add -exist $name.tmp" <$tmpdir/$name >>$tmpfile
+        ipset destroy $name.tmp &>dev/null || true
+        ipset restore <$tmpfile
+        ipset swap $name $name.tmp
+        ipset destroy $name.tmp
+        rm $tmpfile
+      } &
     fi
   fi
+}
+
+function saveCertainIpsets() {
+  [[ -d $tmpdir ]] || return 1
+
+  ipset list -n |
+    grep -E -e '^tor-ddos64-[0-9]+$' -e '^tor-ddos128-[0-9]+$' -e "^$manuallist$" -e "^$hoster64list$" |
+    while read -r name; do
+      tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
+      if ipset list $name >$tmpfile; then
+        if sed -i -e '1,8d' $tmpfile; then
+          mv $tmpfile $tmpdir/$name
+        fi
+      fi
+      rm -f $tmpfile
+    done
 }
 
 function fill_trustlist() {
@@ -184,6 +228,22 @@ function fill_trustlist() {
     fi
   ) |
     xargs -r -n 1 -P $jobs ipset add -exist $trustlist
+}
+
+function fill_hoster64list() {
+  local h comment
+
+  # shellcheck disable=SC2034
+  while read -r h comment; do
+    ipset add -exist $hoster64list $h
+  done <<EOF
+2a00:1fa0:8000::/33 # MTS PJSC
+2607:8500::/32 # Rethem Hosting LLC
+2a00:63c0::/29 # IPAX GmbH
+2a01:4f8::/31 # Hetzner
+2a0d:bbc7::/32 # QuxLabs AB
+2c0f:fc89::/32 # Etisalat Misr (e& Egypt)
+EOF
 }
 
 function addServices() {
@@ -268,22 +328,6 @@ function bailOut() {
   exit $rc
 }
 
-function saveCertainIpsets() {
-  [[ -d $tmpdir ]] || return 1
-
-  ipset list -n |
-    grep -E -e '^tor-ddos64-[0-9]+$' -e '^tor-ddos128-[0-9]+$' -e "^$manuallist$" -e "^$hoster64list$" |
-    while read -r name; do
-      tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
-      if ipset list $name >$tmpfile; then
-        if sed -i -e '1,8d' $tmpfile; then
-          mv $tmpfile $tmpdir/$name
-        fi
-      fi
-      rm -f $tmpfile
-    done
-}
-
 #######################################################################
 set -eu # no -f
 set -m  # allow fg in shell scripts
@@ -360,6 +404,6 @@ save)
   ;;
 esac
 
-while fg 2>/dev/null; do
+while fg &>/dev/null; do
   :
 done
