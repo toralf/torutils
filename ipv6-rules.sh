@@ -295,7 +295,9 @@ trustlist="tor-trust6"           # Tor authorities and snowflake servers
 jobs=$((1 + ($(nproc) - 1) / 8)) # parallel jobs of adding ips to an ipset
 # hashes and ipsets are sized with respect to the available RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
-if [[ ${ram} -gt 1 ]]; then
+if [[ ${ram} -gt 8 ]]; then
+  max=$((2 ** 22)) # 4M
+elif [[ ${ram} -gt 1 ]]; then
   max=$((2 ** 20)) # 1M
 else
   max=$((2 ** 18)) # 256K
