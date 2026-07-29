@@ -62,9 +62,9 @@ function addCommon() {
 #     fallback is a /128 netmask (can be overruled by NETMASK_OVERRULE6)
 #   - the hoster64 list items are collected from providers where attacks were observed
 #   - regular check the /128 ipset for possible updates of the hoster64 list:
-#       awk '{ print $1 }' /var/tmp/tor-ddos128-* | sort -V
+#       awk '{ print $1 }' /var/tmp/tor-ddos128-* | sort -V | uniq -c | less
 #     and watch the /128 hashes too:
-#       cat /proc/net/ip6t_hashlimit/tor-ddos128-*-x | cut -f 2 -d ' ' | cut -f 1 -d '-' | sort -V | uniq -c | sort -bn
+#       cut -f 2 -d ' ' /proc/net/ip6t_hashlimit/tor-ddos128-*-x | cut -f 1 -d '-' | sort -V | uniq -c | less
 function addTor() {
   # rule 1 (trust Tor authorities) is ORPort independend
   __create_ipset $trustlist "hash:ip maxelem 64"
@@ -229,10 +229,18 @@ function fill_hoster64list() {
   while read -r h comment; do
     ipset add -exist $hoster64list $h
   done <<EOF
+2001:470::/32 # Hurricane Electric LLC
+2001:41d0::/32 # OVHcloud
+2a00:1b88::/32 # IELO-LIAZO SERVICES SAS
 2a00:1fa0:8000::/33 # MTS PJSC
 2607:8500::/32 # Rethem Hosting LLC
 2a00:63c0::/29 # IPAX GmbH
 2a01:4f8::/31 # Hetzner
+2602:f49b::/40 # Agfid LLC
+2a03:94e0::/32 # Gigahost AS
+2a04:ecc0::/29 # Feelb Sarl
+2605:6f08::/32 # HostPapa
+2607:9d00::/32 # HostPapa
 2a0d:bbc7::/32 # QuxLabs AB
 2c0f:fc89::/32 # Etisalat Misr (e& Egypt)
 EOF
