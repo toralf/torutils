@@ -75,6 +75,7 @@ Detected possible compression bomb with input size
 Sudden decrease in circuit RTT
 Unable to decompress HTTP body
 Unable to send INTRODUCE2 cell to the service.
+Interrupt: we have stopped accepting new connections,
 Your network connection speed appears to have changed.
 #################### known bugs
 Bug:     /
