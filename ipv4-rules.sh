@@ -112,6 +112,7 @@ function __create_ipset() {
     fi
 
     # but config changed, so create a tmp one, fill it and swap
+    ipset destroy $name.tmp &>dev/null || true
     cmd="ipset create $name.tmp ${2?IPSET ARG NOT GIVEN} family $family"
     if ! $cmd 2>/dev/null; then
       return 1
@@ -121,7 +122,6 @@ function __create_ipset() {
       ipset save $name.tmp >$tmpfile
       ipset save $name | sed -e '1d' | sed -e "s, $name , $name.tmp ," -e 's,^add,add -exist,' >>$tmpfile
       xargs -r -L 1 echo "add -exist $name.tmp" <$tmpdir/$name >>$tmpfile
-      ipset destroy $name.tmp &>dev/null || true
       ipset restore <$tmpfile
       ipset swap $name $name.tmp
       ipset destroy $name.tmp

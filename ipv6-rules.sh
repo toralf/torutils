@@ -150,6 +150,7 @@ function __create_ipset() {
     fi
 
     # but config changed, so create a tmp one, fill it and swap
+    ipset destroy $name.tmp &>dev/null || true
     cmd="ipset create $name.tmp ${2?IPSET ARG NOT GIVEN} family $family"
     if ! $cmd 2>/dev/null; then
       return 1
@@ -161,7 +162,6 @@ function __create_ipset() {
       if [[ -s $tmpdir/$name ]]; then
         xargs -r -L 1 echo "add -exist $name.tmp" <$tmpdir/$name >>$tmpfile
       fi
-      ipset destroy $name.tmp &>dev/null || true
       ipset restore <$tmpfile
       ipset swap $name $name.tmp
       ipset destroy $name.tmp
@@ -232,7 +232,7 @@ function fill_hoster64list() {
 2001:470::/32 # Hurricane Electric LLC
 2001:41d0::/32 # OVHcloud
 2a00:1b88::/32 # IELO-LIAZO SERVICES SAS
-2a00:1fa0:8000::/33 # MTS PJSC
+2a00:1fa0::/30 # MTS PJSC
 2607:8500::/32 # Rethem Hosting LLC
 2a00:63c0::/29 # IPAX GmbH
 2a01:4f8::/31 # Hetzner
