@@ -27,16 +27,22 @@ while :; do
 
   if ((idle <= 5 || iowait >= 30)); then
     ((++i))
-    if ((i >= 10 + RANDOM % 10)); then
-      logger -s "WARNING: $(basename $0) is restarting Tor"
-      service tor stop
-      sleep 30
-      service tor start
-      sleep 120
-      i=0
-    fi
-
   elif ((idle >= 20 && iowait <= 20 && i > 0)); then
     ((i--))
+  fi
+
+  if grep -q "^MetricsPort 127.0.0.1:9052$" /etc/tor/torrc; then
+    if ! curl -m 5 -s localhost:9052/metrics | grep -q .; then
+      ((++i))
+    fi
+  fi
+
+  if ((i >= 10 + RANDOM % 10)); then
+    logger -s "WARNING: $(basename $0) is restarting Tor"
+    service tor stop
+    sleep 30
+    service tor start
+    sleep 120
+    i=0
   fi
 done
