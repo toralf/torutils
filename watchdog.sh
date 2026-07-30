@@ -2,26 +2,16 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# restart Tor if CPU idle is lower than $2 for (cumulated) $1 minutes
+# restart Tor if CPU is udner pressure of if metrics doesn't deliver
 
 set -euf
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-type logger mpstat service tor >/dev/null
-
-# $ ssh i30 "mpstat --dec=0 -P 'ALL' 59 1"
-# Linux 7.0.12+deb13-cloud-amd64 (i30)    07/04/26        _x86_64_        (1 CPU)
-#
-# 09:45:50     CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
-# 09:46:49     all      25       0      17      18       0      22       0       0       0      18
-# 09:46:49       0      25       0      17      18       0      22       0       0       0      18
-#
-# Average:     CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
-# Average:     all      25       0      17      18       0      22       0       0       0      18
-# Average:       0      25       0      17      18       0      22       0       0       0      18
+type curl logger mpstat service tor >/dev/null
 
 i=0
+j=0
 while :; do
   read -r iowait idle < <(mpstat --dec=0 -P 'ALL' 60 1 | awk '/^Average:  *all / { print $6, $12 }')
 
@@ -32,12 +22,14 @@ while :; do
   fi
 
   if grep -q "^MetricsPort 127.0.0.1:9052$" /etc/tor/torrc; then
-    if ! curl -m 5 -s localhost:9052/metrics | grep -q .; then
-      ((++i))
+    if curl -m 3 -s localhost:9052/metrics | grep -q .; then
+      j=0
+    else
+      ((++j))
     fi
   fi
 
-  if ((i >= 10 + RANDOM % 10)); then
+  if ((i + j >= 10 + RANDOM % 10)); then
     logger -s "WARNING: $(basename $0) is restarting Tor"
     service tor stop
     sleep 30
