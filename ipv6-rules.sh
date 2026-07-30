@@ -162,6 +162,7 @@ function __create_ipset() {
       if [[ -s $tmpdir/$name ]]; then
         xargs -r -L 1 echo "add -exist $name.tmp" <$tmpdir/$name >>$tmpfile
       fi
+      ipset destroy $name.tmp &>/dev/null || true
       ipset restore <$tmpfile
       ipset swap $name $name.tmp
       ipset destroy $name.tmp
