@@ -51,17 +51,17 @@ function addTor() {
   $ipt -A INPUT -p tcp -m set --match-set $trustlist src -j ACCEPT
   fill_trustlist &
 
-  local hashlimit_opts=" --hashlimit-srcmask ${NETMASK_OVERRULE:-32} --hashlimit-mode srcip,dstport --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4))"
+  local hashlimit_opts="--hashlimit-srcmask ${NETMASK_OVERRULE:-32} --hashlimit-mode srcip,dstport --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4))"
 
   # run over all <relay, orport> tupels
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
 
+    # rule 2 (catch DDoS)
+
     local ddoslist="tor-ddos-$orport"
     __create_ipset $ddoslist "hash:ip netmask ${NETMASK_OVERRULE:-32} maxelem $max timeout $((24 * 3600))"
-
-    # rule 2 (catch DDoS)
 
     $common -m hashlimit --hashlimit-name tor-ddos-$orport $hashlimit_opts \
       --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000)) \
