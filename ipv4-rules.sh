@@ -43,15 +43,15 @@ function addCommon() {
 }
 
 # strategy:
-#   - block single IPv4 addresses
-#     (can be overruled by NETMASK_OVERRULE)
+#   - block single IPv4 addresses (can be overruled by TORUTILS_NETMASK_V4)
 function addTor() {
   # rule 1 (trust Tor authorities) is ORPort independend
   __create_ipset $trustlist "hash:ip maxelem 64"
   $ipt -A INPUT -p tcp -m set --match-set $trustlist src -j ACCEPT
   fill_trustlist &
 
-  local hashlimit_opts="--hashlimit-srcmask ${NETMASK_OVERRULE:-32} --hashlimit-mode srcip,dstport --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4))"
+  local netmask=${TORUTILS_NETMASK_V4:-32}
+  local hashlimit_opts="--hashlimit-srcmask $netmask --hashlimit-mode srcip,dstport --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4))"
 
   # run over all <relay, orport> tupels
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
@@ -60,14 +60,14 @@ function addTor() {
 
     # rule 2 (catch DDoS)
 
-    local ddoslist="tor-ddos-$orport"
-    __create_ipset $ddoslist "hash:ip netmask ${NETMASK_OVERRULE:-32} maxelem $max timeout $((24 * 3600))"
+    local ddoslist="torutils-ddos-v4-$orport-$netmask"
+    __create_ipset $ddoslist "hash:ip netmask $netmask maxelem $max timeout $((24 * 3600))"
 
-    $common -m hashlimit --hashlimit-name tor-ddos-$orport $hashlimit_opts \
+    $common -m hashlimit --hashlimit-name $ddoslist-2m $hashlimit_opts \
       --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000)) \
       -j SET --add-set $ddoslist src --exist
 
-    $common -m hashlimit --hashlimit-name tor-ddos-$orport-x $hashlimit_opts \
+    $common -m hashlimit --hashlimit-name $ddoslist-1h $hashlimit_opts \
       --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-expire $((60 * 60 * 1000)) \
       -j SET --add-set $ddoslist src --exist
 
@@ -75,7 +75,7 @@ function addTor() {
 
     # rule 3 (only 1 connection from each of up to 8 Tor relays per ip address)
 
-    $common -m connlimit --connlimit-mask ${NETMASK_OVERRULE:-32} --connlimit-above 8 -j $jump
+    $common -m connlimit --connlimit-mask $netmask --connlimit-above 8 -j $jump
 
     # rule 4
 
@@ -153,7 +153,7 @@ function saveCertainIpsets() {
   [[ -d $tmpdir ]] || return 1
 
   ipset list -n |
-    grep -E -e '^tor-ddos-[0-9]+$' -e "^$manuallist$" |
+    grep -E -e '^torutils-ddos-v4-' -e "$manuallist" |
     while read -r name; do
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       if ipset list $name >$tmpfile; then
@@ -186,7 +186,7 @@ function addServices() {
   local addr port service
 
   # local-address:local-port
-  for service in ${ADD_LOCAL_SERVICES-}; do
+  for service in ${TORUTILS_LOCAL_SERVICES_V4-}; do
     read -r addr port <<<$(tr ':' ' ' <<<$service)
     if [[ $addr == "0.0.0.0" ]]; then
       addr+="/0"
@@ -195,7 +195,7 @@ function addServices() {
   done
 
   # remote-address>local-port
-  for service in ${ADD_REMOTE_SERVICES-}; do
+  for service in ${TORUTILS_REMOTE_SERVICES_V4-}; do
     read -r addr port <<<$(tr '>' ' ' <<<$service)
     if [[ $addr == "0.0.0.0" ]]; then
       addr+="/0"
@@ -295,9 +295,9 @@ umask 066
 trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
 type curl ipset jq >/dev/null
 
-manuallist="tor-manual4"   # to be filled manually from outside
-trustlist="tor-trust4"     # Tor authorities and snowflake servers
-jobs=$((1 + $(nproc) / 4)) # parallel jobs of adding ips to an ipset
+manuallist="torutils-manual-v4" # to be filled manually from outside
+trustlist="torutils-trust-v4"   # Tor authorities and snowflake servers
+jobs=$((1 + $(nproc) / 4))      # parallel jobs of adding ips to an ipset
 # hashes and ipsets are sized with respect to the available RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
 if [[ ${ram} -gt 8 ]]; then
@@ -336,11 +336,11 @@ start)
   setSysctlValues
   trap bailOut INT QUIT TERM EXIT
   clearRules
-  jump=${RUN_ME_WITH_SAFE_JUMP_TARGET:-DROP}
+  jump=${TORUTILS_SAVE_RUN:-DROP}
   addCommon
   addHetzner
   addServices
-  addTor ${*:-${CONFIGURED_RELAYS-$(getConfiguredRelays)}}
+  addTor ${*:-${TORUTILS_RELAYS_V4-$(getConfiguredRelays)}}
   trap - INT QUIT TERM EXIT
   ;;
 stop)
@@ -351,7 +351,7 @@ update)
   ;;
 test)
   ipset list -n >/dev/null
-  RUN_ME_WITH_SAFE_JUMP_TARGET="ACCEPT" $0 start $*
+  TORUTILS_SAVE_RUN="ACCEPT" $0 start $*
   ;;
 save)
   saveCertainIpsets

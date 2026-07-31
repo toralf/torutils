@@ -59,12 +59,12 @@ function addCommon() {
 
 # strategy:
 #   - block a single system based on its netmask (hint: this is not the whole provider subnet itself)
-#     fallback is a /128 netmask (can be overruled by NETMASK_OVERRULE6)
+#     fallback is a /128 netmask (can be overruled by TORUTILS_NETMASK_V6)
 #   - the hoster64 list items are collected from providers where attacks were observed
-#   - regular check the /128 ipset for possible updates of the hoster64 list:
-#       awk '{ print $1 }' /var/tmp/tor-ddos128-* | sort -V | uniq -c | less
+#   - regular check the /128 ipset for possible updates of the hosterlist:
+#       awk '{ print $1 }' /var/tmp/torutils-ddos-v6-* | sort -V | uniq -c | less
 #     and watch the /128 hashes too:
-#       cut -f 2 -d ' ' /proc/net/ip6t_hashlimit/tor-ddos128-*-x | cut -f 1 -d '-' | sort -V | uniq -c | less
+#       cut -f 2 -d ' ' /proc/net/ip6t_hashlimit/torutils-ddos-v6-* | cut -f 1 -d '-' | sort -V | uniq -c | less
 function addTor() {
   # rule 1 (trust Tor authorities) is ORPort independend
   __create_ipset $trustlist "hash:ip maxelem 64"
@@ -72,12 +72,13 @@ function addTor() {
   fill_trustlist &
 
   # provider who usually do provide a /64 netmask for each system
-  __create_ipset $hoster64list "hash:net maxelem 64"
-  fill_hoster64list &
+  __create_ipset $hosterlist "hash:net maxelem 64"
+  fill_hosterlist &
 
+  local netmask=${TORUTILS_NETMASK_V6:-128}
   # common hash limit options
-  local hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((2 * 60 * 1000))"
-  local hashlimit_opts_x="--hashlimit-mode srcip,dstport --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((60 * 60 * 1000))"
+  local hashlimit_opts_2m="--hashlimit-mode srcip,dstport --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((2 * 60 * 1000))"
+  local hashlimit_opts_1h="--hashlimit-mode srcip,dstport --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((60 * 60 * 1000))"
 
   # run over all <relay, orport> tupels
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
@@ -86,34 +87,47 @@ function addTor() {
 
     # rule 2 (catch DDoS)
 
-    # /64 netmask
-    local ddoslist64="tor-ddos64-$orport"
-    __create_ipset $ddoslist64 "hash:ip netmask 64 maxelem $max timeout 86400"
+    # common netmask
+    local ddoslist="torutils-ddos-v6-$orport-$netmask"
+    __create_ipset $ddoslist "hash:ip netmask $netmask maxelem $max timeout 86400"
 
-    $common -m set --match-set $hoster64list src \
-      -m hashlimit --hashlimit-srcmask 64 --hashlimit-name $ddoslist64 $hashlimit_opts \
-      -j SET --add-set $ddoslist64 src --exist
-    $common -m set --match-set $hoster64list src \
-      -m hashlimit --hashlimit-srcmask 64 --hashlimit-name $ddoslist64-x $hashlimit_opts_x \
-      -j SET --add-set $ddoslist64 src --exist
-    $common -m set --match-set $ddoslist64 src -j $jump
+    if [[ $netmask -gt 64 ]]; then
+      # avoid overflow attacks
+      local ddoslist64="torutils-ddos-v6-$orport-64"
+      __create_ipset $ddoslist64 "hash:ip netmask 64 maxelem $max timeout 86400"
 
-    # default netmask, usually /128
-    local ddoslist128="tor-ddos128-$orport"
-    __create_ipset $ddoslist128 "hash:ip netmask ${NETMASK_OVERRULE6:-128} maxelem $max timeout 86400"
+      $common -m set --match-set $hosterlist src \
+        -m hashlimit --hashlimit-srcmask 64 --hashlimit-name $ddoslist64-2m $hashlimit_opts_2m \
+        -j SET --add-set $ddoslist64 src --exist
+      $common -m set --match-set $hosterlist src \
+        -m hashlimit --hashlimit-srcmask 64 --hashlimit-name $ddoslist64-1h $hashlimit_opts_1h \
+        -j SET --add-set $ddoslist64 src --exist
+      $common -m set --match-set $ddoslist64 src -j $jump
 
-    $common -m set ! --match-set $hoster64list src \
-      -m hashlimit --hashlimit-srcmask ${NETMASK_OVERRULE6:-128} --hashlimit-name $ddoslist128 $hashlimit_opts \
-      -j SET --add-set $ddoslist128 src --exist
-    $common -m set ! --match-set $hoster64list src \
-      -m hashlimit --hashlimit-srcmask ${NETMASK_OVERRULE6:-128} --hashlimit-name $ddoslist128-x $hashlimit_opts_x \
-      -j SET --add-set $ddoslist128 src --exist
-    $common -m set --match-set $ddoslist128 src -j $jump
+      # common netmask
+      $common -m set ! --match-set $hosterlist src \
+        -m hashlimit --hashlimit-srcmask $netmask --hashlimit-name $ddoslist-2m $hashlimit_opts_2m \
+        -j SET --add-set $ddoslist src --exist
+      $common -m set ! --match-set $hosterlist src \
+        -m hashlimit --hashlimit-srcmask $netmask --hashlimit-name $ddoslist-1h $hashlimit_opts_1h \
+        -j SET --add-set $ddoslist src --exist
+      $common -m set --match-set $ddoslist src -j $jump
+    else
+      $common \
+        -m hashlimit --hashlimit-srcmask $netmask --hashlimit-name $ddoslist-2m $hashlimit_opts_2m \
+        -j SET --add-set $ddoslist src --exist
+      $common \
+        -m hashlimit --hashlimit-srcmask $netmask --hashlimit-name $ddoslist-1h $hashlimit_opts_1h \
+        -j SET --add-set $ddoslist src --exist
+      $common -m set --match-set $ddoslist src -j $jump
+    fi
 
     # rule 3 (only 1 connection from each of up to 8 Tor relays per ip address)
 
-    $common -m set --match-set $hoster64list src -m connlimit --connlimit-mask 64 --connlimit-above 8 -j $jump
-    $common -m set ! --match-set $hoster64list src -m connlimit --connlimit-mask ${NETMASK_OVERRULE6:-128} --connlimit-above 8 -j $jump
+    if [[ $netmask -gt 64 ]]; then
+      $common -m set --match-set $hosterlist src -m connlimit --connlimit-mask 64 --connlimit-above 8 -j $jump
+    fi
+    $common -m set ! --match-set $hosterlist src -m connlimit --connlimit-mask $netmask --connlimit-above 8 -j $jump
 
     # rule 4
 
@@ -193,7 +207,7 @@ function saveCertainIpsets() {
   [[ -d $tmpdir ]] || return 1
 
   ipset list -n |
-    grep -E -e '^tor-ddos64-[0-9]+$' -e '^tor-ddos128-[0-9]+$' -e "^$manuallist$" -e "^$hoster64list$" |
+    grep -E -e '^torutils-ddos-v6-' -e "$manuallist" -e "^$hosterlist$" |
     while read -r name; do
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       if ipset list $name >$tmpfile; then
@@ -223,12 +237,12 @@ function fill_trustlist() {
     xargs -r -n 1 -P $jobs ipset add -exist $trustlist
 }
 
-function fill_hoster64list() {
+function fill_hosterlist() {
   local h comment
 
   # shellcheck disable=SC2034
   while read -r h comment; do
-    ipset add -exist $hoster64list $h
+    ipset add -exist $hosterlist $h
   done <<EOF
 2001:470::/32 # Hurricane Electric LLC
 2001:41d0::/32 # OVHcloud
@@ -251,7 +265,7 @@ function addServices() {
   local addr port service
 
   # local-address:local-port
-  for service in ${ADD_LOCAL_SERVICES6-}; do
+  for service in ${TORUTILS_LOCAL_SERVICES_V6-}; do
     read -r addr port <<<$(sed -e 's,]:, ,' -e 's,\[, ,' <<<$service)
     if [[ $addr == "::" ]]; then
       addr+="/0"
@@ -260,7 +274,7 @@ function addServices() {
   done
 
   # remote-address>local-port
-  for service in ${ADD_REMOTE_SERVICES6-}; do
+  for service in ${TORUTILS_REMOTE_SERVICES_V6-}; do
     read -r addr port <<<$(sed -e 's,]>, ,' -e 's,\[, ,' <<<$service)
     if [[ $addr == "::" ]]; then
       addr+="/0"
@@ -339,10 +353,10 @@ umask 066
 trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
 type curl ipset jq >/dev/null
 
-hoster64list="tor-hoster64" # network from where ip addreses are considerd to have /64 network prefix
-manuallist="tor-manual6"    # to be filled manually from outside
-trustlist="tor-trust6"      # Tor authorities and snowflake servers
-jobs=$((1 + $(nproc) / 4))  # parallel jobs of adding ips to an ipset
+hosterlist="torutils-hoster-v6-64" # network from where ip addreses are considerd to have /64 network prefix
+manuallist="torutils-manual-v6"    # to be filled manually from outside
+trustlist="torutils-trust-v6"      # Tor authorities and snowflake servers
+jobs=$((1 + $(nproc) / 4))         # parallel jobs of adding ips to an ipset
 # hashes and ipsets are sized with respect to the available RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
 if [[ ${ram} -gt 8 ]]; then
@@ -380,11 +394,11 @@ case $action in
 start)
   trap bailOut INT QUIT TERM EXIT
   clearRules
-  jump=${RUN_ME_WITH_SAFE_JUMP_TARGET:-DROP}
+  jump=${TORUTILS_SAVE_RUN:-DROP}
   addCommon
   addHetzner
   addServices
-  addTor ${*:-${CONFIGURED_RELAYS6-$(getConfiguredRelays6)}}
+  addTor ${*:-${TORUTILS_RELAYS_V6-$(getConfiguredRelays6)}}
   trap - INT QUIT TERM EXIT
   ;;
 stop)
@@ -395,7 +409,7 @@ update)
   ;;
 test)
   ipset list -n >/dev/null
-  RUN_ME_WITH_SAFE_JUMP_TARGET="ACCEPT" $0 start $*
+  TORUTILS_SAVE_RUN="ACCEPT" $0 start $*
   ;;
 save)
   saveCertainIpsets

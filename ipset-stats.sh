@@ -102,13 +102,13 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 while getopts aAdDptT opt; do
   shift || true # OPTARG is optional
   case $opt in
-  a) dumpIpset ${1:-tor-ddos-443} | anonymiseIp ;;
-  A) dumpIpset ${1:-tor-ddos6-443} | anonymiseIp6 ;;
-  d) dumpIpset ${1:-tor-ddos-443} ;;
-  D) dumpIpset ${1:-tor-ddos6-443} ;;
+  a) dumpIpset ${1:-tor-ddos-v4-443-32} | anonymiseIp ;;
+  A) dumpIpset ${1:-tor-ddos-v6-443-128} | anonymiseIp6 ;;
+  d) dumpIpset ${1:-tor-ddos-v4-443-32} ;;
+  D) dumpIpset ${1:-tor-ddos-v6-443-128} ;;
   p) plotIpOccurrences $@ ;;
-  t) plotTimeoutValues ${1:-tor-ddos-443} ;;
-  T) plotTimeoutValues ${1:-tor-ddos6-443} ;;
+  t) plotTimeoutValues ${1:-tor-ddos-v4-443-32} ;;
+  T) plotTimeoutValues ${1:-tor-ddos-v6-443-128} ;;
   *)
     echo "unknown parameter '$opt'"
     exit 1

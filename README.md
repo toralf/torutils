@@ -95,13 +95,13 @@ Then this rule set is applied to prevent DDoS attempts against the Tor port:
 3. ignore the connection attempt if there are already 8 established connections to the Tor port (max 8 relays are allowed per ip address)
 4. accept the connection attempt to the Tor port
 
-To apply only these rules to your own firewall solution look at [tweaks](#tweaks) how to achieve that.
-
-¹ For IPv4 _source_ is a single ip address, for IPv6 _source_ is a /128 netmask, but see the [code](./ipv6-rules.sh#L60) for the /64 exceptions.
+¹ For IPv4 _source_ is per default a single ip address, for IPv6 _source_ the default is a /128 netmask.
 
 ² Possible values were discussed in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 
 ³ No overblocking even if a _source_ has 2 restarts within 1 hour for up to 8 Tor instances.
+
+To append only the rules above to your own firewall rules please have a look at [tweaks](#tweaks).
 
 ### Persist the solution
 
@@ -167,28 +167,39 @@ If the parsing of the Tor and/or the SSH config fails then overrule it by:
 1. -or- define them as environment variables, e.g.:
 
    ```bash
-   sudo CONFIGURED_RELAYS="5.6.7.8:9001 1.2.3.4:443" ./ipv4-rules.sh start
+   sudo TORUTILS_RELAYS_V4="5.6.7.8:9001 1.2.3.4:443" ./ipv4-rules.sh start
    ```
-
-   (`CONFIGURED_RELAYS6` for IPv6).
 
 Any command line argument takes precedence over the corresponding environment variable.
 
 Allow inbound traffic to additional \<address:port\> destinations by e.g.:
 
 ```bash
-export ADD_LOCAL_SERVICES="2.71.82.81:828 3.141.59.26:53"
-export ADD_LOCAL_SERVICES6="[cafe::abba]:1234"
+export TORUTILS_LOCAL_SERVICES="2.71.82.81:828 3.141.59.26:53"
+export TORUTILS_LOCAL_SERVICES6="[cafe::abba]:1234"
 ```
 
 A slightly different syntax is used to allow inbound traffic from a remote ip to e.g. the local port 4711:
 
 ```bash
-export ADD_LOCAL_SERVICES="4.3.2.1>4711"
-export ADD_LOCAL_SERVICES6="[cafe::abba]>4711"
+export TORUTILS_LOCAL_SERVICES="4.3.2.1>4711"
+export TORUTILS_LOCAL_SERVICES6="[cafe::abba]>4711"
 ```
 
 The separator `>` is used to highlight that the address part is _src_, but the port is _dst_).
+
+I do use few more cronjobs:
+
+```cron
+# restart Tor if RSS usage is above 4.5 GiB
+*/3 * * * * ps -o pid,rss,args -U tor | awk '{ print $1, $2, $5 }' | grep /etc/tor/torrc. | while read -r pid mem n; do ((mem >4500500)) && echo rc-service tor${n: -1} restart | at now &>/dev/null; done
+
+# restart Tor if crashed
+* * * * *   /opt/torutils/restart_service.sh
+
+# restart Tor if metrics stucks
+*/6 * * * * for i in {1..5}; do for j in {1..6}; do curl -m 5 -s localhost:${i}9052/metrics | grep -q . && break; if ((j == 6)); then echo rc-service tor${i} restart | at now &>/dev/null; break; fi; sleep 5; done; done
+```
 
 ### Metrics
 

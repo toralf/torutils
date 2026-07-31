@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# local hack (at system mr-fox) to set the Prometheus label "nickname" to the value of the torrc
+# local hack (at system mr-fox): set the Prometheus label "nickname" to the value of the torrc
 function _orport2nickname() {
   local orport=${1?PORT IS UNSET}
 
@@ -12,22 +12,13 @@ function _orport2nickname() {
   8443) echo "fuchs3" ;;
   9443) echo "fuchs4" ;;
   5443) echo "fuchs5" ;;
-  *)
-    echo "unknown"
-    exit 2
-    ;;
+  *) echo "orport-$orport" ;;
   esac
 }
 
-function _ipset2nickname() {
-  local name=${1?NAME IS UNSET}
-
-  _orport2nickname $(cut -f 3 -d '-' -s <<<$name)
-}
-
 function printMetricsIptables() {
-  local tables4=$($ipt -nvx -L INPUT -t filter)
-  local tables6=$($ip6t -nvx -L INPUT -t filter)
+  local tables4=$(iptables -nvx -L INPUT)
+  local tables6=$(ip6tables -nvx -L INPUT)
 
   local var
 
@@ -37,35 +28,27 @@ function printMetricsIptables() {
   grep 'DROP .*state [NEW|INVALID]' <<<$tables4 |
     awk '{ print $1, $NF }' |
     while read -r pkts state; do
-      echo "$var{ipver=\"4\",state=\"$state\"} $pkts"
+      echo "$var{ipver=\"v4\",state=\"$state\"} $pkts"
     done
 
   grep 'DROP .*state [NEW|INVALID]' <<<$tables6 |
     awk '{ print $1, $NF }' |
     while read -r pkts state; do
-      echo "$var{ipver=\"6\",state=\"$state\"} $pkts"
+      echo "$var{ipver=\"v6\",state=\"$state\"} $pkts"
     done
 
   var="torutils_dropped_ipset_packets"
   echo -e "# HELP $var Total number of dropped packets by ipset\n# TYPE $var gauge"
 
-  grep " DROP .* match-set tor-ddos-" <<<$tables4 |
-    awk '{ print $1, $11 }' |
-    while read -r pkts dport; do
-      orport=$(cut -f 2 -d ':' <<<$dport)
+  cat <<<"$tables4
+$tables6" |
+    grep " DROP .* match-set torutils-ddos-" |
+    awk '{ print $1, $13 }' |
+    while read -r pkts name; do
+      read -r ipver orport netmask < <(cut -f 3-5 -d '-' <<<$name | tr '-' ' ')
       nickname=${NICKNAME:-$(_orport2nickname $orport)}
-      echo "$var{ipver=\"4\",nickname=\"$nickname\",netmask=\"32\"} $pkts"
+      echo "$var{nickname=\"$nickname\",ipver=\"$ipver\",netmask=\"$netmask\"} $pkts"
     done
-
-  for netmask in 64 128; do
-    grep " DROP .* match-set tor-ddos$netmask-" <<<$tables6 |
-      awk '{ print $1, $11 }' |
-      while read -r pkts dport; do
-        orport=$(cut -f 2 -d ':' <<<$dport)
-        nickname=${NICKNAME:-$(_orport2nickname $orport)}
-        echo "$var{ipver=\"6\",nickname=\"$nickname\",netmask=\"$netmask\"} $pkts"
-      done
-  done
 }
 
 function _histogram() {
@@ -89,96 +72,60 @@ function _histogram() {
       my $N = 0;
       for (my $i = 0; $i <= $#arr; $i++) {
         $N += $arr[$i];
-        print "'$var'_bucket{ipver=\"'$v'\",nickname=\"'$nickname'\",netmask=\"'$netmask'\",le=\"$i\"} $N\n";
+        print "'$var'_bucket{nickname=\"'$nickname'\",ipver=\"'$ipver'\",netmask=\"'$netmask'\",le=\"$i\"} $N\n";
       }
       my $count = $N + $inf;
-      print "'$var'_bucket{ipver=\"'$v'\",nickname=\"'$nickname'\",netmask=\"'$netmask'\",le=\"+Inf\"} $count\n";
-      print "'$var'_count{ipver=\"'$v'\",nickname=\"'$nickname'\",netmask=\"'$netmask'\"} $count\n";
+      print "'$var'_bucket{nickname=\"'$nickname'\",ipver=\"'$ipver'\",netmask=\"'$netmask'\",le=\"+Inf\"} $count\n";
+      print "'$var'_count{nickname=\"'$nickname'\",ipver=\"'$ipver'\",netmask=\"'$netmask'\"} $count\n";
     }'
 }
 
 function printMetricsIpsets() {
-  local lists var
+  local var
 
-  ###############################
   # ipset timeout values (for histogram)
-  #
 
   export var="torutils_ipset_timeout"
   echo -e "# HELP $var A histogram of ipset timeout values\n# TYPE $var histogram"
 
-  lists=$(ipset list -n)
-
-  grep '^tor-ddos-' <<<$lists |
+  ipset list -n |
+    grep '^torutils-ddos-' |
     while read -r name; do
-      nickname=${NICKNAME:-$(_ipset2nickname $name)}
-      echo "\"nickname=$nickname; v=4; netmask=32; ipset list $name | sed -e '1,8d' | _histogram\""
+      read -r ipver orport netmask < <(cut -f 3-5 -d '-' <<<$name | tr '-' ' ')
+      nickname=${NICKNAME:-$(_orport2nickname $orport)}
+      echo "\"nickname=$nickname; ipver=$ipver; netmask=$netmask; ipset list $name | sed -e '1,8d' | _histogram\""
     done |
     xargs -r -P $cpus -L 1 bash -c
 
-  for netmask in 64 128; do
-    grep "^tor-ddos$netmask-" <<<$lists |
-      while read -r name; do
-        nickname=${NICKNAME:-$(_ipset2nickname $name)}
-        echo "\"nickname=$nickname; v=6; netmask=$netmask; ipset list $name | sed -e '1,8d' | _histogram\""
-      done |
-      xargs -r -P $cpus -L 1 bash -c
-  done
-
-  ###############################
   # ipset sizes
-  #
 
   var="torutils_ipset"
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
 
-  lists=$(
-    ipset list -t |
-      grep "^N" |
-      xargs -r -L 2
-  )
-
-  awk '/^Name: tor-ddos-/ { print $2, $6 }' <<<$lists |
+  ipset list -t |
+    grep "^N" |
+    xargs -r -L 2 |
+    awk '/^Name: torutils-ddos-/ { print $2, $6 }' |
     while read -r name size; do
-      nickname=${NICKNAME:-$(_ipset2nickname $name)}
-      echo "$var{ipver=\"4\",nickname=\"$nickname\",netmask=\"32\"} $size"
+      read -r ipver orport netmask < <(cut -f 3-5 -d '-' <<<$name | tr '-' ' ')
+      nickname=${NICKNAME:-$(_orport2nickname $orport)}
+      echo "$var{nickname=\"$nickname\",ipver=\"$ipver\",netmask=\"$netmask\"} $size"
     done
-
-  for netmask in 64 128; do
-    awk '/^Name: tor-ddos'$netmask'-/ { print $2, $6 }' <<<$lists |
-      while read -r name size; do
-        nickname=${NICKNAME:-$(_ipset2nickname $name)}
-        echo "$var{ipver=\"6\",nickname=\"$nickname\",netmask=\"$netmask\"} $size"
-      done
-  done
 }
 
 function printMetricsHashes() {
   local var
 
-  ###############################
-  # hashlimit sizes
-  #
   var="torutils_hashlimit"
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
 
-  wc -l /proc/net/ipt_hashlimit/tor-ddos-* 2>/dev/null |
+  wc -l /proc/net/ip{,6}t_hashlimit/torutils-ddos-* 2>/dev/null |
     grep -v 'total' |
     while read -r count name; do
-      nickname=${NICKNAME:-$(_ipset2nickname $name)}
-      suffix=$(cut -f 4 -d '-' -s <<<$name)
-      echo "$var{ipver=\"4\",nickname=\"$nickname\",netmask=\"32\",suffix=\"${suffix-}\"} $count"
+      read -r ipver orport netmask suffix < <(cut -f 3-6 -d '-' <<<$name | tr '-' ' ')
+      nickname=${NICKNAME:-$(_orport2nickname $orport)}
+      echo "$var{nickname=\"$nickname\",ipver=\"$ipver\",netmask=\"$netmask\",suffix=\"${suffix-}\"} $count"
     done
-
-  for netmask in 64 128; do
-    wc -l /proc/net/ip6t_hashlimit/tor-ddos$netmask-* 2>/dev/null |
-      grep -v 'total' |
-      while read -r count name; do
-        nickname=${NICKNAME:-$(_ipset2nickname $name)}
-        suffix=$(cut -f 4 -d '-' -s <<<$name)
-        echo "$var{ipver=\"6\",nickname=\"$nickname\",netmask=\"$netmask\",suffix=\"${suffix-}\"} $count"
-      done
-  done
 }
 
 #######################################################################
@@ -188,6 +135,9 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 intervall=${1:-0} # 0 == finish after running once
 datadir=${2:-/var/lib/node_exporter}
+if [[ $# -gt 2 ]]; then
+  exit 1
+fi
 
 lockfile="/tmp/torutils-$(basename $0).lock"
 if [[ -s $lockfile ]]; then
@@ -202,33 +152,12 @@ echo $$ >"$lockfile"
 
 trap 'rm -f $lockfile' INT QUIT TERM EXIT
 
-# if nickname is not given nor found then use _orport2nickname() called in _ipset2nickname()
-export NICKNAME=${3:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')}
+# if nickname is neither given nor found then use _orport2nickname()
+export NICKNAME=${TORUTILS_NICKNAME:-$(grep "^Nickname " /etc/tor/torrc 2>/dev/null | awk '{ print $2 }')}
 
 cd $datadir
 
-# check if iptables works or if the legacy variant is needed
-ipt="iptables"
-ip6t="ip6tables"
-set +e
-$ipt -nv -L INPUT 1>/dev/null
-rc=$?
-set -e
-if [[ $rc -ne 0 ]]; then
-  if [[ $rc -eq 4 ]]; then
-    ipt+="-legacy"
-    ip6t+="-legacy"
-    if ! $ipt -nv -L INPUT 1>/dev/null; then
-      echo " $ipt is not working" >&2
-      exit 1
-    fi
-  else
-    echo " $ipt is not working, rc=$rc" >&2
-    exit 1
-  fi
-fi
-
-export -f _histogram _ipset2nickname _orport2nickname
+export -f _histogram _orport2nickname
 
 cpus=$(((1 + $(nproc)) / 2))
 while :; do
@@ -238,7 +167,7 @@ while :; do
   if ! pgrep -f /usr/bin/tor 1>/dev/null; then
     truncate -s 0 $datadir/torutils.prom
   else
-    tmpfile=$(mktemp /tmp/metrics_torutils_XXXXXX.tmp)
+    tmpfile=$(mktemp /tmp/torutils_metrics_XXXXXX.tmp)
     echo "# $0   $(date -R)" >$tmpfile
     printMetricsIptables >>$tmpfile
     if type ipset 1>/dev/null 2>&1; then

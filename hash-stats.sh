@@ -4,13 +4,13 @@
 
 # plot timeout values of iptables hash(es)
 
-set -euf
+set -eu # no -f
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
 tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
-for h in ${@:-/proc/net/ipt_hashlimit/tor-ddos-443}; do
+for h in ${@:-/proc/net/ipt_hashlimit/tor-ddos-v4-*}; do
   awk '{ print $1 }' $h | sort -bn >$tmpfile
 
   n=$(wc -l <$tmpfile)
