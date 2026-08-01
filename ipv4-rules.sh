@@ -210,7 +210,7 @@ function addHetzner() {
     return
   fi
 
-  local sysmon="hetzner-sysmon"
+  local sysmon="torutils-hetznersysmon-v4"
   __create_ipset $sysmon "hash:ip maxelem 64"
   $ipt -A INPUT -m set --match-set $sysmon src -j ACCEPT
   {
