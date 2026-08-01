@@ -42,7 +42,7 @@ function printMetricsIptables() {
 
   cat <<<"$tables4
 $tables6" |
-    grep " DROP .* match-set torutils-ddos-" |
+    grep " DROP .* match-set torutils-ddos-v" |
     awk '{ print $1, $13 }' |
     while read -r pkts name; do
       read -r ipver orport netmask < <(cut -f 3-5 -d '-' <<<$name | tr '-' ' ')
@@ -88,8 +88,16 @@ function printMetricsIpsets() {
   export var="torutils_ipset_timeout"
   echo -e "# HELP $var A histogram of ipset timeout values\n# TYPE $var histogram"
 
-  ipset list -n |
-    grep '^torutils-ddos-' |
+  local names=$(
+    {
+      iptables -nvL INPUT
+      ip6tables -nvL INPUT
+    } |
+      grep 'match-set torutils-ddos-v' |
+      awk '{ print $13 }'
+  )
+
+  xargs -r -n 1 <<<$names |
     while read -r name; do
       read -r ipver orport netmask < <(cut -f 3-5 -d '-' <<<$name | tr '-' ' ')
       nickname=${NICKNAME:-$(_orport2nickname $orport)}
@@ -102,11 +110,9 @@ function printMetricsIpsets() {
   var="torutils_ipset"
   echo -e "# HELP $var Total number of ip addresses\n# TYPE $var gauge"
 
-  ipset list -t |
-    grep "^N" |
-    xargs -r -L 2 |
-    awk '/^Name: torutils-ddos-/ { print $2, $6 }' |
-    while read -r name size; do
+  xargs -r -n 1 <<<$names |
+    while read -r name; do
+      size=$(ipset list -t $name | grep "^Number" | cut -f 2 -d ':')
       read -r ipver orport netmask < <(cut -f 3-5 -d '-' <<<$name | tr '-' ' ')
       nickname=${NICKNAME:-$(_orport2nickname $orport)}
       echo "$var{nickname=\"$nickname\",ipver=\"$ipver\",netmask=\"$netmask\"} $size"
