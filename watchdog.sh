@@ -29,7 +29,7 @@ while :; do
     fi
   fi
 
-  if ((i + j >= 10 + RANDOM % 10)); then
+  if ((i + j > 10)); then
     logger -s "WARNING: $(basename $0) is restarting Tor"
     service tor stop
     sleep 30
