@@ -367,32 +367,14 @@ if [[ ${ram} -gt 8 ]]; then
 elif [[ ${ram} -gt 1 ]]; then
   max=$((2 ** 20)) # 1M
 else
-  max=$((2 ** 18)) # 256K
+  max=$((2 ** 18)) # 256K ca. 40 MiB RAM
 fi
 tmpdir=${TORUTILS_TMPDIR:-/var/tmp}
 
+ipt="ip6tables"
+
 action=${1-}
 [[ $# -gt 0 ]] && shift
-
-if [[ $action != "update" && $action != "save" ]]; then
-  # check if iptables works or if its legacy variant is needed
-  ipt="ip6tables"
-  set +e
-  $ipt -nv -L INPUT >/dev/null
-  rc=$?
-  set -e
-  if [[ $rc -eq 4 ]]; then
-    ipt+="-legacy"
-    if ! $ipt -nv -L INPUT >/dev/null; then
-      echo " $ipt is not working" >&2
-      exit 1
-    fi
-  elif [[ $rc -ne 0 ]]; then
-    echo " $ipt is not working, rc=$rc" >&2
-    exit 1
-  fi
-fi
-
 case $action in
 start)
   trap bailOut INT QUIT TERM EXIT
@@ -422,6 +404,7 @@ save)
   ;;
 esac
 
+# wait till all bg jobs finished
 while fg &>/dev/null; do
   :
 done
