@@ -57,16 +57,10 @@ function addCommon() {
   $ipt -P INPUT $jump
 }
 
-# strategy:
-#   - block a single system based on its netmask (hint: this is not the whole provider subnet itself)
-#     fallback is a /128 netmask (can be overruled by TORUTILS_NETMASK_V6)
-#   - the hoster64 list items are collected from providers where attacks were observed
-#   - regular check the /128 ipset for possible updates of the hosterlist:
-#       awk '{ print $1 }' /var/tmp/torutils-ddos-v6-* | sort -V | uniq -c | less
-#     and watch the /128 hashes too:
-#       cut -f 2 -d ' ' /proc/net/ip6t_hashlimit/torutils-ddos-v6-* | cut -f 1 -d '-' | sort -V | uniq -c | less
 function addTor() {
+
   # rule 1 (trust Tor authorities) is ORPort independend
+
   __create_ipset $trustlist "hash:ip maxelem 64"
   $ipt -A INPUT -p tcp -m set --match-set $trustlist src -j ACCEPT
   fill_trustlist &
@@ -76,9 +70,9 @@ function addTor() {
   fill_hosterlist &
 
   local netmask=${TORUTILS_NETMASK_V6:-128}
-  # common hash limit options
-  local hashlimit_opts_2m="--hashlimit-mode srcip,dstport --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((2 * 60 * 1000))"
-  local hashlimit_opts_1h="--hashlimit-mode srcip,dstport --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-htable-expire $((60 * 60 * 1000))"
+  local hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4))"
+  local hashlimit_opts_2m="$hashlimit_opts --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000))"
+  local hashlimit_opts_1h="$hashlimit_opts --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-expire $((60 * 60 * 1000))"
 
   # run over all <relay, orport> tupels
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
@@ -87,29 +81,35 @@ function addTor() {
 
     # rule 2 (catch DDoS)
 
-    # common netmask
+    # default netmask
     local ddoslist="torutils-ddos-v6-$orport-$netmask"
     __create_ipset $ddoslist "hash:ip netmask $netmask maxelem $max timeout 86400"
 
+    # avoid overflow attacks, if netmask is bigger than /64
+    #   - the hosterlist items are collected from providers where attacks were observed
+    #   - regular check the default ipset for possible updates for the hosterlist:
+    #       awk '{ print $1 }' /var/tmp/torutils-ddos-v6-* | sort -V | uniq -c | less
+    #     and watch the /128 hashes too:
+    #       cut -f 2 -d ' ' /proc/net/ip6t_hashlimit/torutils-ddos-v6-* | cut -f 1 -d '-' | sort -V | uniq -c | less
+
     if [[ $netmask -gt 64 ]]; then
-      # avoid overflow attacks
       local ddoslist64="torutils-ddos-v6-$orport-64"
       __create_ipset $ddoslist64 "hash:ip netmask 64 maxelem $max timeout 86400"
 
       $common -m set --match-set $hosterlist src \
-        -m hashlimit --hashlimit-srcmask 64 --hashlimit-name $ddoslist64-2m $hashlimit_opts_2m \
+        -m hashlimit --hashlimit-name $ddoslist64-2m $hashlimit_opts_2m --hashlimit-srcmask 64 \
         -j SET --add-set $ddoslist64 src --exist
       $common -m set --match-set $hosterlist src \
-        -m hashlimit --hashlimit-srcmask 64 --hashlimit-name $ddoslist64-1h $hashlimit_opts_1h \
+        -m hashlimit --hashlimit-name $ddoslist64-1h $hashlimit_opts_1h --hashlimit-srcmask 64 \
         -j SET --add-set $ddoslist64 src --exist
       $common -m set --match-set $ddoslist64 src -j $jump
 
       # common netmask
       $common -m set ! --match-set $hosterlist src \
-        -m hashlimit --hashlimit-srcmask $netmask --hashlimit-name $ddoslist-2m $hashlimit_opts_2m \
+        -m hashlimit --hashlimit-name $ddoslist-2m $hashlimit_opts_2m --hashlimit-srcmask $netmask \
         -j SET --add-set $ddoslist src --exist
       $common -m set ! --match-set $hosterlist src \
-        -m hashlimit --hashlimit-srcmask $netmask --hashlimit-name $ddoslist-1h $hashlimit_opts_1h \
+        -m hashlimit --hashlimit-name $ddoslist-1h $hashlimit_opts_1h --hashlimit-srcmask $netmask \
         -j SET --add-set $ddoslist src --exist
       $common -m set --match-set $ddoslist src -j $jump
     else
@@ -246,6 +246,7 @@ function fill_hosterlist() {
   done <<EOF
 2001:470::/32 # Hurricane Electric LLC
 2001:41d0::/32 # OVHcloud
+2001:67c:289c::/48 # Föreningen för digitala fri- och rättigheter (DFRI)
 2a00:1b88::/32 # IELO-LIAZO SERVICES SAS
 2a00:1fa0::/30 # MTS PJSC
 2607:8500::/32 # Rethem Hosting LLC
@@ -254,6 +255,8 @@ function fill_hosterlist() {
 2602:f49b::/40 # Agfid LLC
 2a03:94e0::/32 # Gigahost AS
 2a04:ecc0::/29 # Feelb Sarl
+2600:3c01::/32 # Akamai Connected Cloud / Linode
+2604:2dc0::/32 # OVHcloud (OVH US LLC)
 2605:6f08::/32 # HostPapa
 2607:9d00::/32 # HostPapa
 2a0d:bbc7::/32 # QuxLabs AB

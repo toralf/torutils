@@ -42,16 +42,18 @@ function addCommon() {
   $ipt -P INPUT $jump
 }
 
-# strategy:
-#   - block single IPv4 addresses (can be overruled by TORUTILS_NETMASK_V4)
 function addTor() {
+
   # rule 1 (trust Tor authorities) is ORPort independend
+
   __create_ipset $trustlist "hash:ip maxelem 64"
   $ipt -A INPUT -p tcp -m set --match-set $trustlist src -j ACCEPT
   fill_trustlist &
 
   local netmask=${TORUTILS_NETMASK_V4:-32}
-  local hashlimit_opts="--hashlimit-srcmask $netmask --hashlimit-mode srcip,dstport --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4))"
+  local hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-srcmask $netmask"
+  local hashlimit_opts_2m="$hashlimit_opts --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000))"
+  local hashlimit_opts_1h="$hashlimit_opts --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-expire $((60 * 60 * 1000))"
 
   # run over all <relay, orport> tupels
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
@@ -63,14 +65,12 @@ function addTor() {
     local ddoslist="torutils-ddos-v4-$orport-$netmask"
     __create_ipset $ddoslist "hash:ip netmask $netmask maxelem $max timeout $((24 * 3600))"
 
-    $common -m hashlimit --hashlimit-name $ddoslist-2m $hashlimit_opts \
-      --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000)) \
+    $common \
+      -m hashlimit --hashlimit-name $ddoslist-2m $hashlimit_opts_2m \
       -j SET --add-set $ddoslist src --exist
-
-    $common -m hashlimit --hashlimit-name $ddoslist-1h $hashlimit_opts \
-      --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-expire $((60 * 60 * 1000)) \
+    $common \
+      -m hashlimit --hashlimit-name $ddoslist-1h $hashlimit_opts_1h \
       -j SET --add-set $ddoslist src --exist
-
     $common -m set --match-set $ddoslist src -j $jump
 
     # rule 3 (only 1 connection from each of up to 8 Tor relays per ip address)
@@ -305,7 +305,7 @@ if [[ ${ram} -gt 8 ]]; then
 elif [[ ${ram} -gt 1 ]]; then
   max=$((2 ** 20)) # 1M
 else
-  max=$((2 ** 18)) # 256K
+  max=$((2 ** 18)) # 256K ca. 40 MB RAM
 fi
 tmpdir=${TORUTILS_TMPDIR:-/var/tmp}
 
