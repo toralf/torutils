@@ -25,13 +25,13 @@ function printMetricsIptables() {
   var="torutils_dropped_state_packets"
   echo -e "# HELP $var Total number of dropped packets due to wrong TCP state\n# TYPE $var gauge"
 
-  grep 'DROP .*state [NEW|INVALID]' <<<$tables4 |
+  grep -E 'DROP .* ctstate (NEW|INVALID)' <<<$tables4 |
     awk '{ print $1, $NF }' |
     while read -r pkts state; do
       echo "$var{ipver=\"v4\",state=\"$state\"} $pkts"
     done
 
-  grep 'DROP .*state [NEW|INVALID]' <<<$tables6 |
+  grep -E 'DROP .* ctstate (NEW|INVALID)' <<<$tables6 |
     awk '{ print $1, $NF }' |
     while read -r pkts state; do
       echo "$var{ipver=\"v6\",state=\"$state\"} $pkts"
