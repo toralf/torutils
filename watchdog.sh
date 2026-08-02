@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# restart Tor if CPU is udner pressure of if metrics doesn't deliver
+# restart Tor if CPU is under pressure or metrics can't be scraped
 
 set -euf
 export LANG=C.utf8
@@ -34,7 +34,7 @@ while :; do
     service tor stop
     sleep 30
     service tor start
-    sleep 120
+    sleep 1800
     i=0
   fi
 done
