@@ -188,19 +188,6 @@ export TORUTILS_LOCAL_SERVICES6="[cafe::abba]>4711"
 
 The separator `>` is used to highlight that the address part is _src_, but the port is _dst_).
 
-I do use few more cronjobs:
-
-```cron
-# restart Tor if RSS usage is above 4.5 GiB
-*/3 * * * * ps -o pid,rss,args -U tor | awk '{ print $1, $2, $5 }' | grep /etc/tor/torrc. | while read -r pid mem n; do ((mem >4500500)) && echo rc-service tor${n: -1} restart | at now &>/dev/null; done
-
-# restart Tor if crashed
-* * * * *   /opt/torutils/restart_service.sh
-
-# restart Tor if metrics stucks
-*/6 * * * * for i in {1..5}; do for j in {1..6}; do curl -m 5 -s localhost:${i}9052/metrics | grep -q . && break; if ((j == 6)); then echo rc-service tor${i} restart | at now &>/dev/null; break; fi; sleep 5; done; done
-```
-
 ### Metrics
 
 The script [metrics.sh](./metrics.sh) exports DDoS metrics into a Prometheus readable file.
