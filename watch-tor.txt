@@ -1,3 +1,29 @@
+#################### known bugs
+#################### protocol warnings
+Attempt by \[scrubbed\] to open a stream
+Client asked me to extend
+conn to next hop already launched. Bug/attack. Closing.
+connection_edge_process_relay_cell (away from origin) failed.
+DH key must be at least 2.
+Expiring stuck OR connection to
+Inbound circuit has 1250 cells in its queue, maximum allowed is 1250
+Outbound circuit has 1000 cells in its queue
+Received a bad CERTS cell
+Received too many RELAY_EARLY cells on circ
+Single hop client was rejected while trying to introduce
+Somebody asked us for an older TLS authentication method
+Tried connecting to router at
+Unable to compute authenticate cell!
+We received a SENDME but we have no cell digests to match. Closing circuit.
+Your log may contain sensitive information
+#################### ignoreable notices and warnings
+connection_edge_process_relay_cell (at origin) failed.
+Detected possible compression bomb with input size
+Sudden decrease in circuit RTT
+Unable to decompress HTTP body
+Unable to send INTRODUCE2 cell to the service.
+Interrupt: we have stopped accepting new connections,
+Your network connection speed appears to have changed.
 #################### harmless
 All current guards excluded by path restriction type 2; using an additional guard.
 Average channel padding delay of delays that exceeded the allowed time window since
@@ -18,6 +44,7 @@ Bootstrapped 85% (ap_conn_done): Connected to a relay to build circuits
 Bootstrapped 89% (ap_handshake): Finishing handshake with a relay to build circuits
 Bootstrapped 90% (ap_handshake_done): Handshake finished with a relay to build circuits
 Bootstrapped 95% (circuit_create): Establishing a Tor circuit
+Building openssl with such support (using the enable-ec_nistp_64_gcc_128 option when configuring it) would make ECDH much faster.
 Channel padding timeout scheduled
 Circuit handshake stats since last time:
 Clean shutdown finished. Exiting.
@@ -64,41 +91,9 @@ These two versions should be binary compatible.
 Tried to establish rendezvous on non-edge circuit
 We now have enough directory information to build circuits
 We'd like to launch a circuit to handle a connection, but we already have
-We were built to run on a 64-bit CPU, with OpenSSL 1.0.1 or later, but with a version of OpenSSL that apparently lacks accelerated support for the NIST P-224 and P-256 groups. Building openssl with such support (using the enable-ec_nistp_64_gcc_128 option when configuring it) would make ECDH much faster.
+We were built to run on a 64-bit CPU, with OpenSSL 1.0.1 or later, but with a version of OpenSSL that apparently lacks accelerated support for the NIST P-224 and P-256 groups.
+Delaying directory fetches: We are hibernating or shutting down.
 While bootstrapping, fetched this many bytes:
 While not bootstrapping, fetched this many bytes:
 You have asked to exclude certain relays from all positions in your circuits
 Your Tor server's identity key
-#################### ignoreable notices and warnings
-connection_edge_process_relay_cell (at origin) failed.
-Detected possible compression bomb with input size
-Sudden decrease in circuit RTT
-Unable to decompress HTTP body
-Unable to send INTRODUCE2 cell to the service.
-Interrupt: we have stopped accepting new connections,
-Your network connection speed appears to have changed.
-#################### known bugs
-Bug:     /
-Couldn't send authenticate cell
-Duplicate call to circuit_mark_for_close
-Error relaying cell across rendezvous; closing circuits
-Missing master key after handshake using TLSv1.3
-Non-fatal assertion !(! master_key_len)
-tor_bug_occurred_(): Bug: src/lib/tls/tortls_openssl.c
-#################### protocol warnings
-Attempt by \[scrubbed\] to open a stream
-Client asked me to extend
-conn to next hop already launched. Bug/attack. Closing.
-connection_edge_process_relay_cell (away from origin) failed.
-DH key must be at least 2.
-Expiring stuck OR connection to
-Inbound circuit has 1250 cells in its queue, maximum allowed is 1250
-Outbound circuit has 1000 cells in its queue
-Received a bad CERTS cell
-Received too many RELAY_EARLY cells on circ
-Single hop client was rejected while trying to introduce
-Somebody asked us for an older TLS authentication method
-Tried connecting to router at
-Unable to compute authenticate cell!
-We received a SENDME but we have no cell digests to match. Closing circuit.
-Your log may contain sensitive information
