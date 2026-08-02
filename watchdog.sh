@@ -34,7 +34,7 @@ while :; do
     service tor stop
     sleep 30
     service tor start
-    sleep 1800
+    sleep 900
     i=0
   fi
 done

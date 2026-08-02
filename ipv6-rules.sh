@@ -72,7 +72,7 @@ function addTor() {
   local netmask=${TORUTILS_NETMASK_V6:-128}
   local hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4))"
   local hashlimit_opts_2m="$hashlimit_opts --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000))"
-  local hashlimit_opts_1h="$hashlimit_opts --hashlimit-above 16/hour --hashlimit-burst 16 --hashlimit-htable-expire $((60 * 60 * 1000))"
+  local hashlimit_opts_1h="$hashlimit_opts --hashlimit-above 40/hour --hashlimit-burst 40 --hashlimit-htable-expire $((60 * 60 * 1000))"
 
   # run over all <relay, orport> tupels
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
