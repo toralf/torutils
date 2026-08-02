@@ -207,7 +207,7 @@ function saveDdosIpsets() {
   [[ -d $tmpdir ]] || return 1
 
   ip6tables -nvL INPUT |
-    grep 'match-set torutils-ddos-v6' |
+    grep 'match-set torutils-ddos-v' |
     awk '{ print $13 }' |
     while read -r name; do
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)

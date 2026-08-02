@@ -153,7 +153,7 @@ function saveDdosIpsets() {
   [[ -d $tmpdir ]] || return 1
 
   iptables -nvL INPUT |
-    grep 'match-set torutils-ddos-v4' |
+    grep 'match-set torutils-ddos-v' |
     awk '{ print $13 }' |
     while read -r name; do
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
