@@ -203,11 +203,12 @@ function __create_ipset() {
   fi
 }
 
-function saveCertainIpsets() {
+function saveDdosIpsets() {
   [[ -d $tmpdir ]] || return 1
 
-  ipset list -n |
-    grep -E -e '^torutils-ddos-v6-' -e "$manuallist" -e "^$hosterlist$" |
+  ip6tables -nvL INPUT |
+    grep 'match-set torutils-ddos-v6' |
+    awk '{ print $13 }' |
     while read -r name; do
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       if ipset list $name >$tmpfile; then
@@ -397,7 +398,7 @@ test)
   TORUTILS_SAVE_RUN="ACCEPT" $0 start $*
   ;;
 save)
-  saveCertainIpsets
+  saveDdosIpsets
   ;;
 *)
   printRuleStatistics
