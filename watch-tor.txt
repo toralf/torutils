@@ -15,6 +15,7 @@ Somebody asked us for an older TLS authentication method
 Tried connecting to router at
 Unable to compute authenticate cell!
 We received a SENDME but we have no cell digests to match. Closing circuit.
+Your computer is too slow to handle this many circuit creation requests
 Your log may contain sensitive information
 #################### ignoreable notices and warnings
 connection_edge_process_relay_cell (at origin) failed.
