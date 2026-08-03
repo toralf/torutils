@@ -15,7 +15,7 @@ j=0
 while :; do
   read -r iowait idle < <(mpstat --dec=0 -P 'ALL' 60 1 | awk '/^Average:  *all / { print $6, $12 }')
 
-  if ((idle <= 5 || iowait >= 30)); then
+  if ((iowait >= 30)); then
     ((++i))
   elif ((idle >= 20 && iowait <= 20 && i > 0)); then
     ((i--))
@@ -30,7 +30,7 @@ while :; do
   fi
 
   if ((i + j > 10)); then
-    logger -s "WARNING: $(basename $0) is restarting Tor"
+    logger -s "WARNING: $(basename $0) is restarting Tor (i=$i j=$j)"
     service tor stop
     sleep 30
     service tor start
