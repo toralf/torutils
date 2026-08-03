@@ -301,12 +301,12 @@ trustlist="torutils-trust-v4"   # Tor authorities and snowflake servers
 jobs=$((1 + $(nproc) / 4))      # parallel jobs of adding ips to an ipset
 # hashes and ipsets are sized with respect to the available RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
-if [[ ${ram} -gt 8 ]]; then
-  max=$((2 ** 22)) # 4M
+if [[ ${ram} -gt 4 ]]; then
+  max=$((2 ** 20)) # 1M ca. 300 MB for conntrack
 elif [[ ${ram} -gt 1 ]]; then
-  max=$((2 ** 20)) # 1M
+  max=$((2 ** 19)) # 512 K
 else
-  max=$((2 ** 18)) # 256K ca. 40 MiB RAM
+  max=$((2 ** 18)) # 256K ca. 40 MiB RAM for a hash
 fi
 tmpdir=${TORUTILS_TMPDIR:-/var/tmp}
 
