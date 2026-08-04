@@ -48,7 +48,7 @@ function addCommon() {
   $ipt -A INPUT -p ipv6-icmp --icmpv6-type redirect -j $jump
 
   # DHCPv6
-  $ipt -A INPUT -p udp --dport 546 -j ACCEPT
+  $ipt -A INPUT -p udp --sport 547 --dport 546 -j ACCEPT
 
   # IPv6 Multicast
   $ipt -A INPUT -p udp --source fe80::/10 --dst ff02::/80 -j ACCEPT

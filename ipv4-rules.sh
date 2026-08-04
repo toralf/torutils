@@ -36,7 +36,7 @@ function addCommon() {
   $ipt -A INPUT -p icmp --icmp-type echo-request -m limit --limit 6/s --limit-burst 10 -j ACCEPT
 
   # DHCPv4
-  $ipt -A INPUT -p udp --dport 68 -j ACCEPT
+  $ipt -A INPUT -p udp --sport 67 --dport 68 -j ACCEPT
 
   # default policy
   $ipt -P INPUT $jump
