@@ -21,14 +21,14 @@ while :; do
     ((i--))
   fi
 
-  if grep -q "^MetricsPort 127.0.0.1:9052$" /etc/tor/torrc; then
-    if curl -m 3 -s localhost:9052/metrics | grep -q .; then
-      j=0
-    else
-      ((++j))
-    fi
-  fi
-
+  # if grep -q "^MetricsPort 127.0.0.1:9052$" /etc/tor/torrc; then
+  #   if curl -m 3 -s localhost:9052/metrics | grep -q .; then
+  #     j=0
+  #   else
+  #     ((++j))
+  #   fi
+  # fi
+  #
   if ((i + j > 10)); then
     logger -s "WARNING: $(basename $0) is restarting Tor (i=$i j=$j)"
     service tor stop
