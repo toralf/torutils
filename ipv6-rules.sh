@@ -248,10 +248,12 @@ function fill_hosterlist() {
 2001:470::/32 # Hurricane Electric LLC
 2001:41d0::/32 # OVHcloud
 2001:67c:289c::/48 # Föreningen för digitala fri- och rättigheter (DFRI)
+2402:8100::/32 # Reliance Jio Infocomm Limited
+2607:8500::/32 # Rethem Hosting LLC
+2806:370::/32 # Telcel
+2a00:63c0::/29 # IPAX GmbH
 2a00:1b88::/32 # IELO-LIAZO SERVICES SAS
 2a00:1fa0::/30 # MTS PJSC
-2607:8500::/32 # Rethem Hosting LLC
-2a00:63c0::/29 # IPAX GmbH
 2a01:4f8::/31 # Hetzner
 2602:f49b::/40 # Agfid LLC
 2a03:94e0::/32 # Gigahost AS
