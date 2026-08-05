@@ -121,7 +121,9 @@ function __create_ipset() {
       local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       ipset save $name.tmp >$tmpfile
       ipset save $name | sed -e '1d' | sed -e "s, $name , $name.tmp ," -e 's,^add,add -exist,' >>$tmpfile
-      xargs -r -L 1 echo "add -exist $name.tmp" <$tmpdir/$name >>$tmpfile
+      if [[ -s $tmpdir/$name ]]; then
+        xargs -r -L 1 echo "add -exist $name.tmp" <$tmpdir/$name >>$tmpfile
+      fi
       ipset destroy $name.tmp &>/dev/null || true
       ipset restore <$tmpfile
       ipset swap $name $name.tmp
