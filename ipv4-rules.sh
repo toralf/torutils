@@ -24,7 +24,7 @@ function addCommon() {
   done
 
   # manually filled from outsite
-  __create_ipset $manuallist "hash:net timeout $((24 * 3600))"
+  __create_ipset $manuallist "hash:net timeout 86400"
   $ipt -A INPUT -m set --match-set $manuallist src -j $jump
 
   # PMTUD
@@ -37,16 +37,13 @@ function addCommon() {
 
   # DHCPv4
   $ipt -A INPUT -p udp --sport 67 --dport 68 -j ACCEPT
-
-  # default policy
-  $ipt -P INPUT $jump
 }
 
 function addTor() {
 
   # rule 1 (trust Tor authorities) is ORPort independend
 
-  __create_ipset $trustlist "hash:ip maxelem 64"
+  __create_ipset $trustlist "hash:ip"
   $ipt -A INPUT -p tcp -m set --match-set $trustlist src -j ACCEPT
   fill_trustlist &
 
@@ -63,7 +60,7 @@ function addTor() {
     # rule 2 (catch DDoS)
 
     local ddoslist="torutils-ddos-v4-$orport-$netmask"
-    __create_ipset $ddoslist "hash:ip netmask $netmask maxelem $max timeout $((24 * 3600))"
+    __create_ipset $ddoslist "hash:ip netmask $netmask maxelem $max timeout 86400"
 
     $common \
       -m hashlimit --hashlimit-name $ddoslist-2m $hashlimit_opts_2m \
@@ -214,7 +211,7 @@ function addHetzner() {
   fi
 
   local sysmon="torutils-hetznersysmon-v4"
-  __create_ipset $sysmon "hash:ip maxelem 64"
+  __create_ipset $sysmon "hash:ip"
   $ipt -A INPUT -m set --match-set $sysmon src -j ACCEPT
   {
     (
@@ -254,7 +251,7 @@ function printRuleStatistics() {
   $ipt -nv -L INPUT
 }
 
-function getConfiguredRelays() {
+function getConfiguredRelays_v4() {
   # shellcheck disable=SC2045 disable=SC2010
   for f in $(ls /etc/tor/torrc* /etc/tor/instances/*/torrc 2>/dev/null | grep -v -F -e '.sample' -e '.bak' -e '~' -e '@'); do
     if grep -q "^ServerTransportListenAddr " $f; then
@@ -298,20 +295,21 @@ umask 066
 trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
 type curl ipset jq >/dev/null
 
+jobs=$((1 + $(nproc) / 4))      # parallel jobs of adding ips to an ipset
 manuallist="torutils-manual-v4" # to be filled manually from outside
 trustlist="torutils-trust-v4"   # Tor authorities and snowflake servers
-jobs=$((1 + $(nproc) / 4))      # parallel jobs of adding ips to an ipset
-# hashes and ipsets are sized with respect to the available RAM in GiB
+
+# hashes and ipsets are sized with respect to RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
-if [[ ${ram} -gt 4 ]]; then
-  max=$((2 ** 20)) # 1M ca. 300 MB for conntrack
-elif [[ ${ram} -gt 1 ]]; then
+if [[ $ram -gt 4 ]]; then
+  max=$((2 ** 20)) # 1M
+elif [[ $ram -gt 1 ]]; then
   max=$((2 ** 19)) # 512 K
 else
-  max=$((2 ** 18)) # 256K ca. 40 MiB RAM for a hash
+  max=$((2 ** 18)) # 256K, 40 MiB per hash, 75 MiB for conntrack
 fi
-tmpdir=${TORUTILS_TMPDIR:-/var/tmp}
 
+tmpdir=${TORUTILS_TMPDIR:-/var/tmp}
 ipt="iptables"
 
 action=${1-}
@@ -325,7 +323,8 @@ start)
   addCommon
   addHetzner
   addServices
-  addTor ${*:-${TORUTILS_RELAYS_V4-$(getConfiguredRelays)}}
+  addTor ${*:-${TORUTILS_RELAYS_V4-$(getConfiguredRelays_v4)}}
+  $ipt -P INPUT $jump
   trap - INT QUIT TERM EXIT
   ;;
 stop)
