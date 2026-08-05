@@ -95,11 +95,11 @@ Then this rule set is applied to prevent DDoS attempts against the Tor port:
 3. ignore the connection attempt if there are already 8 established connections to the Tor port (max 8 relays are allowed per ip address)
 4. accept the connection attempt to the Tor port
 
-¹ For IPv4 _source_ is per default a single ip address, for IPv6 _source_ the default is a /128 netmask. Currently I'm testing netmasks of /27 and /80 respectively.
+¹ For an IPv4 _source_ the default is a single ip address, for an IPv6 _source_ the default is a /64 netmask.
 
-² Possible values were discussed in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
+² Values were discussed in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 
-³ No overblocking even if _source_ and/or the Tor server has few reboots and/or iptables restarts
+³ No overblocking even if _source_ and/or the Tor server have few reboots within 1 hour
 
 To append only the rules above to your own firewall rules please have a look at [tweaks](#tweaks).
 
