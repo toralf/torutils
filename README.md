@@ -19,8 +19,8 @@ of the [Tor project](https://www.torproject.org/).
 
 ### Idea
 
-Consider a system as malicious if its connection attempts to the local Tor over a short time interval exceeds the expected one for Tor.
-Block that system then for a long time interval.
+A system is considered malicious if its connection attempts to the local Tor instance over a short time interval exceed the expected threshold.
+Block such systems for a long time interval.
 Further considerations:
 
 - never touch established connections
@@ -86,7 +86,7 @@ Don't forget to [persist](#persist-the-solution) it.
 ### The Rule Set
 
 The DDoS script creates generic filter rules for the local network, ICMP, ssh, DHCP and additional services (if given).
-Then this rule set is applied to prevent DDoS attempts against the Tor port:
+Then the following rule set is applied to prevent DDoS against the Tor port:
 
 1. trust any connection attempt from a Tor authority node
 2. block the source ¹ for 24 hours if the connection attempt rate from it to the Tor port exceeds
@@ -99,9 +99,7 @@ Then this rule set is applied to prevent DDoS attempts against the Tor port:
 
 ² Values were discussed in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 
-³ No overblocking even if _source_ and/or the Tor server have few reboots within 1 hour
-
-To append only the rules above to your own firewall rules please have a look at [tweaks](#tweaks).
+³ No overblocking even if _source_ and/or the Tor server have a couple of reboots within 1 hour
 
 ### Persist the solution
 
@@ -125,30 +123,29 @@ Ensure that the package _iptables-persistent_ is either de-installed or disabled
 
 ### Example
 
-The result for e.g. IPv4 of the relay [i32](https://metrics.torproject.org/rs.html#details/4356DDFC83F8335E2AF395D5EA4CA28CC9E57C58) looks like this:
+Result for IPv4 of the relay [i32](https://metrics.torproject.org/rs.html#details/4356DDFC83F8335E2AF395D5EA4CA28CC9E57C58):
 
 ```text
 $ ssh i32 iptables -nvL INPUT
-Chain INPUT (policy DROP 67 packets, 4736 bytes)
+Chain INPUT (policy DROP 470 packets, 29285 bytes)
  pkts bytes target     prot opt in     out     source               destination
-  189  198K ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0            /* DDoS IPv4 Mon, 27 Jul 2026 18:32:48 +0000 */
-93566   74M ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED
-   10  2288 DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate INVALID
-   14 11522 DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp flags:!0x17/0x02 ctstate NEW
-    5   300 ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22
-    0     0 DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set tor-manual4 src
+ 8178 7921K ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0            /* DDoS IPv4 Thu, 06 Aug 2026 15:03:45 +0000 */
+7365K 5602M ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED
+  107 23054 DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate INVALID
+  140  112K DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp flags:!0x17/0x02 ctstate NEW
+  137  8180 ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22
+    0     0 DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set torutils-manual-v4 src
     0     0 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 3
     0     0 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 11
     0     0 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 12
-    3   204 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8 limit: avg 6/sec burst 10
-    0     0 ACCEPT     udp  --  *      *       0.0.0.0/0            0.0.0.0/0            udp dpt:68
-    0     0 ACCEPT     tcp  --  *      *       65.21.94.49          0.0.0.0/0            tcp dpt:33760
-    1    60 ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set tor-trust4 src
-   56  3360 SET        tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 limit: above 8/min burst 8 mode srcip-dstport htable-size 65536 htable-max 262144 htable-expire 120000 add-set tor-ddos-40242 src exist
-    0     0 SET        tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 limit: above 16/hour burst 16 mode srcip-dstport htable-size 65536 htable-max 262144 add-set tor-ddos-40242 src exist
- 2739  164K DROP       tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 match-set tor-ddos-40242 src
-    0     0 DROP       tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 #conn src/32 > 8
-   44  2624 ACCEPT     tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242
+  119  8006 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8 limit: avg 6/sec burst 10
+    0     0 ACCEPT     udp  --  *      *       0.0.0.0/0            0.0.0.0/0            udp spt:67 dpt:68
+   38  2256 ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set torutils-trust-v4 src
+  185 11100 SET        tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 limit: above 8/min burst 8 mode srcip-dstport htable-size 65536 htable-max 262144 htable-expire 120000 add-set torutils-ddos-v4-40242-32 src exist
+  363 21780 SET        tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 limit: above 40/hour burst 40 mode srcip-dstport htable-size 65536 htable-max 262144 add-set torutils-ddos-v4-40242-32 src exist
+  411 24660 DROP       tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 match-set torutils-ddos-v4-40242-32 src
+    9   540 DROP       tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 #conn src/32 > 8
+ 5373  322K ACCEPT     tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242
 ```
 
 ### Tweaks
