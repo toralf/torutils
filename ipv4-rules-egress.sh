@@ -38,7 +38,8 @@ if [[ ${1-} == "start" ]]; then
   # current Hetzner limit seems to be 150 connections within 4 min, use 2/3 of that
   limit=${2:-$((150 * 2 / 3 / 4))}
 
-  # slew bursts e.g. after a reboot
+  # slew bursts e.g. caused by a reboot
+  # allow 1/6 of limit immediately, then 1/6 per minute, so after 4 minutes about 5/6 of the limit is reached at max
   default="45.84.107.0 64.65.0.0/23 64.65.60.0/22 96.9.98.0 109.70.100 171.25.193.0 185.220.101.0 192.42.116.0"
   for item in ${EGRESS_SUBNET_SLEW-$default}; do
     read -r net mask <<<$(tr '/' ' ' <<<$item)
