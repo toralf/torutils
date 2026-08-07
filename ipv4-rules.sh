@@ -158,6 +158,7 @@ function saveDdosIpsets() {
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       if ipset list $name >$tmpfile; then
         if sed -i -e '1,8d' $tmpfile; then
+          rm -f $tmpdir/$name
           mv $tmpfile $tmpdir/$name
         fi
       fi
