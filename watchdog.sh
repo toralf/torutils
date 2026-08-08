@@ -20,7 +20,7 @@ while :; do
     ((i--))
   fi
 
-  if ((i > 5)); then
+  if ((i > 10)); then
     logger -s "WARNING: $(basename $0) is restarting Tor"
     service tor stop
     sleep 30
