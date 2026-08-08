@@ -28,6 +28,7 @@ Your network connection speed appears to have changed.
 #################### harmless
 All current guards excluded by path restriction type 2; using an additional guard.
 Average channel padding delay of delays that exceeded the allowed time window since
+Based on detected system memory, MaxMemInQueues is set to
 Bootstrapped 0%: Starting
 Bootstrapped 0% (starting): Starting
 Bootstrapped 5% (conn): Connecting to a relay
