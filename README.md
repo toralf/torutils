@@ -57,14 +57,14 @@ sudo ./ipv4-rules.sh test
 sudo ./ipv6-rules.sh test
 ```
 
-Stop Tor, flush the connection tracking table
+Restart Tor.
+Check that your ssh login and other services do work.
+Watch the rules stats e.g. for IPv4
 
 ```bash
-sudo /usr/sbin/conntrack -F
+sudo watch ./ipv4-rules.sh
 ```
 
-and (re-)start Tor.
-Check that your ssh login and any other service.
 If something looks wrong then restore the backuped state:
 
 ```bash
@@ -74,18 +74,18 @@ sudo /usr/sbin/iptables-restore <./rules.v4
 sudo /usr/sbin/ip6tables-restore <./rules.v6
 ```
 
-Otherwise run the solution with the parameter `start`:
+Otherwise run the scripts with the parameter `start`:
 
 ```bash
 sudo ./ipv4-rules.sh start
 sudo ./ipv6-rules.sh start
 ```
 
-Don't forget to [persist](#persist-the-solution) it.
+and [persist](#persist-the-solution) them.
 
 ### The Rule Set
 
-The DDoS script creates generic filter rules for the local network, ICMP, ssh, DHCP and additional services (if given).
+The DDoS scripts create generic filter rules for the lo device, ICMP, ssh, DHCP and the [configured](#configuration) services.
 Then the following rule set is applied to prevent DDoS against the Tor port:
 
 1. trust any connection attempt from a Tor authority node
@@ -95,11 +95,11 @@ Then the following rule set is applied to prevent DDoS against the Tor port:
 3. ignore the connection attempt if there are already 8 established connections to the Tor port (max 8 relays are allowed per ip address)
 4. accept the connection attempt to the Tor port
 
-¹ For an IPv4 _source_ the default is a single ip address, for an IPv6 _source_ the default is a /64 netmask.
+¹ _source_ is for IPv4 is a single ip address, for IPv6 a /64 netmask.
 
 ² Values were discussed in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 
-³ No overblocking even if _source_ and/or the Tor server have a couple of reboots within 1 hour
+³ No overblocking even if _source_ and/or Tor have a couple of reboots within 1 hour
 
 ### Persist the solution
 
@@ -148,7 +148,7 @@ Chain INPUT (policy DROP 470 packets, 29285 bytes)
  5373  322K ACCEPT     tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242
 ```
 
-### Tweaks
+### Configuration
 
 To append (instead overwrite) rules, comment out _clearRules_ (at the end of the script).
 To use only the Tor port part, comment out the call _addCommon_.
@@ -215,7 +215,7 @@ sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 firefox $svg
 ```
 
-### Avoid abuse complaints / server blocking
+## Avoid abuse complaints / server blocking
 
 Every then and when I get an undesired abuse complaint from my hoster.
 To avoid this I developed [ipv4-rules-egress.sh](./ipv4-rules-egress.sh) for my Tor instances running at Hetzner.
