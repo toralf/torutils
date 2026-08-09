@@ -23,9 +23,9 @@ function addCommon() {
     $ipt -A INPUT -p tcp --dst $i --dport ${port:-22} -j ACCEPT
   done
 
-  # manually filled from outsite
-  __create_ipset $manuallist "hash:net timeout 86400"
-  $ipt -A INPUT -m set --match-set $manuallist src -j $jump
+  #
+  __create_ipset $tarpitlist "hash:net maxelem $max timeout 86400"
+  $ipt -A INPUT -m set --match-set $tarpitlist src -j $jump
 
   # see RFC 4890
 
@@ -93,6 +93,13 @@ function addTor() {
 
     $common -j ACCEPT
   done
+}
+
+function addTarpit() {
+  $ipt -A INPUT -p tcp -j SET --add-set $tarpitlist src --exist
+
+  # default policy
+  $ipt -P INPUT $jump
 }
 
 function relay_2_ip_and_port() {
@@ -291,9 +298,9 @@ umask 066
 trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
 type curl ipset jq >/dev/null
 
-jobs=$((1 + $(nproc) / 4))         # parallel jobs of adding ips to an ipset
-manuallist="torutils-manual-v6"    # to be filled manually from outside
-trustlist="torutils-trust-v6"      # Tor authorities and snowflake servers
+jobs=$((1 + $(nproc) / 4))      # parallel jobs of adding ips to an ipset
+tarpitlist="torutils-tarpit-v6" # last rule or can be filled manually from outside
+trustlist="torutils-trust-v6"   # Tor authorities and snowflake servers
 
 # hashes and ipsets are sized with respect to RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
@@ -319,7 +326,7 @@ start)
   addHetzner
   addServices
   addTor ${*:-${TORUTILS_RELAYS_V6-$(getConfiguredRelays_v6)}}
-  $ipt -P INPUT $jump
+  addTarpit
   trap - INT QUIT TERM EXIT
   ;;
 stop)
