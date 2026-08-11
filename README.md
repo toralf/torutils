@@ -95,7 +95,7 @@ Then the following rule set is applied to prevent DDoS against the Tor port(s):
 3. ignore the connection attempt if there are already 8 established connections to the Tor port (up to 8 relays are allowed per ip address)
 4. accept the connection attempt to the Tor port
 
-The default policy for _INPUT_ is _DROP_. An _source_ is blocked for 1 day if a TCP packet of it matches that.
+The default policy for _INPUT_ is _DROP_. A _source_ is blocked for 1 day if a TCP packet of it matches the policy.
 
 ¹ _source_ is for IPv4 is a single ip address, for IPv6 a /64 netmask.
 
