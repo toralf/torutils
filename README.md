@@ -92,10 +92,10 @@ Then the following rule set is applied to prevent DDoS against the Tor port(s):
 2. block the source ¹ for 24 hours if the connection attempt rate from it to the Tor port exceeds
    - 8/min ² within last 2 minutes - or -
    - 24/hour within last hour ³
-3. ignore the connection attempt if there are already 8 established connections to the Tor port (max 8 relays are allowed per ip address)
+3. ignore the connection attempt if there are already 8 established connections to the Tor port (up to 8 relays are allowed per ip address)
 4. accept the connection attempt to the Tor port
 
-The default policy for _INPUT_ is _DROP_. An affected _source_ is blocked too for 1 day.
+The default policy for _INPUT_ is _DROP_. An _source_ is blocked for 1 day if a TCP packet of it matches that.
 
 ¹ _source_ is for IPv4 is a single ip address, for IPv6 a /64 netmask.
 
