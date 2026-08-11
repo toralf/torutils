@@ -23,8 +23,8 @@ function addCommon() {
     $ipt -A INPUT -p tcp --dst $i --dport ${port:-22} -j ACCEPT
   done
 
-  #
-  __create_ipset $tarpitlist "hash:net maxelem $max timeout 86400"
+  # tarpit
+  __create_ipset $tarpitlist "netmask $netmask maxelem $max timeout 86400"
   $ipt -A INPUT -m set --match-set $tarpitlist src -j $jump
 
   # PMTUD
@@ -43,11 +43,10 @@ function addTor() {
 
   # rule 1 (trust Tor authorities) is ORPort independend
 
-  __create_ipset $trustlist "hash:ip"
+  __create_ipset $trustlist
   $ipt -A INPUT -p tcp -m set --match-set $trustlist src -j ACCEPT
   fill_trustlist &
 
-  local netmask=${TORUTILS_NETMASK_V4:-32}
   local hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-srcmask $netmask"
   local hashlimit_opts_2m="$hashlimit_opts --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000))"
   local hashlimit_opts_1h="$hashlimit_opts --hashlimit-above 24/hour --hashlimit-burst 24 --hashlimit-htable-expire $((60 * 60 * 1000))"
@@ -60,7 +59,7 @@ function addTor() {
     # rule 2 (catch DDoS)
 
     local ddoslist="torutils-ddos-v4-$orport-$netmask"
-    __create_ipset $ddoslist "hash:ip netmask $netmask maxelem $max timeout 86400"
+    __create_ipset $ddoslist "netmask $netmask maxelem $max timeout 86400"
 
     $common \
       -m hashlimit --hashlimit-name $ddoslist-2m $hashlimit_opts_2m \
@@ -105,53 +104,37 @@ function relay_2_ip_and_port() {
 
 function __create_ipset() {
   local name=${1?NAME NOT GIVEN}
-  local cmd
   local family="inet"
+  local cmd="ipset create -exist $name hash:ip ${2-} family $family"
 
   if ipset list -t $name &>/dev/null; then
-    # is known
-    cmd="ipset create -exist $name ${2?IPSET ARG NOT GIVEN} family $family"
     if $cmd 2>/dev/null; then
       return 0
     fi
 
-    # but config changed, so create a tmp one, fill it and swap
-    ipset destroy $name.tmp &>/dev/null || true
-    cmd="ipset create $name.tmp ${2?IPSET ARG NOT GIVEN} family $family"
-    if ! $cmd 2>/dev/null; then
+    # will fail if in use
+    if ! ipset destroy $name; then
       return 1
     fi
+  fi
+
+  # create it
+  if ! $cmd 2>/dev/null; then
+    return 1
+  fi
+
+  # if saved content was found then create a tmp one, fill it with saved content and swap
+  if [[ -s $tmpdir/$name ]]; then
     {
       local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
-      ipset save $name.tmp >$tmpfile
-      ipset save $name | sed -e '1d' | sed -e "s, $name , $name.tmp ," -e 's,^add,add -exist,' >>$tmpfile
-      if [[ -s $tmpdir/$name ]]; then
-        xargs -r -L 1 echo "add -exist $name.tmp" <$tmpdir/$name >>$tmpfile
-      fi
+      ipset save $name | sed -e "s, $name , $name.tmp ," -e 's,^add,add -exist,' >$tmpfile
+      xargs -r -L 1 echo "add -exist $name.tmp" <$tmpdir/$name >>$tmpfile
       ipset destroy $name.tmp &>/dev/null || true
       ipset restore <$tmpfile
       ipset swap $name $name.tmp
       ipset destroy $name.tmp
       rm $tmpfile
     } &
-  else
-    # create a new one, and if saved content was found then create a tmp one, fill it and swap
-    cmd="ipset create $name ${2?IPSET ARG NOT GIVEN} family $family"
-    if ! $cmd 2>/dev/null; then
-      return 1
-    fi
-    if [[ -s $tmpdir/$name ]]; then
-      {
-        local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
-        ipset save $name | sed -e "s, $name , $name.tmp ," -e 's,^add,add -exist,' >$tmpfile
-        xargs -r -L 1 echo "add -exist $name.tmp" <$tmpdir/$name >>$tmpfile
-        ipset destroy $name.tmp &>/dev/null || true
-        ipset restore <$tmpfile
-        ipset swap $name $name.tmp
-        ipset destroy $name.tmp
-        rm $tmpfile
-      } &
-    fi
   fi
 }
 
@@ -219,7 +202,7 @@ function addHetzner() {
   fi
 
   local sysmon="torutils-hetznersysmon-v4"
-  __create_ipset $sysmon "hash:ip"
+  __create_ipset $sysmon
   $ipt -A INPUT -m set --match-set $sysmon src -j ACCEPT
   {
     (
@@ -316,6 +299,7 @@ elif [[ $ram -gt 1 ]]; then
 else
   max=$((2 ** 18)) # 256K, 40 MiB per hash, 75 MiB for conntrack
 fi
+netmask=${TORUTILS_NETMASK_V4:-32}
 
 tmpdir=${TORUTILS_TMPDIR:-/var/tmp}
 ipt="iptables"
