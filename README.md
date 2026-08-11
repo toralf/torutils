@@ -86,7 +86,7 @@ and [persist](#persist-the-solution) them.
 ### The Rule Set
 
 The DDoS scripts create generic filter rules for the lo device, ICMP, ssh, DHCP and the [configured](#configuration) services.
-Then the following rule set is applied to prevent DDoS against the Tor port:
+Then the following rule set is applied to prevent DDoS against the Tor port(s):
 
 1. trust any connection attempt from a Tor authority node
 2. block the source ¹ for 24 hours if the connection attempt rate from it to the Tor port exceeds
@@ -94,6 +94,8 @@ Then the following rule set is applied to prevent DDoS against the Tor port:
    - 40/hour within last hour ³
 3. ignore the connection attempt if there are already 8 established connections to the Tor port (max 8 relays are allowed per ip address)
 4. accept the connection attempt to the Tor port
+
+The default policy for _INPUT_ is _DROP_. Affected sources are blocked too for 1 day.
 
 ¹ _source_ is for IPv4 is a single ip address, for IPv6 a /64 netmask.
 
@@ -127,25 +129,26 @@ Result for IPv4 of the relay [i32](https://metrics.torproject.org/rs.html#detail
 
 ```text
 $ ssh i32 iptables -nvL INPUT
-Chain INPUT (policy DROP 470 packets, 29285 bytes)
+Chain INPUT (policy DROP 7129 packets, 609K bytes)
  pkts bytes target     prot opt in     out     source               destination
- 8178 7921K ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0            /* DDoS IPv4 Thu, 06 Aug 2026 15:03:45 +0000 */
-7365K 5602M ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED
-  107 23054 DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate INVALID
-  140  112K DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp flags:!0x17/0x02 ctstate NEW
-  137  8180 ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22
-    0     0 DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set torutils-manual-v4 src
+ 385K  365M ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0            /* DDoS IPv4 Sun, 09 Aug 2026 20:34:40 +0000 */
+ 363M  289G ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED
+10650 2594K DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate INVALID
+ 9896 6619K DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp flags:!0x17/0x02 ctstate NEW
+ 3453  203K ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22
+15748  773K DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set torutils-tarpit-v4 src
     0     0 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 3
     0     0 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 11
     0     0 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 12
-  119  8006 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8 limit: avg 6/sec burst 10
+18421 1168K ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8 limit: avg 6/sec burst 10
     0     0 ACCEPT     udp  --  *      *       0.0.0.0/0            0.0.0.0/0            udp spt:67 dpt:68
-   38  2256 ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set torutils-trust-v4 src
-  185 11100 SET        tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 limit: above 8/min burst 8 mode srcip-dstport htable-size 65536 htable-max 262144 htable-expire 120000 add-set torutils-ddos-v4-40242-32 src exist
-  363 21780 SET        tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 limit: above 40/hour burst 40 mode srcip-dstport htable-size 65536 htable-max 262144 add-set torutils-ddos-v4-40242-32 src exist
-  411 24660 DROP       tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 match-set torutils-ddos-v4-40242-32 src
-    9   540 DROP       tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 #conn src/32 > 8
- 5373  322K ACCEPT     tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242
+ 1945  116K ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set torutils-trust-v4 src
+ 502K   30M SET        tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 limit: above 8/min burst 8 mode srcip-dstport htable-size 65536 htable-max 262144 htable-expire 120000 add-set torutils-ddos-v4-40242-32 src exist
+3750K  225M SET        tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 limit: above 24/hour burst 24 mode srcip-dstport htable-size 65536 htable-max 262144 add-set torutils-ddos-v4-40242-32 src exist
+4017K  241M DROP       tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 match-set torutils-ddos-v4-40242-32 src
+   87  5220 DROP       tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 #conn src/32 > 8
+ 193K   12M ACCEPT     tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242
+ 5873  290K SET        tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            add-set torutils-tarpit-v4 src exist
 ```
 
 ### Configuration
