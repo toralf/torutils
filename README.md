@@ -91,7 +91,7 @@ Then the following rule set is applied to prevent DDoS against the Tor port(s):
 1. trust any connection attempt from a Tor authority node
 2. block the source ¹ for 24 hours if the connection attempt rate from it to the Tor port exceeds
    - 8/min ² within last 2 minutes - or -
-   - 40/hour within last hour ³
+   - 24/hour within last hour ³
 3. ignore the connection attempt if there are already 8 established connections to the Tor port (max 8 relays are allowed per ip address)
 4. accept the connection attempt to the Tor port
 
