@@ -12,11 +12,14 @@ type logger mpstat service >/dev/null
 
 i=0
 while :; do
-  read -r iowait < <(mpstat --dec=0 -P 'ALL' 60 1 | awk '/^Average:  *all / { print $6 }')
+  read -r iowait idle < <(mpstat --dec=0 -P 'ALL' 60 1 | awk '/^Average:  *all / { print $6, $12 }')
 
-  if ((iowait >= 25)); then
+  if ((iowait > 25)); then
     ((++i))
-  elif ((iowait <= 15 && i > 0)); then
+    if ((idle < 5)); then
+      ((++i))
+    fi
+  elif ((iowait < 20 && idle > 10 && i > 0)); then
     ((i--))
   fi
 
