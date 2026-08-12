@@ -41,7 +41,7 @@ if [[ ${1-} == "start" ]]; then
 
   # slew bursts e.g. caused by a reboot
   # allow 1/6 of limit immediately, then 1/6 per minute, so after 4 minutes about 5/6 of the limit is reached at max
-  default="45.84.107.0/24 64.65.0.0/22 64.65.60.0/22 96.9.98.0/24 109.70.100/24 171.25.193.0/24 185.220.101.0/24 192.42.116.0/24"
+  default="45.84.107.0/24 64.65.0.0/22 64.65.60.0/22 96.9.98.0/24 109.70.100.0/24 171.25.193.0/24 185.220.101.0/24 192.42.116.0/24"
   for item in ${EGRESS_SUBNET_SLEW-$default}; do
     read -r net mask <<<$(tr '/' ' ' <<<$item)
     $ipt -A OUTPUT -p tcp --dst $net/${mask:-22} -m conntrack --ctstate NEW -m hashlimit --hashlimit-name tor-egress --hashlimit-mode dstip,dstport --hashlimit-dstmask ${mask:-22} --hashlimit-above $limit/minute --hashlimit-burst $limit -j REJECT
