@@ -35,15 +35,16 @@ if [[ ${1-} == "start" ]]; then
   # do not touch established connections
   $ipt -A OUTPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 
-  # current Hetzner limit seems to be 150 connections within 4 min, use 2/3 of that
+  # current Hetzner threshold seems to be 150 connections within 4 min to a /22 network block
+  # set our limit to 2/3 of the threshold
   limit=${2:-$((150 * 2 / 3 / 4))}
 
   # slew bursts e.g. caused by a reboot
   # allow 1/6 of limit immediately, then 1/6 per minute, so after 4 minutes about 5/6 of the limit is reached at max
-  default="45.84.107.0 64.65.0.0/22 64.65.60.0/22 96.9.98.0 109.70.100 171.25.193.0 185.220.101.0 192.42.116.0"
+  default="45.84.107.0/24 64.65.0.0/22 64.65.60.0/22 96.9.98.0/24 109.70.100/24 171.25.193.0/24 185.220.101.0/24 192.42.116.0/24"
   for item in ${EGRESS_SUBNET_SLEW-$default}; do
     read -r net mask <<<$(tr '/' ' ' <<<$item)
-    $ipt -A OUTPUT -p tcp --dst $net/${mask:-24} -m conntrack --ctstate NEW -m hashlimit --hashlimit-name tor-egress --hashlimit-mode dstip,dstport --hashlimit-dstmask ${mask:-24} --hashlimit-above $limit/minute --hashlimit-burst $limit -j REJECT
-    # $ipt -A OUTPUT -p tcp --dst $net/${mask:-24} # counter to debug stat numbers
+    $ipt -A OUTPUT -p tcp --dst $net/${mask:-22} -m conntrack --ctstate NEW -m hashlimit --hashlimit-name tor-egress --hashlimit-mode dstip,dstport --hashlimit-dstmask ${mask:-22} --hashlimit-above $limit/minute --hashlimit-burst $limit -j REJECT
+    # $ipt -A OUTPUT -p tcp --dst $net/${mask:-22} # counter to debug stat numbers
   done
 fi
