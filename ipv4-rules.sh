@@ -51,7 +51,7 @@ function addTor() {
   local hashlimit_opts_2m="$hashlimit_opts --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000))"
   local hashlimit_opts_1h="$hashlimit_opts --hashlimit-above 24/hour --hashlimit-burst 24 --hashlimit-htable-expire $((60 * 60 * 1000))"
 
-  # run over all <relay, orport> tupels
+  # run over all <relay, orport> tuples
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
     relay_2_ip_and_port
     local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
