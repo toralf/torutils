@@ -17,7 +17,7 @@ while :; do
   if ((iowait > 25)); then
     ((++i))
     if ((idle < 5)); then
-      ((++i))
+      ((i += 2))
     fi
   elif ((iowait < 20 && idle > 10 && i > 0)); then
     ((i--))
@@ -28,7 +28,7 @@ while :; do
     service tor stop
     sleep 30
     service tor start
-    sleep 900
+    sleep 600
     i=0
   fi
 done
