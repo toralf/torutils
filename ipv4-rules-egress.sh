@@ -29,7 +29,7 @@ $ipt -F OUTPUT
 $ipt -Z OUTPUT
 
 if [[ ${1-} == "start" ]]; then
-  # having the start date in the iptables output is the desired intention of this rule
+  # having the comment in the iptables output is the desired intention of this rule
   $ipt -A OUTPUT --out-interface lo -m comment --comment "egress IPv4 $(date -R)" -j ACCEPT
 
   # do not touch established connections

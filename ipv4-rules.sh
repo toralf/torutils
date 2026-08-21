@@ -176,13 +176,17 @@ function fill_trustlist() {
 function addServices() {
   local addr port service
 
-  # local-address:local-port
+  # local-address:local-port(s)
   for service in ${TORUTILS_LOCAL_SERVICES_V4-}; do
-    read -r addr port <<<$(tr ':' ' ' <<<$service)
+    read -r addr port <<<$(sed -e 's,:, ,' <<<$service)
     if [[ $addr == "0.0.0.0" ]]; then
       addr+="/0"
     fi
-    $ipt -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
+    if [[ $port =~ "," ]]; then
+      $ipt -A INPUT -p tcp --dst $addr -m multiport --dports $port -j ACCEPT
+    else
+      $ipt -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
+    fi
   done
 
   # remote-address>local-port

@@ -172,21 +172,21 @@ If the parsing of the Tor and/or the SSH config fails then overrule it by:
 
 Any command line argument takes precedence over the corresponding environment variable.
 
-Allow inbound traffic to additional \<address:port\> destinations by e.g.:
+Allow inbound traffic to additional \<address:port(s)\> destinations by e.g.:
 
 ```bash
-export TORUTILS_LOCAL_SERVICES="2.71.82.81:828 3.141.59.26:53"
-export TORUTILS_LOCAL_SERVICES6="[cafe::abba]:1234"
+export TORUTILS_LOCAL_SERVICES="2.71.82.81:828 3.14.159.26:53"
+export TORUTILS_LOCAL_SERVICES6="[cafe::abba]:1234 [cafe::abba]:443,8443:8449 [cafe::abba]:6000:6099"
 ```
 
-A slightly different syntax is used to allow inbound traffic from a remote ip to e.g. the local port 4711:
+A slightly different syntax is used to allow inbound traffic from the remote ip to e.g. the local port 4711:
 
 ```bash
 export TORUTILS_LOCAL_SERVICES="4.3.2.1>4711"
-export TORUTILS_LOCAL_SERVICES6="[cafe::abba]>4711"
+export TORUTILS_LOCAL_SERVICES6="[affe::dada]>4711"
 ```
 
-The separator `>` is used to highlight that the address part is _src_, but the port is _dst_).
+The separator `>` marks the address being _src_, whereas the port is still _dst_.
 
 ### Metrics
 
