@@ -10,6 +10,7 @@ Inbound circuit has 1250 cells in its queue, maximum allowed is 1250
 Outbound circuit has 1000 cells in its queue
 Received a bad CERTS cell
 Received too many RELAY_EARLY cells on circ
+Service descriptor has an invalid signature length.
 Single hop client was rejected while trying to introduce
 Somebody asked us for an older TLS authentication method
 Tried connecting to router at
