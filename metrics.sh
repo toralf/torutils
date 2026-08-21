@@ -20,25 +20,25 @@ function printMetricsIptables() {
   local tables4=$(iptables -nvx -L INPUT)
   local tables6=$(ip6tables -nvx -L INPUT)
 
-  local var
+  local var pkts
 
-  var="torutils_dropped_state_packets"
-  echo -e "# HELP $var Total number of dropped packets due to wrong TCP state\n# TYPE $var gauge"
+  var="torutils_dropped_packets_ctstate"
+  echo -e "# HELP $var Total number of dropped packets by ctstate\n# TYPE $var gauge"
 
   grep -E 'DROP .* ctstate (NEW|INVALID)' <<<$tables4 |
     awk '{ print $1, $NF }' |
-    while read -r pkts state; do
-      echo "$var{ipver=\"v4\",state=\"$state\"} $pkts"
+    while read -r pkts ctstate; do
+      echo "$var{ipver=\"v4\",ctstate=\"$ctstate\"} $pkts"
     done
 
   grep -E 'DROP .* ctstate (NEW|INVALID)' <<<$tables6 |
     awk '{ print $1, $NF }' |
-    while read -r pkts state; do
-      echo "$var{ipver=\"v6\",state=\"$state\"} $pkts"
+    while read -r pkts ctstate; do
+      echo "$var{ipver=\"v6\",ctstate=\"$ctstate\"} $pkts"
     done
 
-  var="torutils_dropped_ipset_packets"
-  echo -e "# HELP $var Total number of dropped packets by ipset\n# TYPE $var gauge"
+  var="torutils_dropped_packets_ddos"
+  echo -e "# HELP $var Total number of dropped packets by DDoS\n# TYPE $var gauge"
 
   cat <<<"$tables4
 $tables6" |
@@ -49,6 +49,15 @@ $tables6" |
       nickname=${NICKNAME:-$(_orport2nickname $orport)}
       echo "$var{nickname=\"$nickname\",ipver=\"$ipver\",netmask=\"$netmask\"} $pkts"
     done
+
+  var="torutils_dropped_packets_tarpit"
+  echo -e "# HELP $var Total number of dropped packets by tarpit\n# TYPE $var gauge"
+
+  pkts=$(grep " DROP .* match-set torutils-tarpit-v4" <<<$tables4 | awk '{ print $1 }')
+  echo "$var{ipver=\"v4\"} $pkts"
+
+  pkts=$(grep " DROP .* match-set torutils-tarpit-v6" <<<$tables6 | awk '{ print $1 }')
+  echo "$var{ipver=\"v6\"} $pkts"
 }
 
 function _histogram() {
