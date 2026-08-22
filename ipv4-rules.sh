@@ -123,8 +123,8 @@ function __create_ipset() {
     return 1
   fi
 
-  # if saved content was found then create a tmp one, fill it with saved content and swap
-  if [[ -s $tmpdir/$name ]]; then
+  # if a not outdated snapshot was found then create a tmp ipset, fill it with saved data and swap
+  if [[ -s $tmpdir/$name ]] && ((EPOCHSECONDS - $(stat -c %Z $tmpdir/$name) < 24 * 3600)); then
     {
       local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       ipset save $name | sed -e "s, $name , $name.tmp ," -e 's,^add,add -exist,' >$tmpfile
@@ -142,8 +142,9 @@ function saveDdosIpsets() {
   [[ -d $tmpdir ]] || return 1
 
   iptables -nvL INPUT |
-    grep 'match-set torutils-ddos-v' |
-    awk '{ print $13 }' |
+    grep -Eo "match-set torutils-(ddos|tarpit)-v.*" |
+    cut -f 2 -d ' ' |
+    sort -u |
     while read -r name; do
       tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
       if ipset list $name >$tmpfile; then
@@ -178,7 +179,7 @@ function addServices() {
 
   # local-address:local-port(s)
   for service in ${TORUTILS_LOCAL_SERVICES_V4-}; do
-    read -r addr port <<<$(sed -e 's,:, ,' <<<$service)
+    read -r addr port <<<${service/:/ }
     if [[ $addr == "0.0.0.0" ]]; then
       addr+="/0"
     fi
