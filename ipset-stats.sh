@@ -103,12 +103,12 @@ while getopts aAdDptT opt; do
   shift || true # OPTARG is optional
   case $opt in
   a) dumpIpset ${1:-tor-ddos-v4-443-32} | anonymiseIp ;;
-  A) dumpIpset ${1:-tor-ddos-v6-443-128} | anonymiseIp6 ;;
+  A) dumpIpset ${1:-tor-ddos-v6-443-64} | anonymiseIp6 ;;
   d) dumpIpset ${1:-tor-ddos-v4-443-32} ;;
-  D) dumpIpset ${1:-tor-ddos-v6-443-128} ;;
+  D) dumpIpset ${1:-tor-ddos-v6-443-64} ;;
   p) plotIpOccurrences $@ ;;
   t) plotTimeoutValues ${1:-tor-ddos-v4-443-32} ;;
-  T) plotTimeoutValues ${1:-tor-ddos-v6-443-128} ;;
+  T) plotTimeoutValues ${1:-tor-ddos-v6-443-64} ;;
   *)
     echo "unknown parameter '$opt'"
     exit 1
