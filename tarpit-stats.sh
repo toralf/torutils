@@ -9,10 +9,10 @@
 #   NETMASK=56 /opt/torutils/tarpit-stats.sh </var/tmp/torutils-tarpit-v6
 
 aggregate_ip() {
-    # input is <ip> timeout <int>
+  # input is <ip> timeout <int>
   cut -f 1 -d ' ' |
-  sort -u |
-  python3 -c "
+    sort -u |
+    python3 -c "
 import signal, sys, ipaddress
 from collections import Counter
 
@@ -47,5 +47,5 @@ set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-prefix="${NETMASK:-${1:-}}"
+prefix="${NETMASK:-${1-}}"
 aggregate_ip
