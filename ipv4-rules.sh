@@ -24,8 +24,8 @@ function addCommon() {
   done
 
   # tarpit
-  __create_ipset $tarpitlist "netmask $netmask maxelem $max timeout 86400"
-  $ipt -A INPUT -m set --match-set $tarpitlist src -j $jump
+  __create_ipset $tarpitset "netmask $netmask maxelem $max timeout 86400"
+  $ipt -A INPUT -m set --match-set $tarpitset src -j $jump
 
   # PMTUD
   $ipt -A INPUT -p icmp --icmp-type destination-unreachable -j ACCEPT
@@ -43,9 +43,9 @@ function addTor() {
 
   # rule 1 (trust Tor authorities) is ORPort independend
 
-  __create_ipset $trustlist
-  $ipt -A INPUT -p tcp -m set --match-set $trustlist src -j ACCEPT
-  fill_trustlist &
+  __create_ipset $trustset
+  $ipt -A INPUT -p tcp -m set --match-set $trustset src -j ACCEPT
+  fill_trustset &
 
   local hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-srcmask $netmask"
   local hashlimit_opts_2m="$hashlimit_opts --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000))"
@@ -58,16 +58,16 @@ function addTor() {
 
     # rule 2 (catch DDoS)
 
-    local ddoslist="torutils-ddos-v4-$orport-$netmask"
-    __create_ipset $ddoslist "netmask $netmask maxelem $max timeout 86400"
+    local ddosset="torutils-ddos-v4-$orport-$netmask"
+    __create_ipset $ddosset "netmask $netmask maxelem $max timeout 86400"
 
     $common \
-      -m hashlimit --hashlimit-name $ddoslist-2m $hashlimit_opts_2m \
-      -j SET --add-set $ddoslist src --exist
+      -m hashlimit --hashlimit-name $ddosset-2m $hashlimit_opts_2m \
+      -j SET --add-set $ddosset src --exist
     $common \
-      -m hashlimit --hashlimit-name $ddoslist-1h $hashlimit_opts_1h \
-      -j SET --add-set $ddoslist src --exist
-    $common -m set --match-set $ddoslist src -j $jump
+      -m hashlimit --hashlimit-name $ddosset-1h $hashlimit_opts_1h \
+      -j SET --add-set $ddosset src --exist
+    $common -m set --match-set $ddosset src -j $jump
 
     # rule 3 (only 1 connection from each of up to 8 Tor relays per ip address)
 
@@ -80,7 +80,7 @@ function addTor() {
 }
 
 function addTarpit() {
-  $ipt -A INPUT -p tcp -j SET --add-set $tarpitlist src --exist
+  $ipt -A INPUT -p tcp -j SET --add-set $tarpitset src --exist
 
   # default policy
   $ipt -P INPUT $jump
@@ -157,7 +157,7 @@ function saveDdosIpsets() {
     done
 }
 
-function fill_trustlist() {
+function fill_trustset() {
   (
     # snowflakes
     echo 141.212.118.18 193.187.88.42 193.187.88.43 193.187.88.44 193.187.88.45 193.187.88.46
@@ -171,7 +171,7 @@ function fill_trustlist() {
       fi
     fi
   ) |
-    xargs -r -n 1 -P $jobs ipset add -exist $trustlist
+    xargs -r -n 1 -P $jobs ipset add -exist $trustset
 }
 
 function addServices() {
@@ -291,9 +291,9 @@ umask 066
 trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
 type curl ipset jq >/dev/null
 
-jobs=$((1 + $(nproc) / 4))      # parallel jobs of adding ips to an ipset
-tarpitlist="torutils-tarpit-v4" # last rule or can be filled manually from outside
-trustlist="torutils-trust-v4"   # Tor authorities and snowflake servers
+jobs=$((1 + $(nproc) / 4))     # parallel jobs of adding ips to an ipset
+tarpitset="torutils-tarpit-v4" # last rule or can be filled manually from outside
+trustset="torutils-trust-v4"   # Tor authorities and snowflake servers
 
 # hashes and ipsets are sized with respect to RAM in GiB
 ram=$(awk '/MemTotal/ { print int ($2 / 1024 / 1024) }' /proc/meminfo)
@@ -328,7 +328,7 @@ stop)
   clearRules
   ;;
 update)
-  fill_trustlist
+  fill_trustset
   ;;
 test)
   ipset list -n >/dev/null
