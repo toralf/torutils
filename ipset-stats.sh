@@ -16,10 +16,14 @@ function anonymiseIp() {
     sed -e "s,\.[0-9]*$,.0/24,"
 }
 
+function v6Exploded() {
+  python3 -c 'import sys, ipaddress; [print(ipaddress.IPv6Address(line.strip()).exploded) for line in sys.stdin if line.strip()]'
+}
+
 # 1:2:3:4:5:6:7:8 -> 0001:0002:0003:0004::/64
 function anonymiseIp6() {
   awk '{ print $1 }' |
-    $(dirname $0)/expand_v6.py |
+    v6Exploded |
     cut -f 1-4 -d ':' |
     sed -e "s,$,::/64,"
 }
