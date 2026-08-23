@@ -24,7 +24,9 @@ function anonymiseIp6() {
     sed -e "s,$,::/64,"
 }
 
-# plot a histogram about ip address occurrences of an ipset dump file
+# plot a histogram about ip address occurrences given a couple of ipset dump files
+# e.g.:
+#   /opt/torutils/ipset-stats.sh -p /var/tmp/torutils-ddos-v4-*
 function plotIpOccurrences() {
   local files=$*
 
@@ -71,6 +73,9 @@ function plotIpOccurrences() {
   rm $tmpfile
 }
 
+# get historgram of timeout values from 1 ipset
+# e.g.:
+#   /opt/torutils/ipset-stats.sh -t torutils-tarpit-v4
 function plotTimeoutValues() {
   local tmpfile
   tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
