@@ -4,63 +4,45 @@
 
 # goal: print number of unique IPvx addresses per network block of tarpit set(s)
 
-# e.g.:
-#   NETMASK=24 MIN=9 ~/devel/torutils/tarpit-stats.sh ~/tmp/tor-relays/fw/*/torutils-tarpit-v4 | tail -n 40
-#   NETMASK=64 /opt/torutils/tarpit-stats.sh /var/tmp/torutils-tarpit-v6
+# call:
+#   NETMASK=22 /opt/torutils/tarpit-stats.sh </var/tmp/torutils-tarpit-v4 | head
+#   NETMASK=32 ~/devel/torutils/tarpit-stats.sh < <(cat ~/tmp/tor-relays/fw/*/torutils-tarpit-v6) | head -n 40
 
-#!/bin/bash
+aggregate_ip() {
+  python3 -c "
+import signal, sys, ipaddress
+from collections import Counter
 
-function v6Exploded() {
-  python3 -c 'import sys, ipaddress; [print(ipaddress.IPv6Address(line.strip()).exploded) for line in sys.stdin if line.strip()]'
-}
+signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
-function v6Network() {
-  python3 -c 'import sys, ipaddress; [print(f"{int(p[0]):7} {ipaddress.v6Network(p[1], strict=False).with_prefixlen}") for line in sys.stdin if (p := line.strip().split()) and len(p) == 2]'
+user_prefix = '$prefix'
+counter = Counter()
+
+for line in sys.stdin:
+    if not line.strip():
+        continue
+
+    parts = line.strip().split()
+    if parts:
+        ip_obj = ipaddress.ip_address(parts[0])
+
+        # defaults (24 for IPv4, 48 for IPv6)
+        if user_prefix:
+            p = int(user_prefix)
+        else:
+            p = 24 if ip_obj.version == 4 else 48
+
+        net = ipaddress.ip_network(f'{parts[0]}/{p}', strict=False).compressed
+        counter[net] += 1
+
+for net, count in counter.most_common():
+    print(f'{count:7} {net}')
+"
 }
 
 set -euf
 export LANG=C.utf8
-export PATH=/usr/sbin:/usr/bin:/sbin/:/bin:~/bin
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-[[ $# -gt 0 ]]
-
-if grep -q ':' $1; then
-  netmask=${NETMASK:-48}
-  ip_v=6
-elif grep -qF '.' $1; then
-  netmask=${NETMASK:-16}
-  ip_v=4
-else
-  exit 2
-fi
-
-cut -f 1 -d ' ' $@ |
-  if [[ $ip_v == 6 ]]; then
-    v6Exploded
-  else
-    grep .
-  fi |
-  sort |
-  # same address must be in at least than x sets
-  uniq -c | awk '{ if ($1 >= '${MIN:-1}') { print $2 } }' |
-  if [[ $ip_v == 4 ]]; then
-    # IPv4 block
-    if ((netmask == 24)); then
-      grep -Eo "^[0-9]+\.[0-9]+\.[0-9]+" | sed -e 's,$,.0/24,'
-    else
-      grep -Eo "^[0-9]+\.[0-9]+" | sed -e 's,$,.0.0/16,'
-    fi
-  elif [[ $ip_v == 6 ]]; then
-    # IPv6 block
-    if ((netmask == 64)); then
-      grep -Eo "^[0-9a-f]+:[0-9a-f]+:[0-9a-f]*:[0-9a-f]*" | sed -e 's,[:]*$,::/64,'
-    else
-      grep -Eo "^[0-9a-f]+:[0-9a-f]+:[0-9a-f]*" | sed -e 's,[:]*$,::/48,'
-    fi
-  fi |
-  uniq -c | sort -bn |
-  if [[ $ip_v == 6 ]]; then
-    v6Network
-  else
-    grep .
-  fi
+prefix="${NETMASK:-$1}"
+aggregate_ip
