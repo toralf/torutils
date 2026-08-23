@@ -5,10 +5,13 @@
 # goal: print number of unique IPvx addresses per network block of tarpit set(s)
 
 # call:
-#   cut -f 1 -d ' ' ~/tmp/tor-relays/fw/*/torutils-tarpit-v4 | sort -u | NETMASK=24 ~/devel/torutils/tarpit-stats.sh | head -n 40
-#   cut -f 1 -d ' ' /var/tmp/torutils-tarpit-v6 | sort -u | NETMASK=56 /opt/torutils/tarpit-stats.sh
+#   cat ~/tmp/tor-relays/fw/*/torutils-tarpit-v4 | NETMASK=16 ~/devel/torutils/tarpit-stats.sh | head -n 40
+#   NETMASK=56 /opt/torutils/tarpit-stats.sh </var/tmp/torutils-tarpit-v6
 
 aggregate_ip() {
+    # input is <ip> timeout <int>
+  cut -f 1 -d ' ' |
+  sort -u |
   python3 -c "
 import signal, sys, ipaddress
 from collections import Counter
@@ -44,5 +47,5 @@ set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-prefix="${NETMASK:-$1}"
+prefix="${NETMASK:-${1:-}}"
 aggregate_ip
