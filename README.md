@@ -111,7 +111,8 @@ Create cron jobs, e.g.:
 # DDoS prevention
 @reboot /root/ipv4-rules.sh start; /root/ipv6-rules.sh start
 
-# have recent ipset data after a reboot available
+# best is to do this only once immediately before reboot to have a recent ipset after the reboot available
+# e.g. https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/tasks/firewall-tor.yaml#L109
 @hourly /root/ipv4-rules.sh save; /root/ipv6-rules.sh save
 
 # update Tor authority list
