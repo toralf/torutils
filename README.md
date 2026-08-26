@@ -111,10 +111,6 @@ Create cron jobs, e.g.:
 # DDoS prevention
 @reboot /root/ipv4-rules.sh start; /root/ipv6-rules.sh start
 
-# best is to do this only once immediately before reboot to have a recent ipset after the reboot available
-# e.g. https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/tasks/firewall-tor.yaml#L109
-@hourly /root/ipv4-rules.sh save; /root/ipv6-rules.sh save
-
 # update Tor authority list
 @daily  /root/ipv4-rules.sh update; /root/ipv6-rules.sh update
 
@@ -122,7 +118,7 @@ Create cron jobs, e.g.:
 0" /root/ipv4-rules-egress.sh start
 ```
 
-Ensure that the package _iptables-persistent_ is either de-installed or disabled.
+Persist the ipsets during reboot, e.g. like [here](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/tasks/firewall.yaml#L21).
 
 ### Example
 
