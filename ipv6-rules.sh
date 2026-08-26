@@ -153,7 +153,7 @@ function __create_ipset() {
   fi
 }
 
-function saveDdosIpsets() {
+function saveIpsets() {
   [[ -d $tmpdir ]] || return 1
 
   ip6tables -nvL INPUT |
@@ -329,7 +329,7 @@ test)
   TORUTILS_SAVE_RUN="ACCEPT" $0 start $*
   ;;
 save)
-  saveDdosIpsets
+  saveIpsets
   ;;
 *)
   printRuleStatistics
