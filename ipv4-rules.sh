@@ -283,9 +283,6 @@ start)
 stop)
   clearRules
   ;;
-update)
-  fill_trustset
-  ;;
 test)
   ipset list -n >/dev/null
   TORUTILS_SAVE_RUN="ACCEPT" $0 start $*
