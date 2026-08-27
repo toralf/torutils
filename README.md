@@ -111,9 +111,6 @@ Create cron jobs, e.g.:
 # DDoS prevention
 @reboot /root/ipv4-rules.sh start; /root/ipv6-rules.sh start
 
-# update Tor authority list
-@daily  /root/ipv4-rules.sh update; /root/ipv6-rules.sh update
-
 # slew Tor egress to subnets which are known being the source of abuse complaints
 0" /root/ipv4-rules-egress.sh start
 ```
