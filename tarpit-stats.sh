@@ -9,9 +9,6 @@
 #   NETMASK=56 /opt/torutils/tarpit-stats.sh </var/tmp/torutils-tarpit-v6
 
 aggregate_ip() {
-  # input is <ip> timeout <int>
-  cut -f 1 -d ' ' |
-    sort -u |
     python3 -c "
 import signal, sys, ipaddress
 from collections import Counter
