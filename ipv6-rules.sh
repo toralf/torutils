@@ -122,54 +122,17 @@ function __create_ipset() {
   local family="inet6"
   local cmd="ipset create -exist $name hash:ip ${2-} family $family"
 
-  if ipset list -t $name &>/dev/null; then
-    if $cmd 2>/dev/null; then
-      return 0
-    fi
-
-    # will fail if in use
-    if ! ipset destroy $name; then
-      return 1
-    fi
+  if $cmd 2>/dev/null; then
+    return 0
   fi
 
-  # create it
-  if ! $cmd 2>/dev/null; then
+  if ! ipset destroy $name; then
     return 1
   fi
 
-  # if a not outdated snapshot was found then create a tmp ipset, fill it with saved data and swap
-  if [[ -s $tmpdir/$name ]] && ((EPOCHSECONDS - $(stat -c %Z $tmpdir/$name) < 24 * 3600)); then
-    {
-      local tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
-      ipset save $name | sed -e "s, $name , $name.tmp ," -e 's,^add,add -exist,' >$tmpfile
-      xargs -r -L 1 echo "add -exist $name.tmp" <$tmpdir/$name >>$tmpfile
-      ipset destroy $name.tmp &>/dev/null || true
-      ipset restore <$tmpfile
-      ipset swap $name $name.tmp
-      ipset destroy $name.tmp
-      rm $tmpfile
-    } &
+  if ! $cmd 2>/dev/null; then
+    return 1
   fi
-}
-
-function saveIpsets() {
-  [[ -d $tmpdir ]] || return 1
-
-  ip6tables -nvL INPUT |
-    grep -Eo "match-set torutils-(ddos|tarpit)-v.*" |
-    cut -f 2 -d ' ' |
-    sort -u |
-    while read -r name; do
-      tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
-      if ipset list $name >$tmpfile; then
-        if sed -i -e '1,8d' $tmpfile; then
-          rm -f $tmpdir/$name
-          mv $tmpfile $tmpdir/$name
-        fi
-      fi
-      rm -f $tmpfile
-    done
 }
 
 function fill_trustset() {
@@ -303,7 +266,6 @@ else
 fi
 netmask=${TORUTILS_NETMASK_V6:-64}
 
-tmpdir=${TORUTILS_TMPDIR:-/var/tmp}
 ipt="ip6tables"
 
 action=${1-}
@@ -329,9 +291,6 @@ update)
 test)
   ipset list -n >/dev/null
   TORUTILS_SAVE_RUN="ACCEPT" $0 start $*
-  ;;
-save)
-  saveIpsets
   ;;
 *)
   printRuleStatistics
