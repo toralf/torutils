@@ -45,7 +45,7 @@ function addTor() {
 
   __create_ipset $trustset
   $ipt -A INPUT -p tcp -m set --match-set $trustset src -j ACCEPT
-  fill_trustset &
+  fill_trustset
 
   local hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-srcmask $netmask"
   local hashlimit_opts_2m="$hashlimit_opts --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000))"
@@ -166,13 +166,11 @@ function addHetzner() {
   local sysmon="torutils-hetznersysmon-v4"
   __create_ipset $sysmon
   $ipt -A INPUT -m set --match-set $sysmon src -j ACCEPT
-  {
-    (
-      echo 188.40.24.211 213.133.113.82 213.133.113.83 213.133.113.84 213.133.113.86
-      getent ahostsv4 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u
-    ) |
-      xargs -r -n 1 -P $jobs ipset add -exist $sysmon
-  } &
+  (
+    echo 188.40.24.211 213.133.113.82 213.133.113.83 213.133.113.84 213.133.113.86
+    getent ahostsv4 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u
+  ) |
+    xargs -r -n 1 -P $jobs ipset add -exist $sysmon
 }
 
 function setSysctlValues() {
@@ -240,13 +238,12 @@ function bailOut() {
 
 #######################################################################
 set -eu # no -f
-set -m  # allow fg in shell scripts
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 umask 066
 trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
-type curl ipset jq >/dev/null
+type curl host ipset jq >/dev/null
 
 jobs=$((1 + $(nproc) / 4))     # parallel jobs of adding ips to an ipset
 tarpitset="torutils-tarpit-v4" # last rule or can be filled manually from outside
@@ -291,8 +288,3 @@ test)
   printRuleStatistics
   ;;
 esac
-
-# wait till all bg jobs finished
-while fg &>/dev/null; do
-  :
-done

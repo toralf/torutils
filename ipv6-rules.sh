@@ -60,7 +60,7 @@ function addTor() {
 
   __create_ipset $trustset
   $ipt -A INPUT -p tcp -m set --match-set $trustset src -j ACCEPT
-  fill_trustset &
+  fill_trustset
 
   local hashlimit_opts="--hashlimit-mode srcip,dstport --hashlimit-htable-max $max --hashlimit-htable-size $((max / 4)) --hashlimit-srcmask $netmask"
   local hashlimit_opts_2m="$hashlimit_opts --hashlimit-above 8/minute --hashlimit-burst 8 --hashlimit-htable-expire $((2 * 60 * 1000))"
@@ -179,16 +179,13 @@ function addHetzner() {
   fi
 
   local sysmon="torutils-hetznersysmon-v6"
-
   __create_ipset $sysmon
   $ipt -A INPUT -m set --match-set $sysmon src -j ACCEPT
-  {
-    (
-      echo 2a01:4f8:0:a101::5:1 2a01:4f8:0:a101::6:1 2a01:4f8:0:a101::6:2 2a01:4f8:0:a101::6:3 2a01:4f8:0:a112::c:1
-      getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u
-    ) |
-      xargs -r -n 1 -P $jobs ipset add -exist $sysmon
-  } &
+  (
+    echo 2a01:4f8:0:a101::5:1 2a01:4f8:0:a101::6:1 2a01:4f8:0:a101::6:2 2a01:4f8:0:a101::6:3 2a01:4f8:0:a112::c:1
+    getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u
+  ) |
+    xargs -r -n 1 -P $jobs ipset add -exist $sysmon
 }
 
 function clearRules() {
@@ -234,13 +231,12 @@ function bailOut() {
 
 #######################################################################
 set -eu # no -f
-set -m  # allow fg in shell scripts
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 umask 066
 trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
-type curl ipset jq >/dev/null
+type curl host ipset jq >/dev/null
 
 jobs=$((1 + $(nproc) / 4))     # parallel jobs of adding ips to an ipset
 tarpitset="torutils-tarpit-v6" # last rule or can be filled manually from outside
@@ -284,8 +280,3 @@ test)
   printRuleStatistics
   ;;
 esac
-
-# wait till all bg jobs finished
-while fg &>/dev/null; do
-  :
-done
