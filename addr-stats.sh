@@ -9,7 +9,7 @@
 #   cut -f 1 -d ' ' /var/tmp/torutils-tarpit-v6 | sort -u | NETMASK=56 /opt/torutils/addr-stats.sh
 
 aggregate_ip() {
-    python3 -c "
+  python3 -c "
 import signal, sys, ipaddress
 from collections import Counter
 

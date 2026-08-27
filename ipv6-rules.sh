@@ -179,6 +179,8 @@ function fill_trustset() {
     # Tor authorities
     echo 2001:470:164:2::2 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2610:1c0:0:5::131 2620:13:4000:6000::1000:118 2a02:16a8:662:2203::1
     getent ahostsv6 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }' | sort -uV
+
+    # happens rarely but authority addresses are subject of change
     if relays=$(curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o -); then
       if [[ $relays =~ 'relays_published' ]]; then
         jq -r '.relays[] | .a | select(length > 1) | .[1:]' <<<$relays |
