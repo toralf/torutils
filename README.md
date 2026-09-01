@@ -28,11 +28,11 @@ Further considerations:
 
 ### Quick start
 
-Install _jq_, _ipset_ and _iptables_, e.g. for Debian OS family use _apt_:
+Install _ipset_ and _iptables_, e.g. for Debian OS family:
 
 ```bash
 sudo apt update
-sudo apt install -y jq ipset iptables
+sudo apt install -y ipset iptables
 ```
 
 Get the scripts
@@ -50,7 +50,7 @@ sudo /usr/sbin/iptables-save >./rules.v4
 sudo /usr/sbin/ip6tables-save >./rules.v6
 ```
 
-Run the scripts in dry-run mode:
+Start the scripts in dry-run mode:
 
 ```bash
 sudo ./ipv4-rules.sh test
@@ -58,14 +58,14 @@ sudo ./ipv6-rules.sh test
 ```
 
 Restart Tor.
-Check that your ssh login and other services do work.
-Watch the rules stats e.g. for IPv4
+Check that your ssh login and all other services work as expected.
+Watch the rules stats, e.g. for IPv4
 
 ```bash
 sudo watch ./ipv4-rules.sh
 ```
 
-If something looks wrong then restore the backuped state:
+If something looks odd then restore the backuped state:
 
 ```bash
 sudo ./ipv4-rules.sh stop
@@ -74,14 +74,14 @@ sudo /usr/sbin/iptables-restore <./rules.v4
 sudo /usr/sbin/ip6tables-restore <./rules.v6
 ```
 
-Otherwise run the scripts with the parameter `start`:
+Otherwise run both scripts with the parameter `start`:
 
 ```bash
 sudo ./ipv4-rules.sh start
 sudo ./ipv6-rules.sh start
 ```
 
-and [persist](#persist-the-solution) them.
+and [persist](#persist-the-solution) it.
 
 ### The Rule Set
 
@@ -117,7 +117,7 @@ Create cron jobs, e.g.:
 
 Persist the ipsets during reboot, e.g. like [here](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/tasks/firewall.yaml#L21).
 
-### Example
+### Iptables example
 
 Result for IPv4 of the relay [i32](https://metrics.torproject.org/rs.html#details/4356DDFC83F8335E2AF395D5EA4CA28CC9E57C58):
 
@@ -279,7 +279,7 @@ days=$((seconds / 86400))
 [[ $days -lt 23 ]] && echo "Tor signing key expires in less than $days day(s)"
 ```
 
-If Tor metrics are enabled then this 1-liner does a similar job (replace `9052` with the metrics port):
+If Tor metrics are enabled then this 1-liner does a similar job (replace `9052` with your metrics port):
 
 ```bash
 date -d@$(curl -s localhost:9052/metrics | grep "^tor_relay_signing_cert_expiry_timestamp" | awk '{ print $2 }')
@@ -295,13 +295,7 @@ ControlPort 127.0.0.1:9051
 ```
 
 The python library [Stem](https://stem.torproject.org/index.html) is needed.
-Install it either by your package manager, e.g. for Ubuntu:
-
-```bash
-sudo apt install python3-stem
-```
-
--or- (better) use the more recent git sources, e.g.:
+Clone and use it:
 
 ```bash
 git clone https://github.com/torproject/stem.git
