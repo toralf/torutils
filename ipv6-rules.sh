@@ -236,7 +236,7 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 umask 066
 trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
-type curl host ipset jq >/dev/null
+type curl host ipset >/dev/null
 
 jobs=$((1 + $(nproc) / 4))     # parallel jobs of adding ips to an ipset
 tarpitset="torutils-tarpit-v6" # last rule or can be filled manually from outside
