@@ -80,7 +80,7 @@ function addTor() {
 }
 
 function addTarpit() {
-  $ipt -A INPUT -p tcp -j SET --add-set $tarpitset src --exist
+  $ipt -A INPUT -p tcp --syn -j SET --add-set $tarpitset src --exist
 
   # default policy
   $ipt -P INPUT $jump
