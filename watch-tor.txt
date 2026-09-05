@@ -21,6 +21,7 @@ Your log may contain sensitive information
 #################### ignoreable notices and warnings
 connection_edge_process_relay_cell (at origin) failed.
 Detected possible compression bomb with input size
+FamilyId was configured, but MyFamily was not.
 Sudden decrease in circuit RTT
 Unable to decompress HTTP body
 Unable to send INTRODUCE2 cell to the service.
