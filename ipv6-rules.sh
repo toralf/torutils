@@ -135,15 +135,16 @@ function __create_ipset() {
   fi
 }
 
+# curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - | jq -cr '.relays[].a' | sort -V
+# getent ahostsv6 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }' | sort -uV
 function fill_trustset() {
   (
     # snowflakes
     echo 2a0c:dd40:1:b::42 2607:f018:600:8:be30:5bff:fef1:c6fa
     # Tor authorities
     echo 2001:470:164:2::2 2001:638:a000:4140::ffff:189 2001:678:558:1000::244 2001:67c:289c::9 2610:1c0:0:5::131 2620:13:4000:6000::1000:118 2a02:16a8:662:2203::1
-    getent ahostsv6 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }' | sort -uV
   ) |
-    xargs -r -n 1 -P $jobs ipset add -exist $trustset
+    xargs -r -n 1 ipset add -exist $trustset
 }
 
 function addServices() {
@@ -185,7 +186,7 @@ function addHetzner() {
     echo 2a01:4f8:0:a101::5:1 2a01:4f8:0:a101::6:1 2a01:4f8:0:a101::6:2 2a01:4f8:0:a101::6:3 2a01:4f8:0:a112::c:1
     getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u
   ) |
-    xargs -r -n 1 -P $jobs ipset add -exist $sysmon
+    xargs -r -n 1 ipset add -exist $sysmon
 }
 
 function clearRules() {
@@ -238,7 +239,6 @@ umask 066
 trap '[[ $? -ne 0 ]] && echo "$0 $* unsuccessful" >&2' INT QUIT TERM EXIT
 type curl host ipset >/dev/null
 
-jobs=$((1 + $(nproc) / 4))     # parallel jobs of adding ips to an ipset
 tarpitset="torutils-tarpit-v6" # last rule or can be filled manually from outside
 trustset="torutils-trust-v6"   # Tor authorities and snowflake servers
 
