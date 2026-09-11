@@ -184,7 +184,7 @@ function addHetzner() {
   $ipt -A INPUT -m set --match-set $sysmon src -j ACCEPT
   (
     echo 2a01:4f8:0:a101::5:1 2a01:4f8:0:a101::6:1 2a01:4f8:0:a101::6:2 2a01:4f8:0:a101::6:3 2a01:4f8:0:a112::c:1
-    getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -u
+    getent ahostsv6 pool.sysmon.hetzner.com | awk '{ print $1 }' | sort -uV
   ) |
     xargs -r -n 1 ipset add -exist $sysmon
 }
