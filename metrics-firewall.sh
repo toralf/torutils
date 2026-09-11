@@ -83,9 +83,6 @@ while :; do
                 nft -j -ns list set $family $table $set |
                   jq '.nftables[].set.elem // [] | length'
               )
-            if ((n > 0)); then
-              n=$((n - 8))
-            fi
             echo "$var{family=\"$family\",table=\"$table\",resource=\"$resource\",ipver=\"${ipver:-x}\",ext=\"${ext:-x}\"} $n"
           done
       done
