@@ -63,7 +63,7 @@ while :; do
                 grep -E "^\s+packets .* bytes .*" |
                 awk '{ print $2 }'
             )
-            echo "$var{family=\"$family\",table=\"$table\",resource=\"$resource\",ipver=\"$ipver\",ext=\"ext\"} $packets"
+            echo "$var{family=\"$family\",table=\"$table\",resource=\"$resource\",ipver=\"$ipver\",ext=\"$ext\"} $packets"
           done
       done
 
