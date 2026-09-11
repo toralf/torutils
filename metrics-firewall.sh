@@ -9,7 +9,7 @@ set -euf
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-type nft >/dev/null
+type jq nft >/dev/null
 
 if [[ $# -ne 2 ]]; then
   echo "2 args are expected" >&2
@@ -80,10 +80,8 @@ while :; do
           while read -r set; do
             IFS='_' read -r resource ipver ext <<<$set
             n=$(
-                nft -ns list set $family $table $set |
-                  awk '/elements = \{/,/\}/' |
-                  tr -cd ',}' |
-                  wc -c
+                nft -j -ns list set $family $table $set |
+                  jq '.nftables[].set.elem // [] | length'
               )
             if ((n > 0)); then
               n=$((n - 8))
