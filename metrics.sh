@@ -43,7 +43,7 @@ function printMetricsIptables() {
   cat <<<"$tables4
 $tables6" |
     grep " DROP .* match-set torutils-ddos-v" |
-    awk '{ print $1, $13 }' |
+    awk '{ print $1, $14 }' |
     while read -r pkts name; do
       read -r ipver orport netmask < <(cut -f 3-5 -d '-' -s <<<$name | tr '-' ' ')
       nickname=${NICKNAME:-$(_orport2nickname $orport)}
@@ -103,7 +103,7 @@ function printMetricsIpsets() {
       ip6tables -nvL INPUT
     } |
       grep 'match-set torutils-ddos-v' |
-      awk '{ print $13 }'
+      awk '{ print $14 }'
   )
 
   xargs -r -n 1 <<<$names |
