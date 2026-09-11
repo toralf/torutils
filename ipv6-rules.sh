@@ -20,7 +20,7 @@ function addCommon() {
   local addr=$(grep -E "^ListenAddress\s+.*:.*:.*$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
   local port=$(grep -m 1 -E "^Port\s+[[:digit:]]+$" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{ print $2 }')
   for i in ${addr:-"::/0"}; do
-    $ipt -A INPUT -p tcp --dst $i --dport ${port:-22} -j ACCEPT
+    $ipt -A INPUT -p tcp --syn --dst $i --dport ${port:-22} -j ACCEPT
   done
 
   # tarpit
@@ -69,7 +69,7 @@ function addTor() {
   # run over all <relay, orport> tuples
   for relay in $(xargs -n 1 <<<$* | awk '{ if (x[$1]++) print "duplicate", $1 >"/dev/stderr"; else print $1 }'); do
     relay_2_ip_and_port
-    local common="$ipt -A INPUT -p tcp --dst $orip --dport $orport"
+    local common="$ipt -A INPUT -p tcp --syn --dst $orip --dport $orport"
 
     # rule 2 (catch DDoS)
 
@@ -157,9 +157,9 @@ function addServices() {
       addr+="/0"
     fi
     if [[ $port =~ "," ]]; then
-      $ipt -A INPUT -p tcp --dst $addr -m multiport --dports $port -j ACCEPT
+      $ipt -A INPUT -p tcp --syn --dst $addr -m multiport --dports $port -j ACCEPT
     else
-      $ipt -A INPUT -p tcp --dst $addr --dport $port -j ACCEPT
+      $ipt -A INPUT -p tcp --syn --dst $addr --dport $port -j ACCEPT
     fi
   done
 
@@ -169,7 +169,7 @@ function addServices() {
     if [[ $addr == "::" ]]; then
       addr+="/0"
     fi
-    $ipt -A INPUT -p tcp --src $addr --dport $port -j ACCEPT
+    $ipt -A INPUT -p tcp --syn --src $addr --dport $port -j ACCEPT
   done
 }
 
