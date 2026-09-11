@@ -63,7 +63,7 @@ while :; do
                 grep -E "^\s+packets .* bytes .*" |
                 awk '{ print $2 }'
             )
-            echo "$var{family=\"$family\",table=\"$table\",resource=\"$resource\",ipver=\"$ipver\",ext=\"$ext\"} $packets"
+            echo "$var{family=\"$family\",table=\"$table\",resource=\"$resource\",ipver=\"${ipver:-x}\",ext=\"${ext:-x}\"} $packets"
           done
       done
 
@@ -83,7 +83,7 @@ while :; do
                 nft -j -ns list set $family $table $set |
                   jq '.nftables[].set.elem // [] | length'
               )
-            echo "$var{family=\"$family\",table=\"$table\",resource=\"$resource\",ipver=\"$ipver\",ext=\"$ext\"} $n"
+            echo "$var{family=\"$family\",table=\"$table\",resource=\"$resource\",ipver=\"${ipver:-x}\",ext=\"${ext:-x}\"} $n"
           done
       done
   } >$tmpfile
