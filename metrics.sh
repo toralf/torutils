@@ -169,7 +169,7 @@ if [[ -s $lockfile ]]; then
   if kill -0 $pid &>/dev/null; then
     exit 0
   else
-    echo "ignore lock file, pid=$pid" >&2
+    echo "stale lock file, pid=$pid" >&2
   fi
 fi
 echo $$ >"$lockfile"

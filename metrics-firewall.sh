@@ -34,7 +34,7 @@ if [[ -s $lockfile ]]; then
   if kill -0 $pid &>/dev/null; then
     exit 0
   else
-    echo "ignore lock file, pid=$pid" >&2
+    echo "stale lock file, pid=$pid" >&2
   fi
 fi
 echo $$ >"$lockfile"
@@ -46,7 +46,7 @@ while :; do
 
   tmpfile=$(mktemp /$(basename $0)_XXXXXX.tmp)
   {
-    # counters
+    # -------- counters
     var="firewall_counter_packets"
     echo -e "# HELP $var nftables named counter\n# TYPE $var gauge"
 
@@ -67,7 +67,7 @@ while :; do
           done
       done
 
-    # sets
+    # --------  sets
     var="firewall_set_size"
     echo -e "# HELP $var nftables set size\n# TYPE $var gauge"
 
