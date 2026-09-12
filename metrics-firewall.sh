@@ -72,29 +72,27 @@ while :; do
       done
 
     # set query is too expensive for large sets at tiny systems
-    if ! ((++i % nth)); then
-      continue
+    if ((++i % nth == 0)); then
+      var="firewall_set_size"
+      echo -e "# HELP $var nftables set size\n# TYPE $var gauge"
+
+      # shellcheck disable=SC2034
+      nft -s list tables |
+        while read -r keyword family table; do
+          nft -st list sets $family $table |
+            grep -E "^\s+set .* {" |
+            awk '{ print $2 }' |
+            while read -r set; do
+              IFS='_' read -r resource ipver ext <<<$set
+              n=$(
+                nft -j -ns list set $family $table $set |
+                  jq '.nftables[].set.elem // [] | length'
+              )
+              echo "$var{family=\"$family\",table=\"$table\",resource=\"$resource\",ipver=\"${ipver:-x}\",ext=\"${ext:-x}\"} $n"
+            done
+        done
     fi
 
-    # --------  sets
-    var="firewall_set_size"
-    echo -e "# HELP $var nftables set size\n# TYPE $var gauge"
-
-    # shellcheck disable=SC2034
-    nft -s list tables |
-      while read -r keyword family table; do
-        nft -st list sets $family $table |
-          grep -E "^\s+set .* {" |
-          awk '{ print $2 }' |
-          while read -r set; do
-            IFS='_' read -r resource ipver ext <<<$set
-            n=$(
-              nft -j -ns list set $family $table $set |
-                jq '.nftables[].set.elem // [] | length'
-            )
-            echo "$var{family=\"$family\",table=\"$table\",resource=\"$resource\",ipver=\"${ipver:-x}\",ext=\"${ext:-x}\"} $n"
-          done
-      done
   } >$tmpfile
   chmod a+r $tmpfile
   mv $tmpfile $promfile
