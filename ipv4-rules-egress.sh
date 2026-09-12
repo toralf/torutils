@@ -46,6 +46,6 @@ if [[ ${1-} == "start" ]]; then
     # $ipt -A OUTPUT -p tcp --dst $net/${mask:-22} -j LOG
 
     # allow 1/6 immediately, then reject all above > 1/6 per minute, so after 4 minutes at max 5/6 of the limit is reached
-    $ipt -A OUTPUT -p tcp --dst $net/${mask:-22} -m conntrack --ctstate NEW -m hashlimit --hashlimit-name tor-egress --hashlimit-mode dstip,dstport --hashlimit-dstmask ${mask:-22} --hashlimit-above $limit/minute --hashlimit-burst $limit -j REJECT
+    $ipt -A OUTPUT -p tcp --dst $net/${mask:-22} -m conntrack --ctstate NEW -m hashlimit --hashlimit-name tor-egress --hashlimit-mode dstip,dstport --hashlimit-dstmask ${mask:-22} --hashlimit-above $limit/minute --hashlimit-burst $limit --hashlimit-htable-expire $((10 * 60 * 1000)) -j REJECT
   done
 fi
