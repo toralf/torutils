@@ -41,8 +41,12 @@ echo $$ >"$lockfile"
 
 trap 'rm -f $lockfile $promfile' INT QUIT TERM EXIT
 
+i=0   # counter
+nth=1 # scrape expensive data structures only every n-th time
+
 while :; do
   now=$EPOCHSECONDS
+  ((++i))
 
   tmpfile=$(mktemp /$(basename $0)_XXXXXX.tmp)
   {
@@ -67,6 +71,11 @@ while :; do
           done
       done
 
+    # set query is too expensive for large sets at tiny systems
+    if ! ((++i % nth)); then
+      continue
+    fi
+
     # --------  sets
     var="firewall_set_size"
     echo -e "# HELP $var nftables set size\n# TYPE $var gauge"
@@ -80,9 +89,9 @@ while :; do
           while read -r set; do
             IFS='_' read -r resource ipver ext <<<$set
             n=$(
-                nft -j -ns list set $family $table $set |
-                  jq '.nftables[].set.elem // [] | length'
-              )
+              nft -j -ns list set $family $table $set |
+                jq '.nftables[].set.elem // [] | length'
+            )
             echo "$var{family=\"$family\",table=\"$table\",resource=\"$resource\",ipver=\"${ipver:-x}\",ext=\"${ext:-x}\"} $n"
           done
       done
@@ -94,7 +103,15 @@ while :; do
     break
   fi
   diff=$((EPOCHSECONDS - now))
+  # adjust the scrape intervall if needed and sleep if possible
   if ((diff < intervall)); then
+    if ((nth > 1)); then
+      ((nth--))
+    fi
     sleep $((intervall - diff))
+  else
+    if ((nth < 16)); then
+      ((++nth))
+    fi
   fi
 done
