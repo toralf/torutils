@@ -106,7 +106,7 @@ For more Tor at the same ip address, Snowflake, to open more port(s), trust more
 ```
 
 respectively.
-The netmask both for IPv4 and IPv6 can be overwritten.
+The netmask both for IPv4 and IPv6 can be overwritten too.
 
 ### More DDoS examples
 
@@ -209,7 +209,7 @@ date -d@$(curl -s localhost:9052/metrics | grep "^tor_relay_signing_cert_expiry_
 
 ## Search logs for pre-defined text patterns
 
-The script [watch.sh](./tools/watch.sh) helps to constantly monitor the host and Tor log files.
+The script [watch.sh](./tools/watch.sh) helps to constantly monitor host and Tor logs.
 It sends findings via _mailx_.
 
 ```bash
@@ -223,7 +223,7 @@ log=/tmp/${0##*/}.log
 
 # Participation
 
-I appreciate reports via the [issue](https://github.com/toralf/torutils/issues) tracker.
+Please file issues at [this](https://github.com/toralf/torutils/issues) issue tracker.
 
 # More
 
