@@ -52,8 +52,9 @@ while :; do
         echo "$var{family=\"$family\",table=\"$table\",resource=\"$resource\",ipver=\"${ipver:-x}\",ext=\"${ext:-x}\"} $packets"
       done
 
-    # query a set might be to expensive for large sets at tiny systems under certain load conditions
-    if ((++i % nth == 0)); then
+    # -------- sets
+    # query might become too expensive for short $intervall values under certain load conditions
+    if ((nth == 1 || ++i % nth == 0)); then
       var="firewall_set_size"
       echo -e "# HELP $var nftables set size\n# TYPE $var gauge"
 
@@ -68,7 +69,6 @@ while :; do
           echo "$var{family=\"$family\",table=\"$table\",resource=\"$resource\",ipver=\"${ipver:-x}\",ext=\"${ext:-x}\"} $n"
         done
     fi
-
   } >$tmpfile
 
   if [[ -n $promfile ]]; then
@@ -82,7 +82,7 @@ while :; do
     break
   fi
   diff=$((EPOCHSECONDS - now))
-  # adjust the scrape intervall if needed and sleep if possible
+  # adjust the scrape intervall if needed, sleep if possible
   if ((diff < intervall)); then
     if ((nth > 1)); then
       ((nth--))
