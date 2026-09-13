@@ -128,7 +128,7 @@ Look [here](./misc/README.md) for details.
 
 ### Relay summary
 
-[info.py](./info.py) gives a summary of all Tor related TCP connections, e.g.:
+[info.py](./tools/info.py) gives a summary of all Tor related TCP connections, e.g.:
 
 ```console
 sudo ./info.py --address 127.0.0.1 --ctrlport 9051
@@ -154,7 +154,7 @@ sudo ./info.py --address 127.0.0.1 --ctrlport 9051
 
 ### Watch Tor Exit connections
 
-If your Tor relay is an _Exit_ then [ps.py](./ps.py) gives live statistics about those network connections:
+If your Tor relay is an _Exit_ then [ps.py](./tools/ps.py) gives live statistics about those network connections:
 
 ```bash
 sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
@@ -162,8 +162,8 @@ sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
 
 ### Tor circuit closings
 
-[orstatus.py](./orstatus.py) prints the _closing reason_ to stdout,
-[orstatus-stats.sh](./orstatus-stats.sh) prints/plots statistics ([see this example](./doc/orstatus-stats.sh.txt)) from that.
+[orstatus.py](./tools/orstatus.py) prints the _closing reason_ to stdout,
+[orstatus-stats.sh](./tools/orstatus-stats.sh) prints/plots statistics ([see this example](./doc/orstatus-stats.sh.txt)) from that.
 
 ```bash
 orstatus.py --ctrlport 9051 --address 127.0.0.1 >>/tmp/orstatus &
@@ -190,7 +190,7 @@ export PYTHONPATH=$PWD/stem
 
 ## Check expiration of Tor offline keys
 
-[key-expires.py](./key-expires.py) helps to maintain
+[key-expires.py](./tools/key-expires.py) helps to maintain
 [Tor offline keys](https://support.torproject.org/relay-operators/offline-ed25519/).
 It returns the expiration time in seconds of the mid-term signing key.
 A cronjob for that task could look like this:
@@ -209,7 +209,7 @@ date -d@$(curl -s localhost:9052/metrics | grep "^tor_relay_signing_cert_expiry_
 
 ## Search logs for pre-defined text patterns
 
-The script [watch.sh](./watch.sh) helps to constantly monitor the host and Tor log files.
+The script [watch.sh](./tools/watch.sh) helps to constantly monitor the host and Tor log files.
 It sends findings via _mailx_.
 
 ```bash
