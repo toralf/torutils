@@ -11,22 +11,13 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 type jq nft >/dev/null
 
-if [[ $# -ne 2 ]]; then
-  echo "2 args are expected" >&2
-  exit 1
-fi
-
 intervall=${1?INTERVALL NOT GIVEN}
 if [[ ! $intervall =~ ^[0-9]+$ ]]; then
   echo "intervall is not an integer" >&2
   exit 1
 fi
 
-promfile=${2?PROMFILE NOT GIVEN}
-if ! touch $promfile; then
-  echo "$promfile cannot be accessed" >&2
-  exit 1
-fi
+promfile=${2-}
 
 lockfile="/tmp/$(basename $0).lock"
 if [[ -s $lockfile ]]; then
@@ -39,7 +30,7 @@ if [[ -s $lockfile ]]; then
 fi
 echo $$ >"$lockfile"
 
-trap 'rm -f $lockfile $promfile' INT QUIT TERM EXIT
+trap 'rm -f $lockfile ${promfile-}' INT QUIT TERM EXIT
 
 i=0   # counter
 nth=1 # scrape expensive data structures only every n-th time
@@ -54,24 +45,14 @@ while :; do
     var="firewall_counter_packets"
     echo -e "# HELP $var nftables named counter\n# TYPE $var gauge"
 
-    # shellcheck disable=SC2034
-    nft -s list tables |
-      while read -r keyword family table; do
-        nft -s list counters $family $table |
-          grep -E "^\s+counter .* {" |
-          awk '{ print $2 }' |
-          while read -r counter; do
-            IFS='_' read -r resource ipver ext <<<$counter
-            packets=$(
-              nft list counter $family $table $counter |
-                grep -E "^\s+packets .* bytes .*" |
-                awk '{ print $2 }'
-            )
-            echo "$var{family=\"$family\",table=\"$table\",resource=\"$resource\",ipver=\"${ipver:-x}\",ext=\"${ext:-x}\"} $packets"
-          done
+    nft -j list counters |
+      jq -r ' (.nftables[] | select(has("counter")) | .counter | [.family, .table, .name, .packets]) | @tsv' |
+      while read -r family table counter packets; do
+        IFS='_' read -r resource ipver ext <<<$counter
+        echo "$var{family=\"$family\",table=\"$table\",resource=\"$resource\",ipver=\"${ipver:-x}\",ext=\"${ext:-x}\"} $packets"
       done
 
-    # set query is too expensive for large sets at tiny systems
+    # query a set might be to expensive for large sets at tiny systems under certain load conditions
     if ((++i % nth == 0)); then
       var="firewall_set_size"
       echo -e "# HELP $var nftables set size\n# TYPE $var gauge"
@@ -94,8 +75,13 @@ while :; do
     fi
 
   } >$tmpfile
-  chmod a+r $tmpfile
-  mv $tmpfile $promfile
+
+  if [[ -n $promfile ]]; then
+    chmod a+r $tmpfile
+    mv $tmpfile $promfile
+  else
+    cat $tmpfile
+  fi
 
   if ((intervall == 0)); then
     break
