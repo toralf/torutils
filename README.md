@@ -67,28 +67,26 @@ If you need more then please go to [Configuration](#configuration).
 ### The Rule Set
 
 1. trust any connection attempt from a Tor authority node
-2. block the source ¹ for 24 hours if the connection attempt rate from it to the Tor port exceeds
+2. block the source ¹ for 24 hours if the connection attempt rate from it to the Tor port exceeds 8/min ² within last 2 minutes - or -
+3. block the source ¹ for 24 hours if the connection attempt rate from it to the Tor port exceeds 24/hour within last hour ³
+4. ignore the connection attempt if there are already 8 established connections to the Tor port (up to 8 relays per ip address are allowed)
+5. accept the connection attempt to the Tor port
 
-   a) 8/min ² within last 2 minutes - or -
+In addition a tarpit is used,e .g. to make port scans for Tor bridges more expensive.
 
-   b) 24/hour within last hour ³
-
-3. ignore the connection attempt if there are already 8 established connections to the Tor port (up to 8 relays per ip address are allowed)
-4. accept the connection attempt to the Tor port
-
-A tarpit is used to make port scans for e.g. Tor bridges more expensive.
-
-¹ _source_ is a single ip address for IPv4 and a /64 netmask for IPv6 respectively.
+¹ _source_ is a single ip address for IPv4 and a /64 network for IPv6 respectively.
 
 ² Values were discussed in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 
-³ No overblocking even if either the _source_ and/or the local Tor have a couple of reboots in a short time
+³ No overblocking even if either the _source_ and/or the local system have a couple of reboots in a short time
 
 ### Avoid abuse complaints / server blocking
 
-Every then and when Tor relay operators do get an undesired abuse complaint from my hoster.
+Every then and when Tor relay operators do get an undesired abuse complaint from a hoster.
 Details are in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
-Append [nftables-egress.conf](./nftables-egress.conf) to netfilter config, then check and load it to avoid complaints.
+
+To avoid complaints:
+Append [nftables-egress.conf](./nftables-egress.conf) to the nftables config, check and load it.
 
 ### Metrics
 
