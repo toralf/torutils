@@ -5,8 +5,8 @@
     "name": "advs71ika4f7kf",
     "namespace": "default",
     "uid": "QrFkas6uI8kHXhDsw0RRt4XXsuyJnFOoAm02PUKSxPgX",
-    "resourceVersion": "1787682984248019",
-    "generation": 144,
+    "resourceVersion": "1788732445717987",
+    "generation": 145,
     "creationTimestamp": "2024-08-24T10:07:31Z",
     "labels": {
       "grafana.app/deprecatedInternalID": "23"
@@ -15,7 +15,7 @@
       "grafana.app/createdBy": "user:u000000001",
       "grafana.app/saved-from-ui": "Grafana v13.1.2 (7f247b37a4)",
       "grafana.app/updatedBy": "user:u000000001",
-      "grafana.app/updatedTimestamp": "2026-08-25T18:36:24Z"
+      "grafana.app/updatedTimestamp": "2026-09-06T22:07:25Z"
     }
   },
   "spec": {
@@ -89,12 +89,18 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "12.3.0",
+            "version": "13.1.2",
             "spec": {
               "options": {
+                "annotations": {
+                  "clustering": -1,
+                  "multiLane": false
+                },
                 "legend": {
                   "calcs": [],
                   "displayMode": "list",
+                  "enableFacetedFilter": false,
+                  "overflow": "ellipsis",
                   "placement": "bottom",
                   "showLegend": true
                 },
@@ -621,12 +627,18 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "12.3.0",
+            "version": "13.1.2",
             "spec": {
               "options": {
+                "annotations": {
+                  "clustering": -1,
+                  "multiLane": false
+                },
                 "legend": {
                   "calcs": [],
                   "displayMode": "list",
+                  "enableFacetedFilter": false,
+                  "overflow": "ellipsis",
                   "placement": "bottom",
                   "showLegend": true
                 },
@@ -746,12 +758,18 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "12.3.0",
+            "version": "13.1.2",
             "spec": {
               "options": {
+                "annotations": {
+                  "clustering": -1,
+                  "multiLane": false
+                },
                 "legend": {
                   "calcs": [],
                   "displayMode": "list",
+                  "enableFacetedFilter": false,
+                  "overflow": "ellipsis",
                   "placement": "bottom",
                   "showLegend": true
                 },
@@ -1910,12 +1928,18 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "12.3.0",
+            "version": "13.1.2",
             "spec": {
               "options": {
+                "annotations": {
+                  "clustering": -1,
+                  "multiLane": false
+                },
                 "legend": {
                   "calcs": [],
                   "displayMode": "list",
+                  "enableFacetedFilter": false,
+                  "overflow": "ellipsis",
                   "placement": "bottom",
                   "showLegend": true
                 },
@@ -2035,12 +2059,18 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "12.3.0",
+            "version": "13.1.2",
             "spec": {
               "options": {
+                "annotations": {
+                  "clustering": -1,
+                  "multiLane": false
+                },
                 "legend": {
                   "calcs": [],
                   "displayMode": "list",
+                  "enableFacetedFilter": false,
+                  "overflow": "ellipsis",
                   "placement": "bottom",
                   "showLegend": true
                 },
@@ -2159,12 +2189,18 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "12.3.0",
+            "version": "13.1.2",
             "spec": {
               "options": {
+                "annotations": {
+                  "clustering": -1,
+                  "multiLane": false
+                },
                 "legend": {
                   "calcs": [],
                   "displayMode": "list",
+                  "enableFacetedFilter": false,
+                  "overflow": "ellipsis",
                   "placement": "bottom",
                   "showLegend": true
                 },
@@ -2431,7 +2467,7 @@
             "kind": "RowsLayoutRow",
             "spec": {
               "title": "Nodes",
-              "collapse": true,
+              "collapse": false,
               "layout": {
                 "kind": "GridLayout",
                 "spec": {

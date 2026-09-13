@@ -1,0 +1,321 @@
+[![StandWithUkraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
+
+# Torutils
+
+Few tools for a Tor relay.
+
+## Block DDoS
+
+The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
+against DDoS ingress attacks ¹ at the IP [network](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) layer, as seen in this metrics:
+
+![image](./doc/dopped_ipv4_2024-03.jpg)
+
+An older example is [here](./doc/network-metric-July-3rd.jpg).
+
+¹ see ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636)
+and [40093](https://gitlab.torproject.org/tpo/community/support/-/issues/40093)
+of the [Tor project](https://www.torproject.org/).
+
+### Idea
+
+A system is considered malicious if its connection attempts to the local Tor instance over a short time interval exceed the expected threshold.
+Block such systems for a long time interval.
+Further considerations:
+
+- never touch established connections
+- avoid overblock
+
+### Quick start
+
+Install _ipset_ and _iptables_, e.g. for Debian OS family:
+
+```bash
+sudo apt update
+sudo apt install -y ipset iptables
+```
+
+Get the scripts
+
+```bash
+wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv4-rules.sh -O ipv4-rules.sh
+wget -q https://raw.githubusercontent.com/toralf/torutils/main/ipv6-rules.sh -O ipv6-rules.sh
+chmod +x ./ipv4-rules.sh ./ipv6-rules.sh
+```
+
+Make a backup of the current iptables _filter_ table:
+
+```bash
+sudo /usr/sbin/iptables-save >./rules.v4
+sudo /usr/sbin/ip6tables-save >./rules.v6
+```
+
+Start the scripts in dry-run mode:
+
+```bash
+sudo ./ipv4-rules.sh test
+sudo ./ipv6-rules.sh test
+```
+
+Restart Tor.
+Check that your ssh login and all other services work as expected.
+Watch the rules stats, e.g. for IPv4
+
+```bash
+sudo watch ./ipv4-rules.sh
+```
+
+If something looks odd then restore the backuped state:
+
+```bash
+sudo ./ipv4-rules.sh stop
+sudo ./ipv6-rules.sh stop
+sudo /usr/sbin/iptables-restore <./rules.v4
+sudo /usr/sbin/ip6tables-restore <./rules.v6
+```
+
+Otherwise run both scripts with the parameter `start`:
+
+```bash
+sudo ./ipv4-rules.sh start
+sudo ./ipv6-rules.sh start
+```
+
+and [persist](#persist-the-solution) it.
+
+### The Rule Set
+
+The DDoS scripts create generic filter rules for the lo device, ICMP, ssh, DHCP and the [configured](#configuration) services.
+Then the following rule set is applied to prevent DDoS against the Tor port(s):
+
+1. trust any connection attempt from a Tor authority node
+2. block the source ¹ for 24 hours if the connection attempt rate from it to the Tor port exceeds
+   - 8/min ² within last 2 minutes - or -
+   - 24/hour within last hour ³
+3. ignore the connection attempt if there are already 8 established connections to the Tor port (up to 8 relays are allowed per ip address)
+4. accept the connection attempt to the Tor port
+
+The default policy for _INPUT_ is _DROP_.
+
+¹ _source_ is for IPv4 is a single ip address, for IPv6 a /64 netmask.
+
+² Values were discussed in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
+
+³ No overblocking even if _source_ and/or Tor have a couple of reboots within 1 hour
+
+### Persist the solution
+
+Create cron jobs, e.g.:
+
+```cron
+# DDoS prevention
+@reboot /root/ipv4-rules.sh start; /root/ipv6-rules.sh start
+
+# slew Tor egress to subnets which are known being the source of abuse complaints
+0" /root/ipv4-rules-egress.sh start
+```
+
+Persist the ipsets during reboot, e.g. like [here](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/tasks/firewall.yaml#L21).
+
+### Iptables example
+
+Result for IPv4 of the relay [i32](https://metrics.torproject.org/rs.html#details/4356DDFC83F8335E2AF395D5EA4CA28CC9E57C58):
+
+```text
+$ ssh i32 iptables -nvL INPUT
+Chain INPUT (policy DROP 7129 packets, 609K bytes)
+ pkts bytes target     prot opt in     out     source               destination
+ 385K  365M ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0            /* DDoS IPv4 Sun, 09 Aug 2026 20:34:40 +0000 */
+ 363M  289G ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED
+10650 2594K DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate INVALID
+ 9896 6619K DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp flags:!0x17/0x02 ctstate NEW
+ 3453  203K ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:22
+15748  773K DROP       all  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set torutils-tarpit-v4 src
+    0     0 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 3
+    0     0 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 11
+    0     0 ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 12
+18421 1168K ACCEPT     icmp --  *      *       0.0.0.0/0            0.0.0.0/0            icmptype 8 limit: avg 6/sec burst 10
+    0     0 ACCEPT     udp  --  *      *       0.0.0.0/0            0.0.0.0/0            udp spt:67 dpt:68
+ 1945  116K ACCEPT     tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            match-set torutils-trust-v4 src
+ 502K   30M SET        tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 limit: above 8/min burst 8 mode srcip-dstport htable-size 65536 htable-max 262144 htable-expire 120000 add-set torutils-ddos-v4-40242-32 src exist
+3750K  225M SET        tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 limit: above 24/hour burst 24 mode srcip-dstport htable-size 65536 htable-max 262144 add-set torutils-ddos-v4-40242-32 src exist
+4017K  241M DROP       tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 match-set torutils-ddos-v4-40242-32 src
+   87  5220 DROP       tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242 #conn src/32 > 8
+ 193K   12M ACCEPT     tcp  --  *      *       0.0.0.0/0            74.208.60.253        tcp dpt:40242
+ 5873  290K SET        tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            add-set torutils-tarpit-v4 src exist
+```
+
+### Configuration
+
+To append (instead overwrite) rules, comment out _clearRules_ (at the end of the script).
+To use only the Tor port part, comment out the call _addCommon_.
+The script sets few _sysctl_ values. If not wanted then comment out _setSysctlValues_.
+If the parsing of the Tor and/or the SSH config fails then overrule it by:
+
+1. define the local running relay/s explicitly at the command line after the keyword `start`, e.g.:
+
+   ```bash
+   sudo ./ipv4-rules.sh start 1.2.3.4:443 5.6.7.8:9001
+   ```
+
+1. -or- define them as environment variables, e.g.:
+
+   ```bash
+   sudo TORUTILS_RELAYS_V4="5.6.7.8:9001 1.2.3.4:443" ./ipv4-rules.sh start
+   ```
+
+Any command line argument takes precedence over the corresponding environment variable.
+
+Allow inbound traffic to additional \<address:port(s)\> destinations by e.g.:
+
+```bash
+export TORUTILS_LOCAL_SERVICES="2.71.82.81:828 3.14.159.26:53"
+export TORUTILS_LOCAL_SERVICES6="[cafe::abba]:1234 [cafe::abba]:443,8443:8449 [cafe::abba]:6000:6099"
+```
+
+A slightly different syntax is used to allow inbound traffic from the remote ip to e.g. the local port 4711:
+
+```bash
+export TORUTILS_LOCAL_SERVICES="4.3.2.1>4711"
+export TORUTILS_LOCAL_SERVICES6="[affe::dada]>4711"
+```
+
+The separator `>` marks the address being _src_, whereas the port is still _dst_.
+
+### Metrics
+
+The script [metrics.sh](./metrics.sh) exports DDoS metrics into a Prometheus readable file.
+More details plus few Grafana dashboards are [here](./dashboards/README.md).
+
+### DDoS examples
+
+Graphs¹ of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
+[6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov
+show the results for few DDoS attacks over 3 days for 2 relays.
+A heavy attack was observed at [12th](./doc/network-metric-Nov-12th.svg) of Nov.
+A periodic drop down of the socket count metric, vanishing over time, appeared at
+[5th](./doc/network-metric-Dec-05th.svg) of Dec.
+Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are still handled well.
+Few more helper scripts were developed to analyze the attack vector.
+Look [here](./misc/README.md) for details.
+
+¹ using [sysstat](http://sebastien.godard.pagesperso-orange.fr/), created e.g. by
+
+```bash
+# create the SVG file
+svg=/tmp/graph.svg
+sadf -g -t /var/log/sa/sa${DAY:-`date +%d`} -O skipempty,oneday -- -n DEV,SOCK,SOCK6 --iface=enp8s0 >$svg
+# fix SVG canvas size
+h=$(tail -n 2 $svg | head -n 1 | cut -f 5 -d ' ')
+sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
+# display it
+firefox $svg
+```
+
+## Avoid abuse complaints / server blocking
+
+Every then and when I get an undesired abuse complaint from my hoster.
+To avoid this I developed [ipv4-rules-egress.sh](./ipv4-rules-egress.sh) for my Tor instances running at Hetzner.
+Details are tracked in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
+I used [this](https://github.com/toralf/tor-relays/) project to deploy and configure Tor relays and Snowflake standalone proxies.
+
+## Query Tor via its API
+
+### Relay summary
+
+[info.py](./info.py) gives a summary of all Tor related TCP connections, e.g.:
+
+```console
+sudo ./info.py --address 127.0.0.1 --ctrlport 9051
+
+ ORport 9051  0.4.8.0-alpha-dev   uptime: 02:58:04   flags: Fast, Guard, Running, Stable, V2Dir, Valid
++------------------------------+-------+-------+
+| Type                         |  IPv4 |  IPv6 |
++------------------------------+-------+-------+
+| Inbound to our OR from relay |  2304 |   885 |
+| Inbound to our OR from other |  3188 |    68 |
+| Inbound to our ControlPort   |       |     1 |
+| Outbound to relay OR         |  2551 |   629 |
+| Outbound to relay non-OR     |       |       |
+| Outbound exit traffic        |       |       |
+| Outbound unknown             |    16 |     4 |
++------------------------------+-------+-------+
+| Total                        |  8059 |  1587 |
++------------------------------+-------+-------+
+ relay OR connections  6369
+ relay OR ips          5753
+    3 inbound v4 with > 2 connections each
+```
+
+### Watch Tor Exit connections
+
+If your Tor relay is an _Exit_ then [ps.py](./ps.py) gives live statistics about those network connections:
+
+```bash
+sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
+```
+
+### Tor circuit closings
+
+[orstatus.py](./orstatus.py) prints the _closing reason_ to stdout,
+[orstatus-stats.sh](./orstatus-stats.sh) prints/plots statistics ([see this example](./doc/orstatus-stats.sh.txt)) from that.
+
+```bash
+orstatus.py --ctrlport 9051 --address 127.0.0.1 >>/tmp/orstatus &
+sleep 3600
+orstatus-stats.sh /tmp/orstatus
+```
+
+### Check expiration of Tor offline keys
+
+[key-expires.py](./key-expires.py) helps to maintain
+[Tor offline keys](https://support.torproject.org/relay-operators/offline-ed25519/).
+It returns the expiration time in seconds of the mid-term signing key.
+A cronjob for that task could look like this:
+
+```bash
+seconds=$(sudo ./key-expires.py /var/lib/tor/keys/ed25519_signing_cert)
+days=$((seconds / 86400))
+[[ $days -lt 23 ]] && echo "Tor signing key expires in less than $days day(s)"
+```
+
+If Tor metrics are enabled then this 1-liner does a similar job (replace `9052` with your metrics port):
+
+```bash
+date -d@$(curl -s localhost:9052/metrics | grep "^tor_relay_signing_cert_expiry_timestamp" | awk '{ print $2 }')
+```
+
+### Prerequisites
+
+An open Tor control port is needed to query the Tor process via API.
+Configure it in _torrc_, e.g.:
+
+```console
+ControlPort 127.0.0.1:9051
+```
+
+The python library [Stem](https://stem.torproject.org/index.html) is needed.
+Clone and use it:
+
+```bash
+git clone https://github.com/torproject/stem.git
+export PYTHONPATH=$PWD/stem
+```
+
+## Search logs for pre-defined text patterns
+
+The script [watch.sh](./watch.sh) helps to constantly monitor the host and Tor log files.
+It sends findings via _mailx_.
+
+```bash
+log=/tmp/${0##*/}.log
+
+# watch syslog
+/opt/torutils/watch.sh /var/log/messages /opt/torutils/watch-messages.txt &>>$log &
+# watch Tor
+/opt/torutils/watch.sh /var/log/tor/notice.log /opt/torutils/watch-tor.txt -v &>>$log &
+```
+
+## Issue tracker
+
+I appreciate reports about any findings via the [issue](https://github.com/toralf/torutils/issues) tracker.

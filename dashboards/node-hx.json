@@ -5,8 +5,8 @@
     "name": "9fa768c0-eb54-434e-85f5-bc4653f66e5c",
     "namespace": "default",
     "uid": "4PECHt6aSXqWLMtoDKNfAXl9bhmzKwZ5dfBjuAeeFW0X",
-    "resourceVersion": "1787310959113016",
-    "generation": 121,
+    "resourceVersion": "1789243300370983",
+    "generation": 183,
     "creationTimestamp": "2025-09-19T19:12:36Z",
     "labels": {
       "grafana.app/deprecatedInternalID": "31"
@@ -15,7 +15,7 @@
       "grafana.app/createdBy": "user:u000000001",
       "grafana.app/saved-from-ui": "Grafana v13.1.2 (7f247b37a4)",
       "grafana.app/updatedBy": "user:u000000001",
-      "grafana.app/updatedTimestamp": "2026-08-21T11:15:59Z"
+      "grafana.app/updatedTimestamp": "2026-09-12T20:01:40Z"
     }
   },
   "spec": {
@@ -137,7 +137,7 @@
                     "axisLabel": "",
                     "axisPlacement": "auto",
                     "axisSoftMin": 0,
-                    "axisWidth": 100,
+                    "axisWidth": 80,
                     "barAlignment": 0,
                     "barWidthFactor": 0.6,
                     "drawStyle": "line",
@@ -197,7 +197,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "sum by(device) (rate(node_network_receive_bytes_total{instance=~\"$Instance\", job=~\"$Job\"}[$__rate_interval]))",
+                        "expr": "sum by(device) (rate(node_network_receive_bytes_total{instance=~\"$Instance\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "rx {{ device }}",
@@ -291,7 +291,7 @@
                     "axisLabel": "",
                     "axisPlacement": "auto",
                     "axisSoftMin": 0,
-                    "axisWidth": 100,
+                    "axisWidth": 80,
                     "barAlignment": 0,
                     "barWidthFactor": 0.6,
                     "drawStyle": "line",
@@ -351,7 +351,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "(sum(rate(node_cpu_seconds_total{mode=\"user\", instance=~\"$Instance\", job=~\"$Job\"}[$__rate_interval]) * 100)) / on(label) (sum(rate(node_cpu_seconds_total[$__rate_interval])))",
+                        "expr": "(sum(rate(node_cpu_seconds_total{mode=\"user\", instance=~\"$Instance\"}[$__rate_interval]) * 100)) / on(label) (sum(rate(node_cpu_seconds_total[$__rate_interval])))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "user",
@@ -376,7 +376,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "(sum(rate(node_cpu_seconds_total{mode=\"system\", instance=~\"$Instance\"}[$__rate_interval]) * 100)) / on(label) (sum(rate(node_cpu_seconds_total[$__rate_interval])))",
+                        "expr": "(sum(rate(node_cpu_seconds_total{mode=\"system\", instance=~\"$Instance\", job=~\"$Job\"}[$__rate_interval]) * 100)) / on(label) (sum(rate(node_cpu_seconds_total[$__rate_interval])))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "system",
@@ -401,7 +401,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "(sum(rate(node_cpu_seconds_total{mode=\"iowait\", instance=~\"$Instance\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total[$__rate_interval]))",
+                        "expr": "(sum(rate(node_cpu_seconds_total{mode=\"iowait\", instance=~\"$Instance\", job=~\"$Job\"}[$__rate_interval]) * 100)) / on(label) (sum(rate(node_cpu_seconds_total[$__rate_interval])))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "iowait",
@@ -426,7 +426,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "(sum(rate(node_cpu_seconds_total{mode=\"irq\", instance=~\"$Instance\"}[$__rate_interval])) * 100) / on(label) sum(rate(node_cpu_seconds_total[$__rate_interval]))",
+                        "expr": "(sum(rate(node_cpu_seconds_total{mode=\"irq\", instance=~\"$Instance\", job=~\"$Job\"}[$__rate_interval]) * 100)) / on(label) (sum(rate(node_cpu_seconds_total[$__rate_interval])))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "irq",
@@ -495,7 +495,7 @@
                     "axisColorMode": "text",
                     "axisLabel": "",
                     "axisPlacement": "auto",
-                    "axisWidth": 100,
+                    "axisWidth": 80,
                     "barAlignment": 0,
                     "barWidthFactor": 0.6,
                     "drawStyle": "line",
@@ -628,7 +628,7 @@
                     "axisLabel": "",
                     "axisPlacement": "auto",
                     "axisSoftMin": 0,
-                    "axisWidth": 100,
+                    "axisWidth": 80,
                     "barAlignment": 0,
                     "barWidthFactor": 0.6,
                     "drawStyle": "line",
@@ -688,7 +688,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "node_nf_conntrack_entries{instance=~\"$Instance\", job=~\"$Job\"}",
+                        "expr": "node_nf_conntrack_entries{instance=~\"$Instance\"}",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "{{ instance }}",
@@ -717,7 +717,7 @@
                 },
                 "legend": {
                   "calcs": [],
-                  "displayMode": "table",
+                  "displayMode": "list",
                   "enableFacetedFilter": false,
                   "overflow": "ellipsis",
                   "placement": "right",
@@ -753,7 +753,7 @@
                     "axisLabel": "",
                     "axisPlacement": "auto",
                     "axisSoftMin": 0,
-                    "axisWidth": 100,
+                    "axisWidth": 80,
                     "barAlignment": 0,
                     "barWidthFactor": 0.6,
                     "drawStyle": "line",
@@ -813,10 +813,10 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "sum by(device) (rate(node_network_receive_packets_total{instance=~\"$Instance\", job=~\"$Job\"}[$__rate_interval]))",
+                        "expr": "sum by(device) (rate(node_network_receive_packets_total{instance=~\"$Instance\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
-                        "legendFormat": "rx {{ device }}",
+                        "legendFormat": "__auto",
                         "range": true,
                         "useBackend": false
                       }
@@ -907,7 +907,7 @@
                     "axisLabel": "",
                     "axisPlacement": "auto",
                     "axisSoftMin": 0,
-                    "axisWidth": 100,
+                    "axisWidth": 80,
                     "barAlignment": 0,
                     "barWidthFactor": 0.6,
                     "drawStyle": "line",
@@ -1032,7 +1032,7 @@
                     "axisLabel": "",
                     "axisPlacement": "auto",
                     "axisSoftMin": 0,
-                    "axisWidth": 100,
+                    "axisWidth": 80,
                     "barAlignment": 0,
                     "barWidthFactor": 0.6,
                     "drawStyle": "line",
@@ -1185,7 +1185,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "node_sockstat_TCP_inuse{instance=~\"$Instance\", job=~\"$Job\"}",
+                        "expr": "node_sockstat_TCP_inuse{instance=~\"$Instance\"}",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "instant": false,
@@ -1215,7 +1215,7 @@
                 },
                 "legend": {
                   "calcs": [],
-                  "displayMode": "table",
+                  "displayMode": "list",
                   "enableFacetedFilter": false,
                   "overflow": "ellipsis",
                   "placement": "right",
@@ -1255,7 +1255,7 @@
                     "axisLabel": "",
                     "axisPlacement": "auto",
                     "axisSoftMin": 0,
-                    "axisWidth": 100,
+                    "axisWidth": 80,
                     "barAlignment": 0,
                     "barWidthFactor": 0.6,
                     "drawStyle": "line",
@@ -1315,7 +1315,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "node_sockstat_UDP_inuse{instance=~\"$Instance\", job=~\"$Job\"}",
+                        "expr": "node_sockstat_UDP_inuse{instance=~\"$Instance\"}",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "instant": false,
@@ -1345,7 +1345,7 @@
                 },
                 "legend": {
                   "calcs": [],
-                  "displayMode": "table",
+                  "displayMode": "list",
                   "enableFacetedFilter": false,
                   "overflow": "ellipsis",
                   "placement": "right",
@@ -1385,7 +1385,7 @@
                     "axisLabel": "",
                     "axisPlacement": "auto",
                     "axisSoftMin": 0,
-                    "axisWidth": 100,
+                    "axisWidth": 80,
                     "barAlignment": 0,
                     "barWidthFactor": 0.6,
                     "drawStyle": "line",
@@ -1445,7 +1445,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "node_sockstat_UDP6_inuse{instance=~\"$Instance\", job=~\"$Job\"}",
+                        "expr": "node_sockstat_UDP6_inuse{instance=~\"$Instance\"}",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "instant": false,
@@ -1475,7 +1475,7 @@
                 },
                 "legend": {
                   "calcs": [],
-                  "displayMode": "table",
+                  "displayMode": "list",
                   "enableFacetedFilter": false,
                   "overflow": "ellipsis",
                   "placement": "right",
@@ -1515,7 +1515,265 @@
                     "axisLabel": "",
                     "axisPlacement": "auto",
                     "axisSoftMin": 0,
-                    "axisWidth": 100,
+                    "axisWidth": 80,
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-39": {
+        "kind": "Panel",
+        "spec": {
+          "id": 39,
+          "title": "Counter Packets",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "XbGvg5aVz"
+                      },
+                      "spec": {
+                        "disableTextWrap": false,
+                        "editorMode": "builder",
+                        "expr": "sum by(instance, resource, ipver, ext) (rate(firewall_counter_packets{instance=~\"$Instance\", resource=~\"$ResourceCnt\", ipver=~\"$IPverCnt\", ext=~\"$ExtCnt\"}[$__rate_interval]))",
+                        "fullMetaSearch": false,
+                        "includeNullMetadata": true,
+                        "legendFormat": "{{ instance }} {{ resource }} {{ ipver }} {{ ext }}",
+                        "range": true,
+                        "useBackend": false
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "13.1.2",
+            "spec": {
+              "options": {
+                "annotations": {
+                  "clustering": -1,
+                  "multiLane": false
+                },
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "enableFacetedFilter": false,
+                  "overflow": "ellipsis",
+                  "placement": "right",
+                  "showLegend": true,
+                  "width": 250
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "maxHeight": 600,
+                  "mode": "single",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "pps",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "axisSoftMin": 0,
+                    "axisWidth": 80,
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-40": {
+        "kind": "Panel",
+        "spec": {
+          "id": 40,
+          "title": "Set size",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "XbGvg5aVz"
+                      },
+                      "spec": {
+                        "disableTextWrap": false,
+                        "editorMode": "builder",
+                        "expr": "firewall_set_size{instance=~\"$Instance\", resource=~\"$ResourceSet\", ipver=~\"$IPverSet\", ext=~\"$ExtSet\"}",
+                        "fullMetaSearch": false,
+                        "includeNullMetadata": true,
+                        "legendFormat": "{{ instance }} {{ resource }} {{ ipver }} {{ ext }}",
+                        "range": true,
+                        "useBackend": false
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "13.1.2",
+            "spec": {
+              "options": {
+                "annotations": {
+                  "clustering": -1,
+                  "multiLane": false
+                },
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "enableFacetedFilter": false,
+                  "overflow": "ellipsis",
+                  "placement": "right",
+                  "showLegend": true,
+                  "width": 250
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "maxHeight": 600,
+                  "mode": "single",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "none",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "axisSoftMin": 0,
+                    "axisWidth": 80,
                     "barAlignment": 0,
                     "barWidthFactor": 0.6,
                     "drawStyle": "line",
@@ -1560,7 +1818,7 @@
             "kind": "RowsLayoutRow",
             "spec": {
               "title": "Targets",
-              "collapse": false,
+              "collapse": true,
               "layout": {
                 "kind": "GridLayout",
                 "spec": {
@@ -1726,6 +1984,46 @@
                 }
               }
             }
+          },
+          {
+            "kind": "RowsLayoutRow",
+            "spec": {
+              "title": "Firewall",
+              "collapse": false,
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 0,
+                        "width": 12,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-40"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 12,
+                        "y": 0,
+                        "width": 12,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-39"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
           }
         ]
       }
@@ -1786,8 +2084,8 @@
         "spec": {
           "name": "Job",
           "current": {
-            "text": "Nodes",
-            "value": "Nodes"
+            "text": "Node localhost",
+            "value": "Node localhost"
           },
           "label": "Job",
           "hide": "dontHide",
@@ -1806,7 +2104,7 @@
               "refId": "PrometheusVariableQueryEditor-VariableQuery"
             }
           },
-          "regex": "/Nodes.*/",
+          "regex": "",
           "regexApplyTo": "value",
           "sort": "alphabeticalAsc",
           "definition": "label_values(node_uname_info,job)",
@@ -2120,6 +2418,216 @@
           "regexApplyTo": "value",
           "sort": "alphabeticalAsc",
           "definition": "label_values(node_uname_info{job=~\"$Job\", t1=~\"$t1\", t2=~\"$t2\", t3=~\"$t3\", t4=~\"$t4\", t5=~\"$t5\", t6=~\"$t6\", t7=~\"$t7\", t8=~\"$t8\"},instance)",
+          "options": [],
+          "multi": false,
+          "includeAll": true,
+          "allowCustomValue": true
+        }
+      },
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "name": "ResourceSet",
+          "current": {
+            "text": "rule2a",
+            "value": "rule2a"
+          },
+          "label": "Resource Set",
+          "hide": "dontHide",
+          "refresh": "onDashboardLoad",
+          "skipUrlSync": false,
+          "query": {
+            "kind": "DataQuery",
+            "group": "prometheus",
+            "version": "v0",
+            "datasource": {
+              "name": "XbGvg5aVz"
+            },
+            "spec": {
+              "qryType": 1,
+              "query": "label_values(firewall_set_size,resource)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            }
+          },
+          "regex": "",
+          "regexApplyTo": "value",
+          "sort": "alphabeticalAsc",
+          "definition": "label_values(firewall_set_size,resource)",
+          "options": [],
+          "multi": false,
+          "includeAll": true,
+          "allowCustomValue": true
+        }
+      },
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "name": "IPverSet",
+          "current": {
+            "text": "All",
+            "value": "$__all"
+          },
+          "label": "IPver Set",
+          "hide": "dontHide",
+          "refresh": "onDashboardLoad",
+          "skipUrlSync": false,
+          "query": {
+            "kind": "DataQuery",
+            "group": "prometheus",
+            "version": "v0",
+            "datasource": {
+              "name": "XbGvg5aVz"
+            },
+            "spec": {
+              "qryType": 1,
+              "query": "label_values(firewall_set_size{resource=~\"$ResourceSet\"},ipver)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            }
+          },
+          "regex": "",
+          "regexApplyTo": "value",
+          "sort": "alphabeticalAsc",
+          "definition": "label_values(firewall_set_size{resource=~\"$ResourceSet\"},ipver)",
+          "options": [],
+          "multi": false,
+          "includeAll": true,
+          "allowCustomValue": true
+        }
+      },
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "name": "ExtSet",
+          "current": {
+            "text": "All",
+            "value": "$__all"
+          },
+          "label": "Ext Set",
+          "hide": "dontHide",
+          "refresh": "onDashboardLoad",
+          "skipUrlSync": false,
+          "query": {
+            "kind": "DataQuery",
+            "group": "prometheus",
+            "version": "v0",
+            "datasource": {
+              "name": "XbGvg5aVz"
+            },
+            "spec": {
+              "qryType": 1,
+              "query": "label_values(firewall_set_size{resource=~\"$ResourceSet\", ipver=~\"$IPverSet\"},ext)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            }
+          },
+          "regex": "",
+          "regexApplyTo": "value",
+          "sort": "alphabeticalAsc",
+          "definition": "label_values(firewall_set_size{resource=~\"$ResourceSet\", ipver=~\"$IPverSet\"},ext)",
+          "options": [],
+          "multi": false,
+          "includeAll": true,
+          "allowCustomValue": true
+        }
+      },
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "name": "ResourceCnt",
+          "current": {
+            "text": "rule2a",
+            "value": "rule2a"
+          },
+          "label": "Resource Cnt",
+          "hide": "dontHide",
+          "refresh": "onDashboardLoad",
+          "skipUrlSync": false,
+          "query": {
+            "kind": "DataQuery",
+            "group": "prometheus",
+            "version": "v0",
+            "datasource": {
+              "name": "XbGvg5aVz"
+            },
+            "spec": {
+              "qryType": 1,
+              "query": "label_values(firewall_counter_packets,resource)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            }
+          },
+          "regex": "",
+          "regexApplyTo": "value",
+          "sort": "alphabeticalAsc",
+          "definition": "label_values(firewall_counter_packets,resource)",
+          "options": [],
+          "multi": false,
+          "includeAll": true,
+          "allowCustomValue": true
+        }
+      },
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "name": "IPverCnt",
+          "current": {
+            "text": "All",
+            "value": "$__all"
+          },
+          "label": "IPver Cnt",
+          "hide": "dontHide",
+          "refresh": "onDashboardLoad",
+          "skipUrlSync": false,
+          "query": {
+            "kind": "DataQuery",
+            "group": "prometheus",
+            "version": "v0",
+            "datasource": {
+              "name": "XbGvg5aVz"
+            },
+            "spec": {
+              "qryType": 1,
+              "query": "label_values(firewall_counter_packets{resource=~\"$ResourceCnt\"},ipver)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            }
+          },
+          "regex": "",
+          "regexApplyTo": "value",
+          "sort": "alphabeticalAsc",
+          "definition": "label_values(firewall_counter_packets{resource=~\"$ResourceCnt\"},ipver)",
+          "options": [],
+          "multi": false,
+          "includeAll": true,
+          "allowCustomValue": true
+        }
+      },
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "name": "ExtCnt",
+          "current": {
+            "text": "All",
+            "value": "$__all"
+          },
+          "label": "Ext Cnt",
+          "hide": "dontHide",
+          "refresh": "onDashboardLoad",
+          "skipUrlSync": false,
+          "query": {
+            "kind": "DataQuery",
+            "group": "prometheus",
+            "version": "v0",
+            "datasource": {
+              "name": "XbGvg5aVz"
+            },
+            "spec": {
+              "qryType": 1,
+              "query": "label_values(firewall_counter_packets{resource=~\"$ResourceCnt\", ipver=~\"$IPverCnt\"},ext)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            }
+          },
+          "regex": "",
+          "regexApplyTo": "value",
+          "sort": "alphabeticalAsc",
+          "definition": "label_values(firewall_counter_packets{resource=~\"$ResourceCnt\", ipver=~\"$IPverCnt\"},ext)",
           "options": [],
           "multi": false,
           "includeAll": true,
