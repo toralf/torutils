@@ -190,7 +190,7 @@ The separator `>` marks the address being _src_, whereas the port is still _dst_
 The script [metrics.sh](./metrics.sh) exports DDoS metrics into a Prometheus readable file.
 More details plus few Grafana dashboards are [here](./dashboards/README.md).
 
-### Avoid abuse complaints / server blocking
+## Avoid abuse complaints / server blocking
 
 For _nftables_ proceed with [README-nftables.md](./README-nftables.md#avoid-abuse-complaints--server-blocking).
 
@@ -199,7 +199,7 @@ To avoid this I developed [ipv4-rules-egress.sh](./ipv4-rules-egress.sh) for my 
 Details are tracked in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
 I used [this](https://github.com/toralf/tor-relays/) project to deploy and configure Tor relays and Snowflake standalone proxies.
 
-### Few more DDoS examples
+## Few more DDoS examples
 
 Graphs¹ of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
 [6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov

@@ -105,7 +105,7 @@ Configure additional local services under
 The script [metrics-firewall.sh](./metrics-firewall.sh) exports firewall metrics into a Prometheus readable file.
 More details and few Grafana dashboards are in [dashboards](./dashboards/README.md).
 
-### Avoid abuse complaints / server blocking
+## Avoid abuse complaints / server blocking
 
 For _iptables_ proceed with [README-iptables.md](./README-iptables.md#avoid-abuse-complaints--server-blocking).
 
@@ -120,7 +120,7 @@ nft -c -f nftables-egress.conf && nft -o -f nftables-egress.conf
 
 Persist it by appending it to your existing nftables config file.
 
-### Few more DDoS examples
+## Few more DDoS examples
 
 Graphs¹ of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
 [6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov
