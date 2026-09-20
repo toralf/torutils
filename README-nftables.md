@@ -89,21 +89,6 @@ The ruleset applies to each defined [OR address, OR port] pair.
 
 ³ No overblocking even if the _source_ and/or the local system are rebooted few times in a row
 
-### Avoid abuse complaints / server blocking
-
-For _iptables_ proceed with [README-iptables.md](./README-iptables.md#avoid-abuse-complaints--server-blocking).
-
-Every then and when Tor relay operators do get an undesired abuse complaint from a hoster.
-Details are in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
-To avoid complaints:
-Download [nftables-egress.conf](./nftables-egress.conf), check and load it
-
-```bash
-nft -c -f nftables-egress.conf && nft -o -f nftables-egress.conf
-```
-
-Persist it by appending it to your existing nftables config file.
-
 ### Configuration
 
 If you run more than 1 Tor instance at the same system then add all [address, port] pairs
@@ -119,6 +104,21 @@ Configure additional local services under
 
 The script [metrics-firewall.sh](./metrics-firewall.sh) exports firewall metrics into a Prometheus readable file.
 More details and few Grafana dashboards are in [dashboards](./dashboards/README.md).
+
+### Avoid abuse complaints / server blocking
+
+For _iptables_ proceed with [README-iptables.md](./README-iptables.md#avoid-abuse-complaints--server-blocking).
+
+Every then and when Tor relay operators do get an undesired abuse complaint from a hoster.
+Details are in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
+To avoid complaints:
+Download [nftables-egress.conf](./nftables-egress.conf), check and load it
+
+```bash
+nft -c -f nftables-egress.conf && nft -o -f nftables-egress.conf
+```
+
+Persist it by appending it to your existing nftables config file.
 
 ### Few more DDoS examples
 

@@ -190,7 +190,16 @@ The separator `>` marks the address being _src_, whereas the port is still _dst_
 The script [metrics.sh](./metrics.sh) exports DDoS metrics into a Prometheus readable file.
 More details plus few Grafana dashboards are [here](./dashboards/README.md).
 
-### DDoS examples
+### Avoid abuse complaints / server blocking
+
+For _nftables_ proceed with [README-nftables.md](./README-nftables.md#avoid-abuse-complaints--server-blocking).
+
+Every then and when I get an undesired abuse complaint from my hoster.
+To avoid this I developed [ipv4-rules-egress.sh](./ipv4-rules-egress.sh) for my Tor instances running at Hetzner.
+Details are tracked in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
+I used [this](https://github.com/toralf/tor-relays/) project to deploy and configure Tor relays and Snowflake standalone proxies.
+
+### Few more DDoS examples
 
 Graphs¹ of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
 [6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov
@@ -214,15 +223,6 @@ sed -i -e "s,height=\"[0-9]*\",height=\"$h\"," $svg
 # display it
 firefox $svg
 ```
-
-## Avoid abuse complaints / server blocking
-
-For _nftables_ proceed with [README-nftables.md](./README-nftables.md#avoid-abuse-complaints--server-blocking).
-
-Every then and when I get an undesired abuse complaint from my hoster.
-To avoid this I developed [ipv4-rules-egress.sh](./ipv4-rules-egress.sh) for my Tor instances running at Hetzner.
-Details are tracked in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
-I used [this](https://github.com/toralf/tor-relays/) project to deploy and configure Tor relays and Snowflake standalone proxies.
 
 ## Query Tor via its API
 
