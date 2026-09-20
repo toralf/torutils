@@ -3,6 +3,8 @@
 # Torutils
 
 Few tools for a Tor relay.
+
+This guide is about the _iptables_ variant.
 For _nftables_ proceed with [README-nftables.md](./README-nftables.md).
 
 ## Block DDoS

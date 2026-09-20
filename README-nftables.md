@@ -9,7 +9,7 @@ For _iptables_ proceed with [README-iptables.md](./README-iptables.md).
 
 ## DDoS protection
 
-Protect a linux system against DDoS ingress attacks ¹ at [network level](https://thermalcircle.de/doku.php?id=blog:linux:nftables_packet_flow_netfilter_hooks_detail)
+Protect a linux system against DDoS attacks ¹ at [network level](https://thermalcircle.de/doku.php?id=blog:linux:nftables_packet_flow_netfilter_hooks_detail)
 as seen in this example:
 
 ![image](./doc/dopped_ipv4_2024-03.jpg)
@@ -39,18 +39,23 @@ sudo apt install -y nftables
 ```
 
 Download [nftables-ingress.conf](./nftables-ingress.conf).
-It contains a complete ruleset for a Linxu system running Tor.
-Ignore its size
-For a regular Tor server replace `LOCAL_ADDRESS_V4`, `LOCAL_ADDRESS_V6` and `TORPORT` with desired values.
-Make a syntax check:
+It contains a complete ruleset for a Linux system running Tor.
+Ignore its size.
+For a common Tor installation look for `LOCAL_V4_ADDRESS`, `LOCAL_V6_ADDRESS` and `TOR_PORT`.
+If you run more than 1 Tor instance at the same system then add all instanzes as
+[address, port] pairs to the `tor_v4` and `tor_v6` sets respectively.
+Lint it:
 
 ```bash
 nft -c -f <edited file>
 ```
 
-If you want to tweak it further then check out the [Configuration](#configuration) section.
-Backup your current config (e.g.: `/etc/nftables.conf`) and copy the edited file over it.
-Load the new:
+Copy it onto /etc/nftables.conf (make a backup before).
+Ensure that your kernel settings matches, take a look e.g. at
+[these](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/tasks/system-config.yaml#L48)
+values.
+
+Reload the firewall service:
 
 ```bash
 service nftables reload
@@ -58,18 +63,23 @@ service nftables reload
 
 If your system works as expected - enjoy it.
 If something went wrong then restore the backup.
+For a Snowflake standalone proxy uncomment the Snowflake part (and remove the Tor part).
+If you run more services on the same machine do this under
+
+```yaml
+# ======== ADDITIONAL BEGIN ========
+```
 
 ### The Rule Set
 
 1. trust any connection attempt from a Tor authority node
-2. block the source ¹ for 24 hours if the connection attempt rate from it to the Tor port exceeds 8/min ² within last 5 minutes - or -
-3. block the source ¹ for 24 hours if the connection attempt rate from it to the Tor port exceeds 24/hour within last 2.5 hours ³
-4. ignore the connection attempt if there are already 8 established connections to the Tor port (up to 8 relays per ip address are allowed)
-5. accept the connection attempt to the Tor port
+2. block the source ¹ for 24 hours if the connection attempt rate exceeds 8/min ² within last 5 minutes - or -
+3. block the source ¹ for 24 hours if the connection attempt rate exceeds 24/hour within last 2 hours ³
+4. ignore the connection attempt if there are already 8 established connections
+5. accept the connection attempt
 
-In addition a tarpit is used,e .g. to make port scans for Tor bridges more expensive.
-
-¹ _source_ is a single ip address for IPv4 and a /64 network for IPv6 respectively.
+The ruleset applies to each defined [OR address, OR port] pair.
+¹ _source_ is a single ip address for IPv4 and a /64 network for IPv6 per default.
 
 ² Values were discussed in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 
@@ -81,27 +91,14 @@ Every then and when Tor relay operators do get an undesired abuse complaint from
 Details are in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
 
 To avoid complaints:
-Append [nftables-egress.conf](./nftables-egress.conf) to the nftables config, check and load it.
+Append [nftables-egress.conf](./nftables-egress.conf) onto the nftables, check and load it.
 
 ### Metrics
 
 The script [metrics-firewall.sh](./metrics-firewall.sh) exports firewall metrics into a Prometheus readable file.
-More details plus few Grafana dashboards are [here](./dashboards/README.md).
+More details plus few Grafana dashboards are in [dashboards](./dashboards/README.md).
 
-### Configuration
-
-For more Tor at the same ip address, Snowflake, to open more port(s), trust more ip adresses etc. take a look at the sections
-
-```yaml
-# ======== TOR DDOS BEGIN ========
-# ======== SNOWFLAKE BEGIN ========
-# ======== ADDITIONAL BEGIN ========
-```
-
-respectively.
-The netmask both for IPv4 and IPv6 can be overwritten too.
-
-### More DDoS examples
+### Few more DDoS examples
 
 Graphs¹ of rx/tx packets, traffic and socket counts from [5th](./doc/network-metric-Nov-5th.svg),
 [6th](./doc/network-metric-Nov-6th.svg) and [7th](./doc/network-metric-Nov-7th.svg) of Nov
@@ -115,7 +112,7 @@ Look [here](./misc/README.md) for details.
 
 ¹ using [sysstat](http://sebastien.godard.pagesperso-orange.fr/)
 
-# More stuff
+# Misc stuff
 
 ## Query Tor via its API
 
@@ -167,7 +164,7 @@ orstatus-stats.sh /tmp/orstatus
 ### Prerequisites
 
 An open Tor control port is needed to query the Tor process via API.
-Configure it in _torrc_, e.g.:
+Configure it in /etc/tor/torrc, e.g.:
 
 ```console
 ControlPort 127.0.0.1:9051
@@ -216,8 +213,8 @@ log=/tmp/${0##*/}.log
 
 # Participation
 
-Please file issues at [this](https://github.com/toralf/torutils/issues) issue tracker.
+Please file issues at [this](https://github.com/toralf/torutils/issues) tracker.
 
 # More
 
-I use [this](https://github.com/toralf/tor-relays/) project maintain Tor relays, bridges and Snowflake standalone proxies and more.
+I use [this](https://github.com/toralf/tor-relays/) project maintain Tor relays, bridges, Snowflake standalone proxies and for compile-tests of Linux kernels.
