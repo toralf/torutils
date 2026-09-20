@@ -95,9 +95,10 @@ The ruleset applies to each defined [OR address, OR port] pair.
 
 ### Avoid abuse complaints / server blocking
 
+For _iptables_ proceed with [README-iptables.md](./README-iptables.md#avoid-abuse-complaints--server-blocking).
+
 Every then and when Tor relay operators do get an undesired abuse complaint from a hoster.
 Details are in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
-
 To avoid complaints:
 Download [nftables-egress.conf](./nftables-egress.conf), check and load it
 
@@ -105,7 +106,7 @@ Download [nftables-egress.conf](./nftables-egress.conf), check and load it
 nft -c -f nftables-egress.conf && nft -o -f nftables-egress.conf
 ```
 
-To persist it append it onto your existing nftables config.
+Persist it by appending to your existing nftables config file.
 
 ### Metrics
 
