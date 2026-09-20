@@ -51,9 +51,17 @@ nft -c -f <edited file>
 ```
 
 Copy it onto /etc/nftables.conf (make a backup before).
-Ensure that your kernel settings matches, take a look e.g. at
-[these](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/tasks/system-config.yaml#L48)
-values.
+Ensure that your kernel sysctl values fit, e.g.:
+
+```bash
+cat /etc/sysctl.d/21firewall.conf
+
+net.core.somaxconn = 131072
+net.ipv4.tcp_max_syn_backlog = 131072
+net.ipv4.tcp_syncookies = 1
+net.netfilter.nf_conntrack_buckets = 131072
+net.netfilter.nf_conntrack_max = 131072
+```
 
 Reload the firewall service:
 
@@ -91,7 +99,13 @@ Every then and when Tor relay operators do get an undesired abuse complaint from
 Details are in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
 
 To avoid complaints:
-Append [nftables-egress.conf](./nftables-egress.conf) onto the nftables, check and load it.
+Download [nftables-egress.conf](./nftables-egress.conf), check and load it
+
+```bash
+nft -c -f nftables-egress.conf && nft -o -f nftables-egress.conf
+```
+
+To persist it append it onto your existing nftables config.
 
 ### Metrics
 
@@ -206,9 +220,10 @@ It sends findings via _mailx_.
 log=/tmp/${0##*/}.log
 
 # watch syslog
-/opt/torutils/watch.sh /var/log/messages /opt/torutils/watch-messages.txt &>>$log &
+sudo ./watch.sh /var/log/messages ./watch-messages.txt
+
 # watch Tor
-/opt/torutils/watch.sh /var/log/tor/notice.log /opt/torutils/watch-tor.txt -v &>>$log &
+sudo ./watch.sh /var/log/tor/notice.log ./watch-tor.txt -v
 ```
 
 # Participation
@@ -217,4 +232,5 @@ Please file issues at [this](https://github.com/toralf/torutils/issues) tracker.
 
 # More
 
-I use [this](https://github.com/toralf/tor-relays/) project maintain Tor relays, bridges, Snowflake standalone proxies and for compile-tests of Linux kernels.
+I use [this](https://github.com/toralf/tor-relays/) project to maintain Tor relays, bridges, Snowflake standalone proxies.
+Furthermore, I use it for compile-tests of upcoming Linux kernels.
