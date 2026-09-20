@@ -41,9 +41,7 @@ sudo apt install -y nftables
 Download [nftables-ingress.conf](./nftables-ingress.conf).
 It contains a complete ruleset for a Linux system running Tor.
 Ignore its size.
-For a common Tor installation look for `LOCAL_V4_ADDRESS`, `LOCAL_V6_ADDRESS` and `TOR_PORT`.
-If you run more than 1 Tor instance at the same system then add all instanzes as
-[address, port] pairs to the `tor_v4` and `tor_v6` sets respectively.
+For a common Tor installation replace `LOCAL_V4_ADDRESS`, `LOCAL_V6_ADDRESS` and `TOR_PORT` with your values.
 Lint it:
 
 ```bash
@@ -63,6 +61,8 @@ net.netfilter.nf_conntrack_buckets = 131072
 net.netfilter.nf_conntrack_max = 131072
 ```
 
+I do set few more values for my systems, e.g.
+[here](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/tasks/system-config.yaml#L39).
 Reload the firewall service:
 
 ```bash
@@ -71,12 +71,7 @@ service nftables reload
 
 If your system works as expected - enjoy it.
 If something went wrong then restore the backup.
-For a Snowflake standalone proxy uncomment the Snowflake part (and remove the Tor part).
-If you run more services on the same machine do this under
-
-```yaml
-# ======== ADDITIONAL BEGIN ========
-```
+Check [Configuration](#configuration) before please.
 
 ### The Rule Set
 
@@ -87,11 +82,12 @@ If you run more services on the same machine do this under
 5. accept the connection attempt
 
 The ruleset applies to each defined [OR address, OR port] pair.
-¹ _source_ is a single ip address for IPv4 and a /64 network for IPv6 per default.
+
+¹ Per default the _source_ is a IPv4 address or a /64 IPv6 respectively.
 
 ² Values were discussed in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 
-³ No overblocking even if either the _source_ and/or the local system have a couple of reboots in a short time
+³ No overblocking even if the _source_ and/or the local system are rebooted few times in a row
 
 ### Avoid abuse complaints / server blocking
 
@@ -106,12 +102,23 @@ Download [nftables-egress.conf](./nftables-egress.conf), check and load it
 nft -c -f nftables-egress.conf && nft -o -f nftables-egress.conf
 ```
 
-Persist it by appending to your existing nftables config file.
+Persist it by appending it to your existing nftables config file.
+
+### Configuration
+
+If you run more than 1 Tor instance at the same system then add all [address, port] pairs
+to the `tor_v4` and `tor_v6` set respectively.
+For a Snowflake standalone proxy uncomment the Snowflake part (and remove the Tor part).
+Configure additional local services under
+
+```yaml
+# ======== ADDITIONAL BEGIN ========
+```
 
 ### Metrics
 
 The script [metrics-firewall.sh](./metrics-firewall.sh) exports firewall metrics into a Prometheus readable file.
-More details plus few Grafana dashboards are in [dashboards](./dashboards/README.md).
+More details and few Grafana dashboards are in [dashboards](./dashboards/README.md).
 
 ### Few more DDoS examples
 
