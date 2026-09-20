@@ -71,7 +71,7 @@ service nftables reload
 
 If your system works as expected - enjoy it.
 If something went wrong then restore the backup.
-Check [Configuration](#configuration) before please.
+Check [Configuration](#configuration) for more info.
 
 ### The Rule Set
 
@@ -94,11 +94,13 @@ The ruleset applies to each defined [OR address, OR port] pair.
 If you run more than 1 Tor instance at the same system then add all [address, port] pairs
 to the `tor_v4` and `tor_v6` set respectively.
 For a Snowflake standalone proxy uncomment the Snowflake part (and remove the Tor part).
-Configure additional local services under
+Additional local services can bhe configure under
 
 ```yaml
 # ======== ADDITIONAL BEGIN ========
 ```
+
+Otherwise remove that section .
 
 ### Metrics
 
