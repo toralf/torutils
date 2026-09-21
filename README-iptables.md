@@ -4,7 +4,7 @@
 
 Few tools for a Tor relay.
 
-This guide is about the _iptables_ variant.
+This guide is about the _iptables_ variant (the scripted solution).
 For _nftables_ proceed with [README-nftables.md](./README-nftables.md).
 
 ## Block DDoS

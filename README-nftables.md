@@ -5,7 +5,7 @@
 Few tools for a Tor relay.
 
 This guide is about the _nftables_ variant.
-For _iptables_ proceed with [README-iptables.md](./README-iptables.md).
+For _iptables_ (the scripted solution) proceed with [README-iptables.md](./README-iptables.md).
 
 ## DDoS protection
 
@@ -105,7 +105,7 @@ Otherwise remove that section .
 ### Metrics
 
 The script [metrics-firewall.sh](./metrics-firewall.sh) exports firewall metrics into a Prometheus readable file.
-More details and few Grafana dashboards are in [dashboards](./dashboards/README.md).
+More details are in [dashboards](./dashboards/README.md), I use [this](./dashboards/node-hx.json) for the firewall metrics.
 
 ## Avoid abuse complaints / server blocking
 
