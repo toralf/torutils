@@ -32,24 +32,24 @@ Further considerations:
 
 ### Quick start
 
-Install _nftables_, e.g. at Debian:
-
-```bash
-sudo apt install -y nftables
-```
-
 Download [nftables-ingress.conf](./nftables-ingress.conf).
 It contains a complete ruleset for a Linux system running Tor.
-Ignore its size.
-For a common Tor installation replace `LOCAL_V4_ADDRESS`, `LOCAL_V6_ADDRESS` and `TOR_PORT` with your values.
+Swearch for and replace `LOCAL_V4_ADDRESS`, `LOCAL_V6_ADDRESS` and `TOR_PORT` respectively with your values.
 Lint it:
 
 ```bash
 nft -c -f <edited file>
 ```
 
-Copy it onto /etc/nftables.conf (make a backup before).
-Ensure that your kernel sysctl values fit, e.g.:
+Load it
+
+```bash
+nft -o -f <edited file>
+```
+
+If your system works as expected - enjoy it. If something went wrong then restore the backup.
+To persist the ruleset copy the file onto /etc/nftables.conf (make a backup before).
+Check and set your kernel sysctl values, e.g.:
 
 ```bash
 cat /etc/sysctl.d/21firewall.conf
@@ -61,46 +61,45 @@ net.netfilter.nf_conntrack_buckets = 131072
 net.netfilter.nf_conntrack_max = 131072
 ```
 
-I do set few more values for my systems, e.g.
-[here](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/tasks/system-config.yaml#L39).
-Reload the firewall service:
+Eventually reload the firewall service:
 
 ```bash
 service nftables reload
 ```
 
-If your system works as expected - enjoy it.
-If something went wrong then restore the backup.
 Check [Configuration](#configuration) for more info.
 
 ### The Rule Set
 
-1. trust any connection attempt from a Tor authority node
-2. block the source ¹ for 24 hours if the connection attempt rate exceeds 8/min ² within last 5 minutes - or -
-3. block the source ¹ for 24 hours if the connection attempt rate exceeds 24/hour within last 2 hours ³
-4. ignore the connection attempt if there are already 8 established connections
+1. trust the connection attempt from a Tor authority node
+2. block the source¹ for 24 hours if the connection attempt rate exceeds 8/min² within last 5 minutes
+3. block the source¹ for 24 hours if the connection attempt rate exceeds 24/hour within last 2 hours³
+4. ignore the connection attempt if there are already 8 established connections³
 5. accept the connection attempt
 
-The ruleset applies to each defined [OR address, OR port] pair.
+The ruleset applies to each running Tor instance separately.
 
-¹ Per default the _source_ is a IPv4 address or a /64 IPv6 respectively.
+¹ Per default the _source_ is a IPv4 address and a /64 IPv6 address respectively.
 
-² Values were discussed in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
+² Values were discussed in the Tor ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 
-³ No overblocking even if the _source_ and/or the local system are rebooted few times in a row
+³ No overblocking even if the _source_ and/or the local system are rebooted few times in a row.
 
 ### Configuration
 
 If you run more than 1 Tor instance at the same system then add all [address, port] pairs
 to the `tor_v4` and `tor_v6` set respectively.
-For a Snowflake standalone proxy uncomment the Snowflake part (and remove the Tor part).
-Additional local services can bhe configure under
+For a Snowflake standalone proxy uncomment the Snowflake part.
+Additional local services can be configured under
 
 ```yaml
 # ======== ADDITIONAL BEGIN ========
 ```
 
-Otherwise remove that section .
+I conmfigure the sysctl values for my systems accordingly to
+[this](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/files/20tor-system.conf) and
+[this](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/tasks/system-config.yaml#L39)
+settings.
 
 ### Metrics
 
@@ -244,3 +243,4 @@ Please file issues at [this](https://github.com/toralf/torutils/issues) tracker.
 
 I use [this](https://github.com/toralf/tor-relays/) project to maintain Tor relays, bridges, Snowflake standalone proxies.
 Furthermore, I use it for compile-tests of upcoming Linux kernels.
+And, it is the origin fo the nftabels variant of the ruleset.

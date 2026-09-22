@@ -324,3 +324,9 @@ log=/tmp/${0##*/}.log
 ## Issue tracker
 
 I appreciate reports about any findings via the [issue](https://github.com/toralf/torutils/issues) tracker.
+
+# More
+
+I use [this](https://github.com/toralf/tor-relays/) project to maintain Tor relays, bridges, Snowflake standalone proxies.
+Furthermore, I use it for compile-tests of upcoming Linux kernels.
+And, it is the origin fo the nftabels variant of the ruleset.
