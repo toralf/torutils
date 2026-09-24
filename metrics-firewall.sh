@@ -36,7 +36,7 @@ i=0   # counter
 nth=1 # scrape expensive data structures only every n-th time
 
 while :; do
-  now=$EPOCHSECONDS
+  start=$EPOCHSECONDS
   ((++i))
 
   tmpfile=$(mktemp /$(basename $0)_XXXXXX.tmp)
@@ -89,7 +89,7 @@ while :; do
   if ((intervall == 0)); then
     break
   fi
-  diff=$((EPOCHSECONDS - now))
+  diff=$((EPOCHSECONDS - start))
   # adjust the scrape intervall if needed, sleep if possible
   if ((diff < intervall)); then
     if ((nth > 1)); then
