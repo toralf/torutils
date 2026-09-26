@@ -5,17 +5,17 @@
     "name": "9fa768c0-eb54-434e-85f5-bc4653f66e5c",
     "namespace": "default",
     "uid": "4PECHt6aSXqWLMtoDKNfAXl9bhmzKwZ5dfBjuAeeFW0X",
-    "resourceVersion": "1790350801875002",
-    "generation": 198,
+    "resourceVersion": "1790455249183993",
+    "generation": 217,
     "creationTimestamp": "2025-09-19T19:12:36Z",
     "labels": {
       "grafana.app/deprecatedInternalID": "31"
     },
     "annotations": {
       "grafana.app/createdBy": "user:u000000001",
-      "grafana.app/saved-from-ui": "Grafana v13.1.6 (1b5dd5311b)",
+      "grafana.app/saved-from-ui": "Grafana v13.2.2 (1bea008f7e)",
       "grafana.app/updatedBy": "user:u000000001",
-      "grafana.app/updatedTimestamp": "2026-09-25T15:40:01Z"
+      "grafana.app/updatedTimestamp": "2026-09-26T20:40:49Z"
     }
   },
   "spec": {
@@ -62,7 +62,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -88,7 +88,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -192,7 +192,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -217,7 +217,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -242,7 +242,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.6",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -346,7 +346,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -371,7 +371,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -396,7 +396,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -421,7 +421,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -446,7 +446,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.6",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -553,7 +553,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -579,7 +579,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.6",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -683,7 +683,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -708,7 +708,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.6",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -808,7 +808,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -833,7 +833,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -858,7 +858,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.6",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -962,7 +962,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -987,7 +987,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -1087,7 +1087,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1112,7 +1112,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "piechart",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "displayLabels": [
@@ -1180,7 +1180,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1206,7 +1206,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.6",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -1310,7 +1310,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1336,7 +1336,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.6",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -1440,7 +1440,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1465,7 +1465,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.6",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -1569,7 +1569,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1594,7 +1594,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.6",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -1698,7 +1698,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1724,7 +1724,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.6",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -1828,7 +1828,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1853,7 +1853,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.6",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -1957,7 +1957,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1982,7 +1982,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.6",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -2066,6 +2066,214 @@
             }
           }
         }
+      },
+      "panel-44": {
+        "kind": "Panel",
+        "spec": {
+          "id": 44,
+          "title": "Signing Key Expiration (days)",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "afzfqdt58sagwd"
+                      },
+                      "spec": {
+                        "disableTextWrap": false,
+                        "editorMode": "code",
+                        "exemplar": false,
+                        "expr": "(tor_relay_signing_cert_expiry_timestamp - time()) / 86400",
+                        "format": "time_series",
+                        "fullMetaSearch": false,
+                        "includeNullMetadata": true,
+                        "instant": true,
+                        "interval": "",
+                        "legendFormat": "{{nickname}}",
+                        "range": false,
+                        "useBackend": false
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "gauge",
+            "version": "13.2.2",
+            "spec": {
+              "options": {
+                "barShape": "flat",
+                "barWidthFactor": 0.5,
+                "effects": {
+                  "barGlow": false,
+                  "centerGlow": false,
+                  "gradient": false
+                },
+                "endpointMarker": "point",
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "segmentCount": 1,
+                "segmentSpacing": 0.3,
+                "shape": "gauge",
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true,
+                "sizing": "auto",
+                "sparkline": false,
+                "text": {},
+                "textMode": "auto"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "none",
+                  "decimals": 1,
+                  "min": 0,
+                  "max": 83,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "red"
+                      },
+                      {
+                        "value": 14,
+                        "color": "#EAB839"
+                      },
+                      {
+                        "value": 28,
+                        "color": "blue"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-45": {
+        "kind": "Panel",
+        "spec": {
+          "id": 45,
+          "title": "Bug counter",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "afzfqdt58sagwd"
+                      },
+                      "spec": {
+                        "disableTextWrap": false,
+                        "editorMode": "builder",
+                        "exemplar": false,
+                        "expr": "tor_bug_reached_count{instance=~\"$Instance\"}",
+                        "format": "time_series",
+                        "fullMetaSearch": false,
+                        "includeNullMetadata": true,
+                        "instant": true,
+                        "interval": "",
+                        "legendFormat": "{{nickname}}",
+                        "range": false,
+                        "useBackend": false
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.2.2",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "text": {},
+                "textMode": "auto",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "none",
+                  "decimals": 0,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "blue"
+                      },
+                      {
+                        "value": 1,
+                        "color": "yellow"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
       }
     },
     "layout": {
@@ -2076,7 +2284,7 @@
             "kind": "RowsLayoutRow",
             "spec": {
               "title": "Targets",
-              "collapse": true,
+              "collapse": false,
               "layout": {
                 "kind": "GridLayout",
                 "spec": {
@@ -2117,6 +2325,32 @@
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-24"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 12,
+                        "y": 9,
+                        "width": 12,
+                        "height": 3,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-44"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 12,
+                        "y": 12,
+                        "width": 12,
+                        "height": 5,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-45"
                         }
                       }
                     }
@@ -2343,7 +2577,7 @@
     "tags": [],
     "timeSettings": {
       "timezone": "utc",
-      "from": "now-24h",
+      "from": "now-2d",
       "to": "now",
       "autoRefresh": "auto",
       "autoRefreshIntervals": [
@@ -2380,7 +2614,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2415,7 +2649,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2450,7 +2684,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2485,7 +2719,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2520,7 +2754,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2554,7 +2788,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2588,7 +2822,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2622,7 +2856,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2656,7 +2890,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2690,7 +2924,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2725,7 +2959,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2760,7 +2994,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2795,7 +3029,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2830,7 +3064,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2865,7 +3099,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2900,7 +3134,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
