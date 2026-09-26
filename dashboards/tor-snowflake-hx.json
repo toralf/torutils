@@ -5,17 +5,17 @@
     "name": "advs71ika4f7kf",
     "namespace": "default",
     "uid": "QrFkas6uI8kHXhDsw0RRt4XXsuyJnFOoAm02PUKSxPgX",
-    "resourceVersion": "1788732445717987",
-    "generation": 145,
+    "resourceVersion": "1790457330628989",
+    "generation": 152,
     "creationTimestamp": "2024-08-24T10:07:31Z",
     "labels": {
       "grafana.app/deprecatedInternalID": "23"
     },
     "annotations": {
       "grafana.app/createdBy": "user:u000000001",
-      "grafana.app/saved-from-ui": "Grafana v13.1.2 (7f247b37a4)",
+      "grafana.app/saved-from-ui": "Grafana v13.2.2 (1bea008f7e)",
       "grafana.app/updatedBy": "user:u000000001",
-      "grafana.app/updatedTimestamp": "2026-09-06T22:07:25Z"
+      "grafana.app/updatedTimestamp": "2026-09-26T21:15:30Z"
     }
   },
   "spec": {
@@ -62,7 +62,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -89,7 +89,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -194,7 +194,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -221,7 +221,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "12.3.0",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "legend": {
@@ -318,7 +318,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -345,7 +345,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -371,7 +371,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -475,7 +475,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -502,7 +502,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "12.3.0",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "legend": {
@@ -600,7 +600,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -627,7 +627,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -731,7 +731,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -758,7 +758,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -862,7 +862,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -889,7 +889,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -915,7 +915,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "12.3.0",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "legend": {
@@ -1013,7 +1013,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1040,7 +1040,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "12.3.0",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "legend": {
@@ -1138,7 +1138,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1164,7 +1164,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "12.3.0",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "legend": {
@@ -1261,7 +1261,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1288,7 +1288,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -1391,7 +1391,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1418,7 +1418,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -1522,7 +1522,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1547,7 +1547,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "12.3.0",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "legend": {
@@ -1641,7 +1641,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1667,7 +1667,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -1771,7 +1771,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1797,7 +1797,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -1901,7 +1901,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1928,7 +1928,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -2032,7 +2032,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -2059,7 +2059,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -2162,7 +2162,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -2189,7 +2189,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -2401,7 +2401,7 @@
             "kind": "RowsLayoutRow",
             "spec": {
               "title": "Avg",
-              "collapse": true,
+              "collapse": false,
               "layout": {
                 "kind": "GridLayout",
                 "spec": {
@@ -2467,7 +2467,7 @@
             "kind": "RowsLayoutRow",
             "spec": {
               "title": "Nodes",
-              "collapse": false,
+              "collapse": true,
               "layout": {
                 "kind": "GridLayout",
                 "spec": {
@@ -2626,7 +2626,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2661,7 +2661,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2696,7 +2696,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2731,7 +2731,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2766,7 +2766,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2800,7 +2800,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2834,7 +2834,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2868,7 +2868,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2902,7 +2902,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -2936,7 +2936,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
