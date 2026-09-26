@@ -5,17 +5,17 @@
     "name": "FgvRNta4k",
     "namespace": "default",
     "uid": "n4iMRgDi10FhAUHh8S0hyQVNfJhnQnOXL69eqvkRKEUX",
-    "resourceVersion": "1787596060986001",
-    "generation": 813,
+    "resourceVersion": "1790457581858003",
+    "generation": 817,
     "creationTimestamp": "2023-03-12T08:42:10Z",
     "labels": {
       "grafana.app/deprecatedInternalID": "4"
     },
     "annotations": {
       "grafana.app/createdBy": "user:u000000001",
-      "grafana.app/saved-from-ui": "Grafana v13.1.2 (7f247b37a4)",
+      "grafana.app/saved-from-ui": "Grafana v13.2.2 (1bea008f7e)",
       "grafana.app/updatedBy": "user:u000000001",
-      "grafana.app/updatedTimestamp": "2026-08-24T18:27:40Z"
+      "grafana.app/updatedTimestamp": "2026-09-26T21:19:41Z"
     }
   },
   "spec": {
@@ -67,7 +67,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -96,7 +96,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "gauge",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "barShape": "flat",
@@ -179,7 +179,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -204,7 +204,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -229,7 +229,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -334,7 +334,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -359,7 +359,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -384,7 +384,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -489,7 +489,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -514,7 +514,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -619,7 +619,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -644,7 +644,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -749,7 +749,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -774,7 +774,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -799,7 +799,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -903,7 +903,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -928,7 +928,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -1033,7 +1033,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1059,7 +1059,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -1163,7 +1163,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1188,7 +1188,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1213,7 +1213,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -1317,7 +1317,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1342,7 +1342,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -1446,7 +1446,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1471,7 +1471,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1496,7 +1496,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -1600,7 +1600,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1625,7 +1625,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1650,7 +1650,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1675,7 +1675,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1700,7 +1700,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -1809,7 +1809,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1835,7 +1835,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -1939,7 +1939,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -1964,7 +1964,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -2068,7 +2068,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -2167,7 +2167,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -2192,7 +2192,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -2292,7 +2292,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -2321,7 +2321,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "stat",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "colorMode": "value",
@@ -2388,7 +2388,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -2413,7 +2413,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "annotations": {
@@ -2518,7 +2518,7 @@
                       "group": "prometheus",
                       "version": "v0",
                       "datasource": {
-                        "name": "XbGvg5aVz"
+                        "name": "afzfqdt58sagwd"
                       },
                       "spec": {
                         "disableTextWrap": false,
@@ -2544,7 +2544,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "bargauge",
-            "version": "13.1.2",
+            "version": "13.2.2",
             "spec": {
               "options": {
                 "displayMode": "gradient",
@@ -2999,7 +2999,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -3034,7 +3034,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -3069,7 +3069,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -3104,7 +3104,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
@@ -3139,7 +3139,7 @@
             "group": "prometheus",
             "version": "v0",
             "datasource": {
-              "name": "XbGvg5aVz"
+              "name": "afzfqdt58sagwd"
             },
             "spec": {
               "qryType": 1,
