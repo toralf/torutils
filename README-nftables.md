@@ -73,9 +73,9 @@ The ruleset applies to each running Tor instance separately.
 
 ### Configuration
 
-If you run more than 1 Tor instance at the same system then add all [address, port] pairs
-to the `tor_v4` and `tor_v6` set respectively.
-For a Snowflake standalone proxy uncomment the Snowflake part.
+If you run more than 1 Tor instance at the same system then add all [Tor ip address, Tor OR port] pairs
+to the [tor_v4](./nftables-ingress.conf#tor_v4) and [tor_v6](./nftables-ingress.conf#tor_v6) set respectively.
+For a Snowflake standalone proxy uncomment that part.
 Additional local services can be configured under
 
 ```yaml
