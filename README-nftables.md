@@ -32,7 +32,7 @@ Further considerations:
 
 ### Quick start
 
-Copy the nftables command from [tor_v4](./nftables-ingress.conf#tor_v4) and [tor_v6](./nftables-ingress.conf#tor_v6) into your own configuration.
+Copy the rules from [nftables-ingress.conf](./nftables-ingress.conf) into your own configuration.
 
 **Or:**
 
@@ -49,11 +49,11 @@ Load it
 nft -f <file>
 ```
 
-If your system works as expected - enjoy it.
+If the Tor server works as expected - enjoy it.
 Persist the ruleset in _/etc/nftables.conf_ (make a backup before).
 
 If something went wrong then restore the backup.
-But check the [Configuration](#configuration) section for more info before.
+Check the [Configuration](#configuration) section for more info before.
 
 ### The Rule Set
 
@@ -74,10 +74,9 @@ The ruleset applies to each running Tor instance separately.
 ### Configuration
 
 If you run more than 1 Tor instance at the same system then add all [Tor ip address, Tor OR port] pairs
-to the [tor_v4](./nftables-ingress.conf#tor_v4) and [tor_v6](./nftables-ingress.conf#tor_v6) set respectively.
-
+to the `tor_v4` and `tor_v6` set respectively.
 For a Snowflake standalone proxy or to configure additional local services use
-[nftables-ingress-full.conf](./nftables-ingress-full.conf) and comment in/out rules to fit your needs.
+[nftables-ingress-full.conf](./nftables-ingress-full.conf) and comment in/out rules accordingly to your needs.
 
 To deal with the amount of network connections I do set certain sysctl values, e.g.:
 
