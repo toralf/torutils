@@ -75,12 +75,9 @@ The ruleset applies to each running Tor instance separately.
 
 If you run more than 1 Tor instance at the same system then add all [Tor ip address, Tor OR port] pairs
 to the [tor_v4](./nftables-ingress.conf#tor_v4) and [tor_v6](./nftables-ingress.conf#tor_v6) set respectively.
-For a Snowflake standalone proxy uncomment that part.
-Additional local services can be configured under
 
-```yaml
-# ======== ADDITIONAL BEGIN ========
-```
+For a Snowflake standalone proxy or to configure additional local services use
+[nftables-ingress-full.conf](./nftables-ingress-full.conf) and comment in/out rules to fit your needs.
 
 To deal with the amount of network connections I do set certain sysctl values, e.g.:
 
