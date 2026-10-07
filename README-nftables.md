@@ -32,42 +32,28 @@ Further considerations:
 
 ### Quick start
 
-Download [nftables-ingress.conf](./nftables-ingress.conf).
-It contains a complete ruleset for a Linux system running Tor.
-Swearch for and replace `LOCAL_V4_ADDRESS`, `LOCAL_V6_ADDRESS` and `TOR_PORT` respectively with your values.
+Copy the nftables command from [tor_v4](./nftables-ingress.conf#tor_v4) and [tor_v6](./nftables-ingress.conf#tor_v6) into your own configuration.
+
+**Or:**
+
+Replace `LOCAL_V4_ADDRESS`, `LOCAL_V6_ADDRESS` and `TOR_PORT` in [nftables-ingress.conf](./nftables-ingress.conf) with your values.
 Lint it:
 
 ```bash
-nft -c -f <edited file>
+nft -c -f <file>
 ```
 
 Load it
 
 ```bash
-nft -o -f <edited file>
+nft -f <file>
 ```
 
-If your system works as expected - enjoy it. If something went wrong then restore the backup.
-To persist the ruleset copy the file onto /etc/nftables.conf (make a backup before).
-Check and set your kernel sysctl values, e.g.:
+If your system works as expected - enjoy it.
+Persist the ruleset in _/etc/nftables.conf_ (make a backup before).
 
-```bash
-cat /etc/sysctl.d/21firewall.conf
-
-net.core.somaxconn = 131072
-net.ipv4.tcp_max_syn_backlog = 131072
-net.ipv4.tcp_syncookies = 1
-net.netfilter.nf_conntrack_buckets = 131072
-net.netfilter.nf_conntrack_max = 131072
-```
-
-Eventually reload the firewall service:
-
-```bash
-service nftables reload
-```
-
-Check [Configuration](#configuration) for more info.
+If something went wrong then restore the backup.
+But check the [Configuration](#configuration) section for more info before.
 
 ### The Rule Set
 
@@ -96,10 +82,19 @@ Additional local services can be configured under
 # ======== ADDITIONAL BEGIN ========
 ```
 
-I conmfigure the sysctl values for my systems accordingly to
-[this](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/files/20tor-system.conf) and
-[this](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/tasks/system-config.yaml#L39)
-settings.
+To deal with the amount of network connections I do set certain sysctl values, e.g.:
+
+```bash
+net.core.somaxconn = 131072
+net.ipv4.tcp_max_syn_backlog = 131072
+net.ipv4.tcp_syncookies = 1
+net.netfilter.nf_conntrack_buckets = 131072
+net.netfilter.nf_conntrack_max = 131072
+```
+
+More settings working for my systems are seen
+[here](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/files/20tor-system.conf) and
+[here](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/tasks/system-config.yaml#L39).
 
 ### Metrics
 
