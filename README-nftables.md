@@ -69,7 +69,7 @@ The ruleset applies to each running Tor instance separately.
 
 ² Values were discussed in the Tor ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 
-³ No overblocking even if the _source_ and/or the local system are rebooted few times in a row.
+³ Avoid overblocking even if the _source_ and/or the local system are rebooted few times in a row.
 
 ### Configuration
 
