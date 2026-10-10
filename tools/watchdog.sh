@@ -13,6 +13,8 @@ export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
 type logger mpstat service >/dev/null
 
+[[ ${1-} == "i_know_what_i_am_doing" ]]
+
 i=0
 while :; do
   read -r iowait idle < <(mpstat --dec=0 -P 'ALL' 60 1 | awk '/^Average:  *all / { print $6, $12 }')
