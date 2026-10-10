@@ -3,6 +3,9 @@
 # set -x
 
 # restart Tor if system stucks
+# Caution:
+#   This is not a general solution.
+#   This script might be triggered remotely by DDoS'ing a Tor server.
 
 set -euf
 export LANG=C.utf8
