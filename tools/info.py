@@ -18,7 +18,7 @@ from stem.util.system import start_time
 
 HEADER_LINE = " {version}   uptime: {uptime}   flags: {flags}"
 
-DIV = "+%s+%s+%s+" % ("-" * 30, "-" * 7, "-" * 7)
+DIV = "+{}+{}+{}+".format("-" * 30, "-" * 7, "-" * 7)
 COLUMN = "| %-28s | %5s | %5s |"
 
 INBOUND_OR_FROM_RELAY = "Inbound to OR from relay"
@@ -161,7 +161,7 @@ def main(args=None):
 
     # statistics for exit connections
     if exit_connections:
-        print("")
+        print()
         print(DIV)
         print(COLUMN % ("Exit Port", "IPv4", "IPv6"))
         print(DIV)
@@ -177,7 +177,7 @@ def main(args=None):
 
             # print description instead port number
             usage = port_usage(port)
-            label = "%s (%s)" % (port, usage) if usage else port
+            label = f"{port} ({usage})" if usage else port
 
             print(COLUMN % (label, i2str(ipv4_count), i2str(ipv6_count)))
 

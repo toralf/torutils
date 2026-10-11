@@ -61,7 +61,7 @@ def orconn_event(controller, event):
                     flush=True,
                 )
             else:
-                print("", flush=True)
+                print(flush=True)
 
 
 if __name__ == "__main__":

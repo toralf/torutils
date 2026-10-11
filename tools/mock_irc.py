@@ -35,7 +35,7 @@ def main():
 
     while 1:
         try:
-            clientsock, clientaddr = s.accept()
+            clientsock, _clientaddr = s.accept()
             clienthost = clientsock.getpeername()[0]
             clientport = clientsock.getpeername()[1]
             clientsock.send(banner)

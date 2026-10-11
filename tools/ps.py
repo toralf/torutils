@@ -129,9 +129,8 @@ def main():
                             if laddr == relay_ipv4:
                                 continue
 
-                    if raddr in relays:
-                        if rport in relays[raddr]:
-                            continue
+                    if raddr in relays and rport in relays[raddr]:
+                        continue
 
                     if not policy.can_exit_to(raddr, rport):
                         continue
@@ -172,12 +171,9 @@ def main():
                     MaxClosed.setdefault(port, 0)
 
                     if not first:
-                        if MaxAll[port] < n_curr:
-                            MaxAll[port] = n_curr
-                        if MaxOpened[port] < n_opened:
-                            MaxOpened[port] = n_opened
-                        if MaxClosed[port] < n_closed:
-                            MaxClosed[port] = n_closed
+                        MaxAll[port]    = max(MaxAll[port], n_curr)
+                        MaxOpened[port] = max(MaxOpened[port], n_opened)
+                        MaxClosed[port] = max(MaxClosed[port], n_closed)
 
                     stri = " %5i %5i %6i %6i   %6i %6i %6i  (%s)" % (
                         port,
