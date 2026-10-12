@@ -171,7 +171,7 @@ def main():
                     MaxClosed.setdefault(port, 0)
 
                     if not first:
-                        MaxAll[port]    = max(MaxAll[port], n_curr)
+                        MaxAll[port] = max(MaxAll[port], n_curr)
                         MaxOpened[port] = max(MaxOpened[port], n_opened)
                         MaxClosed[port] = max(MaxClosed[port], n_closed)
 
