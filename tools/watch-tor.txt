@@ -50,6 +50,7 @@ Bootstrapped 90% (ap_handshake_done): Handshake finished with a relay to build c
 Bootstrapped 95% (circuit_create): Establishing a Tor circuit
 Building openssl with such support (using the enable-ec_nistp_64_gcc_128 option when configuring it) would make ECDH much faster.
 Channel padding timeout scheduled
+Circuit build expiry summary:
 Circuit handshake stats since last time:
 Clean shutdown finished. Exiting.
 Configured to measure statistics. Look for the *-stats files that will first be written to the data directory in 24 hours from now.
