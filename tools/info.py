@@ -71,13 +71,18 @@ def main(args=None):
 
     pid = controller.get_pid()
 
-    print(
-        HEADER_LINE.format(
-            version=str(controller.get_version()).split()[0],
-            uptime=short_time_label(time.time() - start_time(pid)),
-            flags=", ".join(desc.flags if desc else ["none"]),
+    try:
+        version = str(controller.get_version()).split()[0]
+        print(
+            HEADER_LINE.format(
+                version,
+                uptime=short_time_label(time.time() - start_time(pid)),
+                flags=", ".join(desc.flags if desc else ["none"]),
+            )
         )
-    )
+    except:
+        print("Woops, version failed")
+        sys.exit(1)
 
     policy = controller.get_exit_policy()
 
