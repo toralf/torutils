@@ -121,7 +121,7 @@ function __create_ipset() {
 }
 
 # curl -s 'https://onionoo.torproject.org/summary?search=flag:authority' -o - |\
-#   jq -r '.relays[].a' | grep -F '.' | tr -d '][", ' | sort -V | xargs
+#   jq -r '.relays[].a' | grep -F '.' | tr -d '][", ' | sort -V | xargs -r
 # getent ahostsv4 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }' | sort -uV
 function fill_trustset() {
   (
