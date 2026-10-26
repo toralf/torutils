@@ -73,13 +73,9 @@ def main(args=None):
 
     try:
         version = str(controller.get_version()).split()[0]
-        print(
-            HEADER_LINE.format(
-                version,
-                uptime=short_time_label(time.time() - start_time(pid)),
-                flags=", ".join(desc.flags if desc else ["none"]),
-            )
-        )
+        uptime = short_time_label(time.time() - start_time(pid))
+        flags = ", ".join(desc.flags if desc else ["none"])
+        print(HEADER_LINE.format(version=version, uptime=uptime, flags=flags))
     except:
         print("Woops, version failed")
         sys.exit(1)
