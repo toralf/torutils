@@ -5,17 +5,17 @@
     "name": "bb0ac200-1fab-4d04-a3b0-859d35ec9ee6",
     "namespace": "default",
     "uid": "Zmu0ceX0YWuNevZXLCrtbcAVB1oQx4blN2kku6abR60X",
-    "resourceVersion": "1790457469744992",
-    "generation": 423,
+    "resourceVersion": "1793268829606993",
+    "generation": 448,
     "creationTimestamp": "2023-05-26T17:45:30Z",
     "labels": {
       "grafana.app/deprecatedInternalID": "9"
     },
     "annotations": {
       "grafana.app/createdBy": "user:u000000001",
-      "grafana.app/saved-from-ui": "Grafana v13.2.2 (1bea008f7e)",
+      "grafana.app/saved-from-ui": "Grafana v13.2.4 (0e79aef9d9)",
       "grafana.app/updatedBy": "user:u000000001",
-      "grafana.app/updatedTimestamp": "2026-09-26T21:17:49Z"
+      "grafana.app/updatedTimestamp": "2026-10-29T10:13:49Z"
     }
   },
   "spec": {
@@ -67,7 +67,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "sum by(nickname, action) (rate(tor_relay_intro1_total{nickname=~\"$Nickname\", action=~\"$Action_circ\"}[$__rate_interval]))",
+                        "expr": "sum by(nickname, action) (rate(tor_relay_intro1_total{nickname=~\"$Nickname\", action=~\"$Action_circ\", job=~\"$Job\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "__auto",
@@ -87,7 +87,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -194,7 +194,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "sum by(type, nickname) (rate(tor_relay_dos_total{nickname=~\"$Nickname\", type=~\"$Type_dos\"}[$__rate_interval]))",
+                        "expr": "sum by(type, nickname) (rate(tor_relay_dos_total{nickname=~\"$Nickname\", type=~\"$Type_dos\", job=~\"$Job\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "__auto",
@@ -214,7 +214,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -318,7 +318,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "avg by(nickname) (tor_relay_load_global_rate_limit_reached_total{nickname=~\"$Nickname\"})",
+                        "expr": "sum by(nickname) (rate(tor_relay_load_global_rate_limit_reached_total{job=~\"$Job\", instance=~\"$Instance\", nickname=~\"$Nickname\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "__auto",
@@ -338,7 +338,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -445,7 +445,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "sum by(action, nickname) (rate(tor_relay_rend1_total{nickname=~\"$Nickname\", action=~\"$Action_circ\"}[$__rate_interval]))",
+                        "expr": "sum by(action, nickname) (rate(tor_relay_rend1_total{nickname=~\"$Nickname\", action=~\"$Action_circ\", job=~\"$Job\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "__auto",
@@ -465,7 +465,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -573,7 +573,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "sum by(type, nickname) (rate(tor_relay_streams_total{nickname=~\"$Nickname\", type=~\"$Type_stre\"}[$__rate_interval]))",
+                        "expr": "sum by(type, nickname) (rate(tor_relay_streams_total{nickname=~\"$Nickname\", type=~\"$Type_stre\", job=~\"$Job\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "__auto",
@@ -593,7 +593,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -700,7 +700,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "sum by(action, state, nickname, state) (rate(tor_relay_congestion_control{nickname=~\"$Nickname\", state=~\"$State_cong\", action=~\"$Action_cong\"}[$__rate_interval]))",
+                        "expr": "sum by(action, state, nickname, state) (rate(tor_relay_congestion_control{nickname=~\"$Nickname\", state=~\"$State_cong\", action=~\"$Action_cong\", job=~\"$Job\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "__auto",
@@ -720,7 +720,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -827,7 +827,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "sum by(action, type, nickname) (rate(tor_relay_load_onionskins_total{nickname=~\"$Nickname\", action=~\"$Action_load\", type=~\"$Type_load\"}[$__rate_interval]))",
+                        "expr": "sum by(action, type, nickname) (rate(tor_relay_load_onionskins_total{nickname=~\"$Nickname\", action=~\"$Action_load\", type=~\"$Type_load\", job=~\"$Job\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "__auto",
@@ -847,7 +847,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -955,7 +955,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "avg by(reason, nickname) (tor_relay_exit_dns_error_total{nickname=~\"$Nickname\", reason=~\"$Reason\"})",
+                        "expr": "avg by(reason, nickname) (tor_relay_exit_dns_error_total{nickname=~\"$Nickname\", reason=~\"$Reason\", job=~\"$Job\"})",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "__auto",
@@ -975,7 +975,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -1082,7 +1082,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "sum by(type, direction, nickname, family, state) (rate(tor_relay_connections_total{nickname=~\"$Nickname\", family=~\"$Family\", type=~\"$Type_conn\", direction=~\"$Dir_conn\", state=~\"$State_conn_tot\"}[$__rate_interval]))",
+                        "expr": "sum by(type, direction, nickname, family, state) (rate(tor_relay_connections_total{nickname=~\"$Nickname\", family=~\"$Family\", type=~\"$Type_conn\", direction=~\"$Dir_conn\", state=~\"$State_conn_tot\", job=~\"$Job\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "__auto",
@@ -1102,7 +1102,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -1210,7 +1210,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "avg by(nickname) (tor_relay_exit_dns_query_total{nickname=~\"$Nickname\"})",
+                        "expr": "avg by(nickname) (tor_relay_exit_dns_query_total{nickname=~\"$Nickname\", job=~\"$Job\"})",
                         "fullMetaSearch": false,
                         "includeNullMetadata": false,
                         "legendFormat": "__auto",
@@ -1230,7 +1230,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -1357,7 +1357,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -1464,7 +1464,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "sum by(direction) (rate(tor_relay_traffic_bytes{nickname=~\"$Nickname\", direction=~\"$Dir_traf\", job=~\"$Job\"}[$__rate_interval]))",
+                        "expr": "sum by(direction, job) (rate(tor_relay_traffic_bytes{nickname=~\"$Nickname\", direction=~\"$Dir_traf\", job=~\"$Job\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "instant": false,
@@ -1485,7 +1485,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -1573,7 +1573,7 @@
         "kind": "Panel",
         "spec": {
           "id": 25,
-          "title": "Load  Sockets (5m)",
+          "title": "Load  Sockets",
           "description": "",
           "links": [],
           "data": {
@@ -1593,7 +1593,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "sum by(nickname) (rate(tor_relay_load_socket_total{nickname=~\"$Nickname\", state=~\"$State_load_socket_tot\"}[$__rate_interval]))",
+                        "expr": "sum by(nickname) (rate(tor_relay_load_socket_total{nickname=~\"$Nickname\", state=~\"$State_load_socket_tot\", job=~\"$Job\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": false,
                         "instant": false,
@@ -1614,7 +1614,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -1723,7 +1723,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "avg by(nickname) (tor_bug_reached_count{nickname=~\"$Nickname\"})",
+                        "expr": "avg by(nickname) (tor_bug_reached_count{nickname=~\"$Nickname\", job=~\"$Job\"})",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "__auto",
@@ -1743,7 +1743,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -1852,7 +1852,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "tor_relay_flag{nickname=~\"$Nickname\", type=~\"$Flag\"}",
+                        "expr": "tor_relay_flag{nickname=~\"$Nickname\", type=~\"$Flag\", job=~\"$Job\"}",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "instant": false,
@@ -1873,7 +1873,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -1980,7 +1980,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "sum by(nickname) (rate(tor_relay_drop_cell_total{nickname=~\"$Nickname\"}[$__rate_interval]))",
+                        "expr": "sum by(nickname) (rate(tor_relay_drop_cell_total{nickname=~\"$Nickname\", job=~\"$Job\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": false,
                         "legendFormat": "__auto",
@@ -2000,7 +2000,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -2108,7 +2108,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "sum by(nickname) (rate(tor_relay_destroy_cell_total{nickname=~\"$Nickname\"}[$__rate_interval]))",
+                        "expr": "sum by(nickname) (rate(tor_relay_destroy_cell_total{nickname=~\"$Nickname\", job=~\"$Job\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": false,
                         "legendFormat": "__auto",
@@ -2128,7 +2128,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -2236,7 +2236,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "avg by(action, nickname) (rate(tor_relay_est_intro_total{nickname=~\"$Nickname\", action=~\"$Action_circ\"}[$__rate_interval]))",
+                        "expr": "avg by(action, nickname) (rate(tor_relay_est_intro_total{nickname=~\"$Nickname\", action=~\"$Action_circ\", job=~\"$Job\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "__auto",
@@ -2256,7 +2256,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -2363,7 +2363,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "sum by(nickname) (rate(tor_relay_circ_proto_violation_total{nickname=~\"$Nickname\"}[$__rate_interval]))",
+                        "expr": "sum by(nickname) (rate(tor_relay_circ_proto_violation_total{nickname=~\"$Nickname\", job=~\"$Job\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": false,
                         "legendFormat": "__auto",
@@ -2383,7 +2383,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -2491,7 +2491,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "sum by(nickname, direction) (rate(tor_relay_traffic_bytes{nickname=~\"$Nickname\", direction=~\"$Dir_traf\"}[$__rate_interval]))",
+                        "expr": "sum by(nickname, direction) (rate(tor_relay_traffic_bytes{nickname=~\"$Nickname\", direction=~\"$Dir_traf\", job=~\"$Job\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "instant": false,
@@ -2512,7 +2512,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -2619,7 +2619,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "sum by(type) (rate(tor_relay_dos_total{nickname=~\"$Nickname\", type=~\"$Type_dos\"}[$__rate_interval]))",
+                        "expr": "sum by(type, job) (rate(tor_relay_dos_total{nickname=~\"$Nickname\", type=~\"$Type_dos\", job=~\"$Job\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "__auto",
@@ -2639,7 +2639,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -2742,7 +2742,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "avg by(action, nickname) (rate(tor_relay_est_rend_total{nickname=~\"$Nickname\", action=~\"$Action_circ\"}[$__rate_interval]))",
+                        "expr": "avg by(action, nickname) (rate(tor_relay_est_rend_total{nickname=~\"$Nickname\", action=~\"$Action_circ\", job=~\"$Job\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "__auto",
@@ -2762,7 +2762,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -2869,7 +2869,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "avg by(subsys, nickname) (tor_relay_load_oom_bytes_total{nickname=~\"$Nickname\", subsys=~\"$Subsys\"})",
+                        "expr": "sum by(nickname, subsys) (rate(tor_relay_load_oom_bytes_total{nickname=~\"$Nickname\", subsys=~\"$Subsys\", job=~\"$Job\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "__auto",
@@ -2889,7 +2889,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -2996,7 +2996,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "avg by(nickname) (tor_relay_load_tcp_exhaustion_total{nickname=~\"$Nickname\"})",
+                        "expr": "avg by(nickname) (tor_relay_load_tcp_exhaustion_total{nickname=~\"$Nickname\", job=~\"$Job\"})",
                         "fullMetaSearch": false,
                         "includeNullMetadata": false,
                         "legendFormat": "__auto",
@@ -3016,7 +3016,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -3123,7 +3123,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "sum by(nickname, state) (rate(tor_relay_circuits_total{nickname=~\"$Nickname\", state=~\"$State_circ_tot\"}[$__rate_interval]))",
+                        "expr": "sum by(nickname, state) (rate(tor_relay_circuits_total{nickname=~\"$Nickname\", state=~\"$State_circ_tot\", job=~\"$Job\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "__auto",
@@ -3143,7 +3143,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -3251,7 +3251,7 @@
                       "spec": {
                         "disableTextWrap": false,
                         "editorMode": "builder",
-                        "expr": "sum by(type, direction, nickname, family, state) (rate(tor_relay_connections{family=~\"$Family\", type=~\"$Type_conn\", nickname=~\"$Nickname\", direction=~\"$Dir_conn\", state=~\"$State_conn\"}[$__rate_interval]))",
+                        "expr": "sum by(type, direction, nickname, family, state) (rate(tor_relay_connections{family=~\"$Family\", type=~\"$Type_conn\", nickname=~\"$Nickname\", direction=~\"$Dir_conn\", state=~\"$State_conn\", job=~\"$Job\"}[$__rate_interval]))",
                         "fullMetaSearch": false,
                         "includeNullMetadata": true,
                         "legendFormat": "__auto",
@@ -3271,7 +3271,7 @@
           "vizConfig": {
             "kind": "VizConfig",
             "group": "timeseries",
-            "version": "13.2.2",
+            "version": "13.2.4",
             "spec": {
               "options": {
                 "annotations": {
@@ -3363,7 +3363,7 @@
             "kind": "RowsLayoutRow",
             "spec": {
               "title": "All",
-              "collapse": false,
+              "collapse": true,
               "layout": {
                 "kind": "GridLayout",
                 "spec": {
@@ -3783,13 +3783,11 @@
     "tags": [],
     "timeSettings": {
       "timezone": "utc",
-      "from": "now-7d",
+      "from": "now-2d",
       "to": "now",
       "autoRefresh": "auto",
       "autoRefreshIntervals": [
-        "5s",
-        "10s",
-        "30s",
+        "15s",
         "1m",
         "5m",
         "15m",
@@ -3808,8 +3806,8 @@
         "spec": {
           "name": "Job",
           "current": {
-            "text": "Tor",
-            "value": "Tor"
+            "text": "All",
+            "value": "$__all"
           },
           "label": "Job",
           "hide": "dontHide",
@@ -4588,6 +4586,41 @@
           "regexApplyTo": "value",
           "sort": "alphabeticalAsc",
           "definition": "label_values(tor_relay_streams_total,type)",
+          "options": [],
+          "multi": false,
+          "includeAll": true,
+          "allowCustomValue": true
+        }
+      },
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "name": "State_load_socket_tot_copy23",
+          "current": {
+            "text": "All",
+            "value": "$__all"
+          },
+          "label": "State load socket tot",
+          "hide": "dontHide",
+          "refresh": "onTimeRangeChanged",
+          "skipUrlSync": false,
+          "query": {
+            "kind": "DataQuery",
+            "group": "prometheus",
+            "version": "v0",
+            "datasource": {
+              "name": "afzfqdt58sagwd"
+            },
+            "spec": {
+              "qryType": 1,
+              "query": "label_values(tor_relay_load_socket_total,state)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            }
+          },
+          "regex": "",
+          "regexApplyTo": "value",
+          "sort": "alphabeticalAsc",
+          "definition": "label_values(tor_relay_load_socket_total,state)",
           "options": [],
           "multi": false,
           "includeAll": true,

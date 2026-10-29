@@ -2,7 +2,7 @@
 
 # Tor Grafana Dashboards
 
-Few dashboards for Tor relays, Snowflake and the DDoS metrics.
+Few dashboards I do use for Tor, Snowflake and other nodes.
 
 ![image](./tor-ddos-dashboard.jpg)
 
@@ -10,7 +10,8 @@ Few dashboards for Tor relays, Snowflake and the DDoS metrics.
 
 An Ansible code snippet to configure a metrics port is given [here](https://github.com/toralf/tor-relays/?tab=readme-ov-file#metrics).
 
-The Prometheus config for the dashboard _DDoS_ needs to know the _nickname_. In the example below it is set using _address_ (== the hostname):
+The Prometheus config for several dashboards leverages to know a _nickname_ for a given address.
+In the example below it is set to _address_ (== the hostname):
 
 ```yaml
 - job_name: "Tor-Relay"
