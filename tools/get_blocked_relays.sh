@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# goal: test set of blocked addresses for relays
+# goal: test if a ddos set contains Tor relay address/es
 #
 # example: ./tools/get_blocked_relays.sh root@mr-fox v6
 
@@ -14,8 +14,7 @@ export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 host=${1?RELAY IS MISSING}
 ipver=${2?IPVER IS MISSING}
 
-# update current list of relay addresses
-
+# update list of known Tor relays
 known=/tmp/relays.$ipver.known.txt
 if ! ts=$(stat -c %Y $known 2>/dev/null); then
   ts=0
@@ -39,17 +38,15 @@ echo "$(wc -l <$known) relays in $known"
 srv="${host#*@}"
 
 # get content of nftables set
-
 ddos=/tmp/ddos.$ipver.$srv.txt
 # shellcheck disable=SC2029
 if ! ssh $host "nft -j -n list set inet ingress_filter ddos_$ipver | jq -r '.nftables[].set.elem[]?.elem.val'" | sort >$ddos; then
-  echo " cannot query $host" >&2
+  echo " cannot query $host for $ipver" >&2
   exit 1
 fi
 echo "$(wc -l <$ddos) addresses in $ddos"
 
 # compare
-
 blocked=/tmp/relays.$ipver.$srv.blocked.txt
 comm -12 $known $ddos |
   sort -V >$blocked
