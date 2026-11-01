@@ -74,26 +74,21 @@ The ruleset applies to each running Tor instance separately.
 
 ³ Avoid overblocking even if the _source_ and/or the local system are rebooted few times in a row.
 
+I developed a [script](./tools/get_blocked_relays.sh) to check if Tor relays are blocked.
+As time of writing about 0.3% of blocked ip addresses belong to known Tor relays.
+
 ### Configuration
 
 If you run more than 1 Tor instance at the same system then add all [Tor ip address, Tor OR port] pairs
 to the `tor_v4` and `tor_v6` set respectively.
 For a Snowflake standalone proxy or to configure additional local services use
-[nftables-ingress-full.conf](./nftables-ingress-full.conf) and comment in/out rules accordingly to your needs.
+[nftables-ingress-full.conf](./nftables-ingress-full.conf) and change it for your needs.
 
-To deal with the amount of network connections I do set certain sysctl values, e.g.:
-
-```bash
-net.core.somaxconn = 131072
-net.ipv4.tcp_max_syn_backlog = 131072
-net.ipv4.tcp_syncookies = 1
-net.netfilter.nf_conntrack_buckets = 131072
-net.netfilter.nf_conntrack_max = 131072
-```
-
-More settings working for my systems are seen
-[here](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/files/20tor-system.conf) and
-[here](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/tasks/system-config.yaml#L39).
+To deal with the amount of network connections I do tweak certain sysctl settings under _/etc/sysctl.d/_.
+The [generic](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/files/20generic.conf)
+ones are inspired by [KSPP](https://kspp.github.io/Recommended_Settings#sysctls).
+The [packet filter](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/tasks/base.yaml#L98)
+settings were derived mostly from my experiences.
 
 ### Metrics
 
