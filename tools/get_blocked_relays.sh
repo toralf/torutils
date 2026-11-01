@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # set -x
 
-# goal: test if a ddos set contains Tor relay address/es
+# goal: test if an nftables set contains Tor relay address/es
 #
 # example: ./tools/get_found_relays.sh root@mr-fox v6
 
@@ -41,7 +41,7 @@ echo "$(wc -l <$known) relays in $known"
 srv="${host#*@}"
 
 # get set content
-ddos=/tmp/ddos.$ipver.$srv.txt
+ddos=/tmp/ddos.$ipver.$srv.json
 if ! ts=$(stat -c %Y $ddos 2>/dev/null); then
   ts=0
 fi
@@ -53,7 +53,7 @@ if [[ ! -s $ddos || $((EPOCHSECONDS - ts > 60)) ]]; then
   fi
 fi
 
-# grep wrt expiration value
+# grep for address7/es where expires fits the desired value
 filtered=/tmp/ddos.$ipver.$srv.filtered.txt
 jq -r ".nftables[].set.elem[]? | select(.elem.expires > $expires * 3600) | .elem.val" <$ddos | sort >$filtered
 echo "$(wc -l <$filtered) addresses in $filtered"
