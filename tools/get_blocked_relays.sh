@@ -11,6 +11,8 @@ set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
+type jq nft >/dev/null
+
 host=${1?RELAY IS MISSING}  # host string, e.g. "user@hostname"
 ipver=${2?IPVER IS MISSING} # "v4" or "v6"
 expires=${3:-0}             # integer between 0 and 23

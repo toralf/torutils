@@ -11,7 +11,7 @@ set -euf
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-type logger mpstat service >/dev/null
+type logger mpstat >/dev/null
 
 [[ ${1-} == "i_know_what_i_am_doing" ]]
 

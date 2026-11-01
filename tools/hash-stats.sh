@@ -8,6 +8,8 @@ set -eu # no -f
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
+type gnuplot >/dev/null
+
 tmpfile=$(mktemp /tmp/$(basename $0)_XXXXXX.tmp)
 
 for h in ${@:-/proc/net/ipt_hashlimit/tor-ddos-v4-*}; do

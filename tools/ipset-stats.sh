@@ -108,6 +108,8 @@ set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
+type gnuplot ipset >/dev/null
+
 while getopts aAdDptT opt; do
   shift || true # OPTARG is optional
   case $opt in

@@ -4,13 +4,11 @@
 
 # check conntrack table statistics for relevant issues and print them if new/changed
 
-set -eu
+set -euf
 export LANG=C.utf8
 export PATH=/usr/sbin:/usr/bin:/sbin/:/bin
 
-if [[ ! -x "$(command -v conntrack)" ]]; then
-  exit 1
-fi
+type conntrack >/dev/null
 
 tmpfile=/tmp/conntrack.txt
 if [[ ! -f $tmpfile.old ]]; then

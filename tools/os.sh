@@ -11,6 +11,8 @@ set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
+type tor >/dev/null
+
 if [[ "$(whoami)" != "root" ]]; then
   echo "you must be root "
   exit 2
@@ -60,7 +62,7 @@ fi
 chmod 600 $dir/torrc
 chown tor:tor $dir/torrc
 
-/usr/bin/tor -f $dir/torrc
+tor -f $dir/torrc
 
 echo
 echo "onion address:  $(tail -v $dir/data/osdir/hostname)"

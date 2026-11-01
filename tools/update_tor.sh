@@ -49,7 +49,7 @@ set -euf
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
-hash -r rc-service smart-live-rebuild
+type smart-live-rebuild >/dev/null
 
 if smart-live-rebuild --no-color --pretend -f net-vpn/tor 2>&1 | grep -q 'No updates found'; then
   exit 0

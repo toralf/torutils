@@ -13,6 +13,8 @@ set -eu
 export LANG=C.utf8
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
 
+type gnuplot >/dev/null
+
 files=""
 reason=""
 for opt in "$@"; do
