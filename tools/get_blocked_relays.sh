@@ -17,7 +17,7 @@ host=${1?RELAY IS MISSING}  # host string, e.g. "user@hostname"
 ipver=${2?IPVER IS MISSING} # "v4" or "v6"
 expires=${3:-0}             # integer between 0 and 23
 
-# update Tor relays
+# get known Tor relays
 known=/tmp/relays.$ipver.known.txt
 if ! ts=$(stat -c %Y $known 2>/dev/null); then
   ts=0
@@ -40,7 +40,7 @@ echo "$(wc -l <$known) relays in $known"
 # strip away auth
 srv="${host#*@}"
 
-# update set
+# get set content
 ddos=/tmp/ddos.$ipver.$srv.txt
 if ! ts=$(stat -c %Y $ddos 2>/dev/null); then
   ts=0
@@ -53,13 +53,13 @@ if [[ ! -s $ddos || $((EPOCHSECONDS - ts > 60)) ]]; then
   fi
 fi
 
-# grep for given expiration value
+# grep wrt expiration value
 filtered=/tmp/ddos.$ipver.$srv.filtered.txt
 jq -r ".nftables[].set.elem[]? | select(.elem.expires > $expires * 3600) | .elem.val" <$ddos | sort >$filtered
 echo "$(wc -l <$filtered) addresses in $filtered"
 
-# compare
+# false positives likely for IPv6 b/c the ddos_v6 set contains /64 network blocks
 found=/tmp/relays.$ipver.$srv.found.txt
-comm -12 $known $filtered |
-  sort -V >$found
-echo "$(wc -l <$found) relays in $filtered"
+grep -f $filtered $known |
+  sort -uV >$found
+echo "$(wc -l <$found) matches in $found"
