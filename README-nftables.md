@@ -66,46 +66,48 @@ Check the [Configuration](#configuration) section for more info before.
 4. ignore the connection attempt if there are already 8 established connections³
 5. accept the connection attempt
 
-The ruleset applies to each running Tor instance separately.
+The ruleset applies to each running Tor instance of a system separately.
+But the block is effective at that system for all Tor instances.
 
-¹ Per default the _source_ is a IPv4 address and a /64 IPv6 address respectively.
+¹ Per default the _source_ is an IPv4 address or a /64 IPv6 address respectively.
 
 ² Values were discussed in the Tor ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 
 ³ Avoid overblocking even if the _source_ and/or the local system are rebooted few times in a row.
 
-I developed a [script](./tools/get_blocked_relays.sh) to check if Tor relays are blocked.
-As time of writing about 0.3% of blocked ip addresses belong to known Tor relays.
+I developed a [script](./tools/get_blocked_relays.sh) to check for blocked Tor relays.
+As time of writing about 0.3% of blocked ip addresses belong to Tor relays.
 
 ### Configuration
 
-If you run more than 1 Tor instance at the same system then add all [Tor ip address, Tor OR port] pairs
+If you run more than 1 Tor instance at the same system then add all as [Tor ip address, Tor OR port] pairs
 to the `tor_v4` and `tor_v6` set respectively.
 For a Snowflake standalone proxy or to configure additional local services use
 [nftables-ingress-full.conf](./nftables-ingress-full.conf) and change it for your needs.
 
-To deal with the amount of network connections I do tweak certain sysctl settings under _/etc/sysctl.d/_.
+I do tweak certain sysctl settings under _/etc/sysctl.d/_.
 The [generic](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/files/20generic.conf)
 ones are inspired by [KSPP](https://kspp.github.io/Recommended_Settings#sysctls).
 The [packet filter](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/tasks/base.yaml#L98)
-settings were derived mostly from my experiences.
+settings were derived from metrics and advices from others.
 
 ### Metrics
 
 The script [metrics-firewall.sh](./metrics-firewall.sh) exports firewall metrics into a Prometheus readable file.
-More details are in [dashboards](./dashboards/README.md), I use [this](./dashboards/node-hx.json) for the firewall metrics.
+More details are in [dashboards](./dashboards/README.md).
+I use [node.json](./dashboards/node.json) for the firewall metrics.
 
 ## Avoid abuse complaints / server blocking
 
 For _iptables_ proceed with [README-iptables.md](./README-iptables.md#avoid-abuse-complaints--server-blocking).
 
-Every then and when Tor relay operators do get an undesired abuse complaint from a hoster.
+Every then and when Tor relay operators do get undesired abuse complaints from their hoster.
 Details are in [this](https://gitlab.torproject.org/tpo/network-health/analysis/-/issues/105) ticket.
-To avoid complaints:
-Download [nftables-egress.conf](./nftables-egress.conf), check and load it
+To avoid complaints I do slew the egress traffic to network segments full of Tor relays.
+Download [nftables-egress.conf](./nftables-egress.conf), check and load it via
 
 ```bash
-nft -c -f nftables-egress.conf && nft -o -f nftables-egress.conf
+nft -c -f nftables-egress.conf && nft -f nftables-egress.conf
 ```
 
 Persist it by appending it to your existing nftables config file.
@@ -122,7 +124,7 @@ Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are
 Few more helper scripts were developed to analyze the attack vector.
 Look [here](./misc/README.md) for details.
 
-¹ using [sysstat](http://sebastien.godard.pagesperso-orange.fr/)
+¹ using [sysstat](https://sysstat.github.io/)
 
 # Misc stuff
 

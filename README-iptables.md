@@ -214,7 +214,7 @@ Current attacks e.g. at the [7th](./doc/network-metric-Mar-7th.svg) of March are
 Few more helper scripts were developed to analyze the attack vector.
 Look [here](./misc/README.md) for details.
 
-¹ using [sysstat](http://sebastien.godard.pagesperso-orange.fr/), created e.g. by
+¹ using [sysstat](https://sysstat.github.io/)
 
 ```bash
 # create the SVG file
