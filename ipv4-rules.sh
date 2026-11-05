@@ -183,11 +183,10 @@ function setSysctlValues() {
   sysctl -q -w net.netfilter.nf_conntrack_max=$max || sysctl -q -w net.nf_conntrack_max=$max
   sysctl -q -w net.ipv4.tcp_syncookies=1
 
-  # make tcp_max_syn_backlog big enough to have ListenDrops being low or 0:
-  # awk '(f==0) {i=1; while (i<=NF) {n[i] = $i; i++ }; f=1; next} (f==1){i=2; while (i<=NF) {printf "%s = %d\n", n[i], $i; i++}; f=0}' /proc/net/netstat | grep 'Drop'
+  local m8=$((max / 8))
   for i in net.netfilter.nf_conntrack_buckets net.ipv4.tcp_max_syn_backlog net.core.somaxconn; do
-    if [[ $(sysctl -n $i) -lt $max ]]; then
-      sysctl -q -w $i=$max
+    if [[ $(sysctl -n $i) -lt $m8 ]]; then
+      sysctl -q -w $i=$m8
     fi
   done
 }
