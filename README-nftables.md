@@ -130,26 +130,27 @@ Look [here](./misc/README.md) for details.
 
 [info.py](./tools/info.py) gives a summary of all Tor related TCP connections, e.g.:
 
-```console
-sudo ./info.py --address 127.0.0.1 --ctrlport 9051
+```bash
+export PYTHONPATH=~/stem
+./info.py --address 127.0.0.1 --ctrlport 9051
 
- ORport 9051  0.4.8.0-alpha-dev   uptime: 02:58:04   flags: Fast, Guard, Running, Stable, V2Dir, Valid
+ 0.5.0.0-alpha-dev   uptime: 1-21:56:55   flags: Fast, Guard, HSDir, Running, Stable, V2Dir, Valid
 +------------------------------+-------+-------+
 | Type                         |  IPv4 |  IPv6 |
 +------------------------------+-------+-------+
-| Inbound to our OR from relay |  2304 |   885 |
-| Inbound to our OR from other |  3188 |    68 |
-| Inbound to our ControlPort   |       |     1 |
-| Outbound to relay OR         |  2551 |   629 |
-| Outbound to relay non-OR     |       |       |
-| Outbound exit traffic        |       |       |
-| Outbound unknown             |    16 |     4 |
+| Inbound to OR from relay     |  1908 |   377 |
+| Inbound to OR from non-relay |  2223 |    51 |
+| Inbound to ControlPort       |     1 |       |
+| Outbound to relay OR         |  4703 |  2136 |
+| Outbound to relay non-OR     |     7 |     1 |
+| Outbound as Exit             |       |       |
+| Outbound unknown             |    41 |     6 |
 +------------------------------+-------+-------+
-| Total                        |  8059 |  1587 |
+| Total                        |  8883 |  2571 |
 +------------------------------+-------+-------+
- relay OR connections  6369
- relay OR ips          5753
-    3 inbound v4 with > 2 connections each
+ relay OR connections             6611    2513
+          unique ips              5420    1703
+    1 inbound non-relay v4 with > 9 connections
 ```
 
 ### Watch Tor Exit connections
@@ -157,7 +158,8 @@ sudo ./info.py --address 127.0.0.1 --ctrlport 9051
 If your Tor relay is an _Exit_ then [ps.py](./tools/ps.py) gives live statistics about those network connections:
 
 ```bash
-sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
+export PYTHONPATH=~/stem
+./ps.py --address 127.0.0.1 --ctrlport 9051
 ```
 
 ### Tor circuit closings
@@ -166,6 +168,7 @@ sudo ./ps.py --address 127.0.0.1 --ctrlport 9051
 [orstatus-stats.sh](./tools/orstatus-stats.sh) prints/plots statistics ([see this example](./doc/orstatus-stats.sh.txt)) from that.
 
 ```bash
+export PYTHONPATH=~/stem
 orstatus.py --ctrlport 9051 --address 127.0.0.1 >>/tmp/orstatus &
 sleep 3600
 orstatus-stats.sh /tmp/orstatus
