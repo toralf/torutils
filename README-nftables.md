@@ -4,10 +4,10 @@
 
 Few tools for a Tor relay.
 
-## DDoS protection
-
 This guide is about the _nftables_ variant.
 For _iptables_ (the scripted solution) proceed with [README-iptables.md](./README-iptables.md).
+
+## DDoS protection
 
 Protect a linux system against DDoS attacks ¹ at [network level](https://thermalcircle.de/doku.php?id=blog:linux:nftables_packet_flow_netfilter_hooks_detail)
 as seen in this example:

@@ -4,10 +4,10 @@
 
 Few tools for a Tor relay.
 
-## Block DDoS
-
 This guide is about the _iptables_ variant (the scripted solution).
 For _nftables_ proceed with [README-nftables.md](./README-nftables.md).
+
+## Block DDoS
 
 The scripts [ipv4-rules.sh](./ipv4-rules.sh) and [ipv6-rules.sh](./ipv6-rules.sh) protect a Tor relay
 against DDoS ingress attacks ¹ at the IP [network](https://upload.wikimedia.org/wikipedia/commons/3/37/Netfilter-packet-flow.svg) layer, as seen in this metrics:
