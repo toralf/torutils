@@ -228,6 +228,7 @@ Please file issues at [this](https://github.com/toralf/torutils/issues) tracker.
 
 # More
 
-I use [this](https://github.com/toralf/tor-relays/) project to maintain Tor relays, bridges, Snowflake standalone proxies.
+I use [this](https://github.com/toralf/tor-relays/) project to maintain Tor relays, bridges
+and Snowflake standalone proxies.
 Furthermore, I use it for compile-tests of upcoming Linux kernels.
 And, it is the origin of the nftables variant of the ruleset.
