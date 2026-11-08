@@ -29,9 +29,6 @@ Further considerations:
 - never touch established connections
 - avoid overblock
 
-The protection is provided at the network level for the system where the ruleset runs.
-And, the protection is provided at application level for the Tor network.
-
 ### Quick start
 
 Install _ipset_ and _iptables_, e.g. for Debian OS family:
