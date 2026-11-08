@@ -51,24 +51,23 @@ nft -f <file>
 
 If the Tor server works as expected - enjoy it.
 Persist the ruleset in _/etc/nftables.conf_ (make a backup before).
-
 If something went wrong then restore the backup.
 Check the [Configuration](#configuration) section for more info before.
 
 ### The Rule Set
 
-1. trust the connection attempt from a Tor authority node
+1. trust a connection attempt from a Tor authority node
 2. block the source¹ for 24 hours if the connection attempt rate exceeds 8/min² within last 5 minutes
 3. block the source¹ for 24 hours if the connection attempt rate exceeds 24/hour within last 2 hours³
 4. ignore the connection attempt if there are already 8 established connections³
 5. accept the connection attempt
 
-The ruleset applies to each running Tor instance of a system separately.
-But the block is effective at that system for all Tor instances.
+The ruleset applies to each Tor instance of a system separately.
+But the block is effective for all Tor instances at a system.
 
-¹ Per default the _source_ is an IPv4 address or a /64 IPv6 address respectively.
+¹ Per default the _source_ is a single IPv4 address or a /64 IPv6 address block respectively.
 
-² Values were discussed in the Tor ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
+² Values were discussed in the ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 
 ³ Avoid overblocking even if the _source_ and/or the local system are rebooted few times in a row.
 
@@ -77,8 +76,8 @@ As time of writing about 0.3% of blocked ip addresses belong to Tor relays.
 
 ### Configuration
 
-If you run more than 1 Tor instance at the same system then add all as [Tor ip address, Tor OR port] pairs
-to the `tor_v4` and `tor_v6` set respectively.
+If you run more than 1 Tor instance at the same system then put all [Tor ip address, Tor OR port] pairs
+into the `tor_v4` and `tor_v6` set respectively yourself.
 For a Snowflake standalone proxy or to configure additional local services use
 [nftables-ingress-full.conf](./nftables-ingress-full.conf) and change it for your needs.
 
@@ -86,13 +85,13 @@ I do tweak certain sysctl settings under _/etc/sysctl.d/_.
 The [generic](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/files/20generic.conf)
 ones are inspired by [KSPP](https://kspp.github.io/Recommended_Settings#sysctls).
 The [packet filter](https://github.com/toralf/tor-relays/blob/main/playbooks/roles/setup_common/tasks/base.yaml#L98)
-settings were derived from metrics and advices from others.
+settings were derived from metrics for my tiny VPS instances and my fat bare metal server.
 
 ### Metrics
 
-The script [metrics-firewall.sh](./metrics-firewall.sh) exports firewall metrics into a Prometheus readable file.
+The script [metrics-firewall.sh](./metrics-firewall.sh) exports firewall metrics into a Prometheus file.
 More details are in [dashboards](./dashboards/README.md).
-I use [node.json](./dashboards/node.json) for the firewall metrics.
+I mainly use the dashboard [node.json](./dashboards/node.json) and [tor-relay.json](./dashboards/tor-relay.json).
 
 ## Avoid abuse complaints / server blocking
 

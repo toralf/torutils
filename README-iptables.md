@@ -91,7 +91,7 @@ and [persist](#persist-the-solution) it.
 The DDoS scripts create generic filter rules for the lo device, ICMP, ssh, DHCP and the [configured](#configuration) services.
 Then the following rule set is applied to prevent DDoS against the Tor port(s):
 
-1. trust any connection attempt from a Tor authority node
+1. trust a connection attempt from a Tor authority node
 2. block the source ¹ for 24 hours if the connection attempt rate from it to the Tor port exceeds
    - 8/min ² within last 2 minutes - or -
    - 24/hour within last hour ³
@@ -102,7 +102,7 @@ The default policy for _INPUT_ is _DROP_.
 
 ¹ _source_ is for IPv4 is a single ip address, for IPv6 a /64 netmask.
 
-² Values were discussed in [ticket 40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
+² Values were discussed in ticket [40636](https://gitlab.torproject.org/tpo/core/tor/-/issues/40636#note_2844146).
 
 ³ No overblocking even if _source_ and/or Tor have a couple of reboots within 1 hour
 
