@@ -1,4 +1,5 @@
 #################### known bugs
+Bug:     /
 #################### protocol warnings
 Attempt by \[scrubbed\] to open a stream
 Client asked me to extend
