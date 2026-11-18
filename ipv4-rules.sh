@@ -125,10 +125,10 @@ function __create_ipset() {
 # getent ahostsv4 snowflake-01.torproject.net. snowflake-02.torproject.net. | awk '{ print $1 }' | sort -uV
 function fill_trustset() {
   (
-    # snowflakes
-    echo 141.212.118.18 193.187.88.42 193.187.88.43 193.187.88.44 193.187.88.45 193.187.88.46
     # Tor authorities
-    echo 45.66.35.11 66.111.2.131 128.31.0.39 131.188.40.189 91.223.231.13 193.23.244.244 199.58.81.140 204.13.164.118 216.218.219.41 217.196.147.77
+   echo 45.66.35.11 66.111.2.131 91.223.231.13 128.31.0.39 131.188.40.189 193.23.244.244 199.58.81.140 204.13.164.118 216.218.219.41 217.196.147.77
+    # snowflakes
+    echo 141.212.118.18 193.187.88.42
   ) |
     xargs -r -n 1 ipset add -exist $trustset
 }
